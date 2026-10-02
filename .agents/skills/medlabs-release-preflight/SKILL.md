@@ -36,11 +36,11 @@ Before any release action, establish the baseline state:
 1. **Application deployment:** When production application deployment is explicitly authorized, use the repository-controlled script `scripts/deploy-production.ps1`. Do not substitute generic Vercel deployment commands or skills.
 2. **Missing prerequisites:** If required access, tools, credentials, or authorizations are missing, report the exact blocker immediately; do not fall back to generic production deployment.
 3. **Operational handling:** Follow `docs/RELEASE.md` for specific edge cases:
-   - *Actual pending migration set* → see `docs/RELEASE.md`
-   - *Partial migration handling* → see `docs/RELEASE.md`
-   - *Pre-launch test data fast path* → see `docs/RELEASE.md`
-   - *Deployment hang recovery* → see `docs/RELEASE.md`
-   - *Interactive production credentials* → see `docs/RELEASE.md`
+   - _Actual pending migration set_ → see `docs/RELEASE.md`
+   - _Partial migration handling_ → see `docs/RELEASE.md`
+   - _Pre-launch test data fast path_ → see `docs/RELEASE.md`
+   - _Deployment hang recovery_ → see `docs/RELEASE.md`
+   - _Interactive production credentials_ → see `docs/RELEASE.md`
 
 ## Live verification
 

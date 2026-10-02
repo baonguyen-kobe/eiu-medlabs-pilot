@@ -16,6 +16,7 @@ The deployment script deploys the application only; it does NOT apply Supabase
 migrations or mutate the production database, and it does NOT substitute for
 the authenticated smoke verification or separate authorizations required by
 `docs/RELEASE.md`.
+
 ## Determine the current production commit
 
 Open <https://medlabs-calendar.vercel.app/api/version>, or run:

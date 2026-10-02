@@ -1,4 +1,5 @@
 <!-- omp-managed-skill-stack:start -->
+
 # MedLabs Calendar — OMP Workspace Adapter
 
 This workspace delegates directly to canonical MedLabs authorities:
@@ -13,9 +14,11 @@ Local curated skills under `.agents/skills` defined in `SKILLS.md` supersede any
 <!-- omp-managed-skill-stack:end -->
 
 <!-- omp-managed-reference-policy:start -->
+
 Reference repositories are documented in `.omp/REFERENCE_REPOS.md`.
 
 For cross-repository Inventory design:
+
 - Medlabs = implementation/security/design authority
 - eiu-inventory-tracker = generic Inventory feature reference
 - qltbyt-nam-phong = medical equipment lifecycle reference
@@ -25,9 +28,11 @@ Use the smallest relevant evidence set.
 <!-- omp-managed-reference-policy:end -->
 
 <!-- omp-managed-inventory-continuity:start -->
+
 Inventory / Equipment architecture authority lives in `D:\orca\medlabs-OPs`.
 
 Before Inventory planning or implementation, read:
+
 - `D:\orca\medlabs-OPs\CURRENT_STATE.md`
 - `D:\orca\medlabs-OPs\NEXT_ACTION.md`
 - `D:\orca\medlabs-OPs\SESSION_HANDOFF.md`

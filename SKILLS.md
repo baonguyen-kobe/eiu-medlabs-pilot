@@ -13,29 +13,30 @@ and `docs/RELEASE.md`.
 
 ## Core routing
 
-| Situation | Skill |
-| :--- | :--- |
-| Verified root cause or settled exact implementation contract supplied | `medlabs-implement-contract` |
-| Root cause is genuinely unknown | `systematic-debugging` |
-| Supabase Auth/client/platform behavior | `supabase` |
-| SQL/PostgreSQL performance, indexes, locks, schema structure or migration design | `supabase-postgres-best-practices` |
-| RLS, grants, authorization or privileged Supabase database behavior | `supabase` first; `supabase-postgres-best-practices` only as secondary advisory guidance |
-| React/Next.js implementation or performance | `vercel-react-best-practices` |
-| Reusable component API or composition architecture | `vercel-composition-patterns` |
-| Explicit generic UI/UX review | `web-design-guidelines` |
-| Keyboard, focus, semantic HTML, ARIA, screen-reader or WCAG behavior | `accessibility` |
-| Test-first work where TDD materially improves a high-risk behavioral contract | `tdd` |
-| Explicit check for unnecessary abstractions or over-engineering | `ponytail-review` |
-| Vercel Preview explicitly authorized | `medlabs-vercel-preview` |
-| Release/production work explicitly authorized | `medlabs-release-preflight` |
-| Completion and verification reporting | `medlabs-verification-gate` |
-| Unfamiliar architecture, cross-file impact analysis, blast-radius exploration (optional supplement) | `gitnexus-code-intelligence` |
-| Explore candidate feature scope or design options (optional supplement) | `openspec-explore` |
-| Propose cross-cutting, schema, breaking, or durable changes (optional supplement) | `openspec-propose` |
-| Implement approved OpenSpec tasks against effective source (optional supplement) | `openspec-apply-change` |
-| Archive verified OpenSpec change with evidence and limitations (optional supplement) | `openspec-archive-change` |
-| Synchronize specifications across changes (optional supplement) | `openspec-sync-specs` |
-| Update or refine an in-flight OpenSpec proposal (optional supplement) | `openspec-update-change` |
+| Situation                                                                                           | Skill                                                                                    |
+| :-------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
+| Verified root cause or settled exact implementation contract supplied                               | `medlabs-implement-contract`                                                             |
+| Root cause is genuinely unknown                                                                     | `systematic-debugging`                                                                   |
+| Supabase Auth/client/platform behavior                                                              | `supabase`                                                                               |
+| SQL/PostgreSQL performance, indexes, locks, schema structure or migration design                    | `supabase-postgres-best-practices`                                                       |
+| RLS, grants, authorization or privileged Supabase database behavior                                 | `supabase` first; `supabase-postgres-best-practices` only as secondary advisory guidance |
+| React/Next.js implementation or performance                                                         | `vercel-react-best-practices`                                                            |
+| Reusable component API or composition architecture                                                  | `vercel-composition-patterns`                                                            |
+| Explicit generic UI/UX review                                                                       | `web-design-guidelines`                                                                  |
+| Keyboard, focus, semantic HTML, ARIA, screen-reader or WCAG behavior                                | `accessibility`                                                                          |
+| Test-first work where TDD materially improves a high-risk behavioral contract                       | `tdd`                                                                                    |
+| Explicit check for unnecessary abstractions or over-engineering                                     | `ponytail-review`                                                                        |
+| Vercel Preview explicitly authorized                                                                | `medlabs-vercel-preview`                                                                 |
+| Release/production work explicitly authorized                                                       | `medlabs-release-preflight`                                                              |
+| Completion and verification reporting                                                               | `medlabs-verification-gate`                                                              |
+| Unfamiliar architecture, cross-file impact analysis, blast-radius exploration (optional supplement) | `gitnexus-code-intelligence`                                                             |
+| Explore candidate feature scope or design options (optional supplement)                             | `openspec-explore`                                                                       |
+| Propose cross-cutting, schema, breaking, or durable changes (optional supplement)                   | `openspec-propose`                                                                       |
+| Implement approved OpenSpec tasks against effective source (optional supplement)                    | `openspec-apply-change`                                                                  |
+| Archive verified OpenSpec change with evidence and limitations (optional supplement)                | `openspec-archive-change`                                                                |
+| Synchronize specifications across changes (optional supplement)                                     | `openspec-sync-specs`                                                                    |
+| Update or refine an in-flight OpenSpec proposal (optional supplement)                               | `openspec-update-change`                                                                 |
+
 ## Authority boundaries
 
 Skills guide implementation method. They do not redefine MedLabs behavior.
@@ -64,7 +65,7 @@ For release and production, `docs/RELEASE.md` is authoritative.
 
 ### CORE
 
-*Note: A `CORE` designation does not mean loading all core skills at session start. Load skills on demand per task, not merely because the repository uses that technology. Reuse already-read skill content within the same task when files have not changed.*
+_Note: A `CORE` designation does not mean loading all core skills at session start. Load skills on demand per task, not merely because the repository uses that technology. Reuse already-read skill content within the same task when files have not changed._
 
 #### karpathy-coding-heuristics
 
@@ -105,6 +106,7 @@ For release and production, `docs/RELEASE.md` is authoritative.
 - Upstream path: `skills/supabase`
 - Local path: `.agents/skills/supabase`
 - Adaptations: MedLabs repository-first database writes; consult official Supabase documentation when the task depends on platform/API/version behavior; inspect changelog only for upgrades, breaking changes, or version uncertainty (no blanket scans for docs-only edits or verified logic); consult CLI help before unverified commands or flags and reuse same-version help within the task; `get_advisors` fallback only if MCP is actually available and permitted; MCP is optional and never auto-configured; no remote database scratchpad workflow; verification delegates to `medlabs-verification-gate`; independently verified root causes route to `medlabs-implement-contract`.
+
 #### supabase-postgres-best-practices
 
 - Source type: ADAPTED_FROM_UPSTREAM

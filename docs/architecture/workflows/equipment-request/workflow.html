@@ -1,33 +1,288 @@
 <!doctype html>
 <html lang="vi">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Equipment request workflow — EIU MedLabs</title>
-<style>
-:root{color-scheme:light dark;--ink:#303033;--blue:#144069;--gold:#A78656;--canvas:#F8F6F1;--surface:#fff;--danger:#B44425;--success:#52813B;--line:#b8c1c9}*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font:15px "Segoe UI",system-ui,sans-serif}main{max-width:1500px;margin:auto;padding:28px}h1{color:var(--blue);margin:0 0 8px}p{max-width:1000px;line-height:1.55}.legend{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}.tag{padding:5px 9px;border-radius:999px;background:var(--surface);border:1px solid #d7d1c8}.happy{border-color:var(--success)}.exception{border-color:var(--danger)}svg{width:100%;min-width:1080px;height:auto;background:var(--surface);border:1px solid #ddd6cc;border-radius:12px;box-shadow:0 2px 10px #0001}.lane{fill:#f6f1e8}.lane-title{fill:#144069;font-size:16px;font-weight:700}.node{fill:#fff;stroke:#144069;stroke-width:1.5}.decision{fill:#fff8e5;stroke:#A78656;stroke-width:1.5}.terminal{fill:#f1f7ee;stroke:#52813B;stroke-width:1.5}.error{fill:#fff1ee;stroke:#B44425;stroke-width:1.5}.text{fill:#303033;font-size:13px}.small{fill:#56606a;font-size:11px}.arrow{stroke:#144069;stroke-width:1.8;fill:none;marker-end:url(#arrow)}.dash{stroke:#B44425;stroke-dasharray:6 4;stroke-width:1.6;fill:none;marker-end:url(#errorArrow)}
-</style></head><body><main>
-<h1>Equipment request — workflow swimlane</h1><p>Implemented path reconstructed from server actions and Supabase RPCs. Status transitions, locks, authorization, audit, and outbox are database-authoritative.</p>
-<div class="legend"><span class="tag happy">Happy path</span><span class="tag exception">Exception / terminal path</span><span class="tag">Lanes reflect actual responsibility</span></div>
-<svg viewBox="0 0 1360 880" role="img" aria-label="Equipment request workflow swimlane">
-<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#144069"/></marker><marker id="errorArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#B44425"/></marker></defs>
-<rect class="lane" x="0" y="0" width="170" height="880"/><rect class="lane" x="170" y="0" width="250" height="880" opacity=".55"/><rect class="lane" x="420" y="0" width="250" height="880"/><rect class="lane" x="670" y="0" width="300" height="880" opacity=".55"/><rect class="lane" x="970" y="0" width="390" height="880"/>
-<text class="lane-title" x="38" y="34">Registrant / Lecturer</text><text class="lane-title" x="250" y="34">Frontend</text><text class="lane-title" x="485" y="34">Server Action</text><text class="lane-title" x="765" y="34">Database RPC / RLS</text><text class="lane-title" x="1088" y="34">Audit / Notification</text>
-<g class="node"><rect x="28" y="70" width="116" height="58" rx="8"/><text class="text" x="47" y="95">Submit request</text><text class="small" x="44" y="112">schedule + items</text></g>
-<g class="node"><rect x="230" y="70" width="140" height="58" rx="8"/><text class="text" x="246" y="95">Payload validation</text><text class="small" x="246" y="112">UUID, quantity, dates</text></g>
-<g class="node"><rect x="735" y="70" width="170" height="72" rx="8"/><text class="text" x="753" y="95">Create request + items</text><text class="small" x="753" y="112">scope, source, catalog</text><text class="small" x="753" y="127">transaction + row guards</text></g>
-<g class="node"><rect x="1040" y="70" width="210" height="58" rx="8"/><text class="text" x="1060" y="95">Enqueue created / late review</text><text class="small" x="1060" y="112">durable outbox event</text></g>
-<path class="arrow" d="M144 99H230M370 99H735M905 99H1040"/>
-<g class="decision"><path d="M810 185l78 48-78 48-78-48z"/><text class="text" x="769" y="230">Late approval</text><text class="small" x="782" y="247">pending?</text></g><path class="arrow" d="M820 142V185"/>
-<g class="error"><rect x="1035" y="200" width="220" height="62" rx="8"/><text class="text" x="1050" y="226">Manager approves / rejects</text><text class="small" x="1050" y="244">reject blocks progression</text></g><path class="dash" d="M888 233H1035"/>
-<g class="node"><rect x="735" y="315" width="170" height="62" rx="8"/><text class="text" x="754" y="340">Set preparing</text><text class="small" x="754" y="357">staff/admin + scope</text></g><path class="arrow" d="M810 281V315"/>
-<g class="node"><rect x="735" y="430" width="170" height="72" rx="8"/><text class="text" x="750" y="456">Warehouse confirms</text><text class="small" x="750" y="473">handover or return</text><text class="small" x="750" y="488">row locked</text></g><path class="arrow" d="M820 377V430"/>
-<g class="node"><rect x="30" y="430" width="116" height="72" rx="8"/><text class="text" x="45" y="455">Sign PNG receipt</text><text class="small" x="43" y="472">handover / return</text><text class="small" x="43" y="487">registrant or lecturer</text></g>
-<g class="node"><rect x="230" y="430" width="140" height="72" rx="8"/><text class="text" x="247" y="455">Signature checks</text><text class="small" x="247" y="472">size and image shape</text><text class="small" x="247" y="487">action result refresh</text></g>
-<g class="node"><rect x="735" y="550" width="170" height="72" rx="8"/><text class="text" x="752" y="575">Dual confirmation</text><text class="small" x="752" y="592">handover → handed_over</text><text class="small" x="752" y="607">return → completed</text></g>
-<path class="arrow" d="M146 466H230M370 466H735M820 502V550M820 502V550"/>
-<g class="node"><rect x="1040" y="550" width="210" height="72" rx="8"/><text class="text" x="1057" y="575">Lifecycle observer</text><text class="small" x="1057" y="592">audit old/new state</text><text class="small" x="1057" y="607">queue recipient notice</text></g><path class="arrow" d="M905 586H1040"/>
-<g class="terminal"><rect x="735" y="690" width="170" height="58" rx="8"/><text class="text" x="775" y="717">Completed</text><text class="small" x="752" y="734">both return confirmations</text></g><path class="arrow" d="M820 622V690"/>
-<g class="error"><rect x="1015" y="700" width="250" height="62" rx="8"/><text class="text" x="1034" y="726">Cancellation / hard deletion</text><text class="small" x="1034" y="744">policy after handover requires decision</text></g><path class="dash" d="M905 719H1015"/>
-</svg>
-<p><b>Policy boundary:</b> the current soft-cancel RPC permits cancellation after a request is operational. This diagram marks that as a business decision, not an invented restriction.</p>
-</main></body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Equipment request workflow — EIU MedLabs</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --ink: #303033;
+        --blue: #144069;
+        --gold: #a78656;
+        --canvas: #f8f6f1;
+        --surface: #fff;
+        --danger: #b44425;
+        --success: #52813b;
+        --line: #b8c1c9;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font:
+          15px "Segoe UI",
+          system-ui,
+          sans-serif;
+      }
+      main {
+        max-width: 1500px;
+        margin: auto;
+        padding: 28px;
+      }
+      h1 {
+        color: var(--blue);
+        margin: 0 0 8px;
+      }
+      p {
+        max-width: 1000px;
+        line-height: 1.55;
+      }
+      .legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin: 18px 0;
+      }
+      .tag {
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: var(--surface);
+        border: 1px solid #d7d1c8;
+      }
+      .happy {
+        border-color: var(--success);
+      }
+      .exception {
+        border-color: var(--danger);
+      }
+      svg {
+        width: 100%;
+        min-width: 1080px;
+        height: auto;
+        background: var(--surface);
+        border: 1px solid #ddd6cc;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px #0001;
+      }
+      .lane {
+        fill: #f6f1e8;
+      }
+      .lane-title {
+        fill: #144069;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .node {
+        fill: #fff;
+        stroke: #144069;
+        stroke-width: 1.5;
+      }
+      .decision {
+        fill: #fff8e5;
+        stroke: #a78656;
+        stroke-width: 1.5;
+      }
+      .terminal {
+        fill: #f1f7ee;
+        stroke: #52813b;
+        stroke-width: 1.5;
+      }
+      .error {
+        fill: #fff1ee;
+        stroke: #b44425;
+        stroke-width: 1.5;
+      }
+      .text {
+        fill: #303033;
+        font-size: 13px;
+      }
+      .small {
+        fill: #56606a;
+        font-size: 11px;
+      }
+      .arrow {
+        stroke: #144069;
+        stroke-width: 1.8;
+        fill: none;
+        marker-end: url(#arrow);
+      }
+      .dash {
+        stroke: #b44425;
+        stroke-dasharray: 6 4;
+        stroke-width: 1.6;
+        fill: none;
+        marker-end: url(#errorArrow);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Equipment request — workflow swimlane</h1>
+      <p>
+        Implemented path reconstructed from server actions and Supabase RPCs.
+        Status transitions, locks, authorization, audit, and outbox are
+        database-authoritative.
+      </p>
+      <div class="legend">
+        <span class="tag happy">Happy path</span
+        ><span class="tag exception">Exception / terminal path</span
+        ><span class="tag">Lanes reflect actual responsibility</span>
+      </div>
+      <svg
+        viewBox="0 0 1360 880"
+        role="img"
+        aria-label="Equipment request workflow swimlane"
+      >
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="8"
+            markerHeight="8"
+            refX="7"
+            refY="3"
+            orient="auto"
+          >
+            <path d="M0,0 L0,6 L8,3 z" fill="#144069" />
+          </marker>
+          <marker
+            id="errorArrow"
+            markerWidth="8"
+            markerHeight="8"
+            refX="7"
+            refY="3"
+            orient="auto"
+          >
+            <path d="M0,0 L0,6 L8,3 z" fill="#B44425" />
+          </marker>
+        </defs>
+        <rect class="lane" x="0" y="0" width="170" height="880" />
+        <rect
+          class="lane"
+          x="170"
+          y="0"
+          width="250"
+          height="880"
+          opacity=".55"
+        />
+        <rect class="lane" x="420" y="0" width="250" height="880" />
+        <rect
+          class="lane"
+          x="670"
+          y="0"
+          width="300"
+          height="880"
+          opacity=".55"
+        />
+        <rect class="lane" x="970" y="0" width="390" height="880" />
+        <text class="lane-title" x="38" y="34">Registrant / Lecturer</text>
+        <text class="lane-title" x="250" y="34">Frontend</text>
+        <text class="lane-title" x="485" y="34">Server Action</text>
+        <text class="lane-title" x="765" y="34">Database RPC / RLS</text>
+        <text class="lane-title" x="1088" y="34">Audit / Notification</text>
+        <g class="node">
+          <rect x="28" y="70" width="116" height="58" rx="8" />
+          <text class="text" x="47" y="95">Submit request</text>
+          <text class="small" x="44" y="112">schedule + items</text>
+        </g>
+        <g class="node">
+          <rect x="230" y="70" width="140" height="58" rx="8" />
+          <text class="text" x="246" y="95">Payload validation</text>
+          <text class="small" x="246" y="112">UUID, quantity, dates</text>
+        </g>
+        <g class="node">
+          <rect x="735" y="70" width="170" height="72" rx="8" />
+          <text class="text" x="753" y="95">Create request + items</text>
+          <text class="small" x="753" y="112">scope, source, catalog</text>
+          <text class="small" x="753" y="127">transaction + row guards</text>
+        </g>
+        <g class="node">
+          <rect x="1040" y="70" width="210" height="58" rx="8" />
+          <text class="text" x="1060" y="95">
+            Enqueue created / late review
+          </text>
+          <text class="small" x="1060" y="112">durable outbox event</text>
+        </g>
+        <path class="arrow" d="M144 99H230M370 99H735M905 99H1040" />
+        <g class="decision">
+          <path d="M810 185l78 48-78 48-78-48z" />
+          <text class="text" x="769" y="230">Late approval</text>
+          <text class="small" x="782" y="247">pending?</text>
+        </g>
+        <path class="arrow" d="M820 142V185" />
+        <g class="error">
+          <rect x="1035" y="200" width="220" height="62" rx="8" />
+          <text class="text" x="1050" y="226">Manager approves / rejects</text>
+          <text class="small" x="1050" y="244">reject blocks progression</text>
+        </g>
+        <path class="dash" d="M888 233H1035" />
+        <g class="node">
+          <rect x="735" y="315" width="170" height="62" rx="8" />
+          <text class="text" x="754" y="340">Set preparing</text>
+          <text class="small" x="754" y="357">staff/admin + scope</text>
+        </g>
+        <path class="arrow" d="M810 281V315" />
+        <g class="node">
+          <rect x="735" y="430" width="170" height="72" rx="8" />
+          <text class="text" x="750" y="456">Warehouse confirms</text>
+          <text class="small" x="750" y="473">handover or return</text>
+          <text class="small" x="750" y="488">row locked</text>
+        </g>
+        <path class="arrow" d="M820 377V430" />
+        <g class="node">
+          <rect x="30" y="430" width="116" height="72" rx="8" />
+          <text class="text" x="45" y="455">Sign PNG receipt</text>
+          <text class="small" x="43" y="472">handover / return</text>
+          <text class="small" x="43" y="487">registrant or lecturer</text>
+        </g>
+        <g class="node">
+          <rect x="230" y="430" width="140" height="72" rx="8" />
+          <text class="text" x="247" y="455">Signature checks</text>
+          <text class="small" x="247" y="472">size and image shape</text>
+          <text class="small" x="247" y="487">action result refresh</text>
+        </g>
+        <g class="node">
+          <rect x="735" y="550" width="170" height="72" rx="8" />
+          <text class="text" x="752" y="575">Dual confirmation</text>
+          <text class="small" x="752" y="592">handover → handed_over</text>
+          <text class="small" x="752" y="607">return → completed</text>
+        </g>
+        <path
+          class="arrow"
+          d="M146 466H230M370 466H735M820 502V550M820 502V550"
+        />
+        <g class="node">
+          <rect x="1040" y="550" width="210" height="72" rx="8" />
+          <text class="text" x="1057" y="575">Lifecycle observer</text>
+          <text class="small" x="1057" y="592">audit old/new state</text>
+          <text class="small" x="1057" y="607">queue recipient notice</text>
+        </g>
+        <path class="arrow" d="M905 586H1040" />
+        <g class="terminal">
+          <rect x="735" y="690" width="170" height="58" rx="8" />
+          <text class="text" x="775" y="717">Completed</text>
+          <text class="small" x="752" y="734">both return confirmations</text>
+        </g>
+        <path class="arrow" d="M820 622V690" />
+        <g class="error">
+          <rect x="1015" y="700" width="250" height="62" rx="8" />
+          <text class="text" x="1034" y="726">
+            Cancellation / hard deletion
+          </text>
+          <text class="small" x="1034" y="744">
+            policy after handover requires decision
+          </text>
+        </g>
+        <path class="dash" d="M905 719H1015" />
+      </svg>
+      <p>
+        <b>Policy boundary:</b> the current soft-cancel RPC permits cancellation
+        after a request is operational. This diagram marks that as a business
+        decision, not an invented restriction.
+      </p>
+    </main>
+  </body>
+</html>

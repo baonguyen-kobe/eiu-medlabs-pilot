@@ -11,7 +11,9 @@ Use GitNexus for structural code intelligence, dependency mapping, impact analys
 ## When to Use GitNexus
 
 ### BEFORE Editing
+
 Use GitNexus before editing when:
+
 - Architecture is unfamiliar
 - Shared APIs or types are changing
 - Database access is shared across modules
@@ -21,20 +23,26 @@ Use GitNexus before editing when:
 - Integration between EIU Medlabs and another repository is being planned
 
 ### AFTER Editing
+
 Use GitNexus after meaningful cross-file edits when helpful:
+
 - Run `detect_changes` or symbol impact checks to find affected execution flows and identify which targeted verification checks to run.
 - Code graphs provide structural dependency intelligence; they do NOT prove runtime correctness or that code is free of defects. Runtime correctness requires targeted behavioral checks.
 
 ### Multi-Repository MCP Routing
+
 When the GitNexus MCP instance indexes multiple repositories (check via `list_repos`):
+
 - Always pass `repo: "eiu-medlabs"` (or the exact indexed workspace path if name is ambiguous) explicitly in tool calls.
 - Do not assume the MCP server automatically routes to CWD.
 - Do not query or modify other repositories unless explicitly requested.
+
 ## Targeted Tool Usage
 
 Prefer the smallest necessary operation. Do NOT call all tools.
 
 Available targeted tools:
+
 - `list_repos`: List indexed repositories
 - `query`: Search execution flows related to a concept
 - `context`: 360-degree view of a single code symbol
@@ -47,6 +55,7 @@ Available targeted tools:
 ## When NOT to Use GitNexus
 
 Do NOT use GitNexus for:
+
 - Typo fixes
 - Isolated label or string changes
 - Obvious constants
@@ -56,7 +65,9 @@ Do NOT use GitNexus for:
 ## Index Maintenance
 
 If an index refresh is needed, run ONLY:
+
 ```powershell
 gitnexus analyze --index-only
 ```
+
 Never refresh using plain `gitnexus analyze` to avoid generating unwanted agent files.
