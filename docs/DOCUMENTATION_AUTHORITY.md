@@ -1,6 +1,6 @@
 # Documentation Authority and Precedence
 
-This document defines the canonical documentation hierarchy, authority order, repository ownership, runtime contracts, and tool navigation policy for MedLabs Calendar (`eiu-medlabs`).
+This document defines documentation precedence and repository ownership for the isolated MedLabs pilot (`eiu-medlabs-pilot`). Original MedLabs remains the platform/security reference, not this workspace's writable delivery target.
 
 ---
 
@@ -128,23 +128,17 @@ Historical evidence may explain why a decision was made, but it cannot override:
 
 ## 2. Repository and Branch Ownership
 
-- **Canonical MedLabs Repository:** `baonguyen-kobe/eiu-medlabs`
-- **Canonical Delivery Remote:** `origin`
-- **Active Integration Branch:** `ui-modernization`
-- **Release / Production Delivery Branch:** `main`
-- **Frozen Historical Modernization Source:**
-  `baonguyen1301/eiu-medlabs@e42b2ed6cbd89bb080a2c74d62f659560207b792`
-  - Retained as historical modernization source and Git history reference.
-  - It is no longer the active MedLabs feature-delivery target.
-  - No new MedLabs feature delivery should be performed there after promotion.
+- **Canonical pilot implementation:** `baonguyen-kobe/eiu-medlabs-pilot`.
+- **Pilot delivery remote / branch:** `origin` / `main`; bootstrap `e8024212edd4b9c179055ad5c9490832f42944ea`.
+- **Original application reference:** `upstream` = `baonguyen-kobe/eiu-medlabs`, fetch/reference only; local push URL intentionally disabled.
+- **Inventory architecture/design authority:** `D:/orca/medlabs-OPs` current state, decisions, requirements, master roadmap and approved Page/Data/DB/D2 contracts. Do not copy that entire control plane into this repository.
+- **Pilot review supplement:** [Inventory reconciliation](architecture/INVENTORY_PILOT_RECONCILIATION.md); current entry points link to it and the control plane rather than maintaining conflicting full plans.
+- **Equipment contract reference:** pinned original `ui-modernization@b8467835c28f279f7182781c8ce3c96220a27dc7`; business decisions may be reconciled without merging its source/UI.
+- **Historical modernization source:** `baonguyen1301/eiu-medlabs@e42b2ed6cbd89bb080a2c74d62f659560207b792`, reference only.
 
-`ui-modernization` in `baonguyen-kobe/eiu-medlabs` is the canonical integration
-branch after promotion.
+Pilot `main` is not proof of a production release. Original application's integration/release branches do not become pilot deployment authorization. No merge, push upstream, database mutation, domain switch, production replacement or deployment is authorized by this topology or by a review document.
 
-`main` remains the canonical release/deployment branch.
-
-Promotion into `ui-modernization` does not authorize merging to `main`,
-database mutation, production migration, or production deployment.
+The dated August Inventory source-of-truth snapshot is immutable historical evidence, not the current contract. Preserve it; newer canonical decisions and explicit owner choices supersede conflicting policy. Review acceptance of a proposal is distinct from owner approval of detailed design and scoped implementation.
 
 ---
 

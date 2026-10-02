@@ -1,5 +1,7 @@
 # Phase 3 — Inventory Foundation Implementation Plan
 
+> **SUPERSEDED PLANNING BASELINE — 2026-10-02.** Retained as historical analysis, not a current implementation contract. Use [pilot reconciliation](INVENTORY_PILOT_RECONCILIATION.md), [current roadmap entry](MASTER_ROADMAP.md), and canonical `D:/orca/medlabs-OPs` designs. Forced single-source, operational delete/reinsert with nullable FK, blanket unresolved delivery, and the old slice order below are superseded. Q1–Q10/F1–F3 are settled within their scope; exact Page/DB/RPC design remains UNDER_REVIEW. No feature or migration authorization.
+
 ## 1. Status, Authority, and Scope
 
 **Mode:** planning only. No Phase 3 implementation, schema, migration, generated-type, Auth, RLS, dependency, reference-repository, Git, or deployment change is authorized by this plan.
@@ -58,23 +60,23 @@ New Inventory tables are absent from current schemas, app, components, lib, test
 
 All names are proposed; Slice 0 freezes them before SQL.
 
-| Object | Responsibility | Core fields and relationships | History/deletion rule |
-|---|---|---|---|
-| `inventory_categories` | Inventory classification | UUID, code, name, optional parent, active, timestamps | Unique normalized sibling code; inactivate when referenced. |
-| `inventory_suppliers` | External provenance party | UUID, name, contact, active, notes | Never a personnel table; inactivate after use. |
-| `inventory_catalog_items` | Generic stock/asset definition | UUID, SKU, name, description, category, unit, tracking mode, barcode, preferred supplier, reorder threshold, active | Unique normalized SKU; historical references retain the row. |
-| `inventory_acquisition_records` | External acquisition/contract header | UUID, supplier, contract/reference identifiers/dates, funding source, notes | No PO state machine; correction/audit rather than destructive delete. |
-| `inventory_acquisition_record_lines` | Acquisition item/value/warranty facts | UUID, acquisition record, catalog item, unit cost, quantity, manufacturer/model/origin, warranty terms | Referenced by assets and receipt movements; preserve. |
-| `inventory_storage_locations` | Internal stock hierarchy | UUID, code, name, type, parent, optional `rooms.id`, active | Storage only; no V1 authorization scope. |
-| `inventory_stock_balances` | Transaction-maintained current quantity | UUID, catalog item, storage location, on_hand, reserved, timestamps/version | Unique item/location; no direct UI mutation. |
-| `inventory_stock_movements` | Immutable quantity ledger | UUID, catalog item, signed quantity, movement type, source/destination, correlation, acquisition line/reference, actor, metadata | Append only; reversal is a compensating row. |
-| `equipment_assets` | Canonical serialized physical identity | UUID, stable asset code, catalog item, serial, acquisition line, lifecycle, **issue condition**, location, custodian, stable facts | Lifecycle is sole identity state; issue condition controls V1 handover eligibility; never erase history. |
-| `inventory_shortage_reasons` | Configurable shortage reason reference data | UUID, stable code, display label, active, sort order | Defaults: insufficient stock, currently in use, under maintenance; deactivate, do not delete referenced reasons. |
-| `equipment_request_preparations` | Immutable preparation attempt/history per existing request | UUID, `equipment_request_id`, `attempt_no`, source digest/version, progress state, lock fields, primary preparer, timestamps | Unique request/attempt; one partial-unique current attempt; PREPARED → NEW closes it as reversed and later re-preparation creates a new attempt. |
-| `equipment_request_preparation_requirements` | Reconciled prepared representation of an original request item | UUID, preparation, nullable `source_equipment_request_item_id`, immutable source-line snapshot, prepared quantity, derived shortage, reason, notes, needs-review | `source_equipment_request_item_id` uses `ON DELETE SET NULL`; preserve snapshot/history through existing request-item delete/reinsert edits. |
-| `equipment_request_preparation_allocations` | Actual catalog item/source allocation | UUID, preparation, optional requirement, actual catalog item, source location, quantity, notes | Nullable requirement denotes independent added line; each allocation has one source location. |
-| `equipment_request_preparation_asset_selections` | Draft exact serial choice before PREPARED | UUID, allocation, asset, selected by/time | Draft selection only; transition converts it to reservation. |
-| `inventory_reservations` | Quantity and exact-asset reservation history/state | UUID, allocation, catalog item, source location, optional asset, quantity, state, created/released/consumed facts | One table with structural checks; active rows reserve stock/asset. |
+| Object                                           | Responsibility                                                 | Core fields and relationships                                                                                                                                    | History/deletion rule                                                                                                                            |
+| ------------------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `inventory_categories`                           | Inventory classification                                       | UUID, code, name, optional parent, active, timestamps                                                                                                            | Unique normalized sibling code; inactivate when referenced.                                                                                      |
+| `inventory_suppliers`                            | External provenance party                                      | UUID, name, contact, active, notes                                                                                                                               | Never a personnel table; inactivate after use.                                                                                                   |
+| `inventory_catalog_items`                        | Generic stock/asset definition                                 | UUID, SKU, name, description, category, unit, tracking mode, barcode, preferred supplier, reorder threshold, active                                              | Unique normalized SKU; historical references retain the row.                                                                                     |
+| `inventory_acquisition_records`                  | External acquisition/contract header                           | UUID, supplier, contract/reference identifiers/dates, funding source, notes                                                                                      | No PO state machine; correction/audit rather than destructive delete.                                                                            |
+| `inventory_acquisition_record_lines`             | Acquisition item/value/warranty facts                          | UUID, acquisition record, catalog item, unit cost, quantity, manufacturer/model/origin, warranty terms                                                           | Referenced by assets and receipt movements; preserve.                                                                                            |
+| `inventory_storage_locations`                    | Internal stock hierarchy                                       | UUID, code, name, type, parent, optional `rooms.id`, active                                                                                                      | Storage only; no V1 authorization scope.                                                                                                         |
+| `inventory_stock_balances`                       | Transaction-maintained current quantity                        | UUID, catalog item, storage location, on_hand, reserved, timestamps/version                                                                                      | Unique item/location; no direct UI mutation.                                                                                                     |
+| `inventory_stock_movements`                      | Immutable quantity ledger                                      | UUID, catalog item, signed quantity, movement type, source/destination, correlation, acquisition line/reference, actor, metadata                                 | Append only; reversal is a compensating row.                                                                                                     |
+| `equipment_assets`                               | Canonical serialized physical identity                         | UUID, stable asset code, catalog item, serial, acquisition line, lifecycle, **issue condition**, location, custodian, stable facts                               | Lifecycle is sole identity state; issue condition controls V1 handover eligibility; never erase history.                                         |
+| `inventory_shortage_reasons`                     | Configurable shortage reason reference data                    | UUID, stable code, display label, active, sort order                                                                                                             | Defaults: insufficient stock, currently in use, under maintenance; deactivate, do not delete referenced reasons.                                 |
+| `equipment_request_preparations`                 | Immutable preparation attempt/history per existing request     | UUID, `equipment_request_id`, `attempt_no`, source digest/version, progress state, lock fields, primary preparer, timestamps                                     | Unique request/attempt; one partial-unique current attempt; PREPARED → NEW closes it as reversed and later re-preparation creates a new attempt. |
+| `equipment_request_preparation_requirements`     | Reconciled prepared representation of an original request item | UUID, preparation, nullable `source_equipment_request_item_id`, immutable source-line snapshot, prepared quantity, derived shortage, reason, notes, needs-review | `source_equipment_request_item_id` uses `ON DELETE SET NULL`; preserve snapshot/history through existing request-item delete/reinsert edits.     |
+| `equipment_request_preparation_allocations`      | Actual catalog item/source allocation                          | UUID, preparation, optional requirement, actual catalog item, source location, quantity, notes                                                                   | Nullable requirement denotes independent added line; each allocation has one source location.                                                    |
+| `equipment_request_preparation_asset_selections` | Draft exact serial choice before PREPARED                      | UUID, allocation, asset, selected by/time                                                                                                                        | Draft selection only; transition converts it to reservation.                                                                                     |
+| `inventory_reservations`                         | Quantity and exact-asset reservation history/state             | UUID, allocation, catalog item, source location, optional asset, quantity, state, created/released/consumed facts                                                | One table with structural checks; active rows reserve stock/asset.                                                                               |
 
 No `inventory_requests`, `inventory_request_lines`, `inventory_permission_grants`, `inventory_purchase_orders`, or `inventory_purchase_order_lines` are part of Phase 3.
 
@@ -147,16 +149,16 @@ Checks: all quantities integer/nonnegative; `reserved_quantity <= on_hand_quanti
 
 Use signed `quantity_delta`, never a mutable movement direction field:
 
-| Type | Delta | Source/destination | V1 use |
-|---|---:|---|---|
-| `receive` | positive | destination required | Receipt into stock with optional acquisition line. |
-| `adjustment_in` | positive | destination required | Audited correction. |
-| `adjustment_out` | negative | source required | Audited correction. |
-| `transfer_out` | negative | source required | One side of stock-location transfer. |
-| `transfer_in` | positive | destination required | Other correlated transfer side. |
-| `reversal` | signed opposite | mirrors original reference | Compensating historical correction. |
-| `issue` | negative | future delivery | Reserved for Phase 4; not implemented now. |
-| `return` | positive | future return | Reserved for Phase 4; not implemented now. |
+| Type             |           Delta | Source/destination         | V1 use                                             |
+| ---------------- | --------------: | -------------------------- | -------------------------------------------------- |
+| `receive`        |        positive | destination required       | Receipt into stock with optional acquisition line. |
+| `adjustment_in`  |        positive | destination required       | Audited correction.                                |
+| `adjustment_out` |        negative | source required            | Audited correction.                                |
+| `transfer_out`   |        negative | source required            | One side of stock-location transfer.               |
+| `transfer_in`    |        positive | destination required       | Other correlated transfer side.                    |
+| `reversal`       | signed opposite | mirrors original reference | Compensating historical correction.                |
+| `issue`          |        negative | future delivery            | Reserved for Phase 4; not implemented now.         |
+| `return`         |        positive | future return              | Reserved for Phase 4; not implemented now.         |
 
 Movement fields: UUID, catalog item, quantity delta, type, source/destination location, transfer/reversal correlation UUID, optional acquisition line, external/domain reference type/id, actor profile, occurred timestamp, immutable metadata, optional balance-before/after snapshots. Index item/time, source/time, destination/time, correlation, actor/time, and reference type/id/time.
 
@@ -230,17 +232,17 @@ Add `private.guard_inventory_prepared_status_transition` on `equipment_requests`
 
 ## 9. Controlled Operations
 
-| Operation | Boundary | Reason |
-|---|---|---|
-| Category/catalog/supplier/location/acquisition CRUD | Authenticated server action invoking one reference-data RPC, plus RLS | The RPC performs mutation and audit in one database transaction; server action only authenticates, validates request shape, invokes RPC, and revalidates UI. |
-| Receive | Controlled database RPC | Locks balance; inserts movement and audit atomically. |
-| Adjustment | Controlled database RPC | Locks balance; validates nonnegative result and reason; writes movement/audit atomically. |
-| Stock transfer | Controlled database RPC | Deterministically locks two balances; writes both balances/movements/audit atomically. |
-| Asset registration/edit/lifecycle | Server action for simple facts; controlled RPC for any coupled state/history update | Unique asset/serial and audit requirements. |
-| QR lookup/eligibility | Authenticated server action or `SECURITY INVOKER` read function | Reads a stable code and contextual availability; does not reserve. |
-| Preparation draft save/lock | Controlled RPC | Locks preparation row, writes source digest/review flags/history atomically. |
-| NEW → PREPARED | Controlled database RPC | Multi-row validation, balance locking, reservations, status, audit/outbox must commit or roll back together. |
-| PREPARED → NEW | Controlled database RPC | Releases reservations, preserves history, validates/coordinates compensating transfer requirement. |
+| Operation                                           | Boundary                                                                            | Reason                                                                                                                                                       |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Category/catalog/supplier/location/acquisition CRUD | Authenticated server action invoking one reference-data RPC, plus RLS               | The RPC performs mutation and audit in one database transaction; server action only authenticates, validates request shape, invokes RPC, and revalidates UI. |
+| Receive                                             | Controlled database RPC                                                             | Locks balance; inserts movement and audit atomically.                                                                                                        |
+| Adjustment                                          | Controlled database RPC                                                             | Locks balance; validates nonnegative result and reason; writes movement/audit atomically.                                                                    |
+| Stock transfer                                      | Controlled database RPC                                                             | Deterministically locks two balances; writes both balances/movements/audit atomically.                                                                       |
+| Asset registration/edit/lifecycle                   | Server action for simple facts; controlled RPC for any coupled state/history update | Unique asset/serial and audit requirements.                                                                                                                  |
+| QR lookup/eligibility                               | Authenticated server action or `SECURITY INVOKER` read function                     | Reads a stable code and contextual availability; does not reserve.                                                                                           |
+| Preparation draft save/lock                         | Controlled RPC                                                                      | Locks preparation row, writes source digest/review flags/history atomically.                                                                                 |
+| NEW → PREPARED                                      | Controlled database RPC                                                             | Multi-row validation, balance locking, reservations, status, audit/outbox must commit or roll back together.                                                 |
+| PREPARED → NEW                                      | Controlled database RPC                                                             | Releases reservations, preserves history, validates/coordinates compensating transfer requirement.                                                           |
 
 ### 9.1 Receive and adjustment
 
@@ -280,14 +282,14 @@ Add narrow private helpers following `private.is_active_user()` and `private.has
 
 Do not create permission-grant tables. Every Inventory table has RLS enabled and policies explicitly target authenticated users with helper predicates. `TO authenticated` alone is insufficient.
 
-| Object group | SELECT | Insert/update/delete | UI |
-|---|---|---|---|
-| Categories/catalog/suppliers/locations | Admin/Staff | Reference-data RPC performs create/edit atomically with audit; Admin-only inactivation of referenced configuration | Staff/Admin list/manage; destructive/config-sensitive control Admin-only. |
-| Acquisition records/lines | Admin/Staff read | Admin reference-data RPC creates/edits/corrects atomically with audit; Staff selects existing provenance for receive | Admin configuration UI; Staff read/select. |
-| Balances/movements/reservations | Admin/Staff read | Direct client mutation revoked; controlled RPC only | Operational read history, action controls by role. |
-| Assets | Admin/Staff read | Admin/Staff registration/edit operation; Admin lifecycle or issue-condition sensitive operation; all coupled history/audit is transactional | Staff operational asset UI; Admin retirement/disposal controls. |
-| Shortage reasons | Admin/Staff read | Admin-only manage/inactivate | Staff selection; Admin settings. |
-| Preparation objects/selections | Admin/Staff read for allowed request scope | Controlled draft/transition RPC only | Shared queue/preparation; Admin lock override/transfer. |
+| Object group                           | SELECT                                     | Insert/update/delete                                                                                                                        | UI                                                                        |
+| -------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Categories/catalog/suppliers/locations | Admin/Staff                                | Reference-data RPC performs create/edit atomically with audit; Admin-only inactivation of referenced configuration                          | Staff/Admin list/manage; destructive/config-sensitive control Admin-only. |
+| Acquisition records/lines              | Admin/Staff read                           | Admin reference-data RPC creates/edits/corrects atomically with audit; Staff selects existing provenance for receive                        | Admin configuration UI; Staff read/select.                                |
+| Balances/movements/reservations        | Admin/Staff read                           | Direct client mutation revoked; controlled RPC only                                                                                         | Operational read history, action controls by role.                        |
+| Assets                                 | Admin/Staff read                           | Admin/Staff registration/edit operation; Admin lifecycle or issue-condition sensitive operation; all coupled history/audit is transactional | Staff operational asset UI; Admin retirement/disposal controls.           |
+| Shortage reasons                       | Admin/Staff read                           | Admin-only manage/inactivate                                                                                                                | Staff selection; Admin settings.                                          |
+| Preparation objects/selections         | Admin/Staff read for allowed request scope | Controlled draft/transition RPC only                                                                                                        | Shared queue/preparation; Admin lock override/transfer.                   |
 
 Existing request-domain policies remain unchanged initially. Slice 6 adds only an Inventory fulfillment path around the existing request, then verifies Skills/Basic Medical isolation.
 
@@ -301,15 +303,15 @@ Use `email_outbox_events` at PREPARED status transition and near-pickup warning 
 
 ## 12. Next.js Module Plan
 
-| Area | Server/page/query | Action/interaction | Tests |
-|---|---|---|---|
-| `/inventory` | Server page gets viewer and summary/read links through `WorkspaceShell` | No client data store | Access redirect/visibility. |
-| `/inventory/catalog` | Server query categories/catalog | Server actions for reference data; client form/table/dialog only for interaction | Admin/Staff behavior; inactive handling. |
-| `/inventory/suppliers` | Server query suppliers/provenance lookup | Supplier/provenance actions | Role/config tests. |
-| `/inventory/locations` | Server hierarchy query | Location actions, cycle/error display | Hierarchy/inactivation tests. |
-| `/inventory/stock` | Server balance/movement read model | Receive/adjust/transfer client dialogs invoke actions/RPC wrappers | Ledger/rollback tracer. |
-| `/inventory/assets` and `/inventory/assets/[assetId]` | Server list/detail | Asset create/edit, code lookup; QR scanner client boundary | Asset uniqueness/QR eligibility. |
-| Existing equipment request detail | Extend existing request detail with Preparation tab | Draft save, lock, allocation, QR select, PREPARED/reversal actions | NEW → PREPARED tracer. |
+| Area                                                  | Server/page/query                                                       | Action/interaction                                                               | Tests                                    |
+| ----------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
+| `/inventory`                                          | Server page gets viewer and summary/read links through `WorkspaceShell` | No client data store                                                             | Access redirect/visibility.              |
+| `/inventory/catalog`                                  | Server query categories/catalog                                         | Server actions for reference data; client form/table/dialog only for interaction | Admin/Staff behavior; inactive handling. |
+| `/inventory/suppliers`                                | Server query suppliers/provenance lookup                                | Supplier/provenance actions                                                      | Role/config tests.                       |
+| `/inventory/locations`                                | Server hierarchy query                                                  | Location actions, cycle/error display                                            | Hierarchy/inactivation tests.            |
+| `/inventory/stock`                                    | Server balance/movement read model                                      | Receive/adjust/transfer client dialogs invoke actions/RPC wrappers               | Ledger/rollback tracer.                  |
+| `/inventory/assets` and `/inventory/assets/[assetId]` | Server list/detail                                                      | Asset create/edit, code lookup; QR scanner client boundary                       | Asset uniqueness/QR eligibility.         |
+| Existing equipment request detail                     | Extend existing request detail with Preparation tab                     | Draft save, lock, allocation, QR select, PREPARED/reversal actions               | NEW → PREPARED tracer.                   |
 
 Server pages start independent viewer/data promises early and use `Promise.all`; client components receive only needed serialized DTOs; no mutable module state. Use existing Medlabs table/form/dialog visual patterns and `WorkspaceShell`; do not port TanStack Router.
 
@@ -361,9 +363,11 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - Admin/Staff Inventory route/UI behavior and denied-role redirects;
 - catalog, stock, transfer, and asset-code/QR eligibility tracers;
 - final E2E: existing Medlabs request → preparation → stock/asset selection → reservation → persisted `preparing` / business PREPARED; no delivery.
+
 ## 15. Seven-Slice Implementation Plan
 
 ### Slice 0 — Foundation specification / acceptance freeze
+
 - **GOAL:** Freeze exact contract/status compatibility before feature code.
 - **BUSINESS REQUIREMENTS:** Both tracking branches; no PO/generic request; NEW → PREPARED only; notification ambiguity preserved.
 - **SCHEMA CHANGES:** None.
@@ -379,6 +383,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** This plan, OpenSpec, test fixture plan.
 
 ### Slice 1 — Access + catalog foundation
+
 - **GOAL:** Create Admin/Staff reference-data foundation.
 - **BUSINESS REQUIREMENTS:** Catalog, suppliers, acquisition provenance; no procurement.
 - **SCHEMA CHANGES:** Auth helpers; categories, suppliers, catalog, acquisition headers/lines, shortage reasons.
@@ -394,6 +399,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** New schemas, generated migrations/types, inventory actions/routes/components/tests.
 
 ### Slice 2 — Storage + stock ledger
+
 - **GOAL:** Prove reliable quantity stock.
 - **BUSINESS REQUIREMENTS:** Locations, source stock, receive, adjustment, immutable history.
 - **SCHEMA CHANGES:** Locations, balances, movements.
@@ -409,6 +415,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** Inventory schemas/actions/routes/components/DB tests.
 
 ### Slice 3 — Stock-location transfer
+
 - **GOAL:** Support the preparation transfer prerequisite.
 - **BUSINESS REQUIREMENTS:** Final pickup/source stock; no in-transit state.
 - **SCHEMA CHANGES:** Correlation fields/index if absent.
@@ -424,6 +431,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** Stock RPC/action/UI/tests.
 
 ### Slice 4 — Serialized asset registry
+
 - **GOAL:** Establish canonical physical identity without legacy migration.
 - **BUSINESS REQUIREMENTS:** Code/serial, provenance, lifecycle, location/custodian.
 - **SCHEMA CHANGES:** `equipment_assets` with lifecycle-as-identity and orthogonal `issue_condition`, plus indexes.
@@ -439,6 +447,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** Asset schema/actions/routes/components/tests.
 
 ### Slice 5 — QR + reservation foundation
+
 - **GOAL:** Establish safe reservation primitives without activating full request-preparation UI.
 - **BUSINESS REQUIREMENTS:** QR/code eligibility, quantity/exact-asset reservation, no double allocation.
 - **SCHEMA CHANGES:** Minimal preparation header, snapshot requirement, allocation, draft selection, reservation tables; stored balance reservation quantity; guarded `new ↔ preparing` compatibility path.
@@ -454,6 +463,7 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **FILES / AREAS LIKELY TO CHANGE:** Reservation/preparation schemas, RPCs/actions, scanner component, request-status guards, tests.
 
 ### Slice 6 — Existing request → Inventory preparation
+
 - **GOAL:** Activate approved NEW → PREPARED fulfillment planning on Slice 5 primitives.
 - **BUSINESS REQUIREMENTS:** Original demand, progress/lock, shortages/reasons, independent lines, transfer prerequisite, QR selection, reservations, concurrency, reversal.
 - **SCHEMA CHANGES:** Source-change invalidation/reconciliation wiring if not completed in Slice 5; no new reservation primitives.
@@ -467,40 +477,41 @@ Slices 1–4 are independently deployable. Slice 5 depends on balances/assets. S
 - **OUT OF SCOPE:** PARTIALLY_DELIVERED, DELIVERED, RETURN, issue movements, recipient signatures.
 - **COMPLETION CRITERIA:** End-to-end request → preparation → reservation → persisted `preparing`/business PREPARED passes; no caller can bypass reservation create/release.
 - **FILES / AREAS LIKELY TO CHANGE:** Request schemas/RPCs/actions, request detail/list UI, outbox integration, DB/app/E2E tests.
+
 ## 16. Live Supabase Verification Gate
 
-| Stage | Required |
-|---|---|
-| Not required for this plan | Secrets, production connection, production row counts, deployed users, live bucket inspection. |
-| Before local implementation | Local Supabase running, declarative schema baseline/reset, fixture profiles/roles, generated types, local RLS/grants/functions, test data, schema diff. |
-| Before staging | Staging migration version, isolated fixtures, RLS/revoked grants, generated types, migration/reversal smoke tests, outbox behavior. |
-| Before production | Backup/rollback plan, deployed migration history, profile/role population, collision preflight, current policies/functions/grants, deployment order, smoke checks. |
+| Stage                       | Required                                                                                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Not required for this plan  | Secrets, production connection, production row counts, deployed users, live bucket inspection.                                                                     |
+| Before local implementation | Local Supabase running, declarative schema baseline/reset, fixture profiles/roles, generated types, local RLS/grants/functions, test data, schema diff.            |
+| Before staging              | Staging migration version, isolated fixtures, RLS/revoked grants, generated types, migration/reversal smoke tests, outbox behavior.                                |
+| Before production           | Backup/rollback plan, deployed migration history, profile/role population, collision preflight, current policies/functions/grants, deployment order, smoke checks. |
 
 ## 17. Ranked Risk Register
 
-| Risk | Rating | Mitigation |
-|---|---|---|
-| Existing domain collision / accidental workflow merge | CRITICAL | Additive tables only; no legacy writes outside Slice 6 fulfillment path; isolation tests. |
-| Balance/reservation race or double PREPARED | CRITICAL | Row locks, stored reserved projection, partial unique asset reservation, single transition RPC, concurrency tests. |
-| Stale requester/preparation overwrite | HIGH | Source digest/review flags, request/preparation locks, stale transition rejection. |
-| Transfer deadlock or negative stock | HIGH | Deterministic lock order, available validation, transaction rollback tests. |
-| RLS leakage or over-engineered grants | HIGH | Reuse active Admin/Staff predicates; explicit policies/grants; denied-role DB tests; no V1 grant framework. |
-| Generated-type drift | MEDIUM | Regenerate only after verified local schema, run typecheck at every slice. |
-| Future canonical asset migration coupling | MEDIUM | No initial legacy migration; external/reference bridge only in Phase 5. |
-| Future service incompatibility | MEDIUM | Asset ID/lifecycle/provenance stable now; normalized future service tables later. |
+| Risk                                                  | Rating   | Mitigation                                                                                                         |
+| ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| Existing domain collision / accidental workflow merge | CRITICAL | Additive tables only; no legacy writes outside Slice 6 fulfillment path; isolation tests.                          |
+| Balance/reservation race or double PREPARED           | CRITICAL | Row locks, stored reserved projection, partial unique asset reservation, single transition RPC, concurrency tests. |
+| Stale requester/preparation overwrite                 | HIGH     | Source digest/review flags, request/preparation locks, stale transition rejection.                                 |
+| Transfer deadlock or negative stock                   | HIGH     | Deterministic lock order, available validation, transaction rollback tests.                                        |
+| RLS leakage or over-engineered grants                 | HIGH     | Reuse active Admin/Staff predicates; explicit policies/grants; denied-role DB tests; no V1 grant framework.        |
+| Generated-type drift                                  | MEDIUM   | Regenerate only after verified local schema, run typecheck at every slice.                                         |
+| Future canonical asset migration coupling             | MEDIUM   | No initial legacy migration; external/reference bridge only in Phase 5.                                            |
+| Future service incompatibility                        | MEDIUM   | Asset ID/lifecycle/provenance stable now; normalized future service tables later.                                  |
 
 ## 18. Open Technical Decisions Requiring Approval
 
-| Decision | Options | Recommendation | Blocks |
-|---|---|---|---|
-| Reservation quantity storage | Stored balance projection vs derived only | Store `reserved_quantity`, retain reservation rows as history/source | Blocks Slice 2/5. |
-| Reservation structure | One checked shared table vs separate quantity/asset tables | One `inventory_reservations` table with strict stock/asset checks | Blocks Slice 5. |
-| Preparation/reservation dependency | Reservations require allocations versus UI preparation arrives in Slice 6 | Create the minimal preparation header/requirement snapshot/allocation/selection schema in Slice 5; Slice 6 activates the full preparation UI/workflow | Blocks Slice 5. |
-| Demand-line stability | Mandatory FK versus current request item delete/reinsert | Use immutable requirement snapshots with nullable `ON DELETE SET NULL` source-item reference and explicit reconciliation/re-review semantics | Blocks Slice 5/6. |
-| Asset-code format | Human sequence vs random stable code | Versioned opaque, non-sequential stable asset code used in QR | Blocks Slice 4/5. |
-| Acquisition relation | Header only vs header+lines | Header plus catalog acquisition lines | Blocks Slice 1. |
-| RPC boundary | All server-action writes vs transaction RPCs | Reference-data actions; database RPCs for multi-row invariants | Blocks Slice 2 onward. |
-| Edit-lock persistence | Header fields vs separate lock table | Header fields plus audit-log lock history | Blocks Slice 6 only. |
+| Decision                           | Options                                                                   | Recommendation                                                                                                                                        | Blocks                 |
+| ---------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Reservation quantity storage       | Stored balance projection vs derived only                                 | Store `reserved_quantity`, retain reservation rows as history/source                                                                                  | Blocks Slice 2/5.      |
+| Reservation structure              | One checked shared table vs separate quantity/asset tables                | One `inventory_reservations` table with strict stock/asset checks                                                                                     | Blocks Slice 5.        |
+| Preparation/reservation dependency | Reservations require allocations versus UI preparation arrives in Slice 6 | Create the minimal preparation header/requirement snapshot/allocation/selection schema in Slice 5; Slice 6 activates the full preparation UI/workflow | Blocks Slice 5.        |
+| Demand-line stability              | Mandatory FK versus current request item delete/reinsert                  | Use immutable requirement snapshots with nullable `ON DELETE SET NULL` source-item reference and explicit reconciliation/re-review semantics          | Blocks Slice 5/6.      |
+| Asset-code format                  | Human sequence vs random stable code                                      | Versioned opaque, non-sequential stable asset code used in QR                                                                                         | Blocks Slice 4/5.      |
+| Acquisition relation               | Header only vs header+lines                                               | Header plus catalog acquisition lines                                                                                                                 | Blocks Slice 1.        |
+| RPC boundary                       | All server-action writes vs transaction RPCs                              | Reference-data actions; database RPCs for multi-row invariants                                                                                        | Blocks Slice 2 onward. |
+| Edit-lock persistence              | Header fields vs separate lock table                                      | Header fields plus audit-log lock history                                                                                                             | Blocks Slice 6 only.   |
 
 ## 19. Phase 3 Readiness
 

@@ -34,6 +34,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      acquisition_record_lines: {
+        Row: {
+          acquisition_record_id: string
+          catalog_item_id: string
+          country_of_origin: string | null
+          created_at: string
+          currency_code: string | null
+          expected_conversion_factor: number | null
+          expected_purchase_quantity: number
+          id: string
+          line_key: string
+          manufacturer: string | null
+          model: string | null
+          notes: string | null
+          purchase_uom_code: string
+          unit_cost: number | null
+          updated_at: string
+          warranty_end: string | null
+          warranty_start: string | null
+        }
+        Insert: {
+          acquisition_record_id: string
+          catalog_item_id: string
+          country_of_origin?: string | null
+          created_at?: string
+          currency_code?: string | null
+          expected_conversion_factor?: number | null
+          expected_purchase_quantity: number
+          id?: string
+          line_key: string
+          manufacturer?: string | null
+          model?: string | null
+          notes?: string | null
+          purchase_uom_code: string
+          unit_cost?: number | null
+          updated_at?: string
+          warranty_end?: string | null
+          warranty_start?: string | null
+        }
+        Update: {
+          acquisition_record_id?: string
+          catalog_item_id?: string
+          country_of_origin?: string | null
+          created_at?: string
+          currency_code?: string | null
+          expected_conversion_factor?: number | null
+          expected_purchase_quantity?: number
+          id?: string
+          line_key?: string
+          manufacturer?: string | null
+          model?: string | null
+          notes?: string | null
+          purchase_uom_code?: string
+          unit_cost?: number | null
+          updated_at?: string
+          warranty_end?: string | null
+          warranty_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_record_lines_acquisition_record_id_fkey"
+            columns: ["acquisition_record_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acquisition_record_lines_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acquisition_record_lines_purchase_uom_code_fkey"
+            columns: ["purchase_uom_code"]
+            isOneToOne: false
+            referencedRelation: "inventory_uoms"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      acquisition_records: {
+        Row: {
+          created_at: string
+          external_reference: string | null
+          funding_source: string | null
+          id: string
+          notes: string | null
+          reference_date: string
+          revision: number
+          source_reference: string
+          status: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          external_reference?: string | null
+          funding_source?: string | null
+          id?: string
+          notes?: string | null
+          reference_date: string
+          revision?: number
+          source_reference: string
+          status?: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          external_reference?: string | null
+          funding_source?: string | null
+          id?: string
+          notes?: string | null
+          reference_date?: string
+          revision?: number
+          source_reference?: string
+          status?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_records_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1386,6 +1518,720 @@ export type Database = {
           },
         ]
       }
+      inventory_catalog_items: {
+        Row: {
+          active: boolean
+          base_uom_code: string
+          category_id: string
+          code: string
+          created_at: string
+          expiry_required: boolean
+          id: string
+          material_kind: string
+          name: string
+          return_semantics: string
+          revision: number
+          tracking_strategy: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          base_uom_code: string
+          category_id: string
+          code: string
+          created_at?: string
+          expiry_required: boolean
+          id?: string
+          material_kind: string
+          name: string
+          return_semantics: string
+          revision?: number
+          tracking_strategy: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          base_uom_code?: string
+          category_id?: string
+          code?: string
+          created_at?: string
+          expiry_required?: boolean
+          id?: string
+          material_kind?: string
+          name?: string
+          return_semantics?: string
+          revision?: number
+          tracking_strategy?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_catalog_items_base_uom_code_fkey"
+            columns: ["base_uom_code"]
+            isOneToOne: false
+            referencedRelation: "inventory_uoms"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "inventory_catalog_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_categories: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          name: string
+          revision: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          revision?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          revision?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_opening_batches: {
+        Row: {
+          count_cutoff: string
+          created_at: string
+          cutover_key: string
+          id: string
+          provenance_note: string
+          scope_description: string
+          synthetic: boolean
+          transaction_id: string
+        }
+        Insert: {
+          count_cutoff: string
+          created_at?: string
+          cutover_key: string
+          id?: string
+          provenance_note: string
+          scope_description: string
+          synthetic: boolean
+          transaction_id: string
+        }
+        Update: {
+          count_cutoff?: string
+          created_at?: string
+          cutover_key?: string
+          id?: string
+          provenance_note?: string
+          scope_description?: string
+          synthetic?: boolean
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_opening_batches_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_opening_scope: {
+        Row: {
+          catalog_item_id: string
+          location_id: string
+          opening_batch_id: string
+        }
+        Insert: {
+          catalog_item_id: string
+          location_id: string
+          opening_batch_id: string
+        }
+        Update: {
+          catalog_item_id?: string
+          location_id?: string
+          opening_batch_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_opening_scope_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_opening_scope_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_opening_scope_opening_batch_id_fkey"
+            columns: ["opening_batch_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_opening_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_operation_replays: {
+        Row: {
+          actor_id: string
+          committed_at: string
+          operation: string
+          payload_hash: string
+          result_ids: Json
+          retry_key: string
+        }
+        Insert: {
+          actor_id: string
+          committed_at?: string
+          operation: string
+          payload_hash: string
+          result_ids: Json
+          retry_key: string
+        }
+        Update: {
+          actor_id?: string
+          committed_at?: string
+          operation?: string
+          payload_hash?: string
+          result_ids?: Json
+          retry_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_operation_replays_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_receipt_cohorts: {
+        Row: {
+          created_at: string
+          current_fact_id: string
+          origin_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_fact_id: string
+          origin_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_fact_id?: string
+          origin_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_receipt_cohorts_origin_fact_fk"
+            columns: ["origin_id", "current_fact_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_stock_facts"
+            referencedColumns: ["origin_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_receipt_cohorts_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_stock_origins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_receipts: {
+        Row: {
+          created_at: string
+          id: string
+          receipt_reference: string
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receipt_reference: string
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receipt_reference?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_receipts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stock_balances: {
+        Row: {
+          cohort_id: string
+          condition: string
+          location_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          cohort_id: string
+          condition: string
+          location_id: string
+          quantity: number
+          updated_at?: string
+        }
+        Update: {
+          cohort_id?: string
+          condition?: string
+          location_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_balances_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipt_cohorts"
+            referencedColumns: ["origin_id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_balances_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stock_facts: {
+        Row: {
+          base_quantity: number
+          base_uom_code: string
+          conversion_factor: number | null
+          created_at: string
+          damaged_quantity: number
+          evidence_note: string | null
+          expiry_date: string | null
+          expiry_input: string | null
+          expiry_precision: string
+          good_quantity: number
+          id: string
+          location_id: string
+          origin_id: string
+          previous_fact_id: string | null
+          purchase_quantity: number | null
+          purchase_uom_code: string | null
+          source_snapshot: Json
+          transaction_id: string
+          version: number
+        }
+        Insert: {
+          base_quantity: number
+          base_uom_code: string
+          conversion_factor?: number | null
+          created_at?: string
+          damaged_quantity: number
+          evidence_note?: string | null
+          expiry_date?: string | null
+          expiry_input?: string | null
+          expiry_precision: string
+          good_quantity: number
+          id?: string
+          location_id: string
+          origin_id: string
+          previous_fact_id?: string | null
+          purchase_quantity?: number | null
+          purchase_uom_code?: string | null
+          source_snapshot?: Json
+          transaction_id: string
+          version: number
+        }
+        Update: {
+          base_quantity?: number
+          base_uom_code?: string
+          conversion_factor?: number | null
+          created_at?: string
+          damaged_quantity?: number
+          evidence_note?: string | null
+          expiry_date?: string | null
+          expiry_input?: string | null
+          expiry_precision?: string
+          good_quantity?: number
+          id?: string
+          location_id?: string
+          origin_id?: string
+          previous_fact_id?: string | null
+          purchase_quantity?: number | null
+          purchase_uom_code?: string | null
+          source_snapshot?: Json
+          transaction_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_facts_base_uom_code_fkey"
+            columns: ["base_uom_code"]
+            isOneToOne: false
+            referencedRelation: "inventory_uoms"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "inventory_stock_facts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_facts_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_stock_origins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_facts_previous_fact_id_fkey"
+            columns: ["previous_fact_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_stock_facts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_facts_purchase_uom_code_fkey"
+            columns: ["purchase_uom_code"]
+            isOneToOne: false
+            referencedRelation: "inventory_uoms"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "inventory_stock_facts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stock_origins: {
+        Row: {
+          catalog_item_id: string
+          created_at: string
+          id: string
+          line_key: string
+          opening_batch_id: string | null
+          provenance_group: string
+          receipt_id: string | null
+          source_line_id: string | null
+        }
+        Insert: {
+          catalog_item_id: string
+          created_at?: string
+          id?: string
+          line_key: string
+          opening_batch_id?: string | null
+          provenance_group: string
+          receipt_id?: string | null
+          source_line_id?: string | null
+        }
+        Update: {
+          catalog_item_id?: string
+          created_at?: string
+          id?: string
+          line_key?: string
+          opening_batch_id?: string | null
+          provenance_group?: string
+          receipt_id?: string | null
+          source_line_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_origins_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_origins_opening_batch_id_fkey"
+            columns: ["opening_batch_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_opening_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_origins_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_origins_source_line_id_fkey"
+            columns: ["source_line_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_record_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_storage_locations: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          name: string
+          parent_location_id: string | null
+          revision: number
+          room_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          parent_location_id?: string | null
+          revision?: number
+          room_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          parent_location_id?: string | null
+          revision?: number
+          room_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_storage_locations_parent_location_id_fkey"
+            columns: ["parent_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_storage_locations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_suppliers: {
+        Row: {
+          active: boolean
+          contact: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          revision: number
+          tax_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          revision?: number
+          tax_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          revision?: number
+          tax_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_transaction_lines: {
+        Row: {
+          catalog_item_id: string
+          cohort_id: string
+          condition: string
+          created_at: string
+          line_no: number
+          location_id: string
+          quantity_delta: number
+          transaction_id: string
+        }
+        Insert: {
+          catalog_item_id: string
+          cohort_id: string
+          condition: string
+          created_at?: string
+          line_no: number
+          location_id: string
+          quantity_delta: number
+          transaction_id: string
+        }
+        Update: {
+          catalog_item_id?: string
+          cohort_id?: string
+          condition?: string
+          created_at?: string
+          line_no?: number
+          location_id?: string
+          quantity_delta?: number
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transaction_lines_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transaction_lines_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipt_cohorts"
+            referencedColumns: ["origin_id"]
+          },
+          {
+            foreignKeyName: "inventory_transaction_lines_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transaction_lines_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_transactions: {
+        Row: {
+          actor_id: string
+          business_key: string
+          corrects_transaction_id: string | null
+          id: string
+          occurred_at: string
+          operation: string
+          posted_at: string
+          reason: string | null
+        }
+        Insert: {
+          actor_id: string
+          business_key: string
+          corrects_transaction_id?: string | null
+          id?: string
+          occurred_at: string
+          operation: string
+          posted_at?: string
+          reason?: string | null
+        }
+        Update: {
+          actor_id?: string
+          business_key?: string
+          corrects_transaction_id?: string | null
+          id?: string
+          occurred_at?: string
+          operation?: string
+          posted_at?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transactions_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_corrects_transaction_id_fkey"
+            columns: ["corrects_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_uoms: {
+        Row: {
+          active: boolean
+          allowed_scale: number
+          code: string
+          created_at: string
+          dimension: string
+          name: string
+          revision: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          allowed_scale?: number
+          code: string
+          created_at?: string
+          dimension: string
+          name: string
+          revision?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          allowed_scale?: number
+          code?: string
+          created_at?: string
+          dimension?: string
+          name?: string
+          revision?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       personnel_auth_reconciliation_logs: {
         Row: {
           created_at: string
@@ -2561,6 +3407,14 @@ export type Database = {
       import_hash_exists: { Args: { target_hash: string }; Returns: boolean }
       invalidate_basic_medical_session_confirmation: {
         Args: { target_confirmation_id: string; target_reason: string }
+        Returns: Json
+      }
+      inventory_command: {
+        Args: { p_operation: string; p_payload: Json; p_retry_key: string }
+        Returns: Json
+      }
+      inventory_read: {
+        Args: { p_filters?: Json; p_resource: string }
         Returns: Json
       }
       list_active_people: {

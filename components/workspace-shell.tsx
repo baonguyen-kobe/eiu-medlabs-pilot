@@ -376,6 +376,77 @@ function buildNavigation(
     });
   }
 
+  // Group 7 — Quản lý Kho & Thiết bị (S1 Inventory)
+  if (isAdmin || isStaff) {
+    const inventoryItems: NavItem[] = [
+      {
+        label: "Tổng quan",
+        href: "/inventory",
+        icon: LayoutDashboard,
+        activeIcon: LayoutDashboardSolid,
+      },
+      {
+        label: "Tồn kho",
+        href: "/inventory/stock",
+        icon: PackageCheck,
+        activeIcon: PackageCheckSolid,
+      },
+      {
+        label: "Vật tư & Danh mục",
+        href: "/inventory/catalog",
+        icon: Settings,
+        activeIcon: SettingsSolid,
+      },
+      {
+        label: "Hồ sơ nguồn",
+        href: "/inventory/acquisitions",
+        icon: ClipboardList,
+        activeIcon: ClipboardListSolid,
+      },
+      {
+        label: "Nhận kho",
+        href: "/inventory/receive",
+        icon: Plus,
+        activeIcon: PlusSolid,
+      },
+    ];
+
+    if (isAdmin) {
+      inventoryItems.push({
+        label: "Tồn đầu kỳ",
+        href: "/inventory/opening",
+        icon: Import,
+        activeIcon: ImportSolid,
+      });
+    }
+
+    inventoryItems.push(
+      {
+        label: "Lịch sử giao dịch",
+        href: "/inventory/transactions",
+        icon: FileClock,
+        activeIcon: FileClockSolid,
+      },
+      {
+        label: "Nhà cung cấp",
+        href: "/inventory/suppliers",
+        icon: Users,
+        activeIcon: UsersSolid,
+      },
+      {
+        label: "Vị trí kho",
+        href: "/inventory/locations",
+        icon: Settings,
+        activeIcon: SettingsSolid,
+      },
+    );
+
+    groups.push({
+      label: "Quản lý Kho & Thiết bị",
+      items: inventoryItems,
+    });
+  }
+
   return groups;
 }
 
@@ -551,6 +622,7 @@ export function WorkspaceShell({
                     const active =
                       pathname === href ||
                       (href !== "/dashboard" &&
+                        href !== "/inventory" &&
                         pathname.startsWith(`${href}/`)) ||
                       Boolean(
                         activeHrefs?.some(

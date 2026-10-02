@@ -12,6 +12,13 @@ export function isWorkspaceManager(roles: AppRole[]) {
   return hasAnyRole(roles, ["admin", "staff"]);
 }
 
+export function canUseInventoryWorkspace(roles: AppRole[]) {
+  return hasAnyRole(roles, ["admin", "staff"]);
+}
+
+export function canManageInventoryAdmin(roles: AppRole[]) {
+  return roles.includes("admin");
+}
 export function canManageBasicMedicalWorkspace(
   roles: AppRole[],
   roomTypeCodes: string[],

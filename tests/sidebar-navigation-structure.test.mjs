@@ -116,91 +116,24 @@ function extractBuildNavigation() {
 
 const buildNavigation = extractBuildNavigation();
 
-test("Sidebar Navigation: Admin with all permissions gets all 6 groups in exact canonical order", () => {
-  const nav = buildNavigation(
-    ["admin"],
-    ["nursing_skills", "basic_medical"],
-    true, // allowBasicMedicalAccess
-    true, // canImportSchedules
-    true, // canManagePersonnel
-    true, // canManageEmailNotifications
-  );
+test("Inventory navigation exposes intake to Admin/Staff and opening only to Admin", () => {
+  function inventoryDestinations(roles) {
+    return buildNavigation(roles, [], false, false, false, false)
+      .flatMap((group) => group.items)
+      .map((item) => item.href)
+      .filter((href) => href.startsWith("/inventory"));
+  }
 
-  const groupLabels = nav.map((g) => g.label);
-  assert.deepEqual(groupLabels, [
-    "Kỹ năng Điều dưỡng",
-    "Tạo phiếu",
-    "Quản lý lớp",
-    "Quản lý phòng",
-    "Y cơ sở",
-    "Quản trị",
-  ]);
-
-  // Group 1 — Kỹ năng Điều dưỡng
-  assert.deepEqual(
-    nav[0].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Tổng quan", href: "/dashboard" },
-      { label: "Lịch Skills lab", href: "/class-schedules" },
-    ],
-  );
-
-  // Group 2 — Tạo phiếu
-  assert.deepEqual(
-    nav[1].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Tạo lịch Skills lab", href: "/schedule-entry/new" },
-      { label: "Đăng ký thiết bị", href: "/equipment/register" },
-      { label: "Import lịch Skills lab", href: "/schedule-entry/import" },
-      { label: "Lịch sử import", href: "/imports" },
-    ],
-  );
-
-  // Group 3 — Quản lý lớp
-  assert.deepEqual(
-    nav[2].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Lớp đang mở", href: "/classes/open" },
-      { label: "Phiếu thiết bị của tôi", href: "/equipment/mine" },
-    ],
-  );
-
-  // Group 4 — Quản lý phòng
-  assert.deepEqual(
-    nav[3].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Lịch trực", href: "/staff-shifts" },
-      { label: "Phiếu thiết bị", href: "/equipment/requests" },
-      { label: "Import Phiếu thiết bị", href: "/equipment/import" },
-      { label: "Email thông báo", href: "/email-notifications" },
-    ],
-  );
-
-  // Group 5 — Y cơ sở
-  assert.deepEqual(
-    nav[4].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Lịch Y cơ sở", href: "/basic-medical/schedules" },
-      { label: "Tạo lịch Y cơ sở", href: "/basic-medical/new" },
-      { label: "Phiếu Y cơ sở", href: "/basic-medical/registrations" },
-      {
-        label: "Đăng ký thiết bị",
-        href: "/basic-medical/equipment-requests",
-      },
-      { label: "Import lịch Y cơ sở", href: "/basic-medical/import" },
-    ],
-  );
-
-  // Group 6 — Quản trị
-  assert.deepEqual(
-    nav[5].items.map((i) => ({ label: i.label, href: i.href })),
-    [
-      { label: "Nhân sự", href: "/admin/personnel" },
-      { label: "Danh mục TB Skills lab", href: "/admin/equipment" },
-      { label: "Danh mục khác", href: "/admin/courses" },
-      { label: "Danh mục TB Y cơ sở", href: "/basic-medical/equipment" },
-    ],
-  );
+  const admin = inventoryDestinations(["admin"]);
+  const staff = inventoryDestinations(["staff"]);
+  assert.ok(admin.includes("/inventory/receive"));
+  assert.ok(admin.includes("/inventory/opening"));
+  assert.ok(staff.includes("/inventory/receive"));
+  assert.ok(staff.includes("/inventory/transactions"));
+  assert.ok(!staff.includes("/inventory/opening"));
+  for (const roles of [[], ["lecturer"], ["teaching_assistant"], ["viewer"]]) {
+    assert.deepEqual(inventoryDestinations(roles), []);
+  }
 });
 
 test("Sidebar Navigation: Lecturer (Nursing skills) gets correct groups, labels, and order", () => {

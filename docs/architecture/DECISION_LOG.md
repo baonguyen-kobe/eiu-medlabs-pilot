@@ -2,6 +2,8 @@
 
 Append approved decisions; do not rewrite superseded entries. `PROJECT_HANDOFF.md` states current truth; this log preserves why and when it changed.
 
+> **Historical local subset.** Canonical Inventory decisions now live in `D:/orca/medlabs-OPs/decisions/DECISION_LOG.md` (INV-001 onward). Do not create a second conflicting INV sequence here. See the appended PILOT-REVIEW-001 reconciliation index and [review baseline](INVENTORY_PILOT_RECONCILIATION.md).
+
 ## INV-001
 
 - **Date:** 2026-08-25
@@ -155,7 +157,7 @@ Append approved decisions; do not rewrite superseded entries. `PROJECT_HANDOFF.m
 ## INV-016
 
 - **Date:** 2026-08-25
-- **Status:** APPROVED / LOCKED
+- **Status:** SUPERSEDED IN PART by canonical INV-025–039 and PILOT-REVIEW-001; retain historical unanswered details, not blanket unresolved delivery.
 - **Decision:** PREPARED → PARTIALLY_DELIVERED → DELIVERED remains partially unresolved.
 - **Reason:** Delivery planning has unanswered business options.
 - **Supersedes:** Any inferred full-delivery design.
@@ -171,3 +173,19 @@ Append approved decisions; do not rewrite superseded entries. `PROJECT_HANDOFF.m
 - **Supersedes:** Earlier generic or unverified queue/lock/autosave assumptions.
 - **Affected phase:** Phase 3 request-preparation integration.
 - **Implementation consequence:** Use the approved queue priority and warning threshold; preserve public NEW while preparation is incomplete; provide auto-save/manual progress save; Admin may unlock/transfer control; lock releases on completion, cancellation, page exit, or timeout. Notification batching remains intentionally ambiguous; see the business requirements evidence section.
+
+## PILOT-REVIEW-001 — 2026-10-02 authority reconciliation
+
+- **Status:** documentation reconciliation applied; new detailed design proposals UNDER_REVIEW, implementation NOT_STARTED.
+- **Current pilot:** `baonguyen-kobe/eiu-medlabs-pilot`, main bootstrap `e802421`; origin writable, original repo upstream fetch/reference only.
+- **Canonical decisions:** INV-025/Q1, INV-026/Q2, INV-027/Q3, INV-028/Q4, INV-029/Q5, INV-030/Q6, INV-031/Q7, INV-032/Q8, INV-033/Q9, INV-034/Q10, INV-035/F1, INV-036/F2, INV-037/F3, INV-038/safeguards, INV-039/isolation remain in the control plane. Do not renumber or duplicate them here.
+- **Supersedes:** local INV-016 blanket unresolved-delivery interpretation, live August roadmap sequence, forced single-source requirement and nullable-FK workaround for destructive operational-line edits. Historical entries and snapshot remain evidence.
+- **Accepted review refinements:** status alone has no stock effect; source documents have zero stock delta and 0..n receipts; business uniqueness plus retry/revision guards; visible damage shortfall; immutable opening provenance; S1 minimum ledger before receipt, S4 ownership before reservations.
+- **Proposed, not owner-approved:** initial physical-return posting independent of first signature; precise expiry/use-date rules; post-settlement physical-offset/Admin-hold contract; exact transaction header/lines schema.
+- **Not approved:** automatic replacement or retirement of production, wholesale ui-modernization merge, implementation, SQL, remote mutation, deploy, commit or push in this review.
+
+## PILOT-REVIEW-002 — owner policy closure
+
+Canonical INV-041–046 approve immediate return/separate signature; day/month expiry/FEFO/no future-use-date/opening-only unknown; Staff/Admin late intake/Admin hold; replacement candidate with port-back fallback; synthetic S1–S5/single-writer P1; mandatory rotation before real operational use and Vercel before deployed UAT.
+
+Supersedes corresponding proposals/default-port-back of PILOT-REVIEW-001 and canonical INV-031/035/039/040. History retained. Policy approved, detailed design UNDER_REVIEW, G0 OPEN, implementation NOT_STARTED. No execution authorized.
