@@ -1,6 +1,11 @@
 # S1 Inventory Foundation — Database & Integration API Contract
 
-**Status:** APPROVED / S1 integration verification in progress
+**Status:** S1 ACCEPTED / implementation and database DONE / remote pilot migration DONE / targeted acceptance PASS / owner acceptance ACCEPTED
+
+Final reconciliation: G0 DONE. Pilot application commit `424c6aef64f4f318cb5ed1092b71812865c611a0`. G0 DBML has 19 declarations: 17 new S1 tables plus existing `profiles` and `rooms` references, not deferred tables. Authorized S1 execution mutated only isolated pilot `kwpyukofofoaqhmxndlc`, not production/current MedLabs. Applied migrations: `20261002181945_inventory_s1_foundation.sql`, `20261003010000_inventory_s1_invariant_guards.sql`, `20261003020000_inventory_s1_bounded_reads.sql`.
+
+The final six-decimal `inventory_read` source-line expected/discrepancy rounding is read-model presentation only; remote formatting equivalence is unverified and NON-BLOCKING, with no effect on persisted conversion, facts, ledger or balances. Existing 26-test/typecheck and targeted functional browser evidence is reused with unchanged impact; no full UI/a11y certification claimed. ESLint has 0 errors and 10 warnings. Owner explicitly accepts these three limitations for the isolated synthetic pilot and closes S1; reopen only for a new functional/data/security blocker. S2 is authorized after a bounded delta review; see control-plane `plans/S2_DELTA_REVIEW.md`. P1 real operational stock and production cutover remain NOT AUTHORIZED; no S3 start.
+
 **Target Schema:** `public.inventory_*`, `public.acquisition_*`
 
 **Governing Documents (in the `medlabs-OPs` control plane):**
