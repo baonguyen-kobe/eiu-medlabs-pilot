@@ -3,8 +3,8 @@ schema: spec-driven
 context: |
   Product: MedLabs Calendar, an internal EIU scheduling system.
   Stack: Next.js 16 App Router, React 19, TypeScript, Supabase, Tailwind CSS.
-  Roles: Admin, Staff, Importer, Lecturer; authorization and room-type scope must be enforced server-side and through RLS where applicable.
-  Code navigation: Graphify is the primary knowledge graph. Read NEXTJS_AGENTS.md for version-matched Next.js behavior.
+  Roles: Follow the authoritative role and capability contracts in docs/DOCUMENTATION_AUTHORITY.md (Admin, Staff, Lecturer; import is an authorized capability, not a standalone role); enforce authorization and room-type scope server-side and via RLS.
+  Code navigation: Direct source inspection and LSP first; optional code graphs (GitNexus, Graphify) only when useful. Consult NEXTJS_AGENTS.md only when modifying Next.js behavior.
   Delivery: Keep changes surgical, preserve desktop behavior when adding responsive layouts, and verify role-specific user paths.
 
 rules:
@@ -21,8 +21,8 @@ rules:
 operations:
   apply:
     guidance:
-      - Query Graphify before editing related code and update the graph after changes.
+      - Use direct source inspection and LSP first; consult optional code graphs only when useful. Graph inspection does not replace verification.
       - Preserve unrelated work and avoid speculative refactors.
   archive:
     guidance:
-      - Record migrations, production configuration, verification results, and known limitations.
+      - Record applicable migrations, runtime configuration, verification evidence, and known limitations. Non-release tasks must not force or simulate production release evidence.

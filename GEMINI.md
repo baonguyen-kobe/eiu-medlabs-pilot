@@ -1,12 +1,9 @@
-# EIU MedLabs Agent Context
+# MedLabs Calendar — Gemini Entry Point
 
-Before working in this repository, read and follow the tracked root `AGENTS.md`.
+Read and follow `AGENTS.md`; it is the authoritative repository instruction file for engineering workflow, safety, and coding guardrails.
 
-For UI modernization, responsive, accessibility, design-system, or frontend-polish continuation work, read in order:
-
-1. `docs/ui-modernization/README.md`
-2. `docs/ui-modernization/CURRENT.md`
-3. `docs/ui-modernization/TRACKER.md`
-4. `docs/ui-modernization/DECISIONS.md`
-
-If the user gives a generic continuation request, follow the resume protocol in `AGENTS.md` and `README.md`. An explicit current user request always takes precedence.
+- Resolve document precedence through `docs/DOCUMENTATION_AUTHORITY.md`.
+- Select skills strictly on demand through `SKILLS.md`.
+- Follow UI modernization continuation in `docs/ui-modernization/README.md` only when the active task is UI modernization or explicit continuation.
+- Consult `NEXTJS_AGENTS.md` only when modifying Next.js framework behavior.
+- Code graphs (GitNexus, Graphify) and MCP tools are optional aids; direct source inspection and tests outrank graphs.

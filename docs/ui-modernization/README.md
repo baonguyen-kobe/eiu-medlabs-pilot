@@ -13,31 +13,31 @@ Git-tracked project state is authoritative. Continuity must not depend on a Chat
 
 ## Source-of-truth hierarchy
 
-Highest to lowest:
+This hierarchy governs UI modernization continuity. It does NOT override repository business/security contracts, the canonical UI Master (`docs/UI_DESIGN_SYSTEM_V2_MASTER.md`), effective source code truth, or production truth under `docs/DOCUMENTATION_AUTHORITY.md`.
+
+Highest to lowest for UI continuity:
 
 1. Explicit current user instruction
-2. Repository business/security instructions
+2. Repository business/security contracts and canonical UI Master
 3. `docs/ui-modernization/DECISIONS.md`
 4. `docs/ui-modernization/CURRENT.md`
 5. `docs/ui-modernization/TRACKER.md`
 6. `docs/ui-modernization/MASTER-PLAN.md`
 7. Audit evidence in `docs/ui-modernization/audits/`
 
-When two sources disagree, follow the higher-authority source. Do not silently rewrite history. Record deliberate changes in `DECISIONS.md` or append them to `WORKLOG.md`.
-
+When two continuity sources disagree, follow the higher-authority source. Do not silently rewrite history. Record deliberate changes in `DECISIONS.md` or append them to `WORKLOG.md`.
 ## Session startup protocol
 
-For any new Codex, Gemini, OMP, Orca, IDE-agent, or other coding-agent session working on UI modernization, read in this order:
+For any session working on UI modernization:
 
-1. Repository `AGENTS.md` and applicable agent instructions
-2. `docs/ui-modernization/README.md`
-3. `docs/ui-modernization/CURRENT.md`
-4. `docs/ui-modernization/TRACKER.md`
-5. `docs/ui-modernization/DECISIONS.md`
-6. `MASTER-PLAN.md` only as needed
-7. Relevant audit evidence only as needed
+1. Read repository `AGENTS.md`.
+2. Read `docs/ui-modernization/README.md` once per task.
+3. Read `docs/ui-modernization/CURRENT.md`.
+4. Read the relevant `docs/ui-modernization/TRACKER.md` row.
+5. Read `docs/ui-modernization/DECISIONS.md` for relevant architectural decisions.
+6. Consult `MASTER-PLAN.md` or audit evidence only as needed for the active scope.
 
-Then run:
+Inspect branch and working tree state at execution start:
 
 ```powershell
 git status --short
@@ -47,11 +47,14 @@ git rev-parse HEAD
 
 Rules:
 
+- UI tasks follow the `ui-modernization` branch; release tasks follow `main`.
+- Do not fetch or switch branches merely at session startup or during unrelated documentation audits.
+- Do not switch branches when unrelated dirty working tree changes exist; report the conflict rather than stashing or resetting.
+- Reuse already-read context when files have not changed.
 - Do not redo tasks whose tracker status is `DONE`.
 - If `CURRENT.md` identifies an active task, inspect existing source and `git diff`, then continue that task.
 - If there is no active task, select the first eligible `READY` task by dependency order, phase order, then priority unless the user explicitly requests another task.
 - Do not put unrelated tasks `IN_PROGRESS` together.
-
 ## Explicit user-request rule
 
 An explicit current user request takes precedence. If the user requests work unrelated to UI modernization, perform that task. Do not hijack unrelated work merely because modernization remains active.
@@ -77,45 +80,27 @@ Do not ask the user to reconstruct prior work. If `CURRENT.md` and Git disagree,
 
 ## Task claiming protocol
 
-Before implementation, update `CURRENT.md` with:
+Update `CURRENT.md` when claiming a task, changing status/blocker, handing off, or completing a coherent batch—not on every chat turn:
 
 ```text
 Active task: <ID>
 Status: IN_PROGRESS
-Starting commit: <sha>
+Starting commit: <sha or uncommitted working tree>
 ```
 
 A coherent batch may contain tightly coupled parent/child tasks only when documented. Normally, only one primary implementation batch is `IN_PROGRESS`.
 
 ## Task completion protocol
 
-Before changing a task to `DONE`, record applicable evidence:
+Before changing a task to `DONE`, record applicable verification evidence in `TRACKER.md`:
 
-```text
-typecheck:
-lint:
-tests:
-375:
-768:
-1024:
-1440:
-keyboard:
-accessibility:
-visual identity:
-commit:
-```
+- Record the relevant verification command or scenario, observed result, and scope/limitations.
+- Do not force all viewports, keyboard tests, or DB tests for localized edits where those facets are outside the touched scope.
+- A commit SHA is recorded only when a commit actually exists; otherwise record uncommitted state and affected files without manufacturing commits to fill fields.
+- Shorthand matrix values (`PASS`, `FAIL`, `PARTIAL`, `BLOCKED(reason)`, `NOT_RUN`, `N/A`) are compact cell shorthands for tracking tables; implementation reports use the 5 gate labels (`RUN AND PASS`, `RUN AND FAIL`, `REUSED PRIOR PASS — UNCHANGED IMPACT`, `NOT RUN — NOT REQUIRED FOR CURRENT IMPACT`, `NOT RUN — BLOCKED`).
+- Do not rewrite historical statuses to match wording changes.
 
-Use only:
-
-```text
-PASS
-FAIL
-BLOCKED(reason)
-N/A
-```
-
-If implementation exists but required verification is incomplete, use `VERIFY`, not `DONE`. Never turn an unavailable check into `PASS`. Keep the known local test-environment limitations distinct from code regressions.
-
+If implementation exists but required verification is incomplete or awaiting user visual review, keep the task `VERIFY`, not `DONE`. Never turn an unavailable check into `PASS`. Keep known local test-environment limitations distinct from code regressions.
 ## Interruption recovery
 
 ### Case A — Uncommitted source changes exist
@@ -141,18 +126,15 @@ Use Git commit evidence and recorded verification. Do not mark work `DONE` witho
 
 Before ending a UI-modernization session:
 
-1. Run applicable verification.
-2. Update `TRACKER.md`.
-3. Update `CURRENT.md`.
-4. Update `QA-MATRIX.md` where relevant.
-5. Update `DECISIONS.md` if a decision changed.
-6. Append `WORKLOG.md`.
-7. Review `git diff`.
-8. Commit only when task and tracking state form a coherent batch.
-9. Record the implementation commit SHA in tracking evidence.
+1. Run applicable targeted verification.
+2. Update `CURRENT.md` and `TRACKER.md` if status, blocker, or evidence changed.
+3. Update `QA-MATRIX.md` only when matrix evidence is actually executed or changed.
+4. Update `DECISIONS.md` only if a durable architectural decision changed.
+5. Append `WORKLOG.md` only for major milestones or handoffs without duplicating command outputs.
+6. Review `git diff`.
+7. **Never commit, push, merge, or deploy without explicit current authorization.** If authorized, commit only when task and tracking state form a coherent batch.
 
-This protocol must work without chat history.
-
+This protocol works locally without requiring chat history.
 ## Commit convention
 
 Prefer stable task IDs in implementation commit subjects:

@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "supabase/.temp/**",
     ".gitnexus/**",
     "graphify-out/**",
+    "docs/erd/liam/site/**",
   ]),
 ]);
 

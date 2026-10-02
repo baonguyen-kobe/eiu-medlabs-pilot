@@ -13,23 +13,29 @@ and `docs/RELEASE.md`.
 
 ## Core routing
 
-| Situation                                                                             | Skill                                                                                    |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| User/Reviewer supplied a verified root cause or settled exact implementation contract | `medlabs-implement-contract`                                                             |
-| Root cause is genuinely unknown                                                       | `systematic-debugging`                                                                   |
-| Supabase Auth/client/platform behavior                                                | `supabase`                                                                               |
-| SQL/PostgreSQL performance, indexes, locks, schema structure or migration design      | `supabase-postgres-best-practices`                                                       |
-| RLS, grants, authorization or privileged Supabase database behavior                   | `supabase` first; `supabase-postgres-best-practices` only as secondary advisory guidance |
-| React/Next.js implementation or performance                                           | `vercel-react-best-practices`                                                            |
-| Reusable component API or composition architecture                                    | `vercel-composition-patterns`                                                            |
-| Explicit generic UI/UX review                                                         | `web-design-guidelines`                                                                  |
-| Keyboard, focus, semantic HTML, ARIA, screen-reader or WCAG behavior                  | `accessibility`                                                                          |
-| Test-first work where TDD materially improves a high-risk behavioral contract         | `tdd`                                                                                    |
-| Explicit check for unnecessary abstractions or over-engineering                       | `ponytail-review`                                                                        |
-| Vercel Preview explicitly authorized                                                  | `medlabs-vercel-preview`                                                                 |
-| Release/production work explicitly authorized                                         | `medlabs-release-preflight`                                                              |
-| Completion and verification reporting                                                 | `medlabs-verification-gate`                                                              |
-
+| Situation | Skill |
+| :--- | :--- |
+| Verified root cause or settled exact implementation contract supplied | `medlabs-implement-contract` |
+| Root cause is genuinely unknown | `systematic-debugging` |
+| Supabase Auth/client/platform behavior | `supabase` |
+| SQL/PostgreSQL performance, indexes, locks, schema structure or migration design | `supabase-postgres-best-practices` |
+| RLS, grants, authorization or privileged Supabase database behavior | `supabase` first; `supabase-postgres-best-practices` only as secondary advisory guidance |
+| React/Next.js implementation or performance | `vercel-react-best-practices` |
+| Reusable component API or composition architecture | `vercel-composition-patterns` |
+| Explicit generic UI/UX review | `web-design-guidelines` |
+| Keyboard, focus, semantic HTML, ARIA, screen-reader or WCAG behavior | `accessibility` |
+| Test-first work where TDD materially improves a high-risk behavioral contract | `tdd` |
+| Explicit check for unnecessary abstractions or over-engineering | `ponytail-review` |
+| Vercel Preview explicitly authorized | `medlabs-vercel-preview` |
+| Release/production work explicitly authorized | `medlabs-release-preflight` |
+| Completion and verification reporting | `medlabs-verification-gate` |
+| Unfamiliar architecture, cross-file impact analysis, blast-radius exploration (optional supplement) | `gitnexus-code-intelligence` |
+| Explore candidate feature scope or design options (optional supplement) | `openspec-explore` |
+| Propose cross-cutting, schema, breaking, or durable changes (optional supplement) | `openspec-propose` |
+| Implement approved OpenSpec tasks against effective source (optional supplement) | `openspec-apply-change` |
+| Archive verified OpenSpec change with evidence and limitations (optional supplement) | `openspec-archive-change` |
+| Synchronize specifications across changes (optional supplement) | `openspec-sync-specs` |
+| Update or refine an in-flight OpenSpec proposal (optional supplement) | `openspec-update-change` |
 ## Authority boundaries
 
 Skills guide implementation method. They do not redefine MedLabs behavior.
@@ -58,6 +64,8 @@ For release and production, `docs/RELEASE.md` is authoritative.
 
 ### CORE
 
+*Note: A `CORE` designation does not mean loading all core skills at session start. Load skills on demand per task, not merely because the repository uses that technology. Reuse already-read skill content within the same task when files have not changed.*
+
 #### karpathy-coding-heuristics
 
 - Source type: CUSTOM
@@ -69,7 +77,7 @@ For release and production, `docs/RELEASE.md` is authoritative.
 
 - Source type: CUSTOM
 - Path: `.agents/skills/medlabs-implement-contract`
-- Purpose: execute a settled Reviewer/user contract without reopening design.
+- Purpose: execute a verified implementation contract without reopening design. Does not require an external Reviewer role; applies whenever an exact fix contract has been verified, while the executor verifies the source anchor.
 
 #### medlabs-verification-gate
 
@@ -96,8 +104,7 @@ For release and production, `docs/RELEASE.md` is authoritative.
 - SHA: `8331f910845103c08d51f6ca1d86ebb7d1f745e3`
 - Upstream path: `skills/supabase`
 - Local path: `.agents/skills/supabase`
-- Adaptations: MedLabs repository-first database writes; MCP is optional and is never auto-configured; no direct remote database scratchpad workflow; verification delegates to `medlabs-verification-gate`; MCP absence does not block documentation or ordinary source work; independently verified root causes route to `medlabs-implement-contract`.
-
+- Adaptations: MedLabs repository-first database writes; consult official Supabase documentation when the task depends on platform/API/version behavior; inspect changelog only for upgrades, breaking changes, or version uncertainty (no blanket scans for docs-only edits or verified logic); consult CLI help before unverified commands or flags and reuse same-version help within the task; `get_advisors` fallback only if MCP is actually available and permitted; MCP is optional and never auto-configured; no remote database scratchpad workflow; verification delegates to `medlabs-verification-gate`; independently verified root causes route to `medlabs-implement-contract`.
 #### supabase-postgres-best-practices
 
 - Source type: ADAPTED_FROM_UPSTREAM
@@ -176,30 +183,48 @@ For release and production, `docs/RELEASE.md` is authoritative.
 - Path: `.agents/skills/medlabs-release-preflight`
 - Always delegates production policy to `docs/RELEASE.md`.
 
+### WORKSPACE_SUPPLEMENT (ON DEMAND)
+
+#### gitnexus-code-intelligence
+
+- Source type: WORKSPACE_SUPPLEMENT
+- Path: `.omp/skills/gitnexus-code-intelligence`
+- Purpose: structural code intelligence, blast-radius analysis, dependency flow tracing.
+- Advisory and navigation support only; code graphs do not prove runtime correctness. Follow the graph navigation routing rules below.
+
+#### openspec-explore, openspec-propose, openspec-apply-change, openspec-archive-change, openspec-sync-specs, openspec-update-change
+
+- Source type: WORKSPACE_SUPPLEMENT
+- Path: `.omp/skills/openspec-*`
+- Purpose: structured spec-driven change workflow for cross-cutting, schema, breaking, or durable changes.
+- Complements `/opsx-*` command entrypoints. Do not load OpenSpec for minor typo fixes or localized UI adjustments.
+
 ## Documentation/tool routing
 
 Next.js:
 
-`NEXTJS_AGENTS.md` → installed-version Next.js docs.
+`NEXTJS_AGENTS.md` → installed-version Next.js docs. Consult topic-specific docs only when modifying Next.js framework behavior; do not scan all framework pages for unrelated tasks.
 
 Supabase:
 
-MedLabs contract/current implementation → curated Supabase skills → official
-Supabase documentation/tools when needed.
+MedLabs contract/current implementation → curated Supabase skills → official Supabase documentation/tools when needed.
 
 Other third-party libraries:
 
-Use current authoritative documentation when necessary. Context7 may be added
-later as an optional documentation MCP; it is not required for Profile v4 Core.
+Use current authoritative documentation when necessary. Context7 may be added later as an optional documentation MCP; it is not required for daily MedLabs work.
 
-GitNexus:
+### Graph navigation routing
 
-Use CLI/index only when architecture or blast-radius analysis materially helps.
-Do not assume GitNexus MCP is active.
+1. **Local known-file edit:** Use direct source inspection and LSP; do not call code graphs merely to satisfy a checklist.
+2. **Broad diff/review:** If Code Review Graph (CRG) is separately configured, mounted, and indexed, use `detect_changes_tool` for risk triage and `get_review_context_tool` only when context is needed; pass explicit `repo_root` and actual delivery base, not defaulting to `HEAD~1` for an entire PR. Use minimal/no-source response first and check for truncation/partial/stale flags.
+3. **GitNexus fallback:** If CRG is unavailable, use GitNexus `detect_changes` for broad diff triage; do not block tasks to install CRG. Do not mechanically invoke multiple broad tools on the same diff.
+4. **Highest-risk symbols:** GitNexus `context` to disambiguate, `impact` with correct direction/depth, `trace` only for specific call-path questions. Exact symbol identity does not prove graph completeness; verify consequential caller/type references via source/LSP and targeted checks.
+5. **Graphify:** Optional historical tooling only: use only when an existing graph provides information unavailable from the above; do not rebuild all three graphs per task. If a graph is missing, stale, or partial, do not interpret "no results" as "no impact"; fall back to direct source and LSP.
+6. **Tool boundary:** Do not install CRG, auto-hooks, GitHub Actions, or modify MCP configs as part of normal tasks. If a user wishes to set up CRG, that requires a dedicated setup scope with exact tool schemas and measured baselines.
 
-Graphify:
+### MCP integration policy
 
-Optional historical tooling only. Never a mandatory first step.
+Skills are distinct from MCP tools. The active runtime/tool inventory determines availability. Do not install additional MCPs (Vercel, Supabase, Context7) or modify credentials for OMP. Use existing source, local CLI, and browser tools within scope. When GitNexus MCP indexes multiple repositories, always pass explicit `repo: "eiu-medlabs"` (or exact workspace path). Do not assume CWD auto-routing.
 
 ## Verification
 
@@ -207,8 +232,10 @@ Use `medlabs-verification-gate`.
 
 Valid labels are exactly:
 
-- `RUN AND PASS`
-- `REUSED PRIOR PASS — UNCHANGED IMPACT`
-- `NOT RUN — NOT REQUIRED FOR CURRENT IMPACT`
+- `RUN AND PASS` — executed against the current relevant change;
+- `RUN AND FAIL` — executed and failed; blocks task completion;
+- `REUSED PRIOR PASS — UNCHANGED IMPACT` — not rerun because prior evidence remains applicable and impact unchanged;
+- `NOT RUN — NOT REQUIRED FOR CURRENT IMPACT` — outside the verified blast radius;
+- `NOT RUN — BLOCKED` — check could not start due to missing environment/fixture; blocks task completion.
 
-Never call an unexecuted check PASS.
+Never call an unexecuted check PASS. Required checks that fail or are blocked prevent claiming task completion; they must not be converted into not-required.

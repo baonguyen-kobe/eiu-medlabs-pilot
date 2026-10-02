@@ -14,86 +14,38 @@ Read `docs/RELEASE.md` first.
 This skill is procedural only and must not copy, redefine, weaken, or supersede
 that policy.
 
-## Preflight
+## Preflight (Read-Only)
 
-Establish:
+Before any release action, establish the baseline state:
 
-1. exact reviewed release SHA;
-2. applicable CI evidence;
-3. integration and `main` state;
-4. clean canonical checkout;
-5. `HEAD == origin/main`;
-6. exact database migration delta;
-7. whether production database mutation is required.
-8. actual remote migration history and dry-run pending set;
-9. whether previously unapplied migrations exist in production.
-
-### Actual pending migration set
-
-Always query the live linked project before pushing migrations.
-Do not assume a release contains only one migration.
-Surface any debt or pre-existing pending migrations before mutation.
-
-### Partial migration handling
-
-If a multi-migration push partially applies:
-
-- the newly applied remote versions are authoritative immediately;
-- never roll back successful migrations automatically;
-- never use migration repair to disguise the remote history;
-- recalculate the remaining pending set and continue only after the root cause is resolved.
-
-### Pre-launch test data fast path
-
-When the user/Reviewer explicitly confirms the environment is pre-launch:
-
-- inspect blocking row counts and foreign keys;
-- perform scoped, transactionally asserted deletion when explicitly authorized;
-- do not build complex archival/compatibility bridges for disposable test data;
-- this path is strictly invalid after real go-live.
+1. **Exact release SHA:** identify the exact reviewed commit SHA targeted for release.
+2. **CI evidence:** verify applicable CI check passes for that SHA.
+3. **Branch state:** verify working tree is on `main`, `HEAD == origin/main`, and checkout is completely clean.
+4. **Scope determination:** determine whether this release involves application deployment, database migration, or both.
+5. **Database pending set (only when DB release is involved):** query actual remote Supabase migration history and determine the exact dry-run pending set. Do not query or prepare DB migrations for application-only releases.
 
 ## Authorization gates
 
-A merge to `main` does not authorize production deployment.
+- A merge to `main` does NOT authorize production deployment.
+- Production application deployment requires explicit current authorization.
+- Production database mutation requires separate explicit current authorization.
+- If a database migration delta exists without database authorization, STOP and report the exact blocker. Never mutate production databases without separate authorization.
 
-Production application deployment requires explicit current authorization.
+## Authorized production execution
 
-Production database mutation requires separate explicit current authorization.
+1. **Application deployment:** When production application deployment is explicitly authorized, use the repository-controlled script `scripts/deploy-production.ps1`. Do not substitute generic Vercel deployment commands or skills.
+2. **Missing prerequisites:** If required access, tools, credentials, or authorizations are missing, report the exact blocker immediately; do not fall back to generic production deployment.
+3. **Operational handling:** Follow `docs/RELEASE.md` for specific edge cases:
+   - *Actual pending migration set* → see `docs/RELEASE.md`
+   - *Partial migration handling* → see `docs/RELEASE.md`
+   - *Pre-launch test data fast path* → see `docs/RELEASE.md`
+   - *Deployment hang recovery* → see `docs/RELEASE.md`
+   - *Interactive production credentials* → see `docs/RELEASE.md`
 
-If a database migration delta exists without database authorization:
+## Live verification
 
-STOP before database mutation.
+After an authorized deployment, verify production using live evidence:
 
-## Production path
-
-When application production deployment is explicitly authorized, use the
-repository-controlled release path defined by `docs/RELEASE.md`, currently
-`scripts/deploy-production.ps1`.
-
-Do not replace it with a generic Vercel deployment skill.
-
-### Deployment hang recovery
-
-If the deployment wrapper appears hung:
-
-1. Never initiate a second concurrent deployment.
-2. Query `/api/version` with no-cache headers.
-3. Check Vercel deployment metadata read-only.
-4. If target SHA is live, classify as wrapper hang after success; terminate only the hung process tree.
-5. Proceed directly to verification.
-
-## Verification
-
-After an authorized deployment, verify production using live evidence,
-including the exact deployed application SHA through `/api/version` and the
-required production smoke evidence.
-
-### Interactive production credentials
-
-If automated smoke credentials (`PRODUCTION_ADMIN_PASSWORD`) are not present in the environment:
-
-- open the production login page in a visible browser window;
-- pause for user to complete login directly;
-- reuse the authenticated session for smoke testing;
-- never log, store, or write the password into files or commands.
-  Repository history alone does not prove production state.
+1. Verify the exact deployed application SHA via `/api/version` at the public production alias (`https://medlabs-calendar.vercel.app/api/version`).
+2. Run the required production smoke verification.
+3. Repository history, commit dates, or local builds alone do not prove production state.

@@ -103,11 +103,21 @@ policy.
 
 ### 1.5 Historical evidence
 
-Dated audits, review reports, handoffs, checkpoints, worklogs, and archived
-findings are historical evidence.
+Dated audits, review reports, handoffs, checkpoints, worklogs, archived
+findings, chat transcripts, GitHub issue/PR comments, and agent reports are
+historical context and evidence. They do not automatically alter current
+policy. When an approved decision changes repository policy or contracts, the
+relevant canonical document must be updated rather than expecting future tasks
+to reconstruct policy from past discussion. Minor incidental statements do not
+require manufactured documents.
 
-They may explain why a decision was made, but they cannot override:
+GitHub is a durable versioning, issue-tracking, review, and delivery log; it is
+not an interactive transport channel required for OMP to inspect or mutate the
+local working tree.
 
+Historical evidence may explain why a decision was made, but it cannot override:
+
+- explicit current user instruction (which retains highest priority under 1.1),
 - an approved current business/security contract,
 - effective current implementation,
 - current UI authority,

@@ -1,0 +1,1033 @@
+Thứ 4, 29 thg 7 lúc 22:42
+Đã ngừng suy luận
+Thứ 5, 30 thg 7 lúc 23:44
+230 C 
+231D  quá hạn chuẩn bị; ngày giờ nhận; ngày giờ học. Có thể bấm sort từ nhỏ đến lớn hoặc A-Z và ngược lại khi bấm vài title Trường thông tin.
+232A 
+233A 
+234A 
+235A 
+236A 
+237C 
+238C 
+239B Tôi đề xuất mỗi dòng hiển thị:
+Tên kỹ thuật/Bài thực hành;
+Nhóm TB/VT;
+Tên thương mại đăng ký;
+số lượng đăng ký;
+số lượng dự kiến chuẩn bị;
+số lượng thiếu;
+ĐVT;
+ghi chú chuẩn bị
+240 B
+241B 
+242A 
+243A 
+244A 
+245A 
+246 Không có điều kiện, vì đã tạo dòng mới trong catalog rồi, không phải thay thế trực tiếp dòng cần thay thế nữa. 
+247C 
+248B 
+249 Nếu kho được chọn có đủ số lượng thì B, nếu kho được chọn không đủ số lượng, thì phải làm theo A rồi mới làm theo B 
+250B. (Làm theo câu 249 để đủ số lượng vô 1 kho) 
+251A 
+252C 
+253 Tôi muốn A. Nhưng phải có quét QR để quét số serial hoặc mã quản lý được dán trên thiết bị cho danh.  
+254A 
+255A 
+256C 
+257C 
+258A 
+259A 
+260C 
+261B (Chắc chỉ bao gồm danh sách này: Không đủ tồn; Đang được sử dụng; Đang bảo trì. Nhưng hãy để admin có quyền cấu hình thêm nếu muốn)
+262C (Chọn chung lý do như câu trên)
+263B
+264A 
+265B 
+266C 
+267B 
+268A 
+269C 
+270A 
+271A 
+272A 
+273A
+274A 
+275C (Nhưng chắc gồm: Mã phiếu, Môn học, Trạng thái mới, ngày giờ nhận)
+276A 
+277C 
+278A 
+279A 
+280B
+281C 
+282C 
+283A 
+284A
+285A (Tạo điều chuyển mới, chuyển lại kho cũ nếu cần) 
+286B 
+287C 
+288A 
+289A 
+290A
+
+Đã ghi nhận toàn bộ quyết định 230–290. Tôi chuẩn hóa luồng NEW → PREPARED như sau và gom toàn bộ điểm phát sinh cần xác nhận ở cuối.
+
+I. Hàng chờ phiếu NEW
+1. Cấu trúc hàng chờ
+
+Admin và Chuyên viên Labs dùng chung một hàng chờ, có:
+
+bộ lọc;
+tab nhanh theo trạng thái cảnh báo, Phòng học, Địa điểm lấy và vị trí;
+tìm kiếm;
+sắp xếp tăng/giảm khi bấm tiêu đề cột.
+
+Thứ tự ưu tiên mặc định:
+
+Phiếu đã quá hạn chuẩn bị.
+Ngày giờ nhận sớm nhất.
+Ngày giờ học sớm nhất.
+
+Các cột phù hợp có thể sort A–Z/Z–A hoặc nhỏ–lớn/lớn–nhỏ.
+
+Phiếu NEW không tự gán người phụ trách. Nếu gần đến giờ nhận mà chưa được chuẩn bị:
+
+hiển thị cảnh báo nổi bật;
+thông báo tất cả Admin và Chuyên viên Labs.
+
+Mốc cảnh báo dùng một khoảng thời gian chung do Admin cấu hình.
+
+II. Bắt đầu chuẩn bị
+
+Không cần bấm Nhận xử lý trước.
+
+Quy trình dự kiến:
+
+Admin/Labs mở phiếu.
+Xem tab Chuẩn bị.
+Khi thực sự bắt đầu nhập dữ liệu, dùng action Bắt đầu chuẩn bị.
+Hệ thống bật cờ nội bộ Đang chuẩn bị.
+Khóa tab Chuẩn bị cho người đang thao tác.
+User vẫn chỉ nhìn thấy trạng thái chính là NEW.
+
+Việc bắt đầu chuẩn bị chưa làm phiếu chuyển trạng thái và chưa tạo reserved.
+
+Admin có thể phân công phiếu cho Admin hoặc Chuyên viên Labs. Người khác vẫn được hỗ trợ, nhưng phải tuân theo khóa thao tác hiện tại.
+
+III. Page chi tiết phiếu
+
+Page chi tiết có các tab:
+
+Thông tin phiếu;
+Chuẩn bị;
+Giao nhận;
+Lịch sử.
+
+Tab Chuẩn bị hiển thị song song:
+
+yêu cầu đăng ký ban đầu;
+phương án chuẩn bị thực tế.
+
+Nhu cầu gốc không bị ghi đè.
+
+Mỗi dòng chuẩn bị hiển thị
+Tên kỹ thuật/Bài thực hành;
+Nhóm TB/VT;
+Tên thương mại đăng ký;
+số lượng đăng ký;
+số lượng dự kiến chuẩn bị;
+số lượng thiếu;
+ĐVT;
+ghi chú chuẩn bị.
+
+Không bắt buộc hiển thị tình trạng tồn, Kho nguồn và tình trạng thiết bị ngay trên bảng chính; các thông tin cần thiết có thể nằm trong phần mở rộng hoặc luồng chọn hàng.
+
+IV. Nhu cầu đăng ký và phương án chuẩn bị
+
+Admin/Labs không sửa trực tiếp Số lượng đăng ký.
+
+Thay vào đó, nhập riêng:
+
+Số lượng dự kiến chuẩn bị
+
+Nếu không chuẩn bị một dòng:
+
+giữ nguyên dòng yêu cầu gốc;
+đặt số lượng chuẩn bị bằng 0;
+chọn lý do thiếu/không chuẩn bị.
+
+Không xóa nhu cầu gốc khỏi lịch sử.
+
+Admin/Labs được thêm dòng TB/VT mới từ Catalog active. Dòng bổ sung:
+
+hiển thị cho Người đăng ký và Giảng viên phụ trách;
+được đưa vào thông báo tổng hợp khi hoàn tất chuẩn bị;
+có audit người thêm, thời điểm và số lượng.
+V. Tên thương mại chuẩn bị
+
+Một dòng đăng ký có thể được đáp ứng bằng nhiều tên thương mại.
+
+Cấu trúc:
+
+Dòng đăng ký gốc
+├── Tên thương mại chuẩn bị 1 — số lượng A
+├── Tên thương mại chuẩn bị 2 — số lượng B
+└── Tên thương mại chuẩn bị 3 — số lượng C
+
+Yêu cầu gốc vẫn được giữ nguyên.
+
+Admin/Labs có thể bổ sung một item active khác từ Catalog thay vì sửa trực tiếp item đăng ký. Các thay đổi được gom lại và chỉ thông báo một lần khi phiếu chuyển PREPARED, tránh gửi nhiều thông báo nhỏ.
+
+VI. Kho nguồn và điều chuyển
+
+Ưu tiên lấy hàng từ Địa điểm lấy của phiếu.
+
+Khi Địa điểm lấy có đủ hàng
+
+Admin/Labs chọn Kho nguồn trực tiếp trên dòng. Khi xác nhận chuẩn bị, hệ thống ghi nhận nguồn hàng tương ứng.
+
+Khi Địa điểm lấy không đủ
+
+Phải:
+
+Tạo yêu cầu điều chuyển từ Kho khác.
+Hoàn tất việc đưa đủ số lượng về một Kho chuẩn bị.
+Sau đó chọn Kho này làm nguồn cho dòng chuẩn bị.
+
+Một dòng chỉ xuất từ một Kho. Không chia một dòng chuẩn bị ra nhiều Kho nguồn.
+
+Địa điểm lấy của phiếu không tự đổi. Đây vẫn là nơi user đến nhận hàng; Kho nguồn và điều chuyển là thông tin vận hành nội bộ.
+
+VII. Serial, mã quản lý và QR
+
+Với item quản lý theo serial/mã tài sản:
+
+có thể chọn serial trong quá trình chuẩn bị;
+bắt buộc chọn đủ serial trước khi chuyển PREPARED;
+hỗ trợ quét QR để chọn nhanh serial/mã quản lý được dán trên thiết bị;
+serial đã được reserved cho phiếu khác không được chọn;
+trước khi giao, Labs được đổi serial và hệ thống lưu audit.
+
+Reserved sẽ khóa đúng các serial đã chọn, không chỉ khóa số lượng chung.
+
+Việc kiểm tra tình trạng thiết bị không bắt buộc ở bước chuẩn bị; sẽ thực hiện tại bước giao.
+
+Thiết bị không đạt điều kiện giao phải bị loại và chọn thiết bị khác, không được override để giao.
+
+VIII. Chuẩn bị thiếu
+
+Cho phép số lượng chuẩn bị nhỏ hơn số lượng đăng ký.
+
+Mỗi dòng thiếu hoặc có số lượng chuẩn bị bằng 0 phải chọn một mã lý do.
+
+Danh mục mặc định:
+
+Không đủ tồn;
+Đang được sử dụng;
+Đang bảo trì.
+
+Admin được thêm, sửa hoặc deactivate các lý do khác.
+
+Ngoài mã lý do từng dòng, có một ghi chú chung tùy chọn cho toàn phiếu.
+
+Nếu tất cả dòng đều có số lượng chuẩn bị bằng 0:
+
+không được chuyển PREPARED;
+phiếu tiếp tục ở NEW;
+Admin/Labs phải tiếp tục xử lý, yêu cầu chỉnh sửa hoặc hủy theo luồng phù hợp.
+IX. Dữ liệu ngoài mapping
+
+Admin/Labs được:
+
+giữ;
+sửa;
+chuẩn hóa;
+hoặc xóa dữ liệu ngoài mapping.
+
+Cờ Cần kiểm tra dữ liệu ngoài mapping chỉ đóng khi phiếu chuyển sang PREPARED.
+
+Đối với Tên kỹ thuật/Bài thực hành nhập tự do:
+
+Admin cấu hình có được giữ nguyên đến PREPARED hay không;
+nếu cấu hình không cho phép, phải map sang kỹ thuật trong danh mục hoặc loại bỏ trước khi chuẩn bị xong.
+X. Reserved
+
+Khi chuyển PREPARED:
+
+reserve theo số lượng thực tế chuẩn bị;
+item serial reserve đúng serial đã chọn;
+NEW trước đó chỉ là nhu cầu dự kiến.
+
+Reserved có khoảng hiệu lực nghiệp vụ từ ngày giờ nhận dự kiến.
+
+Nếu phiếu được chuyển PREPARED sau giờ nhận dự kiến:
+
+record vẫn ghi mốc bắt đầu dự kiến trong quá khứ;
+reserved thực tế được tạo tại thời điểm chuyển PREPARED;
+từ thời điểm đó hàng bị khóa ngay.
+
+Khi giao thực tế:
+
+reserved của số lượng đã giao chuyển thành issued;
+phần chưa giao tiếp tục xử lý theo luồng giao một phần sẽ chốt ở Nhóm B.
+XI. Điều kiện chuyển PREPARED
+
+Trước khi chuyển trạng thái, phải đáp ứng:
+
+tất cả dòng đăng ký đã được xem xét;
+mỗi dòng có số lượng chuẩn bị;
+dòng thiếu hoặc bằng 0 có mã lý do;
+item theo serial đã chọn đủ serial;
+không còn item inactive;
+không còn lỗi Catalog;
+đã xác định Kho nguồn;
+đã xác định Địa điểm lấy và Địa điểm trả;
+không phải toàn bộ dòng đều bằng 0;
+các yêu cầu điều chuyển bắt buộc đã hoàn tất.
+
+Không bắt buộc ghi nhận tình trạng thiết bị tại bước này.
+
+Modal xác nhận PREPARED
+
+Hiển thị:
+
+tổng số dòng đăng ký;
+số dòng đủ;
+số dòng thiếu;
+số dòng bằng 0;
+tổng serial đã chọn;
+Kho nguồn;
+các cảnh báo còn lại.
+
+Admin và Chuyên viên Labs đều được chuyển NEW → PREPARED.
+
+Người thực hiện action:
+
+trở thành Người phụ trách chính;
+làm hệ thống tạo reserved;
+kích hoạt thông báo cho user.
+XII. Thông báo PREPARED
+
+Admin cấu hình các field được hiển thị.
+
+Bộ field mặc định:
+
+mã phiếu;
+môn học;
+trạng thái mới;
+ngày giờ nhận.
+
+Có thể bổ sung:
+
+Địa điểm lấy;
+dòng thiếu;
+tên thương mại bổ sung;
+ghi chú quan trọng.
+XIII. Chuẩn bị dở dang
+
+Không có trạng thái PARTIALLY_PREPARED.
+
+Nếu còn dòng chưa xử lý:
+
+phiếu giữ trạng thái NEW;
+lưu tiến độ chuẩn bị nội bộ;
+không cho chuyển PREPARED.
+
+Hỗ trợ:
+
+auto-save;
+nút Lưu tiến độ.
+
+Người đăng ký chỉ thấy NEW, không thấy chi tiết chuẩn bị dở dang.
+
+Cờ nội bộ Đang chuẩn bị được bật khi Labs/Admin bắt đầu chuẩn bị.
+
+XIV. User sửa phiếu trong lúc đang chuẩn bị
+
+User vẫn được sửa trực tiếp miễn phiếu còn NEW.
+
+Nếu user và Labs thao tác đồng thời:
+
+thay đổi hợp lệ của user được ưu tiên;
+dữ liệu chuẩn bị phải được đối chiếu lại với phiên bản phiếu mới;
+không cho Labs ghi đè âm thầm dữ liệu mới của user.
+
+Nếu cần user chủ động chỉnh sửa theo yêu cầu, Admin/Labs có thể:
+
+sửa trực tiếp giúp user; hoặc
+bật cờ Yêu cầu chỉnh sửa và tạm dừng chuẩn bị.
+XV. Khóa thao tác
+
+Tab Chuẩn bị được khóa toàn bộ cho người đang thực hiện.
+
+Khóa tự giải phóng khi:
+
+hoàn tất;
+hủy thao tác;
+rời page;
+không hoạt động quá thời gian quy định.
+
+Admin được mở khóa thủ công.
+
+Nếu hai người cùng xác nhận PREPARED, Người phụ trách chính được ưu tiên. Hệ thống vẫn phải bảo đảm chỉ tạo một lần chuyển trạng thái và một bộ reserved.
+
+XVI. Lùi PREPARED → NEW
+
+Admin và Chuyên viên Labs được lùi action.
+
+Khi lùi:
+
+hủy reserved;
+giữ dữ liệu chuẩn bị trong lịch sử;
+phục hồi Người phụ trách của action trước;
+gửi thông báo;
+cho user sửa lại phiếu NEW.
+
+Nếu đã phát sinh điều chuyển Kho:
+
+Không được lùi ngay.
+Phải tạo giao dịch điều chuyển ngược về Kho cũ nếu cần.
+Hoàn tất xử lý điều chuyển.
+Sau đó mới cho lùi trạng thái.
+
+Không chỉnh sửa hoặc xóa movement cũ; phải tạo movement ngược có audit.
+
+XVII. Audit và thông báo
+
+Audit lưu:
+
+người bắt đầu chuẩn bị;
+từng lần lưu;
+yêu cầu gốc;
+số lượng chuẩn bị;
+tên thương mại bổ sung;
+Kho nguồn;
+serial;
+lý do thiếu;
+thời điểm chuyển PREPARED;
+reserved đã tạo;
+điều chuyển liên quan.
+
+Đối với dữ liệu chuẩn bị nội bộ:
+
+không gửi thông báo sau từng lần lưu;
+gom thay đổi và thông báo khi chuyển PREPARED.
+
+Điều này là ngoại lệ riêng cho tab Chuẩn bị, nhằm tránh gửi quá nhiều thông báo.
+
+Các quyết định phát sinh cần chốt
+
+Còn 10 câu để đóng Nhóm A. Bạn có thể trả lời một lượt 291A, 292B....
+
+291. Item bổ sung để thay thế có cần cùng Nhóm TB/VT không?
+
+Bạn nói không cần điều kiện vì đây là dòng Catalog mới, không sửa trực tiếp dòng gốc.
+
+A. Được bổ sung bất kỳ item active nào trong Catalog, không bắt buộc cùng Nhóm.
+B. Phải cùng Nhóm TB/VT với dòng đăng ký gốc.
+C. Được khác Nhóm, nhưng bắt buộc nhập lý do và liên kết với dòng đăng ký gốc.
+
+292. Dòng bổ sung được liên kết thế nào?
+
+A. Luôn phải chọn dòng đăng ký gốc mà nó đang bổ sung/thay thế.
+B. Có thể là dòng thay thế cho yêu cầu gốc hoặc là dòng bổ sung độc lập.
+C. Mọi dòng bổ sung đều độc lập, không liên kết dòng gốc.
+
+293. Khi thêm dòng thay thế, xử lý dòng đăng ký gốc
+
+A. Giữ dòng gốc, nhập số lượng thực tế chuẩn bị và số lượng thiếu; dòng mới đáp ứng phần còn thiếu.
+B. Đặt số lượng chuẩn bị của dòng gốc bằng 0, rồi dùng hoàn toàn dòng mới.
+C. Admin/Labs chọn tùy trường hợp.
+
+294. Điều chuyển phải hoàn tất đến đâu mới được PREPARED?
+
+A. Hàng phải được xác nhận đã đến Địa điểm lấy.
+B. Chỉ cần yêu cầu điều chuyển đã được tạo và được chấp nhận.
+C. Admin/Labs được chuyển PREPARED khi hàng đang trên đường, nhưng phải có cảnh báo.
+
+295. Quét QR serial
+
+Khi quét một mã, hệ thống nên tự động:
+
+A. Chỉ nhận nếu serial active, đúng equipmentId, đang available và chưa reserved; trường hợp khác bị chặn kèm lý do.
+B. Cho nhận serial cùng Nhóm TB/VT, dù khác Tên thương mại.
+C. Cho quét mọi serial rồi Labs tự xử lý cảnh báo.
+
+296. User sửa phiếu khi Labs đã có tiến độ chuẩn bị
+
+A. Giữ dữ liệu chuẩn bị, nhưng đánh dấu các dòng bị ảnh hưởng là Cần kiểm tra lại.
+B. Xóa toàn bộ dữ liệu chuẩn bị và bắt đầu lại.
+C. Tự động tính lại phần có thể tính; chỉ đánh dấu những dòng thật sự bị ảnh hưởng.
+
+297. User đổi mã môn hoặc Tên kỹ thuật khi đang chuẩn bị
+
+A. Xóa tiến độ chuẩn bị của các khối bị xóa hoặc thay đổi.
+B. Giữ lịch sử cũ nhưng loại khỏi phương án chuẩn bị hiện hành; Labs phải chuẩn bị lại dữ liệu mới.
+C. Không cho user đổi hai trường này sau khi cờ Đang chuẩn bị bật.
+
+298. Ai được chiếm quyền khóa tab Chuẩn bị?
+
+A. Admin được mở khóa hoặc chuyển quyền cho người khác; Labs khác phải chờ khóa hết hạn.
+B. Admin và mọi Labs đều được bấm Tiếp quản, bắt buộc nhập lý do.
+C. Người phụ trách chính được tiếp quản; Admin luôn được override.
+
+299. Thông báo khi Admin/Labs sửa dữ liệu nào?
+
+A.
+
+Dữ liệu chuẩn bị nội bộ: gom thông báo khi PREPARED.
+Nếu sửa thông tin đăng ký gốc: thông báo user ngay sau khi lưu.
+
+B. Mọi thay đổi đều gom đến PREPARED.
+C. Mọi thay đổi đều thông báo ngay, giữ nguyên quy tắc Buổi 1.
+
+300. Phiếu được chuẩn bị từ nhiều Kho qua điều chuyển
+
+Sau điều chuyển, Kho nguồn cuối cùng trên dòng nên là:
+
+A. Địa điểm lấy, vì hàng đã được chuyển về đây trước khi chuẩn bị.
+B. Kho ban đầu sở hữu hàng, dù hàng đã chuyển đến Địa điểm lấy.
+C. Lưu cả hai:
+
+Kho xuất ban đầu;
+Kho chuẩn bị/Địa điểm lấy cuối cùng.
+291 A 
+292 C
+293 A (Giữ dòng gốc, nhập số lượng thực tế chuẩn bị và số lượng thiếu được auto điền; không yêu cầu dòng mới đáp ứng phần còn thiếu)
+294B Khi làm điều chuyển item từ kho này tới kho kia là ghi nhận số lượng các kho liền. Từ đó kho cập nhật số lưởng đủ để chọn prepared
+295A
+296A
+297C
+298A
+299C Nhưng gom vô thông báo sẽ đỡ lắc nhắc hơn 
+300A
+
+Đã chốt các quyết định 291–300.
+
+I. Chuẩn hóa phần cuối NEW → PREPARED
+1. TB/VT bổ sung khi chuẩn bị
+
+Admin/Labs được thêm bất kỳ TB/VT active nào trong Catalog:
+
+không bắt buộc cùng Nhóm TB/VT với dòng đăng ký;
+dòng bổ sung là một dòng độc lập;
+không bắt buộc liên kết với dòng đăng ký gốc;
+không tự động xem là dòng thay thế hay bù phần thiếu.
+
+Dòng đăng ký gốc vẫn giữ nguyên:
+
+số lượng đăng ký;
+số lượng thực tế chuẩn bị;
+số lượng thiếu được tự động tính.
+
+Công thức:
+
+Số lượng thiếu
+= Số lượng đăng ký − Số lượng chuẩn bị của dòng gốc
+
+Dòng mới không tự động làm giảm Số lượng thiếu của dòng cũ.
+
+2. Điều chuyển Kho
+
+Khi Địa điểm lấy không đủ:
+
+Admin/Labs thực hiện action điều chuyển.
+Số lượng tại Kho nguồn và Kho nhận được cập nhật ngay khi điều chuyển được xác nhận.
+Không quản lý trạng thái hàng “đang trên đường” trong luồng hiện tại.
+Khi Kho nhận đã đủ tồn, item mới được chọn để chuyển PREPARED.
+
+Vì vậy, lựa chọn 294B được hiểu là:
+
+Chỉ cần giao dịch điều chuyển đã được thực hiện và ghi nhận thành công; không cần thêm bước xác nhận hàng đến riêng biệt.
+
+Sau điều chuyển, Kho nguồn cuối cùng dùng trên dòng chuẩn bị là Địa điểm lấy.
+
+Lịch sử vẫn lưu Kho ban đầu và movement điều chuyển để audit.
+
+3. Quét QR
+
+QR chỉ được nhận khi asset/serial:
+
+active;
+đúng equipmentId;
+đang available;
+chưa reserved cho phiếu khác;
+không ở trạng thái bảo trì, hỏng hoặc không được phép giao.
+
+Nếu không đạt, hệ thống chặn và hiển thị lý do cụ thể.
+
+4. User sửa phiếu khi Labs đang chuẩn bị
+
+Nếu user sửa phiếu NEW khi đã có tiến độ chuẩn bị:
+
+giữ dữ liệu chuẩn bị hiện có;
+những dòng bị ảnh hưởng được đánh dấu Cần kiểm tra lại;
+Labs phải xác nhận lại trước khi chuyển PREPARED.
+
+Khi cờ Đang chuẩn bị đã bật, user không được đổi:
+
+mã môn học;
+Tên kỹ thuật/Bài thực hành.
+
+User vẫn có thể sửa các nội dung khác theo quyền của trạng thái NEW.
+
+5. Khóa tab Chuẩn bị
+Admin được mở khóa hoặc chuyển quyền thao tác cho người khác.
+Labs khác phải chờ người đang giữ khóa kết thúc hoặc khóa hết hạn.
+Labs khác không được tự chiếm quyền khóa.
+6. Thông báo thay đổi
+
+Tôi hiểu lựa chọn 299C kèm ghi chú “gom vào thông báo” theo nguyên tắc:
+
+mỗi lần Admin/Labs lưu một nhóm thay đổi, hệ thống gửi một thông báo tổng hợp;
+không gửi một thông báo riêng cho từng field;
+một thông báo liệt kê tất cả field đã thay đổi trong lần lưu đó;
+không gửi thông báo từ từng lần auto-save kỹ thuật nền;
+khi chuyển PREPARED, vẫn gửi thông báo trạng thái riêng.
+
+Như vậy, quyết định này thay thế quy tắc trước là chờ đến PREPARED mới thông báo mọi dữ liệu chuẩn bị.
+
+Nhóm B — Bàn giao TB/VT
+
+Luồng:
+
+PREPARED
+→ giao một phần
+→ PARTIALLY_DELIVERED
+→ tiếp tục giao
+→ DELIVERED
+
+Dưới đây là toàn bộ câu hỏi dự kiến của Nhóm B. Bạn có thể trả lời một lượt theo dạng 301A, 302B....
+
+A. Thông báo khi lưu tiến độ
+301. Khi nào gửi thông báo tổng hợp thay đổi?
+
+A. Chỉ khi người thao tác bấm Lưu tiến độ, Xác nhận chuẩn bị hoặc action nghiệp vụ; auto-save không gửi thông báo.
+B. Mỗi lần auto-save thành công cũng gửi một thông báo tổng hợp.
+C. Không gửi khi lưu tiến độ; chỉ gửi khi chuyển PREPARED.
+
+Tôi hiểu ý bạn gần nhất với A.
+
+B. Người giao và Người nhận
+302. Ai được thực hiện action giao?
+
+A. Admin và mọi Chuyên viên Labs.
+B. Chỉ Người phụ trách chính và Admin.
+C. Người phụ trách chính; Labs khác phải được chuyển giao hoặc Admin cho phép.
+
+303. Ai được làm Người nhận thực tế?
+
+A. Người đăng ký hoặc Giảng viên phụ trách.
+B. Người đăng ký, Giảng viên phụ trách hoặc một Trợ giảng có liên quan đến phiếu.
+C. Bất kỳ nhân sự active nào được Admin/Labs chọn.
+
+304. Có cho người khác nhận thay không?
+
+A. Không; chỉ các actor đã ghi trên phiếu.
+B. Có, nhưng phải chọn người nhận thay từ danh mục nhân sự và nhập lý do.
+C. Có, chỉ cần nhập họ tên người nhận tự do.
+
+305. Người nhận mặc định
+
+A. Mặc định là Người đăng ký; Labs được đổi sang Giảng viên phụ trách hoặc người nhận thay hợp lệ.
+B. Mặc định là Giảng viên phụ trách.
+C. Không mặc định; bắt buộc Labs chọn người nhận trong mỗi lần giao.
+
+C. Thời gian và địa điểm giao
+306. Địa điểm giao mặc định
+
+A. Mặc định bằng Địa điểm lấy.
+B. Mặc định bằng Phòng học.
+C. Bắt buộc Labs chọn riêng.
+
+307. Có được thay đổi Địa điểm giao thực tế không?
+
+A. Admin/Labs được đổi, bắt buộc nhập lý do và thông báo user.
+B. Chỉ Admin được đổi.
+C. Không được đổi sau khi PREPARED.
+
+308. Thời gian giao thực tế
+
+A. Tự động lấy timestamp khi xác nhận giao; không sửa thủ công.
+B. Tự động lấy timestamp nhưng Admin được sửa hồi tố có lý do.
+C. Labs tự nhập ngày giờ giao.
+
+309. Giao trước ngày giờ nhận dự kiến
+
+A. Cho phép, chỉ ghi nhận thời gian thực tế.
+B. Cho phép nhưng cảnh báo và bắt buộc lý do.
+C. Không cho phép.
+
+310. Giao sau ngày giờ nhận dự kiến
+
+A. Cho phép, tự đánh dấu giao trễ.
+B. Cho phép nhưng bắt buộc lý do.
+C. Chỉ Admin được giao trễ.
+
+D. Cấu trúc page Giao nhận
+311. Page giao nhận hiển thị thế nào?
+
+A. Cùng page chi tiết phiếu, tab Giao nhận.
+B. Mở page riêng toàn màn hình để quét và giao nhanh.
+C. Tab Giao nhận có nút mở chế độ toàn màn hình khi cần quét nhiều thiết bị.
+
+312. Mỗi dòng giao hiển thị
+
+Tôi đề xuất:
+
+Tên kỹ thuật/Bài thực hành;
+Nhóm TB/VT;
+Tên thương mại đã chuẩn bị;
+số lượng đăng ký;
+số lượng chuẩn bị;
+số đã giao trước đó;
+số lượng giao lần này;
+số còn lại;
+ĐVT;
+serial/mã quản lý;
+tình trạng lúc giao;
+ghi chú giao.
+
+A. Chốt danh sách trên.
+B. Bổ sung hoặc bỏ field — bạn ghi rõ.
+
+313. Cách chọn dòng cần giao
+
+A. Mặc định chọn toàn bộ số lượng còn lại; Labs điều chỉnh khi giao một phần.
+B. Mặc định số lượng giao bằng 0; Labs nhập từng dòng.
+C. Có nút Chọn tất cả số còn lại.
+
+E. Serial, mã quản lý và QR khi giao
+314. Có bắt buộc quét lại serial khi giao không?
+
+A. Có, quét lại để xác nhận đúng thiết bị đã chuẩn bị.
+B. Không bắt buộc; dùng danh sách serial đã chọn ở bước chuẩn bị.
+C. Admin cấu hình theo từng loại thiết bị.
+
+315. Nếu serial quét lúc giao khác serial đã chuẩn bị
+
+A. Chặn và yêu cầu đổi danh sách chuẩn bị trước.
+B. Cho phép thay nếu cùng equipmentId, đang available và chưa reserved; lưu audit.
+C. Cho phép cùng Nhóm TB/VT dù khác tên thương mại.
+
+316. Có thể thay serial đã chuẩn bị ngay trên action giao không?
+
+A. Có, nếu chưa giao và serial mới hợp lệ.
+B. Phải quay lại tab Chuẩn bị rồi mới giao.
+C. Chỉ Admin được thay.
+
+317. Số lượng giao của item quản lý serial
+
+A. Tự động bằng số serial được xác nhận, không nhập thủ công.
+B. Labs nhập số lượng rồi chọn đủ serial.
+C. Cho nhập thủ công nhưng cảnh báo nếu không khớp serial.
+
+F. Item quản lý theo số lượng
+318. Số lượng giao lần này
+
+A. Mặc định bằng số lượng chuẩn bị còn lại; Labs được giảm.
+B. Mặc định bằng 0.
+C. Mặc định bằng số lượng đăng ký còn thiếu.
+
+319. Có được giao nhiều hơn số lượng đã chuẩn bị không?
+
+A. Không; phải cập nhật phương án chuẩn bị trước.
+B. Được giao thêm nếu tồn đủ, đồng thời tự cập nhật số lượng chuẩn bị.
+C. Chỉ Admin được giao vượt.
+
+320. Có được giao nhiều hơn số lượng đăng ký không?
+
+A. Không.
+B. Được nếu Admin/Labs nhập lý do và user nhận thông báo.
+C. Chỉ Admin được phép.
+
+321. Có được thêm TB/VT mới ngay lúc giao không?
+
+A. Có, chọn từ Catalog active, nhập số lượng và ghi lý do.
+B. Không; phải lùi về NEW hoặc cập nhật chuẩn bị trước.
+C. Chỉ được thêm item cùng Nhóm với một dòng hiện có.
+
+G. Tên thương mại thực tế khi giao
+322. Một dòng có thể giao nhiều equipmentId cùng Nhóm không?
+
+A. Có, mỗi equipmentId là một dòng giao riêng.
+B. Có nhưng chỉ lưu tổng số lượng theo Nhóm.
+C. Chỉ một equipmentId cho mỗi dòng.
+
+Theo quyết định trước, gần nhất là A.
+
+323. Khi Labs bổ sung tên thương mại khác lúc giao
+
+A. Cho phép nếu item active và đủ tồn; thông báo user ngay sau lần giao.
+B. Phải quay lại bước chuẩn bị.
+C. Chỉ Admin được bổ sung.
+
+324. Tên thương mại mới có cần cùng Nhóm với item đăng ký không?
+
+A. Không bắt buộc, giống quy tắc bổ sung ở bước chuẩn bị.
+B. Bắt buộc cùng Nhóm.
+C. Được khác Nhóm nhưng bắt buộc nhập lý do.
+
+H. Kiểm tra tình trạng khi giao
+325. Ai ghi nhận tình trạng thiết bị?
+
+A. Người giao chọn tình trạng trước khi xác nhận.
+B. Người giao và Người nhận cùng xác nhận một tình trạng.
+C. Người giao ghi nhận; Người nhận được quyền đồng ý hoặc phản hồi.
+
+326. Mức độ ghi nhận tình trạng
+
+A. Bắt buộc cho từng serial/mã tài sản.
+B. Chỉ bắt buộc khi có bất thường.
+C. Admin cấu hình theo loại thiết bị.
+
+327. Danh mục tình trạng
+
+A. Dùng danh mục do Admin cấu hình.
+B. Chỉ dùng Tốt/Có vấn đề.
+C. Ghi chú tự do.
+
+328. Khi tình trạng không đạt để giao
+
+A. Chặn serial đó và yêu cầu chọn thiết bị khác.
+B. Admin được override có lý do.
+C. Người nhận được quyết định có nhận hay không.
+
+Theo quyết định trước, phù hợp là A.
+
+329. Có hỗ trợ ảnh tình trạng ở giai đoạn đầu không?
+
+A. Chưa hỗ trợ tệp/ảnh; chỉ dùng tình trạng và ghi chú.
+B. Cho chụp hoặc tải ảnh với thiết bị bất thường.
+C. Admin cấu hình theo loại thiết bị.
+
+I. Xác nhận của Người nhận
+330. Cách xác nhận giao nhận
+
+A. Người giao xác nhận trên hệ thống; Người nhận không cần thao tác.
+B. Người giao ghi dữ liệu, sau đó Người nhận đăng nhập và bấm xác nhận.
+C. Người giao và Người nhận xác nhận trên cùng thiết bị tại thời điểm giao.
+
+331. Thời điểm chuyển trạng thái
+
+A. Chuyển trạng thái ngay khi Người giao xác nhận.
+B. Chỉ chuyển khi Người nhận xác nhận.
+C. Ghi movement khi Người giao xác nhận, nhưng trạng thái chỉ đổi khi Người nhận xác nhận.
+
+332. Nếu Người nhận chưa xác nhận
+
+Không tạo trạng thái mới. Có thể dùng cờ phụ:
+
+A. Giữ PREPARED, bật cờ Chờ xác nhận nhận.
+B. Chuyển PARTIALLY_DELIVERED/DELIVERED, bật cờ Chờ xác nhận.
+C. Không dùng cờ; xem như đã giao.
+
+333. Nếu Người nhận từ chối xác nhận
+
+A. Hủy lần giao, không tạo movement issued.
+B. Giữ dữ liệu giao ở trạng thái chờ để Admin/Labs chỉnh sửa.
+C. Chuyển cho Admin xử lý ngoại lệ.
+
+334. Có cho Admin/Labs xác nhận thay Người nhận không?
+
+A. Không.
+B. Admin được xác nhận thay nếu nhập lý do.
+C. Admin và Labs được xác nhận thay, nhưng phải có lý do và audit.
+
+335. Xác nhận điện tử chi tiết
+
+A. Giai đoạn này chỉ cần nút xác nhận và timestamp; chữ ký/PDF chốt ở buổi sau.
+B. Bắt buộc chữ ký vẽ tay ngay từ giai đoạn này.
+C. Bắt buộc OTP hoặc mã xác nhận.
+
+J. Giao một phần
+336. Cho phép bao nhiêu lần giao?
+
+A. Không giới hạn số lần cho đến khi giao xong.
+B. Tối đa hai lần.
+C. Admin cấu hình số lần.
+
+337. Khi nào chuyển PARTIALLY_DELIVERED?
+
+A. Khi đã giao ít nhất một dòng/số lượng lớn hơn 0 nhưng chưa giao hết số đã chuẩn bị.
+B. Khi có ít nhất một dòng giao thiếu so với đăng ký.
+C. Chỉ khi Admin/Labs chọn Giao một phần.
+
+338. Khi nào chuyển DELIVERED?
+
+A. Khi đã giao hết toàn bộ số lượng chuẩn bị.
+B. Khi đã giao hết số lượng đăng ký.
+C. Khi tất cả dòng đã được giao hoặc được đánh dấu không còn giao tiếp.
+
+Khuyến nghị A, vì số lượng chuẩn bị có thể thấp hơn yêu cầu.
+
+339. Dòng chuẩn bị bằng 0 có chặn DELIVERED không?
+
+A. Không; nếu đã có lý do thiếu thì không chặn.
+B. Có; phải xóa dòng hoặc chuẩn bị bổ sung.
+C. Chỉ Admin được hoàn tất giao khi có dòng 0.
+
+340. Nếu đã giao hết số lượng chuẩn bị nhưng vẫn thiếu so với đăng ký
+
+A. Phiếu vẫn chuyển DELIVERED; phần thiếu được giữ để hiển thị lịch sử.
+B. Phiếu giữ PARTIALLY_DELIVERED.
+C. Admin/Labs chọn kết thúc giao hoặc tiếp tục chờ bổ sung.
+
+341. Số lượng chưa giao trong lần giao một phần
+
+A. Tiếp tục reserved.
+B. Hủy reserved và chuẩn bị lại khi giao tiếp.
+C. Admin/Labs chọn từng dòng.
+
+342. Có cho thay đổi phương án chuẩn bị sau lần giao một phần không?
+
+A. Có, chỉ đối với phần chưa giao.
+B. Không; phải lùi action giao.
+C. Chỉ Admin được sửa.
+
+K. Movement và quyền giữ tài sản
+343. Thời điểm tạo movement xuất giao
+
+A. Khi Người giao xác nhận.
+B. Khi Người nhận xác nhận.
+C. Khi cả hai đã xác nhận.
+
+344. Xử lý reserved khi giao một phần
+
+A.
+
+phần giao: reserved → issued;
+phần chưa giao: tiếp tục reserved.
+
+B. Toàn bộ reserved chuyển issued ngay lần giao đầu.
+C. Hủy toàn bộ reserved rồi tạo movement mới.
+
+345. Với thiết bị serial
+
+Sau khi giao:
+
+A. Người giữ hiện tại là Người nhận thực tế.
+B. Người giữ là Giảng viên phụ trách, bất kể ai nhận.
+C. Người giữ là Người đăng ký.
+
+346. Với vật tư tiêu hao
+
+A. Số lượng giao được xuất khỏi tồn ngay.
+B. Chỉ xuất khỏi tồn khi phiếu hoàn tất.
+C. Xuất tạm, chờ kết quả sử dụng sau khi trả.
+
+L. Thông báo sau mỗi lần giao
+347. Ai nhận thông báo?
+
+A. Người đăng ký và Giảng viên phụ trách.
+B. Chỉ Người nhận thực tế.
+C. Người đăng ký, Giảng viên phụ trách và Người nhận thực tế nếu khác nhau.
+
+348. Giao nhiều lần thông báo thế nào?
+
+A. Mỗi lần giao gửi một thông báo riêng.
+B. Chỉ thông báo lần đầu và khi hoàn tất giao.
+C. Gom các lần giao trong cùng ngày thành một thông báo.
+
+349. Nội dung mặc định
+
+Tôi đề xuất:
+
+mã phiếu;
+trạng thái mới;
+người giao;
+người nhận;
+ngày giờ giao;
+địa điểm giao;
+tổng số dòng/số lượng giao lần này;
+số còn lại;
+các tên thương mại bổ sung;
+ghi chú quan trọng.
+
+A. Chốt danh sách trên.
+B. Admin cấu hình field hiển thị.
+C. Chỉ mã phiếu, trạng thái và thời gian.
+
+M. Người phụ trách và khóa action
+350. Người thực hiện giao có trở thành Người phụ trách chính không?
+
+A. Có, sau mỗi action giao thành công.
+B. Chỉ khi giao lần đầu.
+C. Không đổi người phụ trách.
+
+Theo Buổi 1, phù hợp là A.
+
+351. Hai người cùng mở action giao
+
+A. Người bắt đầu giao giữ khóa toàn bộ action.
+B. Khóa theo từng dòng.
+C. Cho cùng thao tác và xử lý version conflict.
+
+352. Nếu Người phụ trách chính đang giao
+
+A. Người khác không được chiếm khóa; Admin có thể chuyển quyền.
+B. Labs khác được tiếp quản có lý do.
+C. Admin và Labs đều được tiếp quản.
+
+353. Hai request cùng xác nhận giao
+
+A. Chỉ request đầu tiên thành công; request sau mở kết quả mới nhất.
+B. Người phụ trách chính được ưu tiên.
+C. Có thể ghi hai lần rồi đối soát.
+
+N. Sửa sai và lùi action giao
+354. Ai được lùi action giao?
+
+A. Admin được thực hiện trực tiếp; Labs cần Admin phê duyệt.
+B. Admin và Labs đều được lùi có lý do.
+C. Chỉ Admin.
+
+Lùi giao có movement reversal nên lựa chọn gần quy tắc nhạy cảm Buổi 1 là A.
+
+355. Khi có nhiều lần giao
+
+A. Mỗi lần lùi chỉ đảo lần giao gần nhất.
+B. Lùi một lần đưa toàn bộ phiếu về PREPARED.
+C. User chọn lần giao muốn đảo.
+
+356. Khi lùi lần giao gần nhất
+
+Hệ thống:
+
+tạo reversal movement;
+issued trở lại reserved hoặc available;
+phục hồi trạng thái trước đó;
+phục hồi Người phụ trách trước đó;
+giữ lịch sử lần giao;
+gửi thông báo.
+
+A. Chốt toàn bộ.
+B. Xóa movement giao cũ.
+C. Chỉ cập nhật trạng thái, kho xử lý thủ công.
+
+357. Nếu serial đã được sử dụng hoặc phát sinh nghiệp vụ tiếp theo
+
+A. Không cho lùi cho đến khi xử lý các nghiệp vụ phụ thuộc.
+B. Cho lùi và tạo cảnh báo tồn.
+C. Chỉ Admin được override.
+
+358. Sửa sai serial trước khi Người nhận xác nhận
+
+A. Cho phép sửa trực tiếp trong lượt giao đang chờ.
+B. Phải hủy toàn bộ lượt giao và làm lại.
+C. Chỉ Admin được sửa.
+
+359. Sửa sai sau khi lượt giao đã hoàn tất
+
+A. Phải lùi lượt giao rồi thực hiện lại.
+B. Cho sửa trực tiếp serial và tạo audit.
+C. Tạo action Điều chỉnh giao riêng.
+
+360. Ghi nhầm Người nhận
+
+A. Trước xác nhận: sửa trực tiếp; sau xác nhận: phải lùi lượt giao.
+B. Luôn sửa trực tiếp có audit.
+C. Chỉ Admin được sửa.
+
+Sau khi bạn trả lời 301–360, tôi sẽ tổng hợp toàn bộ PREPARED → PARTIALLY_DELIVERED/DELIVERED, rà các ảnh hưởng sang movement kho, tài sản, xác nhận điện tử và luồng lùi action.

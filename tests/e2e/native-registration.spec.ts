@@ -316,12 +316,12 @@ test("các trang đăng ký native hiển thị trên local", async ({ page }) =
   await expect(
     completedRequest.locator(".request-status-red").first(),
   ).toHaveText("Mới");
-  await completedRequest
-    .getByRole("button", { name: "Hoàn Thành", exact: true })
-    .click();
   await expect(
-    completedRequest.locator(".request-status-green").first(),
-  ).toHaveText("Hoàn Thành");
+    completedRequest.getByRole("button", {
+      name: "Hoàn Thành",
+      exact: true,
+    }),
+  ).toBeDisabled();
   await page.getByLabel("Từ ngày").fill("2026-08-20");
   await page.getByLabel("Đến ngày").fill("2026-08-20");
   await expect(page.locator(".equipment-request-list-item")).toHaveCount(1);

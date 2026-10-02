@@ -58,13 +58,14 @@ Read-only specialist agents may assist when materially useful.
 
 ## Version-matched Next.js guidance
 
-Read `NEXTJS_AGENTS.md` before changing Next.js behavior. It indexes the documentation bundled with the installed Next.js version; consult the linked files under `node_modules/next/dist/docs` instead of relying on remembered framework behavior.
+Consult `NEXTJS_AGENTS.md` only when modifying Next.js framework behavior or APIs. It indexes the documentation bundled with the installed Next.js version (`node_modules/next/dist/docs`); consult the relevant topic file rather than scanning the entire framework documentation for unrelated tasks.
 
-Regenerate the index after upgrading Next.js:
+Regenerate the index only during explicit framework upgrades or tooling maintenance:
 
 ```powershell
 npx.cmd @next/codemod agents-md --output NEXTJS_AGENTS.md
 ```
+Do not run codemods or package updates during documentation or localized bug tasks.
 
 ## Coding guardrails
 
@@ -79,8 +80,8 @@ For new or substantially modified source files, treat 350 lines as a review sign
 
 ## Settled implementation contracts
 
-When the user or independent Reviewer provides an exact implementation/fix
-contract after inspecting current evidence:
+When the user, an independent Reviewer, or verified investigation provides an
+exact implementation or fix contract after inspecting current evidence:
 
 1. verify the stated source anchor against current source;
 2. if it matches, implement the contract exactly;
@@ -88,7 +89,38 @@ contract after inspecting current evidence:
 4. if it materially no longer matches current source, stop and report
    `CONTRACT_ANCHOR_MISMATCH` rather than improvising a replacement design.
 
-Use `.agents/skills/medlabs-implement-contract/SKILL.md` for this workflow.
+Use `.agents/skills/medlabs-implement-contract/SKILL.md` for this workflow. This
+contract does not require an external Reviewer role; it applies whenever a
+verified implementation contract is provided.
+
+## Local OMP workflow
+
+When working in OMP, follow this direct, evidence-first execution loop:
+
+1. **Understand request & policy once:** Read the user request, current source,
+   and relevant policy/topic once; do not re-read entire sets of documentation
+   when context remains sufficient and files have not changed.
+2. **Scope & plan by magnitude:** Perform small, localized edits directly; use
+   OpenSpec for cross-cutting features, breaking behavior, schema/security
+   redesigns, or material migrations. Do not manufacture proposal/reviewer loops
+   for routine tasks.
+3. **Surgical edits & targeted verification:** Edit directly in the working tree,
+   preserving user modifications. Unknown bugs require root-cause diagnosis via
+   `systematic-debugging`; verified supplied contracts require verifying the
+   source anchor via `medlabs-implement-contract` without re-diagnosing the whole
+   repository. Review the diff of the touched scope before handoff.
+4. **Independent review by risk:** Run independent read-only review only when
+   explicitly requested by the user, or when modifying authorization/RLS/privileged
+   behavior, migrations/data integrity, broad shared architecture, or release-critical
+   paths. Do not force an Executor/Reviewer/Reviewer-of-Review loop on every change.
+   After findings, re-review only the touched boundary and dependent impact, not
+   the entire repository.
+5. **Direct reporting & explicit authorization:** Report findings, test evidence,
+   and limitations directly in OMP. **Never commit, push, merge, deploy, or mutate
+   production databases without explicit current authorization for that specific
+   operation.** There is no exception for automatic pushes upon interruption;
+   uncommitted source and local checkpoints are the mechanism for session resumption.
+   GitHub is a delivery and versioning log, not a chat transport channel.
 
 ## Specialized guidance
 
@@ -140,9 +172,10 @@ Do not infer scope, selector, breakpoint, ownership, or shared impact from a scr
 
 OpenSpec lifecycle:
 
-1. `$openspec-propose` for a large change.
-2. `$openspec-apply-change` after approval.
-3. `$openspec-archive-change` after verification.
+Use OpenSpec only for cross-cutting features, breaking behavior, schema/security redesign, material migrations, or durable architecture proposals. Localized bug fixes, simple UI tweaks, and typo corrections remain direct edits. Both entrypoints are supported:
+
+- Skills: `openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`, `openspec-sync-specs`, `openspec-update-change`.
+- Commands: `/opsx-explore`, `/opsx-propose`, `/opsx-apply`, `/opsx-archive`, `/opsx-sync`, `/opsx-update`.
 
 ## UI Modernization Continuity
 
@@ -150,28 +183,28 @@ The persistent UI/UX/responsive modernization state is stored in:
 
 `docs/ui-modernization/`
 
-If this checkout is `main` and UI modernization is active, fetch `origin`, confirm `origin/ui-modernization` exists, switch to `ui-modernization`, then re-read `CURRENT.md`, `TRACKER.md`, and `DECISIONS.md` before source work. Do not implement UI modernization directly on `main`; it is the durable bootstrap and current-continuity mirror.
+UI tasks follow the `ui-modernization` branch; release tasks follow `main`. Inspect current branch and working tree state at execution start; do not fetch or switch branches merely at session startup or during unrelated documentation audits. Do not switch branches when unrelated dirty working tree changes exist; report the conflict rather than stashing or resetting.
 
 For any UI modernization, responsive, accessibility, design-system, frontend-polish, or related continuation task:
 
-1. Read `docs/ui-modernization/README.md`.
-2. Read `docs/ui-modernization/CURRENT.md`.
-3. Read `docs/ui-modernization/TRACKER.md`.
-4. Respect `docs/ui-modernization/DECISIONS.md`.
+1. Read `docs/ui-modernization/README.md` once per task.
+2. Read `docs/ui-modernization/CURRENT.md` for active task, blocker, and next action.
+3. Read the relevant `docs/ui-modernization/TRACKER.md` row for status and evidence.
+4. Respect relevant `docs/ui-modernization/DECISIONS.md`.
 5. Do not redo tasks marked `DONE`.
 6. If a task is `IN_PROGRESS`, inspect the current Git diff and continue it rather than restarting.
-7. Before ending the task, update the tracking files required by the session-end protocol.
+7. Update `CURRENT.md` and `TRACKER.md` when claiming, changing status/blocker, handing off, or completing a coherent batch—not on every chat turn.
 8. Never mark `DONE` without applicable verification evidence.
 
 ### User visual acceptance gate
 
-For user-visible visual changes: implement → technical/rendered verification → localhost preview → user visual review → approved polish → quick regression → commit/push → `DONE`.
+For user-visible visual changes: `implement → technical/rendered verification → localhost review → user visual acceptance → targeted regression → task DONE`.
 
-During active user visual review, keep the task `VERIFY`, keep localhost available when practical, and do not commit/push iterative visual revisions unless the user approves it or interruption safety requires a clearly recorded checkpoint. After explicit acceptance, run the smallest relevant final regression, update tracking, and move `VERIFY` to `DONE`. This gate does not apply mechanically to documentation-only or non-visual work.
+Commit and push are separate delivery operations, not criteria for task completion. During active user visual review, keep the task `VERIFY`, keep localhost available when practical, and do not commit or push iterative revisions unless explicitly authorized or interruption safety requires a recorded local checkpoint. Review a coherent visual batch; do not require user review for every micro-edit. After explicit acceptance, run the smallest relevant final regression, update tracking, and move `VERIFY` to `DONE`. This gate does not apply mechanically to documentation-only or non-visual work.
 
 If the user says only `continue`, `resume`, `proceed`, `tiếp tục`, `làm tiếp`, `đọc repo rồi tiếp tục`, or equivalent while UI modernization is active:
 
-1. If on `main`, fetch `origin`, confirm and switch to `ui-modernization`, then re-read continuity files.
+1. Confirm current branch is `ui-modernization` (if on `main` without uncommitted work, switch; if dirty, stop and report).
 2. Read `CURRENT.md` and `TRACKER.md`.
 3. Inspect Git status, diff, branch, and commit.
 4. Resume the recorded `IN_PROGRESS` task, or take the first eligible `READY` task.
@@ -186,28 +219,22 @@ implementation of the verification policy below.
 
 Validation is change-aware, risk-based, and Actions-budget-aware.
 
-Run the smallest sufficient verification for the current diff. Do not rerun an
-already-passing suite when its covered behavior and all relevant shared or
-transitive dependencies remain unchanged and the prior PASS evidence is still
-applicable.
+Run the smallest sufficient verification for the current diff. Consult the quality matrix in `README.md` (`Kiểm tra chất lượng`) for the canonical mapping of task types to local checks. Do not rerun an already-passing suite when its covered behavior and all relevant shared or transitive dependencies remain unchanged and the prior PASS evidence is still applicable.
 
 Increase scope when changes affect shared infrastructure, authorization,
 schema/RLS/RPC behavior, dependencies, runtime configuration, common
 components, or other cross-cutting contracts. When blast radius is uncertain,
 inspect first rather than mechanically choosing the largest suite.
 
-For validation reports, distinguish explicitly between:
+For validation reports, distinguish explicitly between the five literal evidence labels:
 
 - `RUN AND PASS` — executed against the current relevant change;
-- `REUSED PRIOR PASS — UNCHANGED IMPACT` — not rerun because prior evidence
-  remains applicable;
-- `NOT RUN — NOT REQUIRED FOR CURRENT IMPACT` — outside the verified blast
-  radius.
+- `RUN AND FAIL` — executed and failed; blocks task completion;
+- `REUSED PRIOR PASS — UNCHANGED IMPACT` — not rerun because prior evidence remains applicable and impact unchanged;
+- `NOT RUN — NOT REQUIRED FOR CURRENT IMPACT` — outside the verified blast radius;
+- `NOT RUN — BLOCKED` — check could not start due to missing environment/fixture; blocks task completion.
 
-Full E2E is a major-integration/release gate, not the default check for every
-commit. Run it only for a release candidate, major integration, broad
-cross-cutting change, unresolved impact uncertainty, or explicit reviewer/user
-request.
+Never call an unexecuted check PASS. Required checks that fail or are blocked prevent claiming task completion; they must not be converted into not-required.
 
 For local feedback, check formatting on touched files first. On a Windows
 checkout that still contains CRLF from an older checkout, `--end-of-line auto`

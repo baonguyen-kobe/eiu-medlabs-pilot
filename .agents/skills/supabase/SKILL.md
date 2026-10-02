@@ -34,11 +34,10 @@ when the two conflict.
 
 ## Core Principles
 
-**1. Supabase changes frequently — verify against changelog and current docs before implementing.**
-Do not rely on training data for Supabase features. Function signatures, config.toml settings, and API conventions change between versions.
+**1. Consult official docs when task depends on platform/API/version behavior.**
+Do not rely on outdated memory or training data for Supabase platform features. Consult official Supabase documentation when the task depends on platform, library, or API behavior.
 
-First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
-
+Inspect `https://supabase.com/changelog.md` only during version upgrades, breaking changes, or when version uncertainty arises; do not perform blanket changelog scans for docs-only edits or verified local logic.
 **2. Verify through the MedLabs verification gate.**
 After implementing a MedLabs change, use `medlabs-verification-gate` to select
 the smallest sufficient evidence for the actual blast radius.
@@ -110,7 +109,7 @@ For any security concern not covered above, fetch the Supabase product security 
 
 ## Supabase CLI
 
-Always discover commands via `--help` — never guess. The CLI structure changes between versions.
+Discover commands via `--help` before using unverified commands or flags, or when CLI version changes. Within the same task on the same known CLI version, reuse previously discovered flags rather than repeating identical `--help` lookups mechanically.
 
 ```bash
 supabase --help                    # All top-level commands
@@ -121,7 +120,7 @@ supabase <group> <command> --help  # Flags for a specific command
 **Supabase CLI Known gotchas:**
 
 - `supabase db query` requires **CLI v2.79.0+**. In MedLabs, do not substitute MCP `execute_sql` or `psql` for repository-controlled database writes. For an explicitly required read-only diagnostic query, use only an access path that is already available and authorized by the current task.
-- `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
+- `supabase db advisors` requires **CLI v2.81.3+** → fallback to MCP `get_advisors` only if MCP is actually available and the task permits it.
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
@@ -142,13 +141,13 @@ For ordinary implementation, continue without MCP when it is unavailable.
 
 ## Supabase Documentation
 
-Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
+When a task depends on Supabase platform/API behavior, find the relevant documentation:
 
-1. **MCP `search_docs` tool when it is already available and authorized for the current task** — use it without creating or changing MCP configuration.
-2. **Fetch official Supabase docs pages as markdown** — any docs page can be fetched by appending `.md` to the URL path.
-3. **Web search** for Supabase-specific topics when you do not know which official page to use.
+1. **MCP `search_docs` tool** — use only when already mounted and available in the active runtime.
+2. **Fetch official Supabase docs pages as markdown** — append `.md` to the URL path (e.g. `https://supabase.com/docs/...md`).
+3. **Web search** for Supabase-specific topics when the exact official URL path is unknown.
 
-Missing MCP must not block documentation lookup.
+Missing MCP must not block documentation lookup. Do not scan documentation for routine repository source edits whose behavior is already verified.
 
 ## Making and Committing Schema Changes
 

@@ -2,6 +2,12 @@
 
 Ứng dụng nội bộ quản lý lịch học, giảng viên nhận lớp và staff tự đăng ký ca trực.
 
+## Tài liệu và hướng dẫn vận hành
+
+- **Engineering & OMP Workflow:** `AGENTS.md` và `docs/DOCUMENTATION_AUTHORITY.md`.
+- **Lựa chọn Skill:** `SKILLS.md`.
+- **UI Modernization & Tiếp tục:** `docs/ui-modernization/README.md`.
+- **Quy trình Release & Production:** `docs/RELEASE.md` và `docs/PRODUCTION_DEPLOYMENT.md`.
 ## Yêu cầu
 
 - Node.js 22.13 trở lên
@@ -55,22 +61,24 @@ powershell.exe -ExecutionPolicy Bypass -File scripts/seed-local-users.ps1
 
 ## Kiểm tra chất lượng
 
-```powershell
-npm.cmd run typecheck
-npm.cmd run lint
-npm.cmd test
-npm.cmd run test:db
-npm.cmd run test:e2e:critical
-npm.cmd run test:e2e
-npm.cmd run build
-npm.cmd audit --omit=dev
-```
+Các lệnh kiểm tra chất lượng được phân chia theo rủi ro và phạm vi thay đổi (chi tiết xem `.agents/skills/medlabs-verification-gate/SKILL.md`):
 
-`npm.cmd test` chạy tuần tự các Node/integration contract tests trên Supabase
-local. `npm.cmd run test:db` chạy pgTAP; không chạy hai bộ database-mutating
-song song trên cùng local stack. `test:e2e:critical` là smoke set cho CI, còn
-`test:e2e` chạy toàn bộ Playwright suite.
+| Loại task | Kiểm chứng local | Khi cần mở rộng |
+| :--- | :--- | :--- |
+| **Docs / skills / routing** | Đọc link, command, path thực tế; kiểm tra inventory và scenarios; kiểm tra format file sửa (`npx.cmd prettier --check <files>`) | Không chạy app/DB suite chỉ vì thay đổi Markdown |
+| **Pure logic / server helper** | `node --test --test-concurrency=1 tests/<affected>.test.mjs` và smoke thực tế; `npm.cmd run typecheck` khi đổi contract TypeScript | Shared dependency hoặc uncertain impact → mở rộng kiểm tra consumers |
+| **UI component / layout** | Rendered browser scenario cho path thay đổi, kiểm tra viewport và focus liên quan; `npm.cmd run typecheck` khi TypeScript thay đổi | `npm.cmd run test:e2e:required` cho a11y scope; không chạy full E2E cho mỗi chỉnh spacing |
+| **Auth / RLS / RPC / schema / migration** | Local isolated Supabase và DB regression liên quan; replay migration khi đổi chain; `npm.cmd run test:db` khi có DB impact | Giữ security negative cases và data integrity; independent review theo mức độ rủi ro |
+| **Integration / delivery** | Chạy CI theo cấu hình; không lặp lại toàn bộ suite local nếu evidence trước đó vẫn còn giá trị | Full E2E (`npm.cmd run test:e2e`) cho release candidate, major integration, cross-cutting change, hoặc khi có yêu cầu rõ |
+| **Build / runtime deployment config** | `npm.cmd run build`, sau đó `npm.cmd run test:e2e:production-smoke:run` | Standalone `npm.cmd run test:e2e:production-smoke` đã bao gồm build; không build hai lần |
+| **Production** | Theo quy trình `docs/RELEASE.md`; kiểm tra live app SHA và lịch sử migration remote | Không coi local production-bundle smoke là live Vercel smoke |
 
+### Điều kiện tiên quyết và lưu ý chạy test:
+- **Prerequisites:** Dependencies đã cài (`npm install`), local Supabase đang chạy (`npx.cmd supabase start`), seed dữ liệu đầy đủ (`scripts/seed-local-users.ps1`), và Docker Desktop hoạt động.
+- **Database reset:** `npx.cmd supabase db reset --local` chỉ dùng trên local disposable target khi cần replay migration chain; tuyệt đối không reset production.
+- **Tuần tự hóa:** Không chạy các bộ test làm thay đổi DB đồng thời (`npm test`, `npm run test:db`, Playwright mutating tests) trên cùng một local stack.
+- **E2E suite:** `npm.cmd run test:e2e:required` là bộ smoke kiểm tra accessibility bắt buộc (`tests/e2e/accessibility-smoke.spec.ts`). `npm.cmd run test:e2e` là bộ full-local (theo `playwright.full-local.config.ts`, bỏ các specialist specs được chạy riêng). `npm.cmd run test:e2e:evidence-off` và `npm.cmd run test:e2e:production-smoke` là các bài test ở các môi trường khác nhau, không phải bài test trùng lặp.
+- **Advisory audit:** `npm.cmd run react-doctor:audit` là công cụ audit tư vấn kiến trúc/performance React khi có refactor lớn, không bắt buộc chạy cho mỗi chỉnh sửa JSX hoặc nhãn nhỏ.
 ## Biến môi trường
 
 Tạo `.env.local` với `NEXT_PUBLIC_SUPABASE_URL`,
@@ -93,7 +101,7 @@ EMAIL_APPS_SCRIPT_URL=https://script.google.com/macros/s/.../exec
 EMAIL_APPS_SCRIPT_SECRET=...
 ```
 
-Xem hướng dẫn triển khai script tại `docs/APPS_SCRIPT_EMAIL_SETUP.md`.
+Xem mã nguồn script tại `scripts/apps-script-email-webhook.gs` và cấu hình biến môi trường bên dưới (đây là implementation reference, không phải hướng dẫn cài đặt bên ngoài).
 
 ### Personnel reconciliation
 
@@ -163,13 +171,11 @@ Version 1 luôn ghi `null` và không hiển thị.
 - `/admin/shift-templates`: mẫu ca trực.
 - `/admin/audit`: nhật ký thay đổi nghiệp vụ.
 
-## Graphify
+## Code navigation & tri thức mã nguồn
 
-Knowledge graph của mã nguồn nằm trong `graphify-out/`. Graphify được cài tách
-biệt ở workspace để không làm tăng dependency production của ứng dụng.
-
-Các giả định và giới hạn Version 1 được ghi tại `docs/ASSUMPTIONS.md`.
-
+- **Graphify:** Knowledge graph nằm trong `graphify-out/`. Đây là artifact tham khảo lịch sử tùy chọn; không bắt buộc phải tồn tại hay tự động refresh cho mọi task.
+- **GitNexus:** Công cụ phân tích cấu trúc, blast radius và luồng thực thi tùy chọn (xem `.omp/skills/gitnexus-code-intelligence/SKILL.md`).
+- **Quyền tài liệu:** Các hợp đồng nghiệp vụ, phân quyền và kiến trúc hệ thống hiện hành được định nghĩa tại `docs/DOCUMENTATION_AUTHORITY.md`.
 ## Ghi chú chạy preview trên Windows
 
 Nếu `next dev` gặp lỗi HMR/hydration khi workspace nằm trong đường dẫn có dấu,
@@ -181,3 +187,12 @@ npm.cmd run start -- -p 3000
 ```
 
 Đây cũng là chế độ đang được dùng cho bản local đã kiểm thử cuối cùng.
+
+## CI runner và ngân sách
+
+- **Runner mặc định:** CI chính (`.github/workflows/ci.yml`) sử dụng GitHub-hosted runner `ubuntu-latest`. Quản trị viên theo dõi usage/quota trực tiếp trong GitHub billing; không áp dụng quota threshold tự động hay auto-switch ngầm.
+- **Chuyển đổi thủ công sang self-hosted khi cần tiết kiệm quota:**
+  1. Kiểm tra runner self-hosted tin cậy (Linux x64, có Docker daemon, PowerShell `pwsh`, Node/npm, browser dependencies) có đủ các labels: `self-hosted`, `linux`, `x64`, `eiu-medlabs-ci`. Tuyệt đối không đưa code từ untrusted fork lên máy self-hosted.
+  2. Trong `.github/workflows/ci.yml`, sửa trường `jobs.verify.runs-on` thành danh sách 4 labels trên. Không bỏ bớt các bước kiểm tra hay gates an toàn. Thao tác này cần Git delivery được ủy quyền như thay đổi code khác.
+- **Khôi phục GitHub-hosted:** Đổi `runs-on` trở lại `ubuntu-latest` khi quota phù hợp. Workflow `full-e2e.yml` tự động kế thừa vì gọi lại `ci.yml`.
+- Nếu runner không khả dụng: CI sẽ ở trạng thái queued/unavailable; không tự động chuyển runner hoặc đánh dấu CI pass khi chưa chạy.

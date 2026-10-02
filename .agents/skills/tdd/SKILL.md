@@ -35,4 +35,4 @@ When the shape of the interface itself is genuinely in question, inspect current
 
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
-- **Refactoring is not part of the loop.** Keep the red → green cycle surgical. Any refactor must be separately justified by the approved task scope and reviewed under `REVIEW.md`.
+- **Refactoring is not part of the loop.** Keep the red → green cycle surgical. Any refactor must be strictly within the approved task scope, verified by observable regression evidence, and reviewed in accordance with the repository's root review policy.

@@ -1,0 +1,5187 @@
+{
+  "tables": {
+    "basic_medical_equipment_catalog": {
+      "name": "basic_medical_equipment_catalog",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "commercial_name": {
+          "name": "commercial_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "item_type": {
+          "name": "item_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "country_of_origin": {
+          "name": "country_of_origin",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "manufacturer": {
+          "name": "manufacturer",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_catalog_active_name_idx": {
+          "name": "basic_medical_catalog_active_name_idx",
+          "unique": false,
+          "columns": [
+            "is_active",
+            "item_name",
+            "commercial_name"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_catalog_commercial_name_normalized_key": {
+          "name": "basic_medical_catalog_commercial_name_normalized_key",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_equipment_catalog_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_equipment_catalog_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "item_name_check": {
+          "type": "CHECK",
+          "name": "item_name_check",
+          "detail": "btrim(item_name) <> ''"
+        },
+        "unit_check": {
+          "type": "CHECK",
+          "name": "unit_check",
+          "detail": "btrim(unit) <> ''"
+        },
+        "basic_medical_equipment_catalog_item_name_commercial_name_model_key": {
+          "type": "UNIQUE",
+          "name": "basic_medical_equipment_catalog_item_name_commercial_name_model_key",
+          "columnNames": [
+            "item_name",
+            "commercial_name",
+            "model"
+          ]
+        },
+        "basic_medical_catalog_commercial_name_not_blank": {
+          "type": "CHECK",
+          "name": "basic_medical_catalog_commercial_name_not_blank",
+          "detail": "btrim(commercial_name) <> ''"
+        }
+      }
+    },
+    "basic_medical_room_inventory": {
+      "name": "basic_medical_room_inventory",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "catalog_item_id": {
+          "name": "catalog_item_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "total_quantity": {
+          "name": "total_quantity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "good_quantity": {
+          "name": "good_quantity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "damaged_quantity": {
+          "name": "damaged_quantity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "last_damage_reporter_id": {
+          "name": "last_damage_reporter_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "last_damage_reported_at": {
+          "name": "last_damage_reported_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_inventory_room_idx": {
+          "name": "basic_medical_inventory_room_idx",
+          "unique": false,
+          "columns": [
+            "room_id",
+            "is_active",
+            "catalog_item_id"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_inventory_damaged_idx": {
+          "name": "basic_medical_inventory_damaged_idx",
+          "unique": false,
+          "columns": [
+            "damaged_quantity",
+            "last_damage_reported_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_room_inventory_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_room_inventory_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "rooms_id_to_basic_medical_room_inventory_room_id": {
+          "type": "FOREIGN KEY",
+          "name": "rooms_id_to_basic_medical_room_inventory_room_id",
+          "columnNames": [
+            "room_id"
+          ],
+          "targetTableName": "rooms",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "basic_medical_equipment_catalog_id_to_basic_medical_room_inventory_catalog_item_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_equipment_catalog_id_to_basic_medical_room_inventory_catalog_item_id",
+          "columnNames": [
+            "catalog_item_id"
+          ],
+          "targetTableName": "basic_medical_equipment_catalog",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "total_quantity_check": {
+          "type": "CHECK",
+          "name": "total_quantity_check",
+          "detail": "total_quantity >= 0"
+        },
+        "good_quantity_check": {
+          "type": "CHECK",
+          "name": "good_quantity_check",
+          "detail": "good_quantity >= 0"
+        },
+        "damaged_quantity_check": {
+          "type": "CHECK",
+          "name": "damaged_quantity_check",
+          "detail": "damaged_quantity >= 0"
+        },
+        "profiles_id_to_basic_medical_room_inventory_last_damage_reporter_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_room_inventory_last_damage_reporter_id",
+          "columnNames": [
+            "last_damage_reporter_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "basic_medical_inventory_quantity_balance": {
+          "type": "CHECK",
+          "name": "basic_medical_inventory_quantity_balance",
+          "detail": "total_quantity = good_quantity + damaged_quantity"
+        },
+        "basic_medical_room_inventory_room_id_catalog_item_id_key": {
+          "type": "UNIQUE",
+          "name": "basic_medical_room_inventory_room_id_catalog_item_id_key",
+          "columnNames": [
+            "room_id",
+            "catalog_item_id"
+          ]
+        }
+      }
+    },
+    "basic_medical_session_confirmations": {
+      "name": "basic_medical_session_confirmations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "registration_id_snapshot": {
+          "name": "registration_id_snapshot",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "class_schedule_id_snapshot": {
+          "name": "class_schedule_id_snapshot",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "signer_id": {
+          "name": "signer_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "signature_data": {
+          "name": "signature_data",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "schedule_date_snapshot": {
+          "name": "schedule_date_snapshot",
+          "type": "date",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "start_time_snapshot": {
+          "name": "start_time_snapshot",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "end_time_snapshot": {
+          "name": "end_time_snapshot",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_id_snapshot": {
+          "name": "room_id_snapshot",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "teaching_lecturer_id_snapshot": {
+          "name": "teaching_lecturer_id_snapshot",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "signed_at": {
+          "name": "signed_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "invalidated_at": {
+          "name": "invalidated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "invalidated_reason": {
+          "name": "invalidated_reason",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_confirmations_active_session_idx": {
+          "name": "basic_medical_confirmations_active_session_idx",
+          "unique": true,
+          "columns": [
+            "session_id"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_confirmations_registration_idx": {
+          "name": "basic_medical_confirmations_registration_idx",
+          "unique": false,
+          "columns": [
+            "registration_id_snapshot",
+            "invalidated_at",
+            "signed_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_session_confirmations_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_session_confirmations_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "basic_medical_registration_sessions_id_to_basic_medical_session_confirmations_session_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_registration_sessions_id_to_basic_medical_session_confirmations_session_id",
+          "columnNames": [
+            "session_id"
+          ],
+          "targetTableName": "basic_medical_registration_sessions",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profiles_id_to_basic_medical_session_confirmations_signer_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_session_confirmations_signer_id",
+          "columnNames": [
+            "signer_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "signature_data_check": {
+          "type": "CHECK",
+          "name": "signature_data_check",
+          "detail": "\r\n    length(signature_data) between 100 and 400000\r\n    and signature_data like 'data:image/png;base64,%'\r\n  "
+        },
+        "rooms_id_to_basic_medical_session_confirmations_room_id_snapshot": {
+          "type": "FOREIGN KEY",
+          "name": "rooms_id_to_basic_medical_session_confirmations_room_id_snapshot",
+          "columnNames": [
+            "room_id_snapshot"
+          ],
+          "targetTableName": "rooms",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_basic_medical_session_confirmations_teaching_lecturer_id_snapshot": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_session_confirmations_teaching_lecturer_id_snapshot",
+          "columnNames": [
+            "teaching_lecturer_id_snapshot"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        }
+      }
+    },
+    "basic_medical_session_equipment_checks": {
+      "name": "basic_medical_session_equipment_checks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "confirmation_id": {
+          "name": "confirmation_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "inventory_id": {
+          "name": "inventory_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "item_name_snapshot": {
+          "name": "item_name_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "commercial_name_snapshot": {
+          "name": "commercial_name_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "unit_snapshot": {
+          "name": "unit_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "total_before": {
+          "name": "total_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "good_before": {
+          "name": "good_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "damaged_before": {
+          "name": "damaged_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "newly_damaged_quantity": {
+          "name": "newly_damaged_quantity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "good_after": {
+          "name": "good_after",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "damaged_after": {
+          "name": "damaged_after",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_checks_confirmation_idx": {
+          "name": "basic_medical_checks_confirmation_idx",
+          "unique": false,
+          "columns": [
+            "confirmation_id",
+            "inventory_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_session_equipment_checks_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_session_equipment_checks_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "basic_medical_session_confirmations_id_to_basic_medical_session_equipment_checks_confirmation_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_session_confirmations_id_to_basic_medical_session_equipment_checks_confirmation_id",
+          "columnNames": [
+            "confirmation_id"
+          ],
+          "targetTableName": "basic_medical_session_confirmations",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "basic_medical_room_inventory_id_to_basic_medical_session_equipment_checks_inventory_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_room_inventory_id_to_basic_medical_session_equipment_checks_inventory_id",
+          "columnNames": [
+            "inventory_id"
+          ],
+          "targetTableName": "basic_medical_room_inventory",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "total_before_check": {
+          "type": "CHECK",
+          "name": "total_before_check",
+          "detail": "total_before >= 0"
+        },
+        "good_before_check": {
+          "type": "CHECK",
+          "name": "good_before_check",
+          "detail": "good_before >= 0"
+        },
+        "damaged_before_check": {
+          "type": "CHECK",
+          "name": "damaged_before_check",
+          "detail": "damaged_before >= 0"
+        },
+        "newly_damaged_quantity_check": {
+          "type": "CHECK",
+          "name": "newly_damaged_quantity_check",
+          "detail": "newly_damaged_quantity >= 0"
+        },
+        "good_after_check": {
+          "type": "CHECK",
+          "name": "good_after_check",
+          "detail": "good_after >= 0"
+        },
+        "damaged_after_check": {
+          "type": "CHECK",
+          "name": "damaged_after_check",
+          "detail": "damaged_after >= 0"
+        },
+        "basic_medical_session_equipment_checks_confirmation_id_inventory_id_key": {
+          "type": "UNIQUE",
+          "name": "basic_medical_session_equipment_checks_confirmation_id_inventory_id_key",
+          "columnNames": [
+            "confirmation_id",
+            "inventory_id"
+          ]
+        },
+        "basic_medical_checks_before_balance": {
+          "type": "CHECK",
+          "name": "basic_medical_checks_before_balance",
+          "detail": "total_before = good_before + damaged_before"
+        },
+        "basic_medical_checks_after_balance": {
+          "type": "CHECK",
+          "name": "basic_medical_checks_after_balance",
+          "detail": "total_before = good_after + damaged_after"
+        }
+      }
+    },
+    "basic_medical_equipment_condition_logs": {
+      "name": "basic_medical_equipment_condition_logs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "inventory_id": {
+          "name": "inventory_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "confirmation_id": {
+          "name": "confirmation_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "event_type": {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "total_before": {
+          "name": "total_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "good_before": {
+          "name": "good_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "damaged_before": {
+          "name": "damaged_before",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "total_after": {
+          "name": "total_after",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "good_after": {
+          "name": "good_after",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "damaged_after": {
+          "name": "damaged_after",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "quantity_delta": {
+          "name": "quantity_delta",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_condition_logs_inventory_idx": {
+          "name": "basic_medical_condition_logs_inventory_idx",
+          "unique": false,
+          "columns": [
+            "inventory_id",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_condition_logs_actor_idx": {
+          "name": "basic_medical_condition_logs_actor_idx",
+          "unique": false,
+          "columns": [
+            "actor_id",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_condition_logs_catalog_snapshot_idx": {
+          "name": "basic_medical_condition_logs_catalog_snapshot_idx",
+          "unique": false,
+          "columns": [
+            "catalog_item_id_snapshot",
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_equipment_condition_logs_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_equipment_condition_logs_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "basic_medical_room_inventory_id_to_basic_medical_equipment_condition_logs_inventory_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_room_inventory_id_to_basic_medical_equipment_condition_logs_inventory_id",
+          "columnNames": [
+            "inventory_id"
+          ],
+          "targetTableName": "basic_medical_room_inventory",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "basic_medical_session_confirmations_id_to_basic_medical_equipment_condition_logs_confirmation_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_session_confirmations_id_to_basic_medical_equipment_condition_logs_confirmation_id",
+          "columnNames": [
+            "confirmation_id"
+          ],
+          "targetTableName": "basic_medical_session_confirmations",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "event_type_check": {
+          "type": "CHECK",
+          "name": "event_type_check",
+          "detail": "\r\n    event_type in ('damage_report', 'condition_adjustment', 'stock_adjustment')\r\n  "
+        },
+        "total_before_check": {
+          "type": "CHECK",
+          "name": "total_before_check",
+          "detail": "total_before >= 0"
+        },
+        "good_before_check": {
+          "type": "CHECK",
+          "name": "good_before_check",
+          "detail": "good_before >= 0"
+        },
+        "damaged_before_check": {
+          "type": "CHECK",
+          "name": "damaged_before_check",
+          "detail": "damaged_before >= 0"
+        },
+        "total_after_check": {
+          "type": "CHECK",
+          "name": "total_after_check",
+          "detail": "total_after >= 0"
+        },
+        "good_after_check": {
+          "type": "CHECK",
+          "name": "good_after_check",
+          "detail": "good_after >= 0"
+        },
+        "damaged_after_check": {
+          "type": "CHECK",
+          "name": "damaged_after_check",
+          "detail": "damaged_after >= 0"
+        },
+        "profiles_id_to_basic_medical_equipment_condition_logs_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_equipment_condition_logs_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "basic_medical_logs_before_balance": {
+          "type": "CHECK",
+          "name": "basic_medical_logs_before_balance",
+          "detail": "total_before = good_before + damaged_before"
+        },
+        "basic_medical_logs_after_balance": {
+          "type": "CHECK",
+          "name": "basic_medical_logs_after_balance",
+          "detail": "total_after = good_after + damaged_after"
+        },
+        "basic_medical_condition_log_catalog_snapshot_valid": {
+          "type": "CHECK",
+          "name": "basic_medical_condition_log_catalog_snapshot_valid",
+          "detail": "\r\n    (\r\n      catalog_item_id_snapshot is null\r\n      and item_name_snapshot is null\r\n      and commercial_name_snapshot is null\r\n      and unit_snapshot is null\r\n    )\r\n    or (\r\n      catalog_item_id_snapshot is not null\r\n      and item_name_snapshot is not null\r\n      and btrim(item_name_snapshot) <> ''\r\n      and unit_snapshot is not null\r\n      and btrim(unit_snapshot) <> ''\r\n    )\r\n  "
+        }
+      }
+    },
+    "profiles": {
+      "name": "profiles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "employee_code": {
+          "name": "employee_code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "must_change_password": {
+          "name": "must_change_password",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "can_import_schedules": {
+          "name": "can_import_schedules",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "can_manage_shift_history": {
+          "name": "can_manage_shift_history",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "allow_basic_medical_access": {
+          "name": "allow_basic_medical_access",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "access_version": {
+          "name": "access_version",
+          "type": "int4",
+          "default": 1,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "profiles_email_unique_idx": {
+          "name": "profiles_email_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        },
+        "profiles_employee_code_unique_idx": {
+          "name": "profiles_employee_code_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "users_id_to_profiles_id": {
+          "type": "FOREIGN KEY",
+          "name": "users_id_to_profiles_id",
+          "columnNames": [
+            "id"
+          ],
+          "targetTableName": "users",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "profiles_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_email_not_blank": {
+          "type": "CHECK",
+          "name": "profiles_email_not_blank",
+          "detail": "btrim(email) <> ''"
+        },
+        "profiles_name_not_blank": {
+          "type": "CHECK",
+          "name": "profiles_name_not_blank",
+          "detail": "btrim(full_name) <> ''"
+        },
+        "profiles_access_version_positive": {
+          "type": "CHECK",
+          "name": "profiles_access_version_positive",
+          "detail": "access_version >= 1"
+        }
+      }
+    },
+    "personnel_auth_reconciliation_logs": {
+      "name": "personnel_auth_reconciliation_logs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "previous_email": {
+          "name": "previous_email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "requested_email": {
+          "name": "requested_email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "failure_stage": {
+          "name": "failure_stage",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "personnel_auth_reconciliation_open_idx": {
+          "name": "personnel_auth_reconciliation_open_idx",
+          "unique": false,
+          "columns": [
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "personnel_auth_reconciliation_logs_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "personnel_auth_reconciliation_logs_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_personnel_auth_reconciliation_logs_profile_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_auth_reconciliation_logs_profile_id",
+          "columnNames": [
+            "profile_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profiles_id_to_personnel_auth_reconciliation_logs_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_auth_reconciliation_logs_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "personnel_auth_reconciliation_stage_not_blank": {
+          "type": "CHECK",
+          "name": "personnel_auth_reconciliation_stage_not_blank",
+          "detail": "btrim(failure_stage) <> ''"
+        }
+      }
+    },
+    "user_roles": {
+      "name": "user_roles",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "role": {
+          "name": "role",
+          "type": "app_role",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "user_roles_created_by_idx": {
+          "name": "user_roles_created_by_idx",
+          "unique": false,
+          "columns": [
+            "created_by"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "profiles_id_to_user_roles_user_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_user_roles_user_id",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_id_to_user_roles_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_user_roles_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "user_roles_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "user_roles_pkey",
+          "columnNames": [
+            "user_id",
+            "role"
+          ]
+        }
+      }
+    },
+    "courses": {
+      "name": "courses",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "course_code": {
+          "name": "course_code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "course_name": {
+          "name": "course_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "courses_code_unique_idx": {
+          "name": "courses_code_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        },
+        "courses_active_name_idx": {
+          "name": "courses_active_name_idx",
+          "unique": false,
+          "columns": [
+            "is_active",
+            "course_name"
+          ],
+          "type": "btree"
+        },
+        "courses_room_type_id_idx": {
+          "name": "courses_room_type_id_idx",
+          "unique": false,
+          "columns": [
+            "room_type_id",
+            "is_active",
+            "course_name"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "courses_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "courses_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "courses_code_not_blank": {
+          "type": "CHECK",
+          "name": "courses_code_not_blank",
+          "detail": "btrim(course_code) <> ''"
+        },
+        "courses_name_not_blank": {
+          "type": "CHECK",
+          "name": "courses_name_not_blank",
+          "detail": "btrim(course_name) <> ''"
+        }
+      }
+    },
+    "rooms": {
+      "name": "rooms",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_code": {
+          "name": "room_code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "building_code": {
+          "name": "building_code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_name": {
+          "name": "room_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "room_type": {
+          "name": "room_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "rooms_code_building_unique_idx": {
+          "name": "rooms_code_building_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        },
+        "rooms_active_type_idx": {
+          "name": "rooms_active_type_idx",
+          "unique": false,
+          "columns": [
+            "is_active",
+            "room_type"
+          ],
+          "type": "btree"
+        },
+        "rooms_room_type_id_idx": {
+          "name": "rooms_room_type_id_idx",
+          "unique": false,
+          "columns": [
+            "room_type_id",
+            "is_active",
+            "building_code",
+            "room_code"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "rooms_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "rooms_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "rooms_code_not_blank": {
+          "type": "CHECK",
+          "name": "rooms_code_not_blank",
+          "detail": "btrim(room_code) <> ''"
+        },
+        "rooms_building_not_blank": {
+          "type": "CHECK",
+          "name": "rooms_building_not_blank",
+          "detail": "btrim(building_code) <> ''"
+        },
+        "rooms_capacity_positive": {
+          "type": "CHECK",
+          "name": "rooms_capacity_positive",
+          "detail": "capacity is null or capacity > 0"
+        },
+        "rooms_capacity_real_or_unknown": {
+          "type": "CHECK",
+          "name": "rooms_capacity_real_or_unknown",
+          "detail": "capacity is null or capacity >= 1"
+        }
+      }
+    },
+    "import_batches": {
+      "name": "import_batches",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "source_type": {
+          "name": "source_type",
+          "type": "schedule_source",
+          "default": "import",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "original_file_name": {
+          "name": "original_file_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "file_hash": {
+          "name": "file_hash",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "import_status",
+          "default": "uploaded",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "total_rows": {
+          "name": "total_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "valid_rows": {
+          "name": "valid_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "warning_rows": {
+          "name": "warning_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "error_rows": {
+          "name": "error_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "imported_rows": {
+          "name": "imported_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "duplicate_rows": {
+          "name": "duplicate_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "conflict_rows": {
+          "name": "conflict_rows",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "import_batches_created_by_idx": {
+          "name": "import_batches_created_by_idx",
+          "unique": false,
+          "columns": [
+            "created_by",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "import_batches_status_idx": {
+          "name": "import_batches_status_idx",
+          "unique": false,
+          "columns": [
+            "status",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "import_batches_room_type_idx": {
+          "name": "import_batches_room_type_idx",
+          "unique": false,
+          "columns": [
+            "room_type_id",
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "import_batches_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "import_batches_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_import_batches_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_import_batches_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "import_batches_counts_non_negative": {
+          "type": "CHECK",
+          "name": "import_batches_counts_non_negative",
+          "detail": "\r\n    total_rows >= 0 and valid_rows >= 0 and warning_rows >= 0 and\r\n    error_rows >= 0 and imported_rows >= 0 and duplicate_rows >= 0 and conflict_rows >= 0\r\n  "
+        }
+      }
+    },
+    "basic_medical_registrations": {
+      "name": "basic_medical_registrations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "academic_year": {
+          "name": "academic_year",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "semester": {
+          "name": "semester",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "student_count": {
+          "name": "student_count",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "registrant_id": {
+          "name": "registrant_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "responsible_lecturer_id": {
+          "name": "responsible_lecturer_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "basic_medical_registrations_created_by_idx": {
+          "name": "basic_medical_registrations_created_by_idx",
+          "unique": false,
+          "columns": [
+            "created_by",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_registrations_code_key": {
+          "name": "basic_medical_registrations_code_key",
+          "unique": true,
+          "columns": [
+            "registration_code"
+          ],
+          "type": "btree"
+        },
+        "basic_medical_registrations_active_idx": {
+          "name": "basic_medical_registrations_active_idx",
+          "unique": false,
+          "columns": [
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "basic_medical_registrations_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_registrations_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "academic_year_check": {
+          "type": "CHECK",
+          "name": "academic_year_check",
+          "detail": "btrim(academic_year) <> ''"
+        },
+        "semester_check": {
+          "type": "CHECK",
+          "name": "semester_check",
+          "detail": "semester in ('HK1','HK2','HK3','HK4')"
+        },
+        "end_date_check": {
+          "type": "CHECK",
+          "name": "end_date_check",
+          "detail": "end_date >= start_date"
+        },
+        "courses_id_to_basic_medical_registrations_course_id": {
+          "type": "FOREIGN KEY",
+          "name": "courses_id_to_basic_medical_registrations_course_id",
+          "columnNames": [
+            "course_id"
+          ],
+          "targetTableName": "courses",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "rooms_id_to_basic_medical_registrations_room_id": {
+          "type": "FOREIGN KEY",
+          "name": "rooms_id_to_basic_medical_registrations_room_id",
+          "columnNames": [
+            "room_id"
+          ],
+          "targetTableName": "rooms",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "student_count_check": {
+          "type": "CHECK",
+          "name": "student_count_check",
+          "detail": "student_count > 0"
+        },
+        "profiles_id_to_basic_medical_registrations_registrant_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_registrations_registrant_id",
+          "columnNames": [
+            "registrant_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_basic_medical_registrations_responsible_lecturer_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_registrations_responsible_lecturer_id",
+          "columnNames": [
+            "responsible_lecturer_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_basic_medical_registrations_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_registrations_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        }
+      }
+    },
+    "class_schedules": {
+      "name": "class_schedules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "course_code_snapshot": {
+          "name": "course_code_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "course_name_snapshot": {
+          "name": "course_name_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "lecturer_id": {
+          "name": "lecturer_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "class_code": {
+          "name": "class_code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "schedule_date": {
+          "name": "schedule_date",
+          "type": "date",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "start_time": {
+          "name": "start_time",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "time_range": {
+          "name": "time_range",
+          "type": "tsrange",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "source": {
+          "name": "source",
+          "type": "schedule_source",
+          "default": "manual",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "source_row_id": {
+          "name": "source_row_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "import_batch_id": {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "basic_medical_registration_id": {
+          "name": "basic_medical_registration_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "schedule_status": {
+          "name": "schedule_status",
+          "type": "schedule_status",
+          "default": "draft",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "published_by": {
+          "name": "published_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "cancelled_by": {
+          "name": "cancelled_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "lecturer_2_id": {
+          "name": "lecturer_2_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "semester": {
+          "name": "semester",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "class_schedules_course_id_idx": {
+          "name": "class_schedules_course_id_idx",
+          "unique": false,
+          "columns": [
+            "course_id"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_room_date_idx": {
+          "name": "class_schedules_room_date_idx",
+          "unique": false,
+          "columns": [
+            "room_id",
+            "schedule_date"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_lecturer_date_idx": {
+          "name": "class_schedules_lecturer_date_idx",
+          "unique": false,
+          "columns": [
+            "lecturer_id",
+            "schedule_date"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_lecturer_2_date_idx": {
+          "name": "class_schedules_lecturer_2_date_idx",
+          "unique": false,
+          "columns": [
+            "lecturer_2_id",
+            "schedule_date"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_created_by_idx": {
+          "name": "class_schedules_created_by_idx",
+          "unique": false,
+          "columns": [
+            "created_by",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_import_batch_idx": {
+          "name": "class_schedules_import_batch_idx",
+          "unique": false,
+          "columns": [
+            "import_batch_id"
+          ],
+          "type": "btree"
+        },
+        "class_schedules_open_idx": {
+          "name": "class_schedules_open_idx",
+          "unique": false,
+          "columns": [
+            "schedule_date",
+            "start_time"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "class_schedules_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "class_schedules_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "courses_id_to_class_schedules_course_id": {
+          "type": "FOREIGN KEY",
+          "name": "courses_id_to_class_schedules_course_id",
+          "columnNames": [
+            "course_id"
+          ],
+          "targetTableName": "courses",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "rooms_id_to_class_schedules_room_id": {
+          "type": "FOREIGN KEY",
+          "name": "rooms_id_to_class_schedules_room_id",
+          "columnNames": [
+            "room_id"
+          ],
+          "targetTableName": "rooms",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_class_schedules_lecturer_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_class_schedules_lecturer_id",
+          "columnNames": [
+            "lecturer_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "import_batches_id_to_class_schedules_import_batch_id": {
+          "type": "FOREIGN KEY",
+          "name": "import_batches_id_to_class_schedules_import_batch_id",
+          "columnNames": [
+            "import_batch_id"
+          ],
+          "targetTableName": "import_batches",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "basic_medical_registrations_id_to_class_schedules_basic_medical_registration_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_registrations_id_to_class_schedules_basic_medical_registration_id",
+          "columnNames": [
+            "basic_medical_registration_id"
+          ],
+          "targetTableName": "basic_medical_registrations",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_id_to_class_schedules_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_class_schedules_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_class_schedules_published_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_class_schedules_published_by",
+          "columnNames": [
+            "published_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profiles_id_to_class_schedules_cancelled_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_class_schedules_cancelled_by",
+          "columnNames": [
+            "cancelled_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profiles_id_to_class_schedules_lecturer_2_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_class_schedules_lecturer_2_id",
+          "columnNames": [
+            "lecturer_2_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "class_schedules_semester_check": {
+          "type": "CHECK",
+          "name": "class_schedules_semester_check",
+          "detail": "\r\n    semester is null or semester in ('HK1', 'HK2', 'HK3', 'HK4')\r\n  "
+        },
+        "class_schedules_course_code_not_blank": {
+          "type": "CHECK",
+          "name": "class_schedules_course_code_not_blank",
+          "detail": "btrim(course_code_snapshot) <> ''"
+        },
+        "class_schedules_course_name_not_blank": {
+          "type": "CHECK",
+          "name": "class_schedules_course_name_not_blank",
+          "detail": "btrim(course_name_snapshot) <> ''"
+        },
+        "class_schedules_valid_time": {
+          "type": "CHECK",
+          "name": "class_schedules_valid_time",
+          "detail": "end_time > start_time"
+        },
+        "class_schedules_publish_metadata": {
+          "type": "CHECK",
+          "name": "class_schedules_publish_metadata",
+          "detail": "\r\n    (schedule_status <> 'published') or (published_at is not null and published_by is not null)\r\n  "
+        },
+        "class_schedules_cancel_metadata": {
+          "type": "CHECK",
+          "name": "class_schedules_cancel_metadata",
+          "detail": "\r\n    (schedule_status <> 'cancelled') or (cancelled_at is not null and cancelled_by is not null)\r\n  "
+        },
+        "class_schedules_lecturers_distinct": {
+          "type": "CHECK",
+          "name": "class_schedules_lecturers_distinct",
+          "detail": "\r\n    lecturer_id is null or lecturer_2_id is null or lecturer_id <> lecturer_2_id\r\n  "
+        },
+        "class_schedules_student_count_positive": {
+          "type": "CHECK",
+          "name": "class_schedules_student_count_positive",
+          "detail": "student_count >= 1"
+        },
+        "class_schedules_operating_hours": {
+          "type": "CHECK",
+          "name": "class_schedules_operating_hours",
+          "detail": "\r\n    (\r\n      basic_medical_registration_id is not null\r\n      and start_time >= time '07:00'\r\n      and end_time <= time '21:00'\r\n    )\r\n    or\r\n    (\r\n      basic_medical_registration_id is null\r\n      and (\r\n        (start_time >= time '07:30' and end_time <= time '11:30')\r\n        or (start_time >= time '12:30' and end_time <= time '16:30')\r\n      )\r\n    )\r\n  "
+        }
+      }
+    },
+    "import_rows": {
+      "name": "import_rows",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "import_batch_id": {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "row_number": {
+          "name": "row_number",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "source_row_id": {
+          "name": "source_row_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "normalized_row_hash": {
+          "name": "normalized_row_hash",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "normalized_data": {
+          "name": "normalized_data",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "validation_status": {
+          "name": "validation_status",
+          "type": "import_row_status",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "errors": {
+          "name": "errors",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "warnings": {
+          "name": "warnings",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "class_schedule_id": {
+          "name": "class_schedule_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "import_rows_batch_status_idx": {
+          "name": "import_rows_batch_status_idx",
+          "unique": false,
+          "columns": [
+            "import_batch_id",
+            "validation_status"
+          ],
+          "type": "btree"
+        },
+        "import_rows_hash_idx": {
+          "name": "import_rows_hash_idx",
+          "unique": false,
+          "columns": [
+            "normalized_row_hash"
+          ],
+          "type": "btree"
+        },
+        "import_rows_schedule_idx": {
+          "name": "import_rows_schedule_idx",
+          "unique": false,
+          "columns": [
+            "class_schedule_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "import_rows_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "import_rows_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "import_batches_id_to_import_rows_import_batch_id": {
+          "type": "FOREIGN KEY",
+          "name": "import_batches_id_to_import_rows_import_batch_id",
+          "columnNames": [
+            "import_batch_id"
+          ],
+          "targetTableName": "import_batches",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "class_schedules_id_to_import_rows_class_schedule_id": {
+          "type": "FOREIGN KEY",
+          "name": "class_schedules_id_to_import_rows_class_schedule_id",
+          "columnNames": [
+            "class_schedule_id"
+          ],
+          "targetTableName": "class_schedules",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "import_rows_row_number_positive": {
+          "type": "CHECK",
+          "name": "import_rows_row_number_positive",
+          "detail": "row_number > 0"
+        },
+        "import_rows_import_batch_id_row_number_key": {
+          "type": "UNIQUE",
+          "name": "import_rows_import_batch_id_row_number_key",
+          "columnNames": [
+            "import_batch_id",
+            "row_number"
+          ]
+        }
+      }
+    },
+    "staff_shifts": {
+      "name": "staff_shifts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "shift_date": {
+          "name": "shift_date",
+          "type": "date",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "shift_slot": {
+          "name": "shift_slot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "start_time": {
+          "name": "start_time",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "time",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "shift_status",
+          "default": "scheduled",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "registration_source": {
+          "name": "registration_source",
+          "type": "shift_registration_source",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "creation_group_id": {
+          "name": "creation_group_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "cancelled_by": {
+          "name": "cancelled_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "cancellation_reason": {
+          "name": "cancellation_reason",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "staff_shifts_staff_date_idx": {
+          "name": "staff_shifts_staff_date_idx",
+          "unique": false,
+          "columns": [
+            "staff_id",
+            "shift_date"
+          ],
+          "type": "btree"
+        },
+        "staff_shifts_date_status_idx": {
+          "name": "staff_shifts_date_status_idx",
+          "unique": false,
+          "columns": [
+            "shift_date",
+            "status"
+          ],
+          "type": "btree"
+        },
+        "staff_shifts_created_by_idx": {
+          "name": "staff_shifts_created_by_idx",
+          "unique": false,
+          "columns": [
+            "created_by"
+          ],
+          "type": "btree"
+        },
+        "staff_shifts_creation_group_idx": {
+          "name": "staff_shifts_creation_group_idx",
+          "unique": false,
+          "columns": [
+            "creation_group_id"
+          ],
+          "type": "btree"
+        },
+        "staff_shifts_active_slot_unique_idx": {
+          "name": "staff_shifts_active_slot_unique_idx",
+          "unique": true,
+          "columns": [
+            "staff_id",
+            "shift_date",
+            "shift_slot"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "staff_shifts_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "staff_shifts_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_staff_shifts_staff_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_staff_shifts_staff_id",
+          "columnNames": [
+            "staff_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "shift_slot_check": {
+          "type": "CHECK",
+          "name": "shift_slot_check",
+          "detail": "shift_slot in ('MORNING', 'AFTERNOON')"
+        },
+        "profiles_id_to_staff_shifts_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_staff_shifts_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_staff_shifts_cancelled_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_staff_shifts_cancelled_by",
+          "columnNames": [
+            "cancelled_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "staff_shifts_slot_check": {
+          "type": "CHECK",
+          "name": "staff_shifts_slot_check",
+          "detail": "shift_slot in ('MORNING', 'AFTERNOON')"
+        },
+        "staff_shifts_valid_time": {
+          "type": "CHECK",
+          "name": "staff_shifts_valid_time",
+          "detail": "end_time > start_time"
+        },
+        "staff_shifts_morning_time_check": {
+          "type": "CHECK",
+          "name": "staff_shifts_morning_time_check",
+          "detail": "\r\n    shift_slot <> 'MORNING' or (\r\n      start_time >= '07:00'::time\r\n      and start_time < end_time\r\n      and end_time <= '11:30'::time\r\n      and extract(minute from start_time)::integer in (0, 30)\r\n      and extract(second from start_time)::integer = 0\r\n      and extract(minute from end_time)::integer in (0, 30)\r\n      and extract(second from end_time)::integer = 0\r\n    )\r\n  "
+        },
+        "staff_shifts_afternoon_time_check": {
+          "type": "CHECK",
+          "name": "staff_shifts_afternoon_time_check",
+          "detail": "\r\n    shift_slot <> 'AFTERNOON' or (\r\n      start_time >= '12:30'::time\r\n      and start_time < end_time\r\n      and end_time <= '16:30'::time\r\n      and extract(minute from start_time)::integer in (0, 30)\r\n      and extract(second from start_time)::integer = 0\r\n      and extract(minute from end_time)::integer in (0, 30)\r\n      and extract(second from end_time)::integer = 0\r\n    )\r\n  "
+        },
+        "staff_shifts_cancel_metadata": {
+          "type": "CHECK",
+          "name": "staff_shifts_cancel_metadata",
+          "detail": "\r\n    (status <> 'cancelled') or (cancelled_at is not null and cancelled_by is not null)\r\n  "
+        }
+      }
+    },
+    "audit_logs": {
+      "name": "audit_logs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "old_data": {
+          "name": "old_data",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "new_data": {
+          "name": "new_data",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "audit_logs_actor_idx": {
+          "name": "audit_logs_actor_idx",
+          "unique": false,
+          "columns": [
+            "actor_id",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "audit_logs_entity_idx": {
+          "name": "audit_logs_entity_idx",
+          "unique": false,
+          "columns": [
+            "entity_type",
+            "entity_id",
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "audit_logs_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "audit_logs_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_audit_logs_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_audit_logs_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "audit_logs_action_not_blank": {
+          "type": "CHECK",
+          "name": "audit_logs_action_not_blank",
+          "detail": "btrim(action) <> ''"
+        },
+        "audit_logs_entity_type_not_blank": {
+          "type": "CHECK",
+          "name": "audit_logs_entity_type_not_blank",
+          "detail": "btrim(entity_type) <> ''"
+        }
+      }
+    },
+    "email_notifications": {
+      "name": "email_notifications",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "notification_type": {
+          "name": "notification_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "recipient_id": {
+          "name": "recipient_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "recipient_email": {
+          "name": "recipient_email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "dedupe_key": {
+          "name": "dedupe_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "default": "pending",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "provider_message_id": {
+          "name": "provider_message_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "processing_started_at": {
+          "name": "processing_started_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "delivery_mode_at_enqueue": {
+          "name": "delivery_mode_at_enqueue",
+          "type": "text",
+          "default": "off",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "provider_succeeded_at": {
+          "name": "provider_succeeded_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "acknowledgement_error": {
+          "name": "acknowledgement_error",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "email_notifications_dedupe_idx": {
+          "name": "email_notifications_dedupe_idx",
+          "unique": true,
+          "columns": [
+            "dedupe_key"
+          ],
+          "type": "btree"
+        },
+        "email_notifications_dispatch_idx": {
+          "name": "email_notifications_dispatch_idx",
+          "unique": false,
+          "columns": [
+            "status",
+            "attempts",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "email_notifications_recipient_idx": {
+          "name": "email_notifications_recipient_idx",
+          "unique": false,
+          "columns": [
+            "recipient_id",
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "email_notifications_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "email_notifications_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_email_notifications_recipient_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_email_notifications_recipient_id",
+          "columnNames": [
+            "recipient_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "email_notifications_type_not_blank": {
+          "type": "CHECK",
+          "name": "email_notifications_type_not_blank",
+          "detail": "btrim(notification_type) <> ''"
+        },
+        "email_notifications_recipient_not_blank": {
+          "type": "CHECK",
+          "name": "email_notifications_recipient_not_blank",
+          "detail": "btrim(recipient_email) <> ''"
+        },
+        "email_notifications_subject_not_blank": {
+          "type": "CHECK",
+          "name": "email_notifications_subject_not_blank",
+          "detail": "btrim(subject) <> ''"
+        },
+        "email_notifications_attempts_non_negative": {
+          "type": "CHECK",
+          "name": "email_notifications_attempts_non_negative",
+          "detail": "attempts >= 0"
+        },
+        "email_notifications_status_valid": {
+          "type": "CHECK",
+          "name": "email_notifications_status_valid",
+          "detail": "\r\n    status in ('pending', 'processing', 'sent', 'sent_unconfirmed', 'simulated', 'suppressed', 'failed')\r\n  "
+        },
+        "email_notifications_delivery_mode_snapshot_valid": {
+          "type": "CHECK",
+          "name": "email_notifications_delivery_mode_snapshot_valid",
+          "detail": "\r\n    delivery_mode_at_enqueue in ('off', 'test', 'live')\r\n  "
+        }
+      }
+    },
+    "email_delivery_settings": {
+      "name": "email_delivery_settings",
+      "columns": {
+        "setting_key": {
+          "name": "setting_key",
+          "type": "text",
+          "default": "primary",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "delivery_mode": {
+          "name": "delivery_mode",
+          "type": "text",
+          "default": "off",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "email_delivery_settings_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "email_delivery_settings_pkey",
+          "columnNames": [
+            "setting_key"
+          ]
+        },
+        "profiles_id_to_email_delivery_settings_updated_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_email_delivery_settings_updated_by",
+          "columnNames": [
+            "updated_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "email_delivery_settings_singleton": {
+          "type": "CHECK",
+          "name": "email_delivery_settings_singleton",
+          "detail": "setting_key = 'primary'"
+        },
+        "email_delivery_settings_mode_valid": {
+          "type": "CHECK",
+          "name": "email_delivery_settings_mode_valid",
+          "detail": "\r\n    delivery_mode in ('off', 'test', 'live')\r\n  "
+        }
+      }
+    },
+    "room_types": {
+      "name": "room_types",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "room_types_code_unique_idx": {
+          "name": "room_types_code_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        },
+        "room_types_name_unique_idx": {
+          "name": "room_types_name_unique_idx",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "room_types_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "room_types_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "room_types_code_not_blank": {
+          "type": "CHECK",
+          "name": "room_types_code_not_blank",
+          "detail": "btrim(code) <> ''"
+        },
+        "room_types_name_not_blank": {
+          "type": "CHECK",
+          "name": "room_types_name_not_blank",
+          "detail": "btrim(name) <> ''"
+        }
+      }
+    },
+    "profile_room_types": {
+      "name": "profile_room_types",
+      "columns": {
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "room_type_id": {
+          "name": "room_type_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "receive_schedule_emails": {
+          "name": "receive_schedule_emails",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "profile_room_types_room_type_idx": {
+          "name": "profile_room_types_room_type_idx",
+          "unique": false,
+          "columns": [
+            "room_type_id",
+            "profile_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "profiles_id_to_profile_room_types_profile_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_profile_room_types_profile_id",
+          "columnNames": [
+            "profile_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "room_types_id_to_profile_room_types_room_type_id": {
+          "type": "FOREIGN KEY",
+          "name": "room_types_id_to_profile_room_types_room_type_id",
+          "columnNames": [
+            "room_type_id"
+          ],
+          "targetTableName": "room_types",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_id_to_profile_room_types_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_profile_room_types_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profile_room_types_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "profile_room_types_pkey",
+          "columnNames": [
+            "profile_id",
+            "room_type_id"
+          ]
+        }
+      }
+    },
+    "basic_medical_registration_sessions": {
+      "name": "basic_medical_registration_sessions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "registration_id": {
+          "name": "registration_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "class_schedule_id": {
+          "name": "class_schedule_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "lesson_title": {
+          "name": "lesson_title",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "teaching_lecturer_id": {
+          "name": "teaching_lecturer_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "session_number": {
+          "name": "session_number",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "basic_medical_registration_sessions_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "basic_medical_registration_sessions_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "basic_medical_registrations_id_to_basic_medical_registration_sessions_registration_id": {
+          "type": "FOREIGN KEY",
+          "name": "basic_medical_registrations_id_to_basic_medical_registration_sessions_registration_id",
+          "columnNames": [
+            "registration_id"
+          ],
+          "targetTableName": "basic_medical_registrations",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "class_schedules_id_to_basic_medical_registration_sessions_class_schedule_id": {
+          "type": "FOREIGN KEY",
+          "name": "class_schedules_id_to_basic_medical_registration_sessions_class_schedule_id",
+          "columnNames": [
+            "class_schedule_id"
+          ],
+          "targetTableName": "class_schedules",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "basic_medical_registration_sessions_class_schedule_id_key": {
+          "type": "UNIQUE",
+          "name": "basic_medical_registration_sessions_class_schedule_id_key",
+          "columnNames": [
+            "class_schedule_id"
+          ]
+        },
+        "lesson_title_check": {
+          "type": "CHECK",
+          "name": "lesson_title_check",
+          "detail": "btrim(lesson_title) <> ''"
+        },
+        "profiles_id_to_basic_medical_registration_sessions_teaching_lecturer_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_basic_medical_registration_sessions_teaching_lecturer_id",
+          "columnNames": [
+            "teaching_lecturer_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "session_number_check": {
+          "type": "CHECK",
+          "name": "session_number_check",
+          "detail": "session_number > 0"
+        },
+        "basic_medical_registration_sessions_registration_id_session_number_key": {
+          "type": "UNIQUE",
+          "name": "basic_medical_registration_sessions_registration_id_session_number_key",
+          "columnNames": [
+            "registration_id",
+            "session_number"
+          ]
+        }
+      }
+    },
+    "equipment_catalog": {
+      "name": "equipment_catalog",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "commercial_name": {
+          "name": "commercial_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "item_type": {
+          "name": "item_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "country_of_origin": {
+          "name": "country_of_origin",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "manufacturer": {
+          "name": "manufacturer",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "equipment_catalog_commercial_name_normalized_key": {
+          "name": "equipment_catalog_commercial_name_normalized_key",
+          "unique": true,
+          "columns": [],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "equipment_catalog_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "equipment_catalog_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "item_name_check": {
+          "type": "CHECK",
+          "name": "item_name_check",
+          "detail": "btrim(item_name) <> ''"
+        },
+        "commercial_name_check": {
+          "type": "CHECK",
+          "name": "commercial_name_check",
+          "detail": "btrim(commercial_name) <> ''"
+        },
+        "unit_check": {
+          "type": "CHECK",
+          "name": "unit_check",
+          "detail": "btrim(unit) <> ''"
+        }
+      }
+    },
+    "equipment_requests": {
+      "name": "equipment_requests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "class_schedule_id": {
+          "name": "class_schedule_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "registrant_id": {
+          "name": "registrant_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "responsible_lecturer_id": {
+          "name": "responsible_lecturer_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "semester": {
+          "name": "semester",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "phone_snapshot": {
+          "name": "phone_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "email_snapshot": {
+          "name": "email_snapshot",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "receive_at": {
+          "name": "receive_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "return_at": {
+          "name": "return_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "default": "new",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "late_approval_status": {
+          "name": "late_approval_status",
+          "type": "text",
+          "default": "not_required",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "late_registration_reason": {
+          "name": "late_registration_reason",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "late_requested_at": {
+          "name": "late_requested_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "late_reviewed_by": {
+          "name": "late_reviewed_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "late_reviewed_at": {
+          "name": "late_reviewed_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "late_review_note": {
+          "name": "late_review_note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "handover_file_url": {
+          "name": "handover_file_url",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "equipment_requests_registrant_idx": {
+          "name": "equipment_requests_registrant_idx",
+          "unique": false,
+          "columns": [
+            "registrant_id",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "equipment_requests_late_approval_pending_idx": {
+          "name": "equipment_requests_late_approval_pending_idx",
+          "unique": false,
+          "columns": [
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "equipment_requests_domain_source_identity_key": {
+          "name": "equipment_requests_domain_source_identity_key",
+          "unique": true,
+          "columns": [
+            "request_domain",
+            "source_identity_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "equipment_requests_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "equipment_requests_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_equipment_requests_registrant_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_equipment_requests_registrant_id",
+          "columnNames": [
+            "registrant_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_equipment_requests_responsible_lecturer_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_equipment_requests_responsible_lecturer_id",
+          "columnNames": [
+            "responsible_lecturer_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "semester_check": {
+          "type": "CHECK",
+          "name": "semester_check",
+          "detail": "semester in ('HK1','HK2','HK3','HK4')"
+        },
+        "phone_snapshot_check": {
+          "type": "CHECK",
+          "name": "phone_snapshot_check",
+          "detail": "phone_snapshot ~ '^[0-9]{10}$'"
+        },
+        "return_at_check": {
+          "type": "CHECK",
+          "name": "return_at_check",
+          "detail": "return_at >= receive_at"
+        },
+        "status_check": {
+          "type": "CHECK",
+          "name": "status_check",
+          "detail": "status in ('new','preparing','handed_over','returned','completed')"
+        },
+        "late_approval_status_check": {
+          "type": "CHECK",
+          "name": "late_approval_status_check",
+          "detail": "late_approval_status in ('not_required','pending','approved','rejected')"
+        },
+        "profiles_id_to_equipment_requests_late_reviewed_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_equipment_requests_late_reviewed_by",
+          "columnNames": [
+            "late_reviewed_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "profiles_id_to_equipment_requests_created_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_equipment_requests_created_by",
+          "columnNames": [
+            "created_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "equipment_requests_late_approval_status_valid": {
+          "type": "CHECK",
+          "name": "equipment_requests_late_approval_status_valid",
+          "detail": "\r\n    late_approval_status in ('not_required','pending','approved','rejected')\r\n  "
+        },
+        "equipment_requests_late_approval_reason_required": {
+          "type": "CHECK",
+          "name": "equipment_requests_late_approval_reason_required",
+          "detail": "\r\n    late_approval_status = 'not_required'\r\n    or nullif(btrim(late_registration_reason), '') is not null\r\n  "
+        },
+        "equipment_requests_late_review_valid": {
+          "type": "CHECK",
+          "name": "equipment_requests_late_review_valid",
+          "detail": "\r\n    (late_approval_status in ('not_required','pending') and late_reviewed_by is null and late_reviewed_at is null)\r\n    or (late_approval_status in ('approved','rejected') and late_reviewed_by is not null and late_reviewed_at is not null)\r\n  "
+        },
+        "equipment_requests_handover_signature_valid": {
+          "type": "CHECK",
+          "name": "equipment_requests_handover_signature_valid",
+          "detail": "\r\n    handover_recipient_signature is null or (\r\n      length(handover_recipient_signature) between 100 and 400000\r\n      and handover_recipient_signature like 'data:image/png;base64,%'\r\n    )\r\n  "
+        },
+        "equipment_requests_return_signature_valid": {
+          "type": "CHECK",
+          "name": "equipment_requests_return_signature_valid",
+          "detail": "\r\n    return_recipient_signature is null or (\r\n      length(return_recipient_signature) between 100 and 400000\r\n      and return_recipient_signature like 'data:image/png;base64,%'\r\n    )\r\n  "
+        },
+        "equipment_requests_class_schedule_id_fkey": {
+          "type": "FOREIGN KEY",
+          "name": "equipment_requests_class_schedule_id_fkey",
+          "columnNames": [
+            "class_schedule_id"
+          ],
+          "targetTableName": "class_schedules",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "equipment_requests_live_link_domain_check": {
+          "type": "CHECK",
+          "name": "equipment_requests_live_link_domain_check",
+          "detail": "\r\n    class_schedule_id is not null or request_domain = 'basic_medical'\r\n  "
+        }
+      }
+    },
+    "equipment_request_items": {
+      "name": "equipment_request_items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "skill_name": {
+          "name": "skill_name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "catalog_item_id": {
+          "name": "catalog_item_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "equipment_request_items_request_idx": {
+          "name": "equipment_request_items_request_idx",
+          "unique": false,
+          "columns": [
+            "request_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "equipment_request_items_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "equipment_request_items_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "equipment_requests_id_to_equipment_request_items_request_id": {
+          "type": "FOREIGN KEY",
+          "name": "equipment_requests_id_to_equipment_request_items_request_id",
+          "columnNames": [
+            "request_id"
+          ],
+          "targetTableName": "equipment_requests",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "skill_name_check": {
+          "type": "CHECK",
+          "name": "skill_name_check",
+          "detail": "btrim(skill_name) <> ''"
+        },
+        "equipment_catalog_id_to_equipment_request_items_catalog_item_id": {
+          "type": "FOREIGN KEY",
+          "name": "equipment_catalog_id_to_equipment_request_items_catalog_item_id",
+          "columnNames": [
+            "catalog_item_id"
+          ],
+          "targetTableName": "equipment_catalog",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "quantity_check": {
+          "type": "CHECK",
+          "name": "quantity_check",
+          "detail": "quantity > 0"
+        },
+        "equipment_request_items_one_domain_catalog": {
+          "type": "CHECK",
+          "name": "equipment_request_items_one_domain_catalog",
+          "detail": "\r\n    num_nonnulls(catalog_item_id, basic_medical_catalog_item_id) = 1\r\n  "
+        }
+      }
+    },
+    "system_security_principals": {
+      "name": "system_security_principals",
+      "columns": {
+        "singleton": {
+          "name": "singleton",
+          "type": "bool",
+          "default": true,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "root_admin_id": {
+          "name": "root_admin_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "personnel_manager_id": {
+          "name": "personnel_manager_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "configured_at": {
+          "name": "configured_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "configured_by": {
+          "name": "configured_by",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "singleton_check": {
+          "type": "CHECK",
+          "name": "singleton_check",
+          "detail": "singleton"
+        },
+        "system_security_principals_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "system_security_principals_pkey",
+          "columnNames": [
+            "singleton"
+          ]
+        },
+        "profiles_id_to_system_security_principals_root_admin_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_system_security_principals_root_admin_id",
+          "columnNames": [
+            "root_admin_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "system_security_principals_root_admin_id_key": {
+          "type": "UNIQUE",
+          "name": "system_security_principals_root_admin_id_key",
+          "columnNames": [
+            "root_admin_id"
+          ]
+        },
+        "profiles_id_to_system_security_principals_personnel_manager_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_system_security_principals_personnel_manager_id",
+          "columnNames": [
+            "personnel_manager_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "system_security_principals_personnel_manager_id_key": {
+          "type": "UNIQUE",
+          "name": "system_security_principals_personnel_manager_id_key",
+          "columnNames": [
+            "personnel_manager_id"
+          ]
+        },
+        "profiles_id_to_system_security_principals_configured_by": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_system_security_principals_configured_by",
+          "columnNames": [
+            "configured_by"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "security_principals_distinct_accounts": {
+          "type": "CHECK",
+          "name": "security_principals_distinct_accounts",
+          "detail": "root_admin_id <> personnel_manager_id"
+        }
+      }
+    },
+    "personnel_update_operations": {
+      "name": "personnel_update_operations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expected_version": {
+          "name": "expected_version",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "requested_email": {
+          "name": "requested_email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "personnel_update_operations_profile_idx": {
+          "name": "personnel_update_operations_profile_idx",
+          "unique": true,
+          "columns": [
+            "profile_id"
+          ],
+          "type": "btree"
+        },
+        "personnel_update_operations_active_profile_idx": {
+          "name": "personnel_update_operations_active_profile_idx",
+          "unique": true,
+          "columns": [
+            "profile_id"
+          ],
+          "type": "btree"
+        },
+        "personnel_update_operations_reconcile_idx": {
+          "name": "personnel_update_operations_reconcile_idx",
+          "unique": false,
+          "columns": [
+            "status",
+            "expires_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "personnel_update_operations_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "personnel_update_operations_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_personnel_update_operations_profile_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_update_operations_profile_id",
+          "columnNames": [
+            "profile_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_id_to_personnel_update_operations_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_update_operations_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "expected_version_check": {
+          "type": "CHECK",
+          "name": "expected_version_check",
+          "detail": "expected_version > 0"
+        },
+        "personnel_update_operations_status_check": {
+          "type": "CHECK",
+          "name": "personnel_update_operations_status_check",
+          "detail": "\r\n    status in (\r\n      'reserved', 'auth_updated', 'committed', 'rollback_required',\r\n      'rolled_back', 'reconciliation_required', 'expired', 'reconciling'\r\n    )\r\n  "
+        }
+      }
+    },
+    "email_outbox_events": {
+      "name": "email_outbox_events",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "event_key": {
+          "name": "event_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "event_type": {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "aggregate_id": {
+          "name": "aggregate_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "recipients": {
+          "name": "recipients",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "delivery_mode_at_event": {
+          "name": "delivery_mode_at_event",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "default": "pending",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "int4",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "processing_started_at": {
+          "name": "processing_started_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "idx_email_outbox_events_pending": {
+          "name": "idx_email_outbox_events_pending",
+          "unique": false,
+          "columns": [
+            "created_at",
+            "id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "email_outbox_events_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "email_outbox_events_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "email_outbox_events_event_key_key": {
+          "type": "UNIQUE",
+          "name": "email_outbox_events_event_key_key",
+          "columnNames": [
+            "event_key"
+          ]
+        },
+        "profiles_id_to_email_outbox_events_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_email_outbox_events_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "email_outbox_events_delivery_mode_check": {
+          "type": "CHECK",
+          "name": "email_outbox_events_delivery_mode_check",
+          "detail": "delivery_mode_at_event in ('off', 'test', 'live')"
+        },
+        "email_outbox_events_status_check": {
+          "type": "CHECK",
+          "name": "email_outbox_events_status_check",
+          "detail": "status in ('pending', 'processing', 'processed', 'failed', 'suppressed')"
+        }
+      }
+    },
+    "personnel_password_operations": {
+      "name": "personnel_password_operations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "target_user_id": {
+          "name": "target_user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "correlation_id": {
+          "name": "correlation_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "auth_updated_at": {
+          "name": "auth_updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "committed_at": {
+          "name": "committed_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "personnel_password_operations_one_active_target": {
+          "name": "personnel_password_operations_one_active_target",
+          "unique": true,
+          "columns": [
+            "target_user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "personnel_password_operations_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "personnel_password_operations_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_personnel_password_operations_target_user_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_password_operations_target_user_id",
+          "columnNames": [
+            "target_user_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "profiles_id_to_personnel_password_operations_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_personnel_password_operations_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "RESTRICT"
+        },
+        "action_check": {
+          "type": "CHECK",
+          "name": "action_check",
+          "detail": "action in ('password_reset','password_changed_by_root')"
+        },
+        "status_check": {
+          "type": "CHECK",
+          "name": "status_check",
+          "detail": "status in ('reserved','auth_update_started','auth_updated','committed','auth_failed','reconciliation_required','resolved','rolled_back')"
+        }
+      }
+    },
+    "personnel_password_auth_evidence": {
+      "name": "personnel_password_auth_evidence",
+      "columns": {
+        "operation_id": {
+          "name": "operation_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "auth_password_hash_before": {
+          "name": "auth_password_hash_before",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "auth_update_started_at": {
+          "name": "auth_update_started_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "personnel_password_operations_id_to_personnel_password_auth_evidence_operation_id": {
+          "type": "FOREIGN KEY",
+          "name": "personnel_password_operations_id_to_personnel_password_auth_evidence_operation_id",
+          "columnNames": [
+            "operation_id"
+          ],
+          "targetTableName": "personnel_password_operations",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "personnel_password_auth_evidence_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "personnel_password_auth_evidence_pkey",
+          "columnNames": [
+            "operation_id"
+          ]
+        }
+      }
+    },
+    "user_notifications": {
+      "name": "user_notifications",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "recipient_id": {
+          "name": "recipient_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "notification_type": {
+          "name": "notification_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "href": {
+          "name": "href",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "dedupe_key": {
+          "name": "dedupe_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "user_notifications_recipient_created_idx": {
+          "name": "user_notifications_recipient_created_idx",
+          "unique": false,
+          "columns": [
+            "recipient_id",
+            "created_at"
+          ],
+          "type": "btree"
+        },
+        "user_notifications_recipient_unread_idx": {
+          "name": "user_notifications_recipient_unread_idx",
+          "unique": false,
+          "columns": [
+            "recipient_id",
+            "created_at"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "user_notifications_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "user_notifications_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "profiles_id_to_user_notifications_recipient_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_user_notifications_recipient_id",
+          "columnNames": [
+            "recipient_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        },
+        "profiles_id_to_user_notifications_actor_id": {
+          "type": "FOREIGN KEY",
+          "name": "profiles_id_to_user_notifications_actor_id",
+          "columnNames": [
+            "actor_id"
+          ],
+          "targetTableName": "profiles",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        },
+        "domain_check": {
+          "type": "CHECK",
+          "name": "domain_check",
+          "detail": "btrim(domain) <> ''"
+        },
+        "notification_type_check": {
+          "type": "CHECK",
+          "name": "notification_type_check",
+          "detail": "btrim(notification_type) <> ''"
+        },
+        "entity_type_check": {
+          "type": "CHECK",
+          "name": "entity_type_check",
+          "detail": "btrim(entity_type) <> ''"
+        },
+        "title_check": {
+          "type": "CHECK",
+          "name": "title_check",
+          "detail": "btrim(title) <> ''"
+        },
+        "body_check": {
+          "type": "CHECK",
+          "name": "body_check",
+          "detail": "btrim(body) <> ''"
+        },
+        "dedupe_key_check": {
+          "type": "CHECK",
+          "name": "dedupe_key_check",
+          "detail": "btrim(dedupe_key) <> ''"
+        },
+        "user_notifications_dedupe_key_key": {
+          "type": "UNIQUE",
+          "name": "user_notifications_dedupe_key_key",
+          "columnNames": [
+            "dedupe_key"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "app_role": {
+      "name": "app_role",
+      "values": [
+        "admin",
+        "lecturer",
+        "staff",
+        "teaching_assistant",
+        "importer",
+        "viewer"
+      ],
+      "comment": null
+    },
+    "schedule_source": {
+      "name": "schedule_source",
+      "values": [
+        "manual",
+        "import",
+        "google_sheet"
+      ],
+      "comment": null
+    },
+    "schedule_status": {
+      "name": "schedule_status",
+      "values": [
+        "draft",
+        "published",
+        "cancelled",
+        "completed"
+      ],
+      "comment": null
+    },
+    "shift_status": {
+      "name": "shift_status",
+      "values": [
+        "scheduled",
+        "cancelled",
+        "completed"
+      ],
+      "comment": null
+    },
+    "shift_registration_source": {
+      "name": "shift_registration_source",
+      "values": [
+        "self_registered",
+        "admin_assigned",
+        "generated"
+      ],
+      "comment": null
+    },
+    "import_status": {
+      "name": "import_status",
+      "values": [
+        "uploaded",
+        "validating",
+        "ready",
+        "importing",
+        "completed",
+        "completed_with_errors",
+        "failed"
+      ],
+      "comment": null
+    },
+    "import_row_status": {
+      "name": "import_row_status",
+      "values": [
+        "valid",
+        "warning",
+        "error",
+        "duplicate",
+        "conflict",
+        "system_error",
+        "imported",
+        "skipped"
+      ],
+      "comment": null
+    }
+  },
+  "extensions": {
+    "btree_gist": {
+      "name": "btree_gist"
+    },
+    "unaccent": {
+      "name": "unaccent"
+    },
+    "pg_cron": {
+      "name": "pg_cron"
+    },
+    "pgcrypto": {
+      "name": "pgcrypto"
+    }
+  }
+}
