@@ -11,7 +11,9 @@ export type InventoryResource =
   | "balances"
   | "transactions"
   | "cohorts"
-  | "transaction_detail";
+  | "transaction_detail"
+  | "operation_stock"
+  | "stock_evidence";
 
 export type InventoryOperation =
   | "create_inventory_item"
@@ -43,7 +45,12 @@ export type InventoryOperation =
   | "create_inventory_location"
   | "update_inventory_location"
   | "inactivate_inventory_location"
-  | "reactivate_inventory_location";
+  | "reactivate_inventory_location"
+  | "transfer_stock"
+  | "change_stock_condition"
+  | "reconcile_stocktake"
+  | "verify_stocktake_surplus"
+  | "append_stocktake_evidence";
 
 export type MaterialKind = "chemical" | "other";
 export type TrackingStrategy = "quantity" | "serialized";
@@ -57,7 +64,12 @@ export type TransactionOperationType =
   | "OPENING"
   | "CORRECT_RECEIPT"
   | "REVERSE_RECEIPT"
-  | "CORRECT_OPENING";
+  | "CORRECT_OPENING"
+  | "TRANSFER"
+  | "CONDITION_CHANGE"
+  | "STOCKTAKE_ADJUST"
+  | "STOCKTAKE_SURPLUS"
+  | "VERIFY_SURPLUS";
 
 export interface InventoryUom {
   code: string;
@@ -275,9 +287,18 @@ export interface InventoryCohortDetail {
   receipt_reference: string | null;
   cutover_key: string | null;
   provenance_group: string;
-  current_location_id: string;
-  current_location_code: string;
-  current_location_name: string;
+  current_location_id: string | null;
+  current_location_code: string | null;
+  current_location_name: string | null;
+  location_state: "single" | "split" | "depleted";
+  locations: Array<{
+    location_id: string;
+    location_code: string;
+    location_name: string;
+    physical_balance: string;
+    good_balance: string;
+    damaged_balance: string;
+  }>;
   current_expiry_precision: ExpiryPrecision;
   current_expiry_date: string | null;
   good_balance: string;
@@ -286,6 +307,17 @@ export interface InventoryCohortDetail {
   eligible_balance: string;
   line_key?: string;
   remaining_quantity?: string;
+}
+
+export interface InventoryStockEvidence {
+  id: string;
+  origin_id: string;
+  actor_id: string;
+  actor_name: string;
+  action: string;
+  note: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
 }
 
 export interface TransactionDetailResult {
@@ -321,6 +353,8 @@ export interface InventoryReadFilters {
   active?: boolean;
   page?: number;
   page_size?: number;
+  is_held?: boolean;
+  include_held?: boolean;
   [key: string]: unknown;
 }
 
@@ -431,6 +465,118 @@ export interface VerifyOpeningExpiryPayload {
   expected_version: string | number;
   expiry_precision: ExpiryPrecision;
   expiry_input: string;
+  evidence_note: string;
+  reason: string;
+}
+
+export interface InventoryOperationStock {
+  cohort_id: string;
+  origin_id: string;
+  current_fact_id: string;
+  current_version: number | string;
+  stock_revision: number | string;
+  catalog_item_id: string;
+  item_code: string;
+  item_name: string;
+  material_kind: MaterialKind;
+  expiry_required: boolean;
+  base_uom_code: string;
+  base_uom_name: string;
+  location_id: string;
+  location_code: string;
+  location_name: string;
+  condition: StockCondition;
+  quantity: string;
+  is_held: boolean;
+  hold_reason: string | null;
+  available_quantity: string;
+  expiry_precision: ExpiryPrecision;
+  expiry_date: string | null;
+  expiry_input: string | null;
+  provenance_group: string;
+  receipt_reference: string | null;
+  cutover_key: string | null;
+  surplus_reference: string | null;
+}
+
+export interface TransferStockLineInput {
+  origin_id: string;
+  expected_version: number | string;
+  expected_stock_revision: number | string;
+  condition: StockCondition;
+  quantity: string;
+}
+
+export interface TransferStockPayload {
+  source_location_id: string;
+  target_location_id: string;
+  reason?: string;
+  occurred_at?: string;
+  lines: TransferStockLineInput[];
+}
+
+export interface ChangeStockConditionLineInput {
+  origin_id: string;
+  expected_version: number | string;
+  expected_stock_revision: number | string;
+  from_condition: "good";
+  to_condition: "damaged";
+  quantity: string;
+}
+
+export interface ChangeStockConditionPayload {
+  location_id: string;
+  reason: string;
+  occurred_at?: string;
+  lines: ChangeStockConditionLineInput[];
+}
+
+export interface StocktakeCountLineInput {
+  type?: "count" | "adjustment";
+  origin_id: string;
+  expected_version: number | string;
+  expected_stock_revision: number | string;
+  condition: StockCondition;
+  expected_quantity: string;
+  counted_quantity: string;
+}
+
+export interface StocktakeSurplusLineInput {
+  type?: "surplus";
+  catalog_item_id: string;
+  condition: StockCondition;
+  counted_quantity: string;
+  expiry_precision?: ExpiryPrecision;
+  expiry_input?: string;
+  evidence_note?: string;
+}
+
+export type ReconcileStocktakeLineInput =
+  StocktakeCountLineInput | StocktakeSurplusLineInput;
+
+export interface ReconcileStocktakePayload {
+  stocktake_reference: string;
+  location_id: string;
+  count_timestamp: string;
+  scope_description?: string;
+  reason: string;
+  evidence_note: string;
+  lines: ReconcileStocktakeLineInput[];
+}
+
+export interface VerifyStocktakeSurplusPayload {
+  origin_id: string;
+  expected_version: number | string;
+  expected_stock_revision: number | string;
+  action: "release" | "append_evidence";
+  expiry_precision?: "day" | "month";
+  expiry_input?: string;
+  reason: string;
+  evidence_note: string;
+}
+
+export interface AppendStocktakeEvidencePayload {
+  origin_id: string;
   evidence_note: string;
   reason: string;
 }

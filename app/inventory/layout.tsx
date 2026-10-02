@@ -21,9 +21,9 @@ export default async function InventoryLayout({
       canManagePersonnel={fullViewer.canManagePersonnel}
       canManageEmailNotifications={fullViewer.canManageEmailNotifications}
       title="Quản lý Kho & Thiết bị"
-      description="S1 Foundation — Hệ thống quản lý kho, nhập hàng và số dư vật tư MedLabs"
+      description="Hệ thống quản lý kho, nhập hàng và nghiệp vụ vật tư MedLabs"
     >
-      <div className="inventory-workspace space-y-6">{children}</div>
+      <div className="inventory-workspace min-w-0 space-y-6">{children}</div>
     </WorkspaceShell>
   );
 }

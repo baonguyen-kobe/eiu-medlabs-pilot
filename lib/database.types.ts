@@ -1732,18 +1732,21 @@ export type Database = {
           created_at: string
           current_fact_id: string
           origin_id: string
+          revision: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           current_fact_id: string
           origin_id: string
+          revision?: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           current_fact_id?: string
           origin_id?: string
+          revision?: number
           updated_at?: string
         }
         Relationships: [
@@ -1827,6 +1830,51 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stock_evidence: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          note: string
+          origin_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          note: string
+          origin_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          note?: string
+          origin_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_evidence_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_evidence_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_stock_origins"
             referencedColumns: ["id"]
           },
         ]
@@ -1940,6 +1988,67 @@ export type Database = {
           },
         ]
       }
+      inventory_stock_holds: {
+        Row: {
+          created_at: string
+          hold_reason: string
+          origin_id: string
+          placed_at: string
+          placed_by_id: string
+          release_reason: string | null
+          released_at: string | null
+          released_by_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hold_reason: string
+          origin_id: string
+          placed_at?: string
+          placed_by_id: string
+          release_reason?: string | null
+          released_at?: string | null
+          released_by_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hold_reason?: string
+          origin_id?: string
+          placed_at?: string
+          placed_by_id?: string
+          release_reason?: string | null
+          released_at?: string | null
+          released_by_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_holds_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_stock_origins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_holds_placed_by_id_fkey"
+            columns: ["placed_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_holds_released_by_id_fkey"
+            columns: ["released_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_stock_origins: {
         Row: {
           catalog_item_id: string
@@ -1950,6 +2059,7 @@ export type Database = {
           provenance_group: string
           receipt_id: string | null
           source_line_id: string | null
+          surplus_id: string | null
         }
         Insert: {
           catalog_item_id: string
@@ -1960,6 +2070,7 @@ export type Database = {
           provenance_group: string
           receipt_id?: string | null
           source_line_id?: string | null
+          surplus_id?: string | null
         }
         Update: {
           catalog_item_id?: string
@@ -1970,6 +2081,7 @@ export type Database = {
           provenance_group?: string
           receipt_id?: string | null
           source_line_id?: string | null
+          surplus_id?: string | null
         }
         Relationships: [
           {
@@ -1998,6 +2110,112 @@ export type Database = {
             columns: ["source_line_id"]
             isOneToOne: false
             referencedRelation: "acquisition_record_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_origins_surplus_id_fkey"
+            columns: ["surplus_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_stocktake_surplus_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stocktake_surplus_records: {
+        Row: {
+          catalog_item_id: string
+          counted_at: string
+          counted_by_id: string
+          created_at: string
+          evidence_note: string
+          id: string
+          initial_condition: string
+          initial_location_id: string
+          initial_quantity: number
+          reason: string
+          status: string
+          surplus_reference: string
+          transaction_id: string
+          updated_at: string
+          verification_evidence_note: string | null
+          verification_reason: string | null
+          verified_at: string | null
+          verified_by_id: string | null
+        }
+        Insert: {
+          catalog_item_id: string
+          counted_at: string
+          counted_by_id: string
+          created_at?: string
+          evidence_note: string
+          id?: string
+          initial_condition: string
+          initial_location_id: string
+          initial_quantity: number
+          reason: string
+          status?: string
+          surplus_reference: string
+          transaction_id: string
+          updated_at?: string
+          verification_evidence_note?: string | null
+          verification_reason?: string | null
+          verified_at?: string | null
+          verified_by_id?: string | null
+        }
+        Update: {
+          catalog_item_id?: string
+          counted_at?: string
+          counted_by_id?: string
+          created_at?: string
+          evidence_note?: string
+          id?: string
+          initial_condition?: string
+          initial_location_id?: string
+          initial_quantity?: number
+          reason?: string
+          status?: string
+          surplus_reference?: string
+          transaction_id?: string
+          updated_at?: string
+          verification_evidence_note?: string | null
+          verification_reason?: string | null
+          verified_at?: string | null
+          verified_by_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stocktake_surplus_records_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stocktake_surplus_records_counted_by_id_fkey"
+            columns: ["counted_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stocktake_surplus_records_initial_location_id_fkey"
+            columns: ["initial_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stocktake_surplus_records_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_stocktake_surplus_records_verified_by_id_fkey"
+            columns: ["verified_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

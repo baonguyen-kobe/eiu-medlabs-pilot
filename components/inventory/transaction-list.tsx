@@ -159,6 +159,19 @@ export function TransactionList({
               <option value="CORRECT_OPENING">
                 Điều chỉnh tồn đầu / CORRECT_OPENING
               </option>
+              <option value="TRANSFER">Điều chuyển kho / TRANSFER</option>
+              <option value="CONDITION_CHANGE">
+                Hạ phẩm cấp / CONDITION_CHANGE
+              </option>
+              <option value="STOCKTAKE_ADJUST">
+                Điều chỉnh kiểm kê / STOCKTAKE_ADJUST
+              </option>
+              <option value="STOCKTAKE_SURPLUS">
+                Dư thừa kiểm kê / STOCKTAKE_SURPLUS
+              </option>
+              <option value="VERIFY_SURPLUS">
+                Thẩm định dư thừa / VERIFY_SURPLUS
+              </option>
             </select>
           </div>
         </div>
@@ -198,6 +211,24 @@ export function TransactionList({
               Tổng số giao dịch: <strong>{total}</strong>
             </span>
           )}
+        </div>
+      </div>
+
+      {/* Distinction notice between Physical Adjustment vs Document Correction */}
+      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs flex items-start gap-2.5">
+        <div className="text-blue-600 font-bold mt-0.5 shrink-0">ℹ</div>
+        <div className="space-y-0.5">
+          <span className="font-semibold text-slate-900 block">
+            Phân biệt Điều chỉnh Thực tế (S2) vs Sửa chứng từ gốc (S1):
+          </span>
+          <p className="text-slate-600 leading-relaxed">
+            • <strong>STOCKTAKE_ADJUST / TRANSFER / CONDITION_CHANGE:</strong>{" "}
+            Giao dịch vận hành thực tế tại kho hiện tại, bảo toàn lịch sử và
+            không ghi đè chứng từ nhận ban đầu.
+            <br />• <strong>CORRECT_RECEIPT / CORRECT_OPENING:</strong> Sửa đổi
+            sai sót hành chính trên chứng từ gốc khi chưa có biến động kho phái
+            sinh.
+          </p>
         </div>
       </div>
 

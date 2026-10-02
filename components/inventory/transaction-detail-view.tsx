@@ -10,11 +10,13 @@ import React, {
 import Link from "next/link";
 import {
   ArrowLeft,
+  ClipboardList,
   FileClock,
   Settings,
   ShieldCheck,
   X,
 } from "@/components/icons";
+import { StockEvidenceModal } from "./stock-evidence-modal";
 import {
   correctOpeningBalanceAction,
   correctReceiptAction,
@@ -63,6 +65,11 @@ export function TransactionDetailView({
     expectedVersion: string | number;
     itemName: string;
   } | null>(null);
+  const [evidenceOrigin, setEvidenceOrigin] = useState<{
+    id: string;
+    code?: string;
+    name?: string;
+  } | null>(null);
 
   const [notice, setNotice] = useState<{ ok: boolean; message: string } | null>(
     null,
@@ -82,7 +89,12 @@ export function TransactionDetailView({
     transaction.operation === "CORRECT_RECEIPT" ||
     transaction.operation === "CORRECT_OPENING" ||
     transaction.operation === "REVERSE_RECEIPT";
-
+  const isS2Operation =
+    transaction.operation === "TRANSFER" ||
+    transaction.operation === "CONDITION_CHANGE" ||
+    transaction.operation === "STOCKTAKE_ADJUST" ||
+    transaction.operation === "STOCKTAKE_SURPLUS" ||
+    transaction.operation === "VERIFY_SURPLUS";
   // Detail ?origin selects/focuses cohort section
   useEffect(() => {
     if (!selectedOriginId) return;
@@ -152,6 +164,15 @@ export function TransactionDetailView({
               className="button button-secondary text-xs inline-flex items-center gap-1.5"
             >
               <FileClock size={14} /> Xem giao dịch gốc / View Original Intake
+            </Link>
+          ) : null}
+
+          {isS2Operation ? (
+            <Link
+              href="/inventory/operations"
+              className="button button-primary text-xs inline-flex items-center gap-1.5"
+            >
+              Nghiệp vụ kho S2 / Operations →
             </Link>
           ) : null}
         </div>
@@ -382,6 +403,22 @@ export function TransactionDetailView({
                         Đang xem lô này / Selected origin
                       </span>
                     ) : null}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEvidenceOrigin({
+                          id: orig.origin_id,
+                          code: orig.item_code,
+                          name: orig.item_name,
+                        })
+                      }
+                      className="button button-secondary text-xs inline-flex items-center gap-1.5 text-purple-700 hover:bg-purple-50"
+                      title="Xem nhật ký bằng chứng kiểm kê / thẩm định"
+                    >
+                      <ClipboardList size={13} />
+                      <span>Nhật ký bằng chứng</span>
+                    </button>
                   </div>
 
                   {hasUnknown && isAdmin && isOriginalOpening ? (
@@ -771,6 +808,15 @@ export function TransactionDetailView({
           }}
         />
       ) : null}
+
+      {/* Stock Evidence Modal */}
+      <StockEvidenceModal
+        open={Boolean(evidenceOrigin)}
+        originId={evidenceOrigin?.id || ""}
+        itemCode={evidenceOrigin?.code}
+        itemName={evidenceOrigin?.name}
+        onClose={() => setEvidenceOrigin(null)}
+      />
     </div>
   );
 }

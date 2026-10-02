@@ -40,6 +40,32 @@ export function deriveRowDisplay(row: Record<string, unknown>): RowDisplay {
 
   const id = String(row.id ?? row.code ?? row.line_key ?? "");
 
+  // Operation stock derivation
+  if (
+    row.origin_id !== undefined &&
+    (row.item_code !== undefined || row.item_name !== undefined)
+  ) {
+    const condLabel = row.condition === "good" ? "Tốt/Good" : "Hỏng/Damaged";
+    const heldTag = row.is_held ? " [TẠM GIỮ / HELD]" : "";
+    const qtyStr = row.quantity
+      ? `${row.quantity} ${row.base_uom_code || ""}`.trim()
+      : "";
+    const locStr = row.location_code ? `@ ${row.location_code}` : "";
+    const label = `${row.item_code || ""} - ${row.item_name || ""} (${condLabel})${heldTag}`;
+    const sub = [
+      qtyStr,
+      locStr,
+      row.origin_id ? `Lô: ${String(row.origin_id).slice(0, 8)}...` : null,
+    ]
+      .filter(Boolean)
+      .join(" • ");
+    return {
+      label,
+      subLabel: sub || undefined,
+      key: String(row.origin_id || row.cohort_id || row.id),
+    };
+  }
+
   // Source Line derivation
   if (row.line_key !== undefined) {
     const parts = [
@@ -312,7 +338,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
         <label
           id={labelId}
           htmlFor={id}
-          className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1"
+          className="block text-xs font-semibold text-slate-700 mb-1"
         >
           {label}
           {required ? <span className="text-red-500 ml-0.5">*</span> : null}
@@ -339,26 +365,24 @@ export function InventoryLookup<T = Record<string, unknown>>({
         aria-label={hideLabel ? label : undefined}
         className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-lg border text-left transition-colors ${
           disabled
-            ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed dark:bg-slate-800 dark:border-slate-700"
-            : "bg-white border-slate-300 text-slate-900 hover:border-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+            ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
+            : "bg-white border-slate-300 text-slate-900 hover:border-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
         }`}
       >
         <div className="truncate flex-1">
           {currentDisplayText ? (
             <div className="flex flex-col">
-              <span className="font-medium text-slate-900 dark:text-slate-100 truncate">
+              <span className="font-medium text-slate-900 truncate">
                 {currentDisplayText}
               </span>
               {resolvedDisplay?.subLabel && (
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                <span className="text-[11px] text-slate-500 truncate">
                   {resolvedDisplay.subLabel}
                 </span>
               )}
             </div>
           ) : (
-            <span className="text-slate-400 dark:text-slate-500">
-              {placeholder}
-            </span>
+            <span className="text-slate-400">{placeholder}</span>
           )}
         </div>
         <ChevronRight
@@ -377,10 +401,10 @@ export function InventoryLookup<T = Record<string, unknown>>({
             ref={dropdownRef}
             style={dropdownStyle}
             onKeyDown={handleKeyDown}
-            className="rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900 overflow-hidden flex flex-col max-h-[380px]"
+            className="rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[380px] z-50 text-slate-900"
           >
             {/* Search Header */}
-            <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+            <div className="p-2 border-b border-slate-100 bg-slate-50">
               <div className="relative">
                 <Search
                   size={14}
@@ -392,7 +416,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   value={q}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Tìm kiếm theo mã, tên… / Search…"
-                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md border border-slate-200 bg-white text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 {q ? (
                   <button
@@ -412,7 +436,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
               id={listboxId}
               role="listbox"
               aria-label={label}
-              className="flex-1 overflow-y-auto p-1 divide-y divide-slate-100/60 dark:divide-slate-800/60 focus:outline-hidden"
+              className="flex-1 overflow-y-auto p-1 divide-y divide-slate-100 bg-white focus:outline-hidden"
               tabIndex={-1}
             >
               {loading ? (
@@ -420,7 +444,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   Đang tải dữ liệu… / Loading…
                 </div>
               ) : error ? (
-                <div className="p-3 text-xs text-red-600 dark:text-red-400 text-center space-y-1">
+                <div className="p-3 text-xs text-red-600 text-center space-y-1">
                   <p>{error}</p>
                   <button
                     type="button"
@@ -431,7 +455,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   </button>
                 </div>
               ) : rows.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-4 text-center text-xs text-slate-500">
                   Không tìm thấy kết quả phù hợp / No matching results
                 </div>
               ) : (
@@ -450,23 +474,22 @@ export function InventoryLookup<T = Record<string, unknown>>({
                       onClick={() => handleSelect(row)}
                       className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2 transition-colors ${
                         isSelected
-                          ? "bg-indigo-50 text-indigo-900 font-semibold dark:bg-indigo-950/40 dark:text-indigo-200"
-                          : "hover:bg-slate-50 text-slate-800 dark:text-slate-200 dark:hover:bg-slate-800"
+                          ? "bg-blue-50 text-blue-900 font-semibold"
+                          : "hover:bg-slate-50 text-slate-900"
                       }`}
                     >
                       <div className="flex-1 truncate">
-                        <div className="truncate text-xs">{display.label}</div>
+                        <div className="truncate text-xs font-medium text-slate-900">
+                          {display.label}
+                        </div>
                         {display.subLabel && (
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          <div className="text-[11px] text-slate-500 truncate mt-0.5">
                             {display.subLabel}
                           </div>
                         )}
                       </div>
                       {isSelected ? (
-                        <Check
-                          size={14}
-                          className="shrink-0 text-indigo-600 dark:text-indigo-400"
-                        />
+                        <Check size={14} className="shrink-0 text-blue-600" />
                       ) : null}
                     </button>
                   );
@@ -476,14 +499,14 @@ export function InventoryLookup<T = Record<string, unknown>>({
 
             {/* Bounded Pagination Footer */}
             {total > pageSize && (
-              <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col items-center gap-1">
+              <div className="p-2 border-t border-slate-100 bg-slate-50 flex flex-col items-center gap-1">
                 <PaginationControls
                   currentPage={page}
                   totalItems={total}
                   pageSize={pageSize}
                   onPageChange={handlePageChange}
                 />
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="text-[11px] text-slate-500">
                   Tổng {total} kết quả (trang {page})
                 </span>
               </div>

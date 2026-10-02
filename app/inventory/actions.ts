@@ -7,6 +7,8 @@ import {
 } from "@/lib/inventory/auth";
 import { inventoryCommand } from "@/lib/inventory/client";
 import {
+  isNonNegative,
+  isPositive,
   multiplyExact,
   validateDecimalString,
   validateSplit,
@@ -24,6 +26,11 @@ import type {
   TrackingStrategy,
   UomDimension,
   VerifyOpeningExpiryPayload,
+  TransferStockPayload,
+  ChangeStockConditionPayload,
+  ReconcileStocktakePayload,
+  VerifyStocktakeSurplusPayload,
+  AppendStocktakeEvidencePayload,
 } from "@/lib/inventory/types";
 
 export interface ActionResult<T = unknown> {
@@ -1384,6 +1391,407 @@ export async function verifyOpeningExpiryAction(
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Lỗi xác minh hạn sử dụng";
+    return { ok: false, error: message };
+  }
+}
+
+// ==========================================
+// 10. S2 Operations: Transfer, Condition, Stocktake & Surplus
+// ==========================================
+
+export async function transferStockAction(
+  payload: TransferStockPayload,
+  retryKey?: string,
+): Promise<ActionResult<InventoryCommandResult>> {
+  try {
+    await requireInventoryViewer();
+
+    if (!payload.source_location_id || !payload.target_location_id) {
+      return {
+        ok: false,
+        error:
+          "Vui lòng chọn cả kho nguồn và kho đích / Source and target locations required",
+      };
+    }
+
+    if (payload.source_location_id === payload.target_location_id) {
+      return {
+        ok: false,
+        error:
+          "Kho nguồn và kho đích phải khác nhau / Source and target locations must be different",
+      };
+    }
+
+    if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
+      return {
+        ok: false,
+        error:
+          "Cần ít nhất một dòng vật tư để điều chuyển / At least one transfer line required",
+      };
+    }
+
+    for (let i = 0; i < payload.lines.length; i++) {
+      const line = payload.lines[i];
+      if (!line.origin_id) {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Thiếu origin_id của lô hàng / Line ${i + 1} missing origin_id`,
+        };
+      }
+      if (line.condition !== "good" && line.condition !== "damaged") {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Tình trạng phải là good hoặc damaged / Line ${i + 1} condition must be good or damaged`,
+        };
+      }
+      const val = validateDecimalString(line.quantity, 6);
+      if (!val.valid || !val.normalized || !isPositive(val.normalized)) {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Số lượng chuyển phải là số dương hợp lệ / Line ${i + 1} quantity must be a positive decimal`,
+        };
+      }
+    }
+
+    const result = await inventoryCommand(
+      "transfer_stock",
+      payload as unknown as Record<string, unknown>,
+      retryKey,
+    );
+
+    revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/operations");
+    revalidatePath("/inventory/transactions");
+    revalidatePath("/inventory");
+    return { ok: true, data: result };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Lỗi điều chuyển kho / Transfer error";
+    return { ok: false, error: message };
+  }
+}
+
+export async function changeStockConditionAction(
+  payload: ChangeStockConditionPayload,
+  retryKey?: string,
+): Promise<ActionResult<InventoryCommandResult>> {
+  try {
+    await requireInventoryViewer();
+
+    if (!payload.location_id) {
+      return {
+        ok: false,
+        error: "Vui lòng chọn vị trí kho / Location is required",
+      };
+    }
+
+    if (!payload.reason || !payload.reason.trim()) {
+      return {
+        ok: false,
+        error: "Lý do hạ phẩm cấp (báo hỏng) là bắt buộc / Reason is required",
+      };
+    }
+
+    if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
+      return {
+        ok: false,
+        error:
+          "Cần ít nhất một dòng vật tư để hạ phẩm cấp / At least one line required",
+      };
+    }
+
+    for (let i = 0; i < payload.lines.length; i++) {
+      const line = payload.lines[i];
+      if (!line.origin_id) {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Thiếu origin_id của lô hàng / Line ${i + 1} missing origin_id`,
+        };
+      }
+      if (line.from_condition !== "good" || line.to_condition !== "damaged") {
+        return {
+          ok: false,
+          error:
+            "REPAIR_EXCLUDED: Chỉ cho phép chuyển từ tốt sang hỏng (Good -> Damaged). Sửa chữa/phục hồi bị loại trừ trong V1.1.",
+        };
+      }
+      const val = validateDecimalString(line.quantity, 6);
+      if (!val.valid || !val.normalized || !isPositive(val.normalized)) {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Số lượng báo hỏng phải là số dương hợp lệ / Line ${i + 1} quantity must be a positive decimal`,
+        };
+      }
+    }
+
+    const result = await inventoryCommand(
+      "change_stock_condition",
+      payload as unknown as Record<string, unknown>,
+      retryKey,
+    );
+
+    revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/operations");
+    revalidatePath("/inventory/transactions");
+    revalidatePath("/inventory");
+    return { ok: true, data: result };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Lỗi hạ phẩm cấp / Condition change error";
+    return { ok: false, error: message };
+  }
+}
+
+export async function reconcileStocktakeAction(
+  payload: ReconcileStocktakePayload,
+  retryKey?: string,
+): Promise<ActionResult<InventoryCommandResult>> {
+  try {
+    await requireInventoryViewer();
+
+    if (!payload.stocktake_reference || !payload.stocktake_reference.trim()) {
+      return {
+        ok: false,
+        error:
+          "Mã đợt kiểm kê (stocktake_reference) là bắt buộc / Stocktake reference is required",
+      };
+    }
+
+    if (!payload.location_id) {
+      return {
+        ok: false,
+        error: "Vui lòng chọn vị trí kho kiểm kê / Location is required",
+      };
+    }
+
+    if (!payload.count_timestamp) {
+      return {
+        ok: false,
+        error: "Thời điểm kiểm kê là bắt buộc / Count timestamp is required",
+      };
+    }
+
+    if (!payload.reason || !payload.reason.trim()) {
+      return {
+        ok: false,
+        error: "Lý do kiểm kê là bắt buộc / Reason is required",
+      };
+    }
+
+    if (!payload.evidence_note || !payload.evidence_note.trim()) {
+      return {
+        ok: false,
+        error:
+          "Ghi chú bằng chứng kiểm kê (Số biên bản/chứng từ) là bắt buộc / Evidence note is required",
+      };
+    }
+
+    if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
+      return {
+        ok: false,
+        error:
+          "Cần ít nhất một dòng kiểm kê để đối soát / At least one line required",
+      };
+    }
+
+    for (let i = 0; i < payload.lines.length; i++) {
+      const line = payload.lines[i];
+      if ("origin_id" in line && line.origin_id) {
+        const expVal = validateDecimalString(line.expected_quantity, 6);
+        if (
+          !expVal.valid ||
+          !expVal.normalized ||
+          !isNonNegative(expVal.normalized)
+        ) {
+          return {
+            ok: false,
+            error: `Dòng ${i + 1}: Số lượng sổ sách kỳ vọng (expected_quantity) là bắt buộc để đối soát / Line ${i + 1} expected quantity is required`,
+          };
+        }
+        const val = validateDecimalString(line.counted_quantity, 6);
+        if (!val.valid || !val.normalized || !isNonNegative(val.normalized)) {
+          return {
+            ok: false,
+            error: `Dòng ${i + 1}: Số lượng thực tế phải không âm / Line ${i + 1} counted quantity cannot be negative`,
+          };
+        }
+      } else if ("catalog_item_id" in line && line.catalog_item_id) {
+        const val = validateDecimalString(line.counted_quantity, 6);
+        if (!val.valid || !val.normalized || !isPositive(val.normalized)) {
+          return {
+            ok: false,
+            error: `Dòng ${i + 1} (Hàng thừa): Số lượng phải là số dương / Line ${i + 1} surplus quantity must be positive`,
+          };
+        }
+        if (
+          line.expiry_precision &&
+          line.expiry_precision !== "not_required" &&
+          line.expiry_precision !== "unknown"
+        ) {
+          const norm = normalizeExpiryInput(
+            line.expiry_precision,
+            line.expiry_input,
+          );
+          if (!norm.valid) {
+            return {
+              ok: false,
+              error: `Dòng ${i + 1} (Hàng thừa): ${norm.error}`,
+            };
+          }
+        }
+      } else {
+        return {
+          ok: false,
+          error: `Dòng ${i + 1}: Không hợp lệ (cần origin_id hoặc catalog_item_id) / Invalid line`,
+        };
+      }
+    }
+
+    const result = await inventoryCommand(
+      "reconcile_stocktake",
+      payload as unknown as Record<string, unknown>,
+      retryKey,
+    );
+
+    revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/operations");
+    revalidatePath("/inventory/transactions");
+    revalidatePath("/inventory");
+    return { ok: true, data: result };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Lỗi kiểm kê & đối soát kho / Stocktake reconciliation error";
+    return { ok: false, error: message };
+  }
+}
+
+export async function verifyStocktakeSurplusAction(
+  payload: VerifyStocktakeSurplusPayload,
+  retryKey?: string,
+): Promise<ActionResult<InventoryCommandResult>> {
+  try {
+    await requireInventoryAdmin();
+
+    if (!payload.origin_id) {
+      return {
+        ok: false,
+        error: "Thiếu origin_id của lô hàng thừa / Missing origin_id",
+      };
+    }
+
+    if (!["release", "append_evidence"].includes(payload.action)) {
+      return {
+        ok: false,
+        error:
+          "Hành động không hợp lệ (chỉ chấp nhận release, append_evidence) / Invalid action",
+      };
+    }
+
+    if (!payload.reason || !payload.reason.trim()) {
+      return {
+        ok: false,
+        error: "Lý do thẩm định là bắt buộc / Reason is required",
+      };
+    }
+
+    if (!payload.evidence_note || !payload.evidence_note.trim()) {
+      return {
+        ok: false,
+        error: "Bằng chứng thẩm định là bắt buộc / Evidence note is required",
+      };
+    }
+
+    if (payload.action === "release" && payload.expiry_precision) {
+      if (
+        payload.expiry_precision !== "day" &&
+        payload.expiry_precision !== "month"
+      ) {
+        return {
+          ok: false,
+          error:
+            "Hạn dùng thẩm định phải có độ chính xác ngày hoặc tháng / Day or month precision required",
+        };
+      }
+      const expNorm = normalizeExpiryInput(
+        payload.expiry_precision,
+        payload.expiry_input,
+      );
+      if (!expNorm.valid) {
+        return { ok: false, error: expNorm.error };
+      }
+    }
+
+    const result = await inventoryCommand(
+      "verify_stocktake_surplus",
+      payload as unknown as Record<string, unknown>,
+      retryKey,
+    );
+
+    revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/operations");
+    revalidatePath("/inventory/transactions");
+    revalidatePath("/inventory");
+    return { ok: true, data: result };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Lỗi thẩm định hàng thừa / Surplus verification error";
+    return { ok: false, error: message };
+  }
+}
+
+export async function appendStocktakeEvidenceAction(
+  payload: AppendStocktakeEvidencePayload,
+  retryKey?: string,
+): Promise<ActionResult<InventoryCommandResult>> {
+  try {
+    await requireInventoryViewer();
+
+    if (!payload.origin_id) {
+      return {
+        ok: false,
+        error: "Thiếu origin_id của lô hàng / Missing origin_id",
+      };
+    }
+
+    if (!payload.evidence_note || !payload.evidence_note.trim()) {
+      return {
+        ok: false,
+        error:
+          "Nội dung bằng chứng bổ sung là bắt buộc / Evidence note is required",
+      };
+    }
+
+    if (!payload.reason || !payload.reason.trim()) {
+      return {
+        ok: false,
+        error: "Lý do bổ sung bằng chứng là bắt buộc / Reason is required",
+      };
+    }
+
+    const result = await inventoryCommand(
+      "append_stocktake_evidence",
+      payload as unknown as Record<string, unknown>,
+      retryKey,
+    );
+
+    revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/operations");
+    revalidatePath("/inventory/transactions");
+    revalidatePath("/inventory");
+    return { ok: true, data: result };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Lỗi bổ sung bằng chứng / Append evidence error";
     return { ok: false, error: message };
   }
 }

@@ -11598,3 +11598,10 @@ time,
     flex: 1 1 140px;
   }
 }
+
+/* This nested heading has no sidebar menu slot; do not reserve the mobile 44px column. */
+@media (max-width: 820px) {
+  .inventory-operations > .workspace-topbar.page-header {
+    display: flex;
+  }
+}

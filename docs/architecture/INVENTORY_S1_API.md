@@ -6,6 +6,8 @@ Final reconciliation: G0 DONE. Pilot application commit `424c6aef64f4f318cb5ed10
 
 The final six-decimal `inventory_read` source-line expected/discrepancy rounding is read-model presentation only; remote formatting equivalence is unverified and NON-BLOCKING, with no effect on persisted conversion, facts, ledger or balances. Existing 26-test/typecheck and targeted functional browser evidence is reused with unchanged impact; no full UI/a11y certification claimed. ESLint has 0 errors and 10 warnings. Owner explicitly accepts these three limitations for the isolated synthetic pilot and closes S1; reopen only for a new functional/data/security blocker. S2 is authorized after a bounded delta review; see control-plane `plans/S2_DELTA_REVIEW.md`. P1 real operational stock and production cutover remain NOT AUTHORIZED; no S3 start.
 
+S2 physical operations extend this accepted baseline; see [S2 API](INVENTORY_S2_API.md). S1 acceptance evidence above is historical, not a claim that later S2 verification or delivery has passed.
+
 **Target Schema:** `public.inventory_*`, `public.acquisition_*`
 
 **Governing Documents (in the `medlabs-OPs` control plane):**

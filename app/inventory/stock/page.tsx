@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { StockTable } from "@/components/inventory/stock-table";
@@ -104,6 +105,16 @@ export default async function StockPage({ searchParams }: StockPageProps) {
       <PageHeader
         title="Tồn kho thực tế & Đủ điều kiện / Stock Balances"
         description="Số dư tồn kho phân tách theo vị trí lưu trữ, tình trạng tốt/hỏng và tính đủ điều kiện cấp phát"
+        actions={
+          <div className="flex items-center gap-2">
+            <Link
+              href="/inventory/operations"
+              className="button button-primary text-xs flex items-center gap-1.5"
+            >
+              <span>Nghiệp vụ kho S2 / Operations →</span>
+            </Link>
+          </div>
+        }
       />
 
       <StockTable

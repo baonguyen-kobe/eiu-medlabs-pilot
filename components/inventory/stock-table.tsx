@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "@/components/icons";
-import { formatDisplayQuantity } from "@/lib/inventory/decimal";
+import { formatDisplayQuantity, isPositive } from "@/lib/inventory/decimal";
 import { ConditionBadge } from "./status-badge";
 import { InventoryLookup } from "./inventory-lookup";
 import { PaginationControls } from "@/components/pagination-controls";
@@ -281,9 +281,17 @@ export function StockTable({
               </button>
             </div>
           ) : (
-            <span className="text-slate-400">
-              Tổng số dòng tồn kho: <strong>{totalBalances}</strong>
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400">
+                Tổng số dòng tồn kho: <strong>{totalBalances}</strong>
+              </span>
+              <Link
+                href="/inventory/operations"
+                className="button button-primary text-xs py-1 px-2.5"
+              >
+                Nghiệp vụ kho S2 →
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -512,8 +520,30 @@ export function StockTable({
                         {cohort.receipt_reference || cohort.cutover_key || "—"}
                       </td>
                       <td className="py-2.5 px-3 text-slate-600">
-                        {cohort.current_location_code} -{" "}
-                        {cohort.current_location_name}
+                        {cohort.location_state === "split" ? (
+                          <div className="space-y-0.5">
+                            <span className="badge bg-purple-50 text-purple-800 border-purple-200 text-[10px] font-semibold">
+                              Phân tán ({cohort.locations?.length || "nhiều"}{" "}
+                              kho)
+                            </span>
+                            {cohort.locations ? (
+                              <div className="text-[10px] text-slate-500 font-mono">
+                                {cohort.locations
+                                  .map(
+                                    (loc) =>
+                                      `${loc.location_code}: ${formatDisplayQuantity(loc.physical_balance)}`,
+                                  )
+                                  .join(", ")}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : cohort.location_state === "depleted" ? (
+                          <span className="text-slate-400 text-xs italic">
+                            Đã xuất hết / Depleted
+                          </span>
+                        ) : (
+                          `${cohort.current_location_code || "—"} - ${cohort.current_location_name || ""}`
+                        )}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
                         {formatDisplayQuantity(
@@ -534,12 +564,39 @@ export function StockTable({
                               : "—")}
                       </td>
                       <td className="py-2.5 px-3 text-right">
-                        <Link
-                          href={`/inventory/transactions/${cohort.transaction_id}?origin=${cohort.origin_id}`}
-                          className="button button-secondary text-[11px] py-1 px-2.5"
-                        >
-                          Xem giao dịch &rarr;
-                        </Link>
+                        <div className="inline-flex items-center gap-1.5 justify-end">
+                          <Link
+                            href={`/inventory/transactions/${cohort.transaction_id}?origin=${cohort.origin_id}`}
+                            className="button button-secondary text-[11px] py-1 px-2"
+                            title="Xem lịch sử giao dịch gốc"
+                          >
+                            Giao dịch
+                          </Link>
+                          <Link
+                            href={
+                              cohort.current_location_id
+                                ? `/inventory/operations?tab=transfer&location_id=${cohort.current_location_id}&origin_id=${cohort.origin_id}`
+                                : `/inventory/operations?tab=transfer&origin_id=${cohort.origin_id}`
+                            }
+                            className="button button-secondary text-[11px] py-1 px-2 text-sky-700"
+                            title="Chuyển lô này sang kho khác"
+                          >
+                            Chuyển
+                          </Link>
+                          {isPositive(cohort.good_balance) ? (
+                            <Link
+                              href={
+                                cohort.current_location_id
+                                  ? `/inventory/operations?tab=condition&location_id=${cohort.current_location_id}&origin_id=${cohort.origin_id}`
+                                  : `/inventory/operations?tab=condition&origin_id=${cohort.origin_id}`
+                              }
+                              className="button button-secondary text-[11px] py-1 px-2 text-amber-700"
+                              title="Báo hỏng lô này"
+                            >
+                              Báo hỏng
+                            </Link>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ))}
