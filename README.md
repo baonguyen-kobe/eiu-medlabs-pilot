@@ -8,6 +8,7 @@
 - **Lựa chọn Skill:** `SKILLS.md`.
 - **UI Modernization & Tiếp tục:** `docs/ui-modernization/README.md`.
 - **Quy trình Release & Production:** `docs/RELEASE.md` và `docs/PRODUCTION_DEPLOYMENT.md`.
+
 ## Yêu cầu
 
 - Node.js 22.13 trở lên
@@ -63,22 +64,24 @@ powershell.exe -ExecutionPolicy Bypass -File scripts/seed-local-users.ps1
 
 Các lệnh kiểm tra chất lượng được phân chia theo rủi ro và phạm vi thay đổi (chi tiết xem `.agents/skills/medlabs-verification-gate/SKILL.md`):
 
-| Loại task | Kiểm chứng local | Khi cần mở rộng |
-| :--- | :--- | :--- |
-| **Docs / skills / routing** | Đọc link, command, path thực tế; kiểm tra inventory và scenarios; kiểm tra format file sửa (`npx.cmd prettier --check <files>`) | Không chạy app/DB suite chỉ vì thay đổi Markdown |
-| **Pure logic / server helper** | `node --test --test-concurrency=1 tests/<affected>.test.mjs` và smoke thực tế; `npm.cmd run typecheck` khi đổi contract TypeScript | Shared dependency hoặc uncertain impact → mở rộng kiểm tra consumers |
-| **UI component / layout** | Rendered browser scenario cho path thay đổi, kiểm tra viewport và focus liên quan; `npm.cmd run typecheck` khi TypeScript thay đổi | `npm.cmd run test:e2e:required` cho a11y scope; không chạy full E2E cho mỗi chỉnh spacing |
-| **Auth / RLS / RPC / schema / migration** | Local isolated Supabase và DB regression liên quan; replay migration khi đổi chain; `npm.cmd run test:db` khi có DB impact | Giữ security negative cases và data integrity; independent review theo mức độ rủi ro |
-| **Integration / delivery** | Chạy CI theo cấu hình; không lặp lại toàn bộ suite local nếu evidence trước đó vẫn còn giá trị | Full E2E (`npm.cmd run test:e2e`) cho release candidate, major integration, cross-cutting change, hoặc khi có yêu cầu rõ |
-| **Build / runtime deployment config** | `npm.cmd run build`, sau đó `npm.cmd run test:e2e:production-smoke:run` | Standalone `npm.cmd run test:e2e:production-smoke` đã bao gồm build; không build hai lần |
-| **Production** | Theo quy trình `docs/RELEASE.md`; kiểm tra live app SHA và lịch sử migration remote | Không coi local production-bundle smoke là live Vercel smoke |
+| Loại task                                 | Kiểm chứng local                                                                                                                   | Khi cần mở rộng                                                                                                          |
+| :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| **Docs / skills / routing**               | Đọc link, command, path thực tế; kiểm tra inventory và scenarios; kiểm tra format file sửa (`npx.cmd prettier --check <files>`)    | Không chạy app/DB suite chỉ vì thay đổi Markdown                                                                         |
+| **Pure logic / server helper**            | `node --test --test-concurrency=1 tests/<affected>.test.mjs` và smoke thực tế; `npm.cmd run typecheck` khi đổi contract TypeScript | Shared dependency hoặc uncertain impact → mở rộng kiểm tra consumers                                                     |
+| **UI component / layout**                 | Rendered browser scenario cho path thay đổi, kiểm tra viewport và focus liên quan; `npm.cmd run typecheck` khi TypeScript thay đổi | `npm.cmd run test:e2e:required` cho a11y scope; không chạy full E2E cho mỗi chỉnh spacing                                |
+| **Auth / RLS / RPC / schema / migration** | Local isolated Supabase và DB regression liên quan; replay migration khi đổi chain; `npm.cmd run test:db` khi có DB impact         | Giữ security negative cases và data integrity; independent review theo mức độ rủi ro                                     |
+| **Integration / delivery**                | Chạy CI theo cấu hình; không lặp lại toàn bộ suite local nếu evidence trước đó vẫn còn giá trị                                     | Full E2E (`npm.cmd run test:e2e`) cho release candidate, major integration, cross-cutting change, hoặc khi có yêu cầu rõ |
+| **Build / runtime deployment config**     | `npm.cmd run build`, sau đó `npm.cmd run test:e2e:production-smoke:run`                                                            | Standalone `npm.cmd run test:e2e:production-smoke` đã bao gồm build; không build hai lần                                 |
+| **Production**                            | Theo quy trình `docs/RELEASE.md`; kiểm tra live app SHA và lịch sử migration remote                                                | Không coi local production-bundle smoke là live Vercel smoke                                                             |
 
 ### Điều kiện tiên quyết và lưu ý chạy test:
+
 - **Prerequisites:** Dependencies đã cài (`npm install`), local Supabase đang chạy (`npx.cmd supabase start`), seed dữ liệu đầy đủ (`scripts/seed-local-users.ps1`), và Docker Desktop hoạt động.
 - **Database reset:** `npx.cmd supabase db reset --local` chỉ dùng trên local disposable target khi cần replay migration chain; tuyệt đối không reset production.
 - **Tuần tự hóa:** Không chạy các bộ test làm thay đổi DB đồng thời (`npm test`, `npm run test:db`, Playwright mutating tests) trên cùng một local stack.
 - **E2E suite:** `npm.cmd run test:e2e:required` là bộ smoke kiểm tra accessibility bắt buộc (`tests/e2e/accessibility-smoke.spec.ts`). `npm.cmd run test:e2e` là bộ full-local (theo `playwright.full-local.config.ts`, bỏ các specialist specs được chạy riêng). `npm.cmd run test:e2e:evidence-off` và `npm.cmd run test:e2e:production-smoke` là các bài test ở các môi trường khác nhau, không phải bài test trùng lặp.
 - **Advisory audit:** `npm.cmd run react-doctor:audit` là công cụ audit tư vấn kiến trúc/performance React khi có refactor lớn, không bắt buộc chạy cho mỗi chỉnh sửa JSX hoặc nhãn nhỏ.
+
 ## Biến môi trường
 
 Tạo `.env.local` với `NEXT_PUBLIC_SUPABASE_URL`,
@@ -176,6 +179,7 @@ Version 1 luôn ghi `null` và không hiển thị.
 - **Graphify:** Knowledge graph nằm trong `graphify-out/`. Đây là artifact tham khảo lịch sử tùy chọn; không bắt buộc phải tồn tại hay tự động refresh cho mọi task.
 - **GitNexus:** Công cụ phân tích cấu trúc, blast radius và luồng thực thi tùy chọn (xem `.omp/skills/gitnexus-code-intelligence/SKILL.md`).
 - **Quyền tài liệu:** Các hợp đồng nghiệp vụ, phân quyền và kiến trúc hệ thống hiện hành được định nghĩa tại `docs/DOCUMENTATION_AUTHORITY.md`.
+
 ## Ghi chú chạy preview trên Windows
 
 Nếu `next dev` gặp lỗi HMR/hydration khi workspace nằm trong đường dẫn có dấu,

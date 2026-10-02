@@ -38,14 +38,14 @@ Database authority: `supabase/schemas/03_registration_workflows.sql`, `25_basic_
 
 ## Data and audit boundary
 
-| Concern | Evidence |
-| --- | --- |
-| Request / items | `equipment_requests → equipment_request_items`; verified in Liam supporting model |
-| Schedule linkage | `equipment_requests.class_schedule_id → class_schedules.id`, active source behavior is `ON DELETE RESTRICT` |
-| Authorization | server actions authenticate; RPCs re-check active user, role and request/schedule domain scope |
-| Concurrency | lifecycle RPCs select the request `FOR UPDATE`; creation/edit RPCs validate linked schedule source |
-| Audit | `equipment_requests_lifecycle_observer` records status and dual-confirmation events; cancellation and hard-delete have explicit audit writes |
-| Notification | transactionally queued outbox events; server actions schedule pending-outbox processing |
+| Concern          | Evidence                                                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Request / items  | `equipment_requests → equipment_request_items`; verified in Liam supporting model                                                            |
+| Schedule linkage | `equipment_requests.class_schedule_id → class_schedules.id`, active source behavior is `ON DELETE RESTRICT`                                  |
+| Authorization    | server actions authenticate; RPCs re-check active user, role and request/schedule domain scope                                               |
+| Concurrency      | lifecycle RPCs select the request `FOR UPDATE`; creation/edit RPCs validate linked schedule source                                           |
+| Audit            | `equipment_requests_lifecycle_observer` records status and dual-confirmation events; cancellation and hard-delete have explicit audit writes |
+| Notification     | transactionally queued outbox events; server actions schedule pending-outbox processing                                                      |
 
 ## Evidence classification
 
