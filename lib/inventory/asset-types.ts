@@ -41,6 +41,7 @@ export interface EquipmentAsset {
   expiry_date: string | null;
   revision: number;
   eligible: boolean;
+  available: boolean;
   ineligibility_reasons: string[];
   created_at: string;
   updated_at: string;
@@ -164,5 +165,6 @@ export interface AssetLookupResponse {
   asset: EquipmentAsset | null;
   found: boolean;
   eligible: boolean;
+  available: boolean;
   ineligibility_reasons: string[];
 }

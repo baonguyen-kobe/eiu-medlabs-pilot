@@ -210,6 +210,7 @@ export interface InventoryStockBalance {
   condition: StockCondition;
   quantity: string;
   eligible_quantity?: string;
+  available_quantity: string;
   expired_quantity?: string;
   unknown_expiry_quantity?: string;
   expiry_precision?: ExpiryPrecision;
@@ -310,6 +311,7 @@ export interface InventoryCohortDetail {
   damaged_balance: string;
   physical_balance: string;
   eligible_balance: string;
+  available_quantity: string;
   line_key?: string;
   remaining_quantity?: string;
 }

@@ -41,6 +41,7 @@ type RequestOption = {
 
 type SourceRequest = {
   id: string;
+  preparation_revision: number;
   created_at: string;
   status: string;
   semester: string;
@@ -57,6 +58,7 @@ type SourceRequest = {
   registrant: { full_name: string } | null;
   responsible: { full_name: string } | null;
   equipment_request_items: Array<{
+    id: string;
     skill_name: string;
     quantity: number;
     note: string | null;
@@ -65,7 +67,7 @@ type SourceRequest = {
 };
 
 const requestDraftSelect =
-  "id,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(skill_name,quantity,note,equipment_catalog(id,item_name))";
+  "id,preparation_revision,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(id,skill_name,quantity,note,equipment_catalog(id,item_name))";
 
 const dateTimeInputFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Ho_Chi_Minh",
@@ -207,6 +209,7 @@ function buildInitialData(
     if (!item.equipment_catalog) continue;
     const rows = grouped.get(item.skill_name) ?? [];
     rows.push({
+      id: mode === "edit" ? item.id : undefined,
       itemName: item.equipment_catalog.item_name,
       catalogItemId: item.equipment_catalog.id,
       quantity: item.quantity,
@@ -218,6 +221,7 @@ function buildInitialData(
   return {
     mode,
     sourceRequestId: source.id,
+    requestRevision: source.preparation_revision,
     sourceRequestCode: formatEquipmentRequestCode(source.created_at),
     classId: mode === "copy" ? selectedScheduleId : source.class_schedule_id,
     semester: source.semester,
@@ -371,6 +375,9 @@ export default async function EquipmentRegisterPage({
     (mode !== "edit" || ["new", "preparing"].includes(source.status)) &&
     (mode !== "edit" || canManageAll || source.registrant_id === userId),
   );
+  if (mode === "edit" && canUseSource && source?.status === "preparing") {
+    redirect(`/equipment/preparation/${source.id}`);
+  }
   const loadError =
     mode && rawRequestId && !hasValidRequestKey
       ? "Mã phiếu không hợp lệ. Vui lòng nhập mã phiếu gồm 12 chữ số."
@@ -478,6 +485,11 @@ export default async function EquipmentRegisterPage({
         </p>
       ) : null}
       <EquipmentRequestForm
+        key={
+          initialData
+            ? `${initialData.mode}:${initialData.sourceRequestId}`
+            : "new"
+        }
         classes={classes}
         catalog={catalog ?? []}
         lecturers={lecturers ?? []}

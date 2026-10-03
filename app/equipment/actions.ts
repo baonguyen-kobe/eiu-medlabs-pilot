@@ -390,14 +390,38 @@ export async function updateEquipmentRequest(
   const lateRegistrationReason = String(
     formData.get("late_registration_reason") ?? "",
   ).trim();
+  const expectedRevision = Number(formData.get("expected_revision"));
+  if (!Number.isSafeInteger(expectedRevision) || expectedRevision < 1) {
+    return {
+      ok: false,
+      message: "Phiên bản phiếu không hợp lệ. Vui lòng tải lại phiếu.",
+    };
+  }
   let items: Array<{
     skillName: string;
+    id: string;
     catalogItemId: string;
     quantity: number;
     note?: string;
   }> = [];
   try {
-    items = JSON.parse(String(formData.get("items") ?? "[]"));
+    const parsed: unknown = JSON.parse(String(formData.get("items") ?? "[]"));
+    if (
+      !Array.isArray(parsed) ||
+      !parsed.every(
+        (item): item is (typeof items)[number] =>
+          typeof item === "object" &&
+          item !== null &&
+          typeof item.id === "string" &&
+          typeof item.skillName === "string" &&
+          typeof item.catalogItemId === "string" &&
+          typeof item.quantity === "number" &&
+          (item.note === undefined || typeof item.note === "string"),
+      )
+    ) {
+      return { ok: false, message: "Danh sách thiết bị không hợp lệ." };
+    }
+    items = parsed;
   } catch {
     return { ok: false, message: "Danh sách thiết bị không hợp lệ." };
   }
@@ -419,8 +443,10 @@ export async function updateEquipmentRequest(
   }
   if (
     !items.length ||
+    new Set(items.map((item) => item.id)).size !== items.length ||
     items.some(
       (item) =>
+        !uuidPattern.test(item.id) ||
         !item.skillName.trim() ||
         !uuidPattern.test(item.catalogItemId) ||
         !Number.isInteger(item.quantity) ||
@@ -576,6 +602,8 @@ export async function updateEquipmentRequest(
       target_note: note,
       target_late_registration_reason: lateRegistrationReason,
       target_items: items.map((item) => ({
+        id: item.id,
+        expected_revision: expectedRevision,
         skill_name: item.skillName.trim(),
         catalog_item_id: item.catalogItemId,
         quantity: item.quantity,
@@ -601,6 +629,7 @@ export async function updateEquipmentRequest(
   revalidatePath("/equipment/requests");
   revalidatePath("/equipment/mine");
   revalidatePath("/equipment/register");
+  revalidatePath(`/equipment/preparation/${requestId}`);
   revalidatePath("/class-schedules");
   return {
     ok: true,

@@ -237,6 +237,7 @@ function initialDataFromRequest(
   return {
     mode,
     sourceRequestId: request.id,
+    requestRevision: request.preparation_revision,
     sourceRequestCode: formatEquipmentRequestCode(request.created_at),
     receiveDate: mode === "copy" ? "" : receive.date,
     receiveTime: receive.time,
@@ -250,6 +251,7 @@ function initialDataFromRequest(
       return catalog
         ? [
             {
+              id: mode === "edit" ? item.id : undefined,
               itemName: catalog.item_name,
               catalogItemId: catalog.id,
               quantity: item.quantity,
@@ -495,6 +497,7 @@ export async function BasicMedicalEquipmentRegistrationPage({
         </>
       ) : canEditSelected && initialData ? (
         <BasicMedicalEquipmentRequestForm
+          key={`${initialData.sourceRequestId}:${initialData.requestRevision}`}
           registration={selected.registration}
           session={selected.session}
           catalog={

@@ -1158,6 +1158,9 @@ begin
     'event_id', v_event_id,
     'transaction_id', v_tx_id
   );
+  if coalesce(current_setting('app.s4_transfer_work',true),'')<>'true' then
+    perform private.s4_refresh_health();
+  end if;
 
   insert into public.inventory_operation_replays (
     actor_id, operation, retry_key, payload_hash, result_ids, committed_at
@@ -1259,6 +1262,7 @@ begin
         a.expiry_date,
         a.revision,
         e.eligible,
+        (e.eligible and not exists(select 1 from public.inventory_reservations rs where rs.asset_id=a.id and rs.released_at is null)) as available,
         to_jsonb(e.ineligibility_reasons) as ineligibility_reasons,
         a.created_at,
         a.updated_at
@@ -1332,6 +1336,7 @@ begin
         a.expiry_date,
         a.revision,
         e.eligible,
+        (e.eligible and not exists(select 1 from public.inventory_reservations rs where rs.asset_id=a.id and rs.released_at is null)) as available,
         to_jsonb(e.ineligibility_reasons) as ineligibility_reasons,
         a.created_at,
         a.updated_at
@@ -1387,6 +1392,7 @@ begin
         a.expiry_date,
         a.revision,
         e.eligible,
+        (e.eligible and not exists(select 1 from public.inventory_reservations rs where rs.asset_id=a.id and rs.released_at is null)) as available,
         to_jsonb(e.ineligibility_reasons) as ineligibility_reasons,
         a.created_at,
         a.updated_at

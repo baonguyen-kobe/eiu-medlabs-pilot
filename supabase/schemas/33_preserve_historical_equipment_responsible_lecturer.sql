@@ -138,6 +138,14 @@ declare
   target_schedule_date date;
   target_room_type_id uuid;
 begin
+  -- S4 line writes advance only concurrency metadata. Do not reclassify a
+  -- Basic Medical request as a Skills edit when no business field changed.
+  if to_jsonb(new)->>'preparation_revision' is not null
+    and (to_jsonb(new)->>'preparation_revision')::bigint = (to_jsonb(old)->>'preparation_revision')::bigint + 1
+    and to_jsonb(new) - 'preparation_revision' - 'updated_at'
+      = to_jsonb(old) - 'preparation_revision' - 'updated_at' then
+    return new;
+  end if;
   if current_setting('app.equipment_confirmation_rpc', true) = 'true' then
     return new;
   end if;

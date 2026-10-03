@@ -81,6 +81,7 @@ export function AssetDetailView({
           <OperationalStatusBadge status={asset.operational_status} />
           <AssetEligibilityBadge
             eligible={asset.eligible}
+            available={asset.available}
             reasons={asset.ineligibility_reasons}
           />
         </div>

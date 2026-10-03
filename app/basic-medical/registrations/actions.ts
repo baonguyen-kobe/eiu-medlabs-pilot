@@ -257,7 +257,12 @@ export async function updateBasicMedicalEquipmentRequest(
   const lateRegistrationReason = String(
     formData.get("late_registration_reason") ?? "",
   ).trim();
-  let items: Array<{ catalogItemId: string; quantity: number; note?: string }>;
+  let items: Array<{
+    id?: string;
+    catalogItemId: string;
+    quantity: number;
+    note?: string;
+  }>;
   try {
     items = JSON.parse(String(formData.get("items") ?? "[]"));
   } catch {
@@ -326,6 +331,8 @@ export async function updateBasicMedicalEquipmentRequest(
       target_note: note || null,
       target_late_registration_reason: lateRegistrationReason || null,
       target_items: items.map((item) => ({
+        id: item.id,
+        expected_revision: Number(formData.get("expected_revision")),
         catalog_item_id: item.catalogItemId,
         quantity: item.quantity,
         note: item.note?.trim() || null,

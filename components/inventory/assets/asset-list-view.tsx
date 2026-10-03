@@ -252,7 +252,7 @@ export function AssetListView({
                 <th className="py-3 px-4">Vị trí lưu trữ</th>
                 <th className="py-3 px-4">Vòng đời</th>
                 <th className="py-3 px-4">Vận hành</th>
-                <th className="py-3 px-4">Đủ ĐK sử dụng</th>
+                <th className="py-3 px-4">Đủ ĐK / Khả dụng cho yêu cầu mới</th>
                 <th className="py-3 px-4 text-right">Thao tác</th>
               </tr>
             </thead>
@@ -330,6 +330,7 @@ export function AssetListView({
                     <td className="py-3 px-4 whitespace-nowrap">
                       <AssetEligibilityBadge
                         eligible={asset.eligible}
+                        available={asset.available}
                         reasons={asset.ineligibility_reasons}
                       />
                     </td>

@@ -54,6 +54,7 @@ type Lecturer = { id: string; full_name: string };
 
 type DraftEquipment = {
   key: number;
+  id?: string;
   itemName: string;
   catalogItemId: string;
   quantity: number;
@@ -69,6 +70,7 @@ type DraftSkill = {
 export type EquipmentRequestInitialData = {
   mode: "copy" | "edit";
   sourceRequestId: string;
+  requestRevision: number;
   sourceRequestCode: string;
   classId: string;
   semester: string;
@@ -85,6 +87,7 @@ export type EquipmentRequestInitialData = {
   skills: Array<{
     skillName: string;
     rows: Array<{
+      id?: string;
       itemName: string;
       catalogItemId: string;
       quantity: number;
@@ -123,6 +126,7 @@ function hydrateSkills(
     skillName: skill.skillName,
     rows: skill.rows.map((row) => ({
       key: nextEquipmentKey++,
+      id: initialData.mode === "edit" ? row.id : undefined,
       itemName: row.itemName,
       catalogItemId: row.catalogItemId,
       quantity: row.quantity,
@@ -321,6 +325,7 @@ export function EquipmentRequestForm({
     () =>
       skills.flatMap((skill) =>
         skill.rows.map((row) => ({
+          id: row.id,
           skillName: skill.skillName,
           catalogItemId: row.catalogItemId,
           quantity: row.quantity,
@@ -479,6 +484,11 @@ export function EquipmentRequestForm({
       onSubmit={handleSubmit}
     >
       <input type="hidden" name="items" value={JSON.stringify(payload)} />
+      <input
+        type="hidden"
+        name="expected_revision"
+        value={isEditMode ? initialData.requestRevision : ""}
+      />
       {initialData?.mode === "edit" ? (
         <input
           type="hidden"
@@ -503,6 +513,18 @@ export function EquipmentRequestForm({
               : "Đang điều chỉnh phiếu"}{" "}
             #{initialData.sourceRequestCode}
           </strong>
+          {isEditMode ? (
+            <p>
+              Chỉ chỉnh sửa thông tin và ghi chú tại đây. Để thay đổi số lượng,
+              thêm hoặc bỏ thiết bị,{" "}
+              <Link
+                href={`/equipment/preparation/${initialData.sourceRequestId}`}
+              >
+                gửi yêu cầu điều chỉnh trong trang chuẩn bị thiết bị
+              </Link>
+              .
+            </p>
+          ) : null}
         </div>
       ) : null}
       {state.message ? (
@@ -797,6 +819,7 @@ export function EquipmentRequestForm({
             Số lượng kỹ năng/bài thực hành *
             <select
               value={skillCount}
+              disabled={isEditMode}
               onChange={(event) => setSkillCount(Number(event.target.value))}
             >
               {[1, 2, 3, 4, 5].map((count) => (
@@ -810,6 +833,7 @@ export function EquipmentRequestForm({
             type="button"
             className="button button-secondary"
             onClick={buildSkillTables}
+            disabled={isEditMode}
           >
             + Tạo bảng thiết bị
           </button>
@@ -823,8 +847,9 @@ export function EquipmentRequestForm({
             <h2>Thiết bị theo kỹ năng/bài thực hành</h2>
           </div>
           <p>
-            Chọn tên thiết bị trước; tên thương mại sẽ được lọc tương ứng và các
-            thông tin danh mục được tự động điền.
+            {isEditMode
+              ? "Thiết bị và số lượng đã đăng ký được giữ nguyên; có thể sửa tên kỹ năng và ghi chú."
+              : "Chọn tên thiết bị trước; tên thương mại sẽ được lọc tương ứng và các thông tin danh mục được tự động điền."}
           </p>
         </div>
         <datalist id="equipment-skill-suggestions">
@@ -887,6 +912,7 @@ export function EquipmentRequestForm({
                             <SearchableCombobox
                               value={row.itemName}
                               options={catalogIndex.itemNameOptions}
+                              disabled={isEditMode}
                               onChange={(value) =>
                                 selectItemName(skill.key, row, value)
                               }
@@ -899,6 +925,7 @@ export function EquipmentRequestForm({
                             <SearchableCombobox
                               value={row.catalogItemId}
                               options={commercialOptions}
+                              disabled={isEditMode}
                               onChange={(value) =>
                                 selectCommercialItem(skill.key, row, value)
                               }
@@ -915,6 +942,7 @@ export function EquipmentRequestForm({
                               type="number"
                               min="1"
                               value={row.quantity}
+                              readOnly={isEditMode}
                               onChange={(event) =>
                                 updateRow(skill.key, row.key, {
                                   quantity: Number(event.target.value),
@@ -938,7 +966,7 @@ export function EquipmentRequestForm({
                             <button
                               type="button"
                               className="button button-secondary"
-                              disabled={skill.rows.length === 1}
+                              disabled={isEditMode || skill.rows.length === 1}
                               onClick={() =>
                                 updateSkill(skill.key, {
                                   rows: skill.rows.filter(
@@ -959,6 +987,7 @@ export function EquipmentRequestForm({
               <button
                 type="button"
                 className="button button-secondary"
+                disabled={isEditMode}
                 onClick={() =>
                   updateSkill(skill.key, {
                     rows: [...skill.rows, createEquipmentRow()],

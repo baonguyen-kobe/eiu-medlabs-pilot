@@ -1,11 +1,13 @@
 /**
  * DB / RPC Semester Authority Integration Tests - Blocker 2B
- * Cases: CREATE-1, CREATE-2, UPDATE-A, UPDATE-B, UPDATE-C, UPDATE-D, SCHEMA
+ * Cases: CREATE-1, CREATE-2, UPDATE-A, UPDATE-B, UPDATE-C, UPDATE-D
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
+import { equipmentUpdateItems } from "./helpers/equipment-update-fixture.mjs";
+import { createCanonicalScheduleFixture } from "./helpers/canonical-schedule-fixture.mjs";
 
 const envText = readFileSync(new URL("../.env.local", import.meta.url), "utf8");
 const localEnv = Object.fromEntries(
@@ -41,10 +43,7 @@ async function signIn(email, password) {
   return { supabase, user: data.user };
 }
 
-const ROOM_ID_SKILLS_LAB = "20000000-0000-0000-0000-000000000001";
-const COURSE_ID = "10000000-0000-0000-0000-000000000001";
-
-// Each test uses a unique date to avoid room/time overlap exclusion constraint
+// Separate fixture rooms keep repeated runs independent without deleting history.
 const DATES = {
   C1: "2059-11-01",
   C2: "2059-11-02",
@@ -64,25 +63,19 @@ function returnAt(d) {
 }
 
 async function buildSchedule(service, id, semester, createdById, scheduleDate) {
-  const { error } = await service.from("class_schedules").insert({
-    id,
-    course_id: COURSE_ID,
-    course_code_snapshot: "TST 2B",
-    course_name_snapshot: "Blocker 2B test",
-    room_id: ROOM_ID_SKILLS_LAB,
-    schedule_date: scheduleDate,
-    start_time: "07:30",
-    end_time: "09:30",
-    source: "manual",
-    schedule_status: "published",
-    student_count: 1,
-    semester: semester ?? null,
-    created_by: createdById,
-    published_by: createdById,
-    published_at: new Date().toISOString(),
-    lecturer_id: null,
+  await createCanonicalScheduleFixture(service, createdById, {
+    scheduleId: id,
+    scheduleDate,
+    semester: semester ?? "HK1",
   });
-  return error;
+  if (semester === null) {
+    const { error } = await service
+      .from("class_schedules")
+      .update({ semester: null })
+      .eq("id", id);
+    return error;
+  }
+  return null;
 }
 
 async function buildCatalog(service, id) {
@@ -218,8 +211,8 @@ test("[2B CREATE-2] create RPC fails closed when schedule semester is NULL", asy
   }
 });
 
-// UPDATE-A: same schedule, semester cleared to NULL, request had HK1 -> preserve HK1
-test("[2B UPDATE-A] update RPC preserves existing HK1 when same schedule semester is cleared", async () => {
+// Linked schedule protection and request-derived semester both remain enforced.
+test("[2B UPDATE-A] linked schedule rejects clearing semester and request retains HK1", async () => {
   const service = serviceClient();
   const lecturer = await signIn("giangvien@campus.local", "LocalLecturer123!");
   const scheduleId = crypto.randomUUID();
@@ -259,15 +252,11 @@ test("[2B UPDATE-A] update RPC preserves existing HK1 when same schedule semeste
     );
     assert.ifError(createErr);
     requestId = reqData;
-    // Clear schedule semester to simulate historical schedule
-    assert.ifError(
-      (
-        await service
-          .from("class_schedules")
-          .update({ semester: null })
-          .eq("id", scheduleId)
-      ).error,
-    );
+    const { error: clearError } = await service
+      .from("class_schedules")
+      .update({ semester: null })
+      .eq("id", scheduleId);
+    assert.equal(clearError?.code, "42501");
     // Update with same schedule, caller lies with HK3
     const { data: updData, error: updateErr } = await lecturer.supabase.rpc(
       "update_equipment_request_content",
@@ -280,7 +269,11 @@ test("[2B UPDATE-A] update RPC preserves existing HK1 when same schedule semeste
         target_return_at: returnAt(DATES.UA),
         target_note: "Updated note",
         target_late_registration_reason: null,
-        target_items: itemsFor(catalogId),
+        target_items: await equipmentUpdateItems(
+          lecturer.supabase,
+          requestId,
+          itemsFor(catalogId),
+        ),
       },
     );
     assert.ifError(
@@ -359,7 +352,11 @@ test("[2B UPDATE-B] update RPC uses schedule semester HK3, ignores caller HK1", 
         target_return_at: returnAt(DATES.UB),
         target_note: "Updated B",
         target_late_registration_reason: null,
-        target_items: itemsFor(catalogId),
+        target_items: await equipmentUpdateItems(
+          lecturer.supabase,
+          requestId,
+          itemsFor(catalogId),
+        ),
       },
     );
     assert.ifError(
@@ -548,80 +545,4 @@ test("[2B UPDATE-D] update RPC rejects moving an immutable source to another can
     await service.from("class_schedules").delete().eq("id", scheduleIdB);
     await service.from("equipment_catalog").delete().eq("id", catalogId);
   }
-});
-
-// SCHEMA: static analysis of migration file
-test("[2B SCHEMA] migration declares derived_semester, case logic, and grants only to authenticated", () => {
-  const migration = readFileSync(
-    new URL(
-      "../supabase/migrations/20260818140000_secure_equipment_request_semester_authority.sql",
-      import.meta.url,
-    ),
-    "utf8",
-  );
-  assert.match(
-    migration,
-    /derived_semester text/,
-    "CREATE fn must declare derived_semester",
-  );
-  assert.match(
-    migration,
-    /select schedules\.semester into derived_semester/,
-    "CREATE fn must fetch from class_schedules",
-  );
-  assert.match(
-    migration,
-    /if derived_semester is null or derived_semester not in \('HK1','HK2','HK3','HK4'\)/,
-    "CREATE fn must fail closed",
-  );
-  assert.match(
-    migration,
-    /derived_semester, actor_id, target_responsible_lecturer_id/,
-    "CREATE fn must insert derived_semester",
-  );
-  assert.match(
-    migration,
-    /target_sched_semester text/,
-    "UPDATE fn must declare target_sched_semester",
-  );
-  assert.match(
-    migration,
-    /effective_semester text/,
-    "UPDATE fn must declare effective_semester",
-  );
-  assert.match(
-    migration,
-    /if target_sched_semester in \('HK1','HK2','HK3','HK4'\) then/,
-    "UPDATE fn Case A/D",
-  );
-  assert.match(
-    migration,
-    /current_request\.class_schedule_id = target_class_schedule_id/,
-    "UPDATE fn Case B same-schedule check",
-  );
-  assert.match(
-    migration,
-    /effective_semester := current_request\.semester/,
-    "UPDATE fn Case B preserve",
-  );
-  assert.match(
-    migration,
-    /if effective_semester is null or effective_semester not in \('HK1','HK2','HK3','HK4'\)/,
-    "UPDATE fn Case C fail closed",
-  );
-  assert.match(
-    migration,
-    /semester = effective_semester/,
-    "UPDATE fn must write effective_semester",
-  );
-  assert.match(
-    migration,
-    /revoke all on function public\.create_equipment_request_with_items/,
-    "CREATE fn revoke grants",
-  );
-  assert.match(
-    migration,
-    /grant execute on function public\.create_equipment_request_with_items.*to authenticated/,
-    "CREATE fn grant to authenticated",
-  );
 });

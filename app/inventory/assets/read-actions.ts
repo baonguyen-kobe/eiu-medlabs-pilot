@@ -47,7 +47,7 @@ export async function readAssetOptions<T = EquipmentAsset>(
 /**
  * Authenticated exact lookup by asset_code.
  * Rejects malformed codes before dispatching to RPC.
- * Returns asset details, found status, eligibility flag, and ineligibility reasons.
+ * Returns asset details, found status, physical eligibility, and availability for new reservations.
  */
 export async function lookupAssetAction(
   rawAssetCode: string,
@@ -81,6 +81,7 @@ export async function lookupAssetAction(
           asset: null,
           found: false,
           eligible: false,
+          available: false,
           ineligibility_reasons: [
             "Không tìm thấy tài sản trong hệ thống / Asset not found",
           ],
@@ -95,6 +96,7 @@ export async function lookupAssetAction(
         asset,
         found: true,
         eligible: Boolean(asset.eligible),
+        available: asset.available,
         ineligibility_reasons: asset.ineligibility_reasons || [],
       },
     };

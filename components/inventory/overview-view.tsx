@@ -226,10 +226,13 @@ export function OverviewView({
                   Tình trạng / Condition
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Tổng tồn / Total Qty
+                  Tồn thực tế / On hand
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
                   Đủ ĐK / Eligible
+                </th>
+                <th scope="col" className="py-3 px-4 text-right">
+                  Khả dụng cho yêu cầu mới / Available for new
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
                   Hết hạn / Expired
@@ -245,7 +248,7 @@ export function OverviewView({
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {metrics.recentBalances.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400">
+                  <td colSpan={10} className="py-8 text-center text-slate-400">
                     Kho hiện chưa có số dư tồn kho nào. Hãy thực hiện Nhận kho
                     hoặc Khởi tạo tồn đầu.
                   </td>
@@ -276,6 +279,11 @@ export function OverviewView({
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
                         {formatDisplayQuantity(bal.eligible_quantity ?? "0")}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
+                        {bal.available_quantity == null
+                          ? "Chưa xác định / Unknown"
+                          : formatDisplayQuantity(bal.available_quantity)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-rose-600">
                         {formatDisplayQuantity(bal.expired_quantity ?? "0")}

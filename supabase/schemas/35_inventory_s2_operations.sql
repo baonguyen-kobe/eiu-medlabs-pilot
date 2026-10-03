@@ -2491,6 +2491,9 @@ begin
   else
     raise exception 'UNKNOWN_OPERATION: Operation % is not supported', p_operation using errcode = '22023';
   end if;
+  if coalesce(current_setting('app.s4_transfer_work',true),'')<>'true' then
+    perform private.s4_refresh_health();
+  end if;
 
   -- 5. Record Replay & Return Result
   insert into public.inventory_operation_replays (
@@ -2918,6 +2921,7 @@ begin
                            and f.expiry_precision <> 'unknown'
                            and not exists (select 1 from public.inventory_stock_holds h where h.origin_id = c.origin_id and h.status = 'active')
                       then b.quantity else 0 end)::text as eligible_quantity,
+             sum(case when b.condition='good' then private.s4_available(c.origin_id,b.location_id) else 0 end)::text as available_quantity,
              sum(case when b.condition = 'good' and (f.expiry_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date)
                       then b.quantity else 0 end)::text as expired_quantity,
              sum(case when b.condition = 'good' and f.expiry_precision = 'unknown'
@@ -3085,6 +3089,10 @@ begin
                ), '0')
                else '0'
              end as eligible_balance,
+             coalesce((select sum(private.s4_available(b.cohort_id,b.location_id))::text
+               from public.inventory_stock_balances b
+               where b.cohort_id=c.origin_id and b.condition='good'
+                 and (v_location_id is null or b.location_id=v_location_id)), '0') as available_quantity,
              coalesce(f0.base_quantity, f.base_quantity)::text as origin_base_quantity,
              f.good_quantity::text as current_good_quantity,
              f.damaged_quantity::text as current_damaged_quantity,
@@ -3307,7 +3315,7 @@ begin
                        or f.expiry_precision = 'unknown'
                        or (f.expiry_date is not null and f.expiry_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date)
                   then '0.000000'
-                  else b.quantity::text end as available_quantity,
+                  else private.s4_available(c.origin_id,b.location_id)::text end as available_quantity,
              f.expiry_precision,
              f.expiry_date,
              f.expiry_input,

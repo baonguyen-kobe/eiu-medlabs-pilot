@@ -1345,34 +1345,572 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment_inventory_mappings: {
+        Row: {
+          base_units_per_requested_unit: number
+          base_uom_code: string
+          catalog_item_id: string
+          created_at: string
+          created_by: string
+          demand_unit: string
+          id: string
+          inventory_item_id: string
+          reason: string
+        }
+        Insert: {
+          base_units_per_requested_unit: number
+          base_uom_code: string
+          catalog_item_id: string
+          created_at?: string
+          created_by: string
+          demand_unit: string
+          id?: string
+          inventory_item_id: string
+          reason: string
+        }
+        Update: {
+          base_units_per_requested_unit?: number
+          base_uom_code?: string
+          catalog_item_id?: string
+          created_at?: string
+          created_by?: string
+          demand_unit?: string
+          id?: string
+          inventory_item_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_inventory_mappings_base_uom_code_fkey"
+            columns: ["base_uom_code"]
+            isOneToOne: false
+            referencedRelation: "inventory_uoms"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_allocations: {
+        Row: {
+          base_quantity: number
+          created_at: string
+          id: string
+          location_id: string
+          mapping_id: string
+          plan_id: string
+          request_line_id: string
+        }
+        Insert: {
+          base_quantity: number
+          created_at?: string
+          id?: string
+          location_id: string
+          mapping_id: string
+          plan_id: string
+          request_line_id: string
+        }
+        Update: {
+          base_quantity?: number
+          created_at?: string
+          id?: string
+          location_id?: string
+          mapping_id?: string
+          plan_id?: string
+          request_line_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_allocations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_allocations_mapping_id_fkey"
+            columns: ["mapping_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_inventory_mappings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_allocations_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparation_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_allocations_request_line_id_fkey"
+            columns: ["request_line_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_request_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          operation: string
+          payload: Json
+          preparation_id: string | null
+          request_id: string
+          revision: number
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          operation: string
+          payload: Json
+          preparation_id?: string | null
+          request_id: string
+          revision: number
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          operation?: string
+          payload?: Json
+          preparation_id?: string | null
+          request_id?: string
+          revision?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_events_preparation_id_fkey"
+            columns: ["preparation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_plans: {
+        Row: {
+          actor_id: string
+          created_at: string
+          id: string
+          plan: Json
+          preparation_id: string
+          reason: string
+          revision: number
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          id?: string
+          plan: Json
+          preparation_id: string
+          reason: string
+          revision: number
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          id?: string
+          plan?: Json
+          preparation_id?: string
+          reason?: string
+          revision?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_plans_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_plans_preparation_id_fkey"
+            columns: ["preparation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_settings: {
+        Row: {
+          inactivity_minutes: number
+          revision: number
+          setting_key: string
+          updated_at: string
+          updated_by: string | null
+          warning_lead_minutes: number
+        }
+        Insert: {
+          inactivity_minutes?: number
+          revision?: number
+          setting_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          warning_lead_minutes?: number
+        }
+        Update: {
+          inactivity_minutes?: number
+          revision?: number
+          setting_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          warning_lead_minutes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_transfers: {
+        Row: {
+          asset_id: string | null
+          cohort_id: string | null
+          compensates_id: string | null
+          condition: string
+          created_at: string
+          destination_location_id: string
+          id: string
+          preparation_id: string
+          quantity: number
+          source_location_id: string
+          transaction_id: string
+        }
+        Insert: {
+          asset_id?: string | null
+          cohort_id?: string | null
+          compensates_id?: string | null
+          condition: string
+          created_at?: string
+          destination_location_id: string
+          id?: string
+          preparation_id: string
+          quantity: number
+          source_location_id: string
+          transaction_id: string
+        }
+        Update: {
+          asset_id?: string | null
+          cohort_id?: string | null
+          compensates_id?: string | null
+          condition?: string
+          created_at?: string
+          destination_location_id?: string
+          id?: string
+          preparation_id?: string
+          quantity?: number
+          source_location_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_transfers_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipt_cohorts"
+            referencedColumns: ["origin_id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_compensates_id_fkey"
+            columns: ["compensates_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparation_transfers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_destination_location_id_fkey"
+            columns: ["destination_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_preparation_id_fkey"
+            columns: ["preparation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_source_location_id_fkey"
+            columns: ["source_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparation_transfers_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparation_warning_events: {
+        Row: {
+          created_at: string
+          id: string
+          pickup_at: string
+          request_id: string
+          settings_revision: number
+          warning_lead_minutes: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pickup_at: string
+          request_id: string
+          settings_revision: number
+          warning_lead_minutes: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pickup_at?: string
+          request_id?: string
+          settings_revision?: number
+          warning_lead_minutes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparation_warning_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_preparations: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          draft: Json
+          health: Json
+          id: string
+          lock_expires_at: string | null
+          lock_holder: string | null
+          lock_token: string | null
+          previous_preparer: string | null
+          primary_preparer: string | null
+          request_id: string
+          revision: number
+          source_revision: number
+          state: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          draft?: Json
+          health?: Json
+          id?: string
+          lock_expires_at?: string | null
+          lock_holder?: string | null
+          lock_token?: string | null
+          previous_preparer?: string | null
+          primary_preparer?: string | null
+          request_id: string
+          revision?: number
+          source_revision: number
+          state?: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          draft?: Json
+          health?: Json
+          id?: string
+          lock_expires_at?: string | null
+          lock_holder?: string | null
+          lock_token?: string | null
+          previous_preparer?: string | null
+          primary_preparer?: string | null
+          request_id?: string
+          revision?: number
+          source_revision?: number
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_preparations_lock_holder_fkey"
+            columns: ["lock_holder"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparations_previous_preparer_fkey"
+            columns: ["previous_preparer"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparations_primary_preparer_fkey"
+            columns: ["primary_preparer"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_preparations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_quantity_adjustments: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          request_id: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_by: string
+          submitted_revision: number
+          targets: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          request_id: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by: string
+          submitted_revision: number
+          targets: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          request_id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string
+          submitted_revision?: number
+          targets?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_quantity_adjustments_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_quantity_adjustments_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_quantity_adjustments_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment_request_items: {
         Row: {
+          baseline_source: string
           basic_medical_catalog_item_id: string | null
           catalog_item_id: string | null
           created_at: string
           id: string
+          line_revision: number
           note: string | null
+          planned_quantity: number
           quantity: number
+          registered_quantity: number
+          removed_at: string | null
           request_id: string
           skill_name: string
         }
         Insert: {
+          baseline_source?: string
           basic_medical_catalog_item_id?: string | null
           catalog_item_id?: string | null
           created_at?: string
           id?: string
+          line_revision?: number
           note?: string | null
+          planned_quantity?: number
           quantity: number
+          registered_quantity?: number
+          removed_at?: string | null
           request_id: string
           skill_name: string
         }
         Update: {
+          baseline_source?: string
           basic_medical_catalog_item_id?: string | null
           catalog_item_id?: string | null
           created_at?: string
           id?: string
+          line_revision?: number
           note?: string | null
+          planned_quantity?: number
           quantity?: number
+          registered_quantity?: number
+          removed_at?: string | null
           request_id?: string
           skill_name?: string
         }
@@ -1421,6 +1959,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -1456,6 +1995,7 @@ export type Database = {
           late_reviewed_by?: string | null
           note?: string | null
           phone_snapshot: string
+          preparation_revision?: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -1491,6 +2031,7 @@ export type Database = {
           late_reviewed_by?: string | null
           note?: string | null
           phone_snapshot?: string
+          preparation_revision?: number
           receive_at?: string
           registrant_id?: string
           request_domain?: Database["public"]["Enums"]["equipment_request_domain"]
@@ -1963,6 +2504,78 @@ export type Database = {
             columns: ["transaction_id"]
             isOneToOne: true
             referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_reservations: {
+        Row: {
+          allocation_id: string
+          asset_id: string | null
+          cohort_id: string | null
+          created_at: string
+          id: string
+          location_id: string
+          preparation_id: string
+          quantity: number
+          released_at: string | null
+        }
+        Insert: {
+          allocation_id: string
+          asset_id?: string | null
+          cohort_id?: string | null
+          created_at?: string
+          id?: string
+          location_id: string
+          preparation_id: string
+          quantity: number
+          released_at?: string | null
+        }
+        Update: {
+          allocation_id?: string
+          asset_id?: string | null
+          cohort_id?: string | null
+          created_at?: string
+          id?: string
+          location_id?: string
+          preparation_id?: string
+          quantity?: number
+          released_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_reservations_allocation_id_fkey"
+            columns: ["allocation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparation_allocations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipt_cohorts"
+            referencedColumns: ["origin_id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_preparation_id_fkey"
+            columns: ["preparation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparations"
             referencedColumns: ["id"]
           },
         ]
@@ -3766,6 +4379,40 @@ export type Database = {
         Args: { p_filters?: Json; p_resource: string }
         Returns: Json
       }
+      equipment_preparation_command: {
+        Args: {
+          p_operation: string
+          p_payload: Json
+          p_request_id: string
+          p_retry_key: string
+        }
+        Returns: Json
+      }
+      equipment_preparation_operations_read: {
+        Args: { p_filters?: Json; p_resource?: string }
+        Returns: Json
+      }
+      equipment_preparation_read: {
+        Args: { p_filters?: Json; p_request_id: string; p_resource?: string }
+        Returns: Json
+      }
+      equipment_preparation_settings_command: {
+        Args: {
+          p_expected_revision: number
+          p_inactivity_minutes: number
+          p_reason: string
+          p_warning_lead_minutes: number
+        }
+        Returns: Json
+      }
+      equipment_preparation_transfer: {
+        Args: { p_payload: Json; p_request_id: string; p_retry_key: string }
+        Returns: Json
+      }
+      equipment_preparation_transfer_read: {
+        Args: { p_filters?: Json; p_request_id: string; p_resource: string }
+        Returns: Json
+      }
       finalize_import_batch: {
         Args: { target_batch_id: string }
         Returns: Json
@@ -3928,6 +4575,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -3972,6 +4620,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -4020,6 +4669,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -4068,6 +4718,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]
@@ -4192,6 +4843,7 @@ export type Database = {
           late_reviewed_by: string | null
           note: string | null
           phone_snapshot: string
+          preparation_revision: number
           receive_at: string
           registrant_id: string
           request_domain: Database["public"]["Enums"]["equipment_request_domain"]

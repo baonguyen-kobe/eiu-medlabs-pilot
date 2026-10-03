@@ -92,33 +92,47 @@ export function OperationalStatusBadge({
 
 export function AssetEligibilityBadge({
   eligible,
+  available,
   reasons = [],
 }: {
   eligible: boolean;
+  available: boolean;
   reasons?: string[];
 }) {
-  if (eligible) {
-    return (
-      <span
-        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300"
-        title="Đủ điều kiện xuất mượn / vận hành"
-      >
-        [Đủ điều kiện] / Eligible
-      </span>
-    );
-  }
-
-  const tooltip =
-    reasons.length > 0
+  const availability = (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
+        available === true
+          ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+          : "bg-amber-100 text-amber-800 border-amber-300"
+      }`}
+    >
+      {available === true
+        ? "Khả dụng cho yêu cầu mới / Available for new"
+        : available === false
+          ? "Không khả dụng cho yêu cầu mới / Unavailable for new"
+          : "Chưa xác định khả dụng / Availability unknown"}
+    </span>
+  );
+  const tooltip = eligible
+    ? "Đủ điều kiện vật lý; không đồng nghĩa với khả dụng cho yêu cầu mới / Physical eligibility does not imply availability"
+    : reasons.length > 0
       ? reasons.join("; ")
       : "Không đủ điều kiện xuất mượn hoặc vận hành";
 
   return (
-    <span
-      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300"
-      title={tooltip}
-    >
-      [Không đủ ĐK] / Ineligible
+    <span className="inline-flex flex-wrap items-center gap-1">
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
+          eligible
+            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+            : "bg-rose-100 text-rose-800 border-rose-300"
+        }`}
+        title={tooltip}
+      >
+        {eligible ? "[Đủ điều kiện] / Eligible" : "[Không đủ ĐK] / Ineligible"}
+      </span>
+      {availability}
     </span>
   );
 }

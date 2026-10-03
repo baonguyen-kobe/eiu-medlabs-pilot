@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
 import { assertLocalSupabaseTarget } from "./helpers/local-test-safety.mjs";
+import { equipmentUpdateItems } from "./helpers/equipment-update-fixture.mjs";
 
 const envText = readFileSync(new URL("../.env.local", import.meta.url), "utf8");
 const localEnv = Object.fromEntries(
@@ -252,6 +253,11 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
     assert.ifError(createA.error);
     requestA = createA.data;
     assert.ok(requestA, "EDIT-1: owner creates the Basic Medical request");
+    const initialEditItems = await equipmentUpdateItems(
+      owner.client,
+      requestA,
+      items(fixture.catalog, 3, "ba"),
+    );
 
     const updateA = await owner.client.rpc(
       "update_basic_medical_equipment_request_content",
@@ -261,7 +267,7 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
         target_return_at: "2099-11-22T09:00:00.000Z",
         target_note: "owner adjusted",
         target_late_registration_reason: null,
-        target_items: items(fixture.catalog, 3, "ba"),
+        target_items: initialEditItems,
       },
     );
     assert.ifError(updateA.error);
@@ -281,7 +287,11 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
         target_return_at: "2099-11-22T09:00:00.000Z",
         target_note: "preparing adjusted",
         target_late_registration_reason: null,
-        target_items: items(fixture.catalog, 4, "bốn"),
+        target_items: await equipmentUpdateItems(
+          owner.client,
+          requestA,
+          items(fixture.catalog, 4, "bốn"),
+        ),
       },
     );
     assert.ifError(preparing.error, "EDIT-2 preparing stays editable");
@@ -307,7 +317,11 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
         target_return_at: "2099-11-22T09:00:00.000Z",
         target_note: "manager adjusted",
         target_late_registration_reason: null,
-        target_items: items(fixture.catalog, 5, "năm"),
+        target_items: await equipmentUpdateItems(
+          manager.client,
+          requestA,
+          items(fixture.catalog, 5, "năm"),
+        ),
       },
     );
     assert.ifError(
@@ -318,11 +332,45 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
     const { data: persisted, error: persistedError } = await manager.client
       .from("equipment_requests")
       .select(
-        "source_identity_id,class_schedule_id,request_domain,note,equipment_request_items(skill_name,quantity,catalog_item_id,basic_medical_catalog_item_id,note)",
+        "source_identity_id,class_schedule_id,request_domain,note,preparation_revision,equipment_request_items(id,registered_quantity,skill_name,quantity,catalog_item_id,basic_medical_catalog_item_id,note)",
       )
       .eq("id", requestA)
       .single();
     assert.ifError(persistedError);
+    assert.equal(
+      persisted.equipment_request_items[0].id,
+      initialEditItems[0].id,
+      "repeated Basic Medical saves preserve the original line identity",
+    );
+    assert.equal(
+      persisted.equipment_request_items[0].registered_quantity,
+      1,
+      "Basic Medical edits preserve the registered baseline",
+    );
+    assert.equal(
+      persisted.equipment_request_items[0].quantity,
+      5,
+      "Basic Medical current quantity remains editable",
+    );
+    assert.ok(
+      persisted.preparation_revision > initialEditItems[0].expected_revision,
+    );
+    const staleEdit = await owner.client.rpc(
+      "update_basic_medical_equipment_request_content",
+      {
+        target_request_id: requestA,
+        target_receive_at: "2099-11-22T04:00:00.000Z",
+        target_return_at: "2099-11-22T09:00:00.000Z",
+        target_note: "Stale editor must not overwrite manager",
+        target_late_registration_reason: null,
+        target_items: initialEditItems,
+      },
+    );
+    assert.equal(
+      staleEdit.error?.code,
+      "23505",
+      "stale Basic Medical save rejects atomically",
+    );
     assert.equal(
       persisted.source_identity_id,
       fixture.sessionA,
@@ -507,7 +555,11 @@ test("Basic Medical equipment edit preserves its source and stays domain-local",
         target_return_at: `${lateSlot.date}T16:00:00+07:00`,
         target_note: "late email adjustment",
         target_late_registration_reason: "E2E late approval coverage",
-        target_items: items(fixture.catalog, 2, "late adjusted"),
+        target_items: await equipmentUpdateItems(
+          owner.client,
+          requestLate,
+          items(fixture.catalog, 2, "late adjusted"),
+        ),
       },
     );
     assert.ifError(lateEdit.error);

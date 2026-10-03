@@ -315,10 +315,13 @@ export function StockTable({
                   Tình trạng / Condition
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Tổng tồn / Total Qty
+                  Tồn thực tế / On hand
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
                   Đủ ĐK / Eligible
+                </th>
+                <th scope="col" className="py-3 px-4 text-right">
+                  Khả dụng cho yêu cầu mới / Available for new
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
                   Hết hạn / Expired
@@ -337,7 +340,7 @@ export function StockTable({
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {balances.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-slate-400">
+                  <td colSpan={11} className="py-12 text-center text-slate-400">
                     {hasActiveFilters
                       ? "Không tìm thấy dòng tồn kho nào phù hợp với bộ lọc."
                       : "Kho hiện chưa có số dư tồn kho nào."}
@@ -379,6 +382,11 @@ export function StockTable({
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
                         {formatDisplayQuantity(bal.eligible_quantity ?? "0")}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
+                        {bal.available_quantity == null
+                          ? "Chưa xác định / Unknown"
+                          : formatDisplayQuantity(bal.available_quantity)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-rose-600">
                         {formatDisplayQuantity(bal.expired_quantity ?? "0")}
@@ -499,6 +507,9 @@ export function StockTable({
                     <th scope="col" className="py-2.5 px-3 text-right">
                       Đủ ĐK / Eligible
                     </th>
+                    <th scope="col" className="py-2.5 px-3 text-right">
+                      Khả dụng cho yêu cầu mới / Available for new
+                    </th>
                     <th scope="col" className="py-2.5 px-3">
                       Hạn dùng / Expiry
                     </th>
@@ -554,6 +565,11 @@ export function StockTable({
                       <td className="py-2.5 px-3 text-right font-mono font-semibold text-emerald-700">
                         {formatDisplayQuantity(cohort.eligible_balance)}{" "}
                         {cohort.base_uom_code}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-emerald-700">
+                        {cohort.available_quantity == null
+                          ? "Chưa xác định / Unknown"
+                          : `${formatDisplayQuantity(cohort.available_quantity)} ${cohort.base_uom_code}`}
                       </td>
                       <td className="py-2.5 px-3 text-slate-600">
                         {cohort.current_expiry_date ||

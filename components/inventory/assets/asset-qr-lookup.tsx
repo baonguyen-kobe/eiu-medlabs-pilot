@@ -18,6 +18,7 @@ export function AssetQrLookup() {
     asset: EquipmentAsset | null;
     found: boolean;
     eligible: boolean;
+    available: boolean;
     ineligibility_reasons: string[];
     error?: string;
   } | null>(null);
@@ -34,6 +35,7 @@ export function AssetQrLookup() {
           asset: null,
           found: false,
           eligible: false,
+          available: false,
           ineligibility_reasons: [],
           error: res.error || "Lỗi tra cứu",
         });
@@ -42,6 +44,7 @@ export function AssetQrLookup() {
           asset: res.data.asset,
           found: res.data.found,
           eligible: res.data.eligible,
+          available: res.data.available,
           ineligibility_reasons: res.data.ineligibility_reasons,
         });
       }
@@ -131,9 +134,9 @@ export function AssetQrLookup() {
         {result && result.asset && (
           <div
             className={`p-4 rounded-lg border text-xs space-y-3 ${
-              result.eligible
+              result.available === true
                 ? "bg-emerald-50 border-emerald-300 text-emerald-900"
-                : "bg-rose-50 border-rose-300 text-rose-900"
+                : "bg-amber-50 border-amber-300 text-amber-900"
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-current/10">
@@ -143,6 +146,7 @@ export function AssetQrLookup() {
                 </span>
                 <AssetEligibilityBadge
                   eligible={result.eligible}
+                  available={result.available}
                   reasons={result.ineligibility_reasons}
                 />
               </div>
@@ -153,6 +157,10 @@ export function AssetQrLookup() {
                 Xem chi tiết tài sản &rarr;
               </Link>
             </div>
+            <p>
+              Tra cứu chỉ xác định tài sản; không tự chọn hoặc giữ chỗ. /
+              Identity lookup only; does not select or reserve an asset.
+            </p>
 
             {/* Ineligibility Reasons Callout */}
             {!result.eligible && (

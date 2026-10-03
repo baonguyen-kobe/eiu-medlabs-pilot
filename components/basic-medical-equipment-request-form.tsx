@@ -30,6 +30,7 @@ export type BasicMedicalEquipmentRegistrant = {
 
 type DraftItem = {
   key: number;
+  id?: string;
   itemName: string;
   catalogItemId: string;
   quantity: number;
@@ -39,6 +40,7 @@ type DraftItem = {
 export type BasicMedicalEquipmentRequestInitialData = {
   mode: "edit" | "copy";
   sourceRequestId: string;
+  requestRevision: number;
   sourceRequestCode: string;
   receiveDate: string;
   receiveTime: string;
@@ -88,7 +90,11 @@ export function BasicMedicalEquipmentRequestForm({
   const nextKey = useRef((initialData?.items.length ?? 1) + 1);
   const [items, setItems] = useState<DraftItem[]>(
     initialData?.items.length
-      ? initialData.items.map((item, index) => ({ ...item, key: index + 1 }))
+      ? initialData.items.map((item, index) => ({
+          ...item,
+          id: isEditMode ? item.id : undefined,
+          key: index + 1,
+        }))
       : [{ key: 1, itemName: "", catalogItemId: "", quantity: 1, note: "" }],
   );
   const [receiveDate, setReceiveDate] = useState(
@@ -257,12 +263,18 @@ export function BasicMedicalEquipmentRequestForm({
         type="hidden"
         name="items"
         value={JSON.stringify(
-          items.map(({ catalogItemId, quantity, note }) => ({
+          items.map(({ id, catalogItemId, quantity, note }) => ({
+            id,
             catalogItemId,
             quantity,
             note,
           })),
         )}
+      />
+      <input
+        type="hidden"
+        name="expected_revision"
+        value={initialData?.requestRevision ?? ""}
       />
       {initialData ? (
         <div
