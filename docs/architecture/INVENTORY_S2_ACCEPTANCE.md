@@ -4,7 +4,25 @@
 
 Owner-authorized S2: atomic cohort-preserving transfer, physical good-to-damaged movement, evidence-backed counted reconciliation, standalone held stocktake surplus, Admin verification and append-only evidence. [API contract](INVENTORY_S2_API.md); [approved implementation proposal](../../openspec/changes/inventory-s2-physical-operations/proposal.md). S1 remains accepted with its previously accepted limitations. No S3 or production authorization.
 
-Technical recommendation: accept S2 for the isolated synthetic pilot. Implementation status VERIFY pending Owner acceptance; no automatic S3 continuation.
+**Owner decision — 2026-10-03: S2 ACCEPTED / CLOSED for the isolated synthetic pilot.** Accepted implementation commit: `a450117`; migration: `20261003030000_inventory_s2_operations.sql`, applied to `kwpyukofofoaqhmxndlc`.
+
+| Gate                      | Status             |
+| ------------------------- | ------------------ |
+| G0                        | DONE               |
+| S1                        | ACCEPTED / CLOSED  |
+| S2 Implementation         | DONE               |
+| S2 Remote Pilot Migration | DONE               |
+| S2 Targeted Acceptance    | PASS               |
+| S2 Owner Acceptance       | ACCEPTED           |
+| P1 Real Operational Stock | NOT AUTHORIZED     |
+| Production Cutover        | NOT AUTHORIZED     |
+| S3 Implementation         | NOT YET AUTHORIZED |
+
+Accepted scope includes atomic stock transfer, good-to-damaged physical condition change, server-computed stocktake/reconciliation delta, stale/ABA protection and explicit recount, separate surplus origin, held/non-issueable surplus, Admin verification/release, immutable evidence append, paginated operational history, and corresponding authorization/atomicity/rollback/reconciliation.
+
+Owner accepts these limits as **NON-BLOCKING**: no full UI/accessibility certification; CLI pg-delta cache warning with effective migration/RPC independently verified; inaccessible canonical `medlabs-OPs` remote with local-only continuity. Do not reopen S2 for these alone unless a new functional/data/security blocker appears.
+
+This closure changes documentation only. Prior executed evidence below is retained, not a claim of fresh runtime checks. S2 work stops. The only authorized next activity is identifying the actual S3 Serialized Asset + QR delta against current roadmap and S1/S2 implementation, without rebuilding the quantity-stock foundation or starting S3 implementation.
 
 ## Database verification executed
 

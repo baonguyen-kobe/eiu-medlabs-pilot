@@ -2,7 +2,7 @@
 
 ## Authority and status
 
-Owner authorized continuous S2 implementation and isolated synthetic pilot delivery after the bounded delta review. Control-plane `plans/S2_DELTA_REVIEW.md`, approved stock Page Spec and INV-050 govern. S1 is accepted and closed; its accepted limitations remain unchanged. S2 implementation and targeted technical verification are complete, status VERIFY pending Owner acceptance. No production authorization. Executed evidence: `docs/architecture/INVENTORY_S2_ACCEPTANCE.md`.
+Owner accepted and closed S2 on 2026-10-03 for the isolated synthetic pilot (INV-051), following the approved delta and INV-050 surplus policy. S1 remains ACCEPTED / CLOSED. S2 implementation and remote pilot migration DONE; targeted acceptance PASS; Owner acceptance ACCEPTED. Accepted implementation commit `a450117`, migration `20261003030000_inventory_s2_operations.sql` on `kwpyukofofoaqhmxndlc`. Accepted non-blocking limits and historical executed evidence: `docs/architecture/INVENTORY_S2_ACCEPTANCE.md`. Do not reopen S2 for those limits absent a new functional/data/security blocker. No S3 implementation, real P1 stock or production authorization.
 
 ## Approved change
 

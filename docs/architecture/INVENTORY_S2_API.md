@@ -1,6 +1,6 @@
 # S2 physical inventory API
 
-Status: implementation and targeted technical verification complete; VERIFY pending Owner acceptance. Authority: Owner-approved S2 delta and control-plane INV-050. Extends [accepted S1](INVENTORY_S1_API.md); see [executed evidence](INVENTORY_S2_ACCEPTANCE.md).
+Status: **S2 ACCEPTED / CLOSED** for the isolated synthetic pilot by Owner decision on 2026-10-03. Implementation and remote pilot migration DONE; targeted acceptance PASS; Owner acceptance ACCEPTED. Accepted implementation `a450117`. Authority: Owner-approved S2 delta, control-plane INV-050/051 and [accepted evidence and limits](INVENTORY_S2_ACCEPTANCE.md). Extends [accepted S1](INVENTORY_S1_API.md). No S3 implementation, real P1 stock or production authorization.
 
 ## Storage and security
 
