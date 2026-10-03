@@ -1,6 +1,22 @@
 # S3 acceptance report — isolated synthetic pilot
 
-2026-10-03; delivery commit pending; migration `20261003064848_inventory_s3_assets.sql` applied to isolated pilot `kwpyukofofoaqhmxndlc`. Production and real P1 stock not touched.
+2026-10-03: **S3 ACCEPTED / CLOSED** by explicit Owner decision. Accepted pilot implementation `ca7e5db`; migration `20261003064848_inventory_s3_assets.sql` applied to isolated pilot `kwpyukofofoaqhmxndlc`. Production and real P1 stock remain NOT AUTHORIZED.
+
+| Gate                      | Status             |
+| ------------------------- | ------------------ |
+| G0                        | DONE               |
+| S1                        | ACCEPTED / CLOSED  |
+| S2                        | ACCEPTED / CLOSED  |
+| S3 Implementation         | DONE               |
+| S3 Remote Pilot Migration | DONE               |
+| S3 Targeted Acceptance    | PASS               |
+| S3 Owner Acceptance       | ACCEPTED           |
+| S3                        | ACCEPTED / CLOSED  |
+| P1 Real Operational Stock | NOT AUTHORIZED     |
+| Production Cutover        | NOT AUTHORIZED     |
+| S4 Implementation         | NOT YET AUTHORIZED |
+
+Do not reopen S3 without a new functional/data/security blocker. Accepted scope is the implementation below, including S3 authorization, mobile behavior and S1/S2 regression compatibility. This closure changes documentation only; the evidence below records prior execution, not a fresh runtime certification. `medlabs-OPs` remains local-only. Next authorized work is source/workflow comparison to identify S4 delta, not implementation or redesign of S1–S3.
 
 ## S3 implementation boundary
 

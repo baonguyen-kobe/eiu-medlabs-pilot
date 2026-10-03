@@ -1,6 +1,6 @@
 # S3 Serialized Asset + QR API
 
-Owner-authorized S3 under control-plane INV-052; implementation verification in progress. S1/S2 remain accepted. This document mirrors the bounded application contract, not the entire local control plane.
+S3 ACCEPTED / CLOSED by Owner on 2026-10-03 for isolated synthetic pilot implementation `ca7e5db`; implementation authority INV-052, closure INV-053 in local control plane. See [acceptance and boundaries](INVENTORY_S3_ACCEPTANCE.md). S1/S2 remain accepted. This document mirrors the bounded application contract, not the entire local control plane.
 
 ## Canonical identity and invariants
 

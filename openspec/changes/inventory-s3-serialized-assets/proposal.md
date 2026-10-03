@@ -1,6 +1,6 @@
 # S3 — Serialized Asset + QR
 
-Status: APPROVED / IMPLEMENTING. Owner acceptance pending verification/delivery.
+Status: **S3 ACCEPTED / CLOSED** — explicit Owner decision on 2026-10-03. Accepted implementation `ca7e5db`, migration `20261003064848_inventory_s3_assets.sql`, isolated pilot `kwpyukofofoaqhmxndlc`. See [acceptance evidence](../../../docs/architecture/INVENTORY_S3_ACCEPTANCE.md).
 
 ## Authority and scope
 
@@ -18,4 +18,4 @@ Dedicated exact-asset command/read RPCs reuse existing active Admin/Staff checks
 
 Targeted local RPC/pgTAP coverage for identity, replay/duplicates, concurrency, role/direct-write boundaries, immutable history, first-fact guards, lifecycle/expiry and zero quantity effects. Real UI intake/state/lifecycle/correction/history/QR lookup plus desktop/narrow inspection. Regenerate local database types; run impacted S1/S2 checks and changed-file preflight. Verify linked pilot `kwpyukofofoaqhmxndlc`, apply repository migration only after local evidence, independently smoke synthetic rollback and catalog/history. Report only executed evidence.
 
-No S4 allocations/reservations, handover/return/recovery, Basic Medical cutover, real P1 stock, production `bwhiivfhezoozrzvchmm` or Vercel deployment. Stop at S3 delivery; acceptance remains Owner decision.
+S3 work stops. Do not reopen without a new functional/data/security blocker. S4 Implementation NOT YET AUTHORIZED; only bounded S4 delta identification is authorized. No handover/return/recovery, Basic Medical cutover, real P1 stock, production `bwhiivfhezoozrzvchmm` or Vercel deployment. OPS remains local-only; no remote changes or push.
