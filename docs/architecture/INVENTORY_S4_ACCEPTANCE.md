@@ -1,12 +1,25 @@
 # S4 operational acceptance — isolated synthetic pilot
 
-2026-10-03. Authority: Owner INV-054 and flow-first adjustment INV-055 in local-only `D:/orca/medlabs-OPs`. S1–S3 remain ACCEPTED / CLOSED. S4 Owner acceptance is **PENDING**; implementation evidence does not grant acceptance or authorize S5.
+2026-10-03: **S4 ACCEPTED / CLOSED** by explicit Owner decision INV-056. Accepted implementation `14fb9a0`; migration `20261003085252_inventory_s4_preparation_reservations.sql` on isolated pilot `kwpyukofofoaqhmxndlc`. G0 DONE; S1–S3 remain ACCEPTED / CLOSED. Prior runtime evidence below is retained, not rerun by this documentation closure.
+
+| Gate                      | Status             |
+| ------------------------- | ------------------ |
+| S4 Implementation         | DONE               |
+| S4 Remote Pilot Migration | DONE               |
+| S4 Targeted Acceptance    | PASS               |
+| S4 Owner Acceptance       | ACCEPTED           |
+| S4                        | ACCEPTED / CLOSED  |
+| P1 Real Operational Stock | NOT AUTHORIZED     |
+| Production Cutover        | NOT AUTHORIZED     |
+| S5 Implementation         | NOT YET AUTHORIZED |
+
+Owner accepts all operational capabilities below, including revision/lock/re-review, explicit mapping, multi-source quantity/exact-asset reservations, absolute adjustments with stale rejection, health/shortfall, reallocation, strict physical-compensation reversal and corresponding concurrency/RLS/audit. PROVISIONAL / TESTABLE UI is intentional flow-first scope, not an S4 blocker; full UI/UX/WCAG is not required for closure. Do not reopen S4 without a new functional/data/security blocker.
 
 ## Delivery boundary
 
 - Target: `baonguyen-kobe/eiu-medlabs-pilot`, branch `main`; isolated Supabase pilot `kwpyukofofoaqhmxndlc` only.
 - Migration: `20261003085252_inventory_s4_preparation_reservations.sql`.
-- Remote migration and verification: **DONE / targeted acceptance PASS**. Owner acceptance remains **PENDING**.
+- Remote migration and verification: **DONE / targeted acceptance PASS**. Owner acceptance **ACCEPTED**.
 - No production database mutation, deployment, P1 real stock, Basic Medical Inventory cutover, S5 handover/return/signature/recovery, or OPS remote changes.
 - Preparation UI is **PROVISIONAL / TESTABLE**. Redesign, polish, detailed responsive refinement, final navigation organization and full visual parity belong to a separate UI/UX round, not the S4 gate.
 
@@ -43,4 +56,4 @@
 
 - **NOT RUN — NOT REQUIRED FOR CURRENT IMPACT:** full repository test suite and full end-to-end suite; targeted database, compatibility, concurrency and browser paths are the S4 evidence.
 - **NOT RUN — NOT REQUIRED FOR CURRENT IMPACT:** complete UI/UX, cross-browser and WCAG certification, explicitly deferred under INV-055.
-- OPS remains local-only. S4 Owner acceptance remains pending. Stop at S4 delivery; do not begin S5.
+- OPS remains local-only. Stop S4. Next: identify actual S5 delta for actual handover, signature, return, recovery and late return against current source and approved contracts; do not rebuild S1–S4 or begin S5 implementation.

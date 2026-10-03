@@ -1,6 +1,6 @@
 # S4 — Equipment Request Preparation + Reservation
 
-Status: implementation and isolated pilot migration DONE; targeted operational acceptance PASS under Owner INV-054/055. S4 Owner acceptance PENDING. S1–S3 ACCEPTED / CLOSED.
+Status: **S4 ACCEPTED / CLOSED** under Owner INV-056. Implementation and isolated pilot migration DONE; targeted acceptance PASS; Owner acceptance ACCEPTED. Accepted implementation `14fb9a0`. S1–S3 remain ACCEPTED / CLOSED.
 
 Canonical delegated technical contract: `D:/orca/medlabs-OPs/plans/S4_DESIGN_PACK.md`; Page Spec: `pages/specs/request-preparation.md`. OPS remains local-only. Owner permits full S4 design/implementation/verification, repository migrations applied only to isolated pilot `kwpyukofofoaqhmxndlc`, synthetic fixtures, generated types and commit/push to `eiu-medlabs-pilot/origin`. No per-slice approval.
 
@@ -14,4 +14,4 @@ Delivery evidence: [S4 operational acceptance report](../../../docs/architecture
 
 Owner priority adjustment INV-055: operational flow first. Preparation UI is PROVISIONAL / TESTABLE and retained for operations, RPC verification, visible allocations/reservations/shortfall/reversal and browser smoke. DB/RPC/business-flow/concurrency/invariants are the acceptance priority. Redesign, polish, noncritical responsive refinement, detailed styling, final navigation organization and complete visual parity are deferred to a separate UI/UX round; they do not block S4.
 
-Excluded: S5 handover/return/signatures/recovery/late return; Basic Medical Inventory cutover; P1 real stock; production/deploy; OPS remote push. Stop at S4 DONE or Owner-defined business/safety blocker. No S4 acceptance claimed by this authorization.
+Excluded: S5 handover/return/signatures/recovery/late return; Basic Medical Inventory cutover; P1 real stock; production/deploy; OPS remote push. S4 is closed; reopen only for a new functional/data/security blocker. Next is actual S5 delta identification only, without rebuilding S1–S4; S5 implementation is NOT YET AUTHORIZED. PROVISIONAL / TESTABLE UI is accepted without full UI/UX/WCAG as a closure gate.
