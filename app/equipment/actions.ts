@@ -1,5 +1,6 @@
 "use server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { processPendingEmailOutbox } from "@/lib/equipment-request-emails";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/equipment-lead-time";
 import {
   equipmentRequestWorkflowStatuses,
+  usesInventoryFulfillment,
   type EquipmentConfirmationState,
   type EquipmentRequestListItem,
   type EquipmentRequestStatus,
@@ -57,6 +59,27 @@ function toEquipmentConfirmationState(
       (row.return_recipient_signed_at as string) ?? null,
     return_effective_at: (row.return_effective_at as string) ?? null,
   };
+}
+
+async function legacyConfirmationError(
+  supabase: SupabaseClient,
+  requestId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("equipment_requests")
+    .select("request_domain,has_inventory_preparation")
+    .eq("id", requestId)
+    .maybeSingle();
+  if (error || !data) {
+    return error?.message || "Không tìm thấy phiếu thiết bị.";
+  }
+  const request = data as Pick<
+    EquipmentRequestListItem,
+    "request_domain" | "has_inventory_preparation"
+  >;
+  return usesInventoryFulfillment(request)
+    ? "Phiếu đã có chuẩn bị kho. Vui lòng mở Bàn giao, thu hồi và ký xác nhận để ghi nhận theo từng lần."
+    : null;
 }
 
 export async function addEquipmentRequestItem({
@@ -248,6 +271,9 @@ export async function updateEquipmentRequestStatus(
     return { ok: false, message: "Phiếu hoặc trạng thái không hợp lệ." };
   }
 
+  const guardError = await legacyConfirmationError(supabase, requestId);
+  if (guardError) return { ok: false, message: guardError };
+
   const { data, error } = await supabase.rpc(
     "manager_confirm_equipment_status",
     {
@@ -342,6 +368,9 @@ export async function confirmEquipmentRequestHandoff(
   if (!claims?.claims?.sub) {
     return { ok: false, message: "Phiên đăng nhập đã hết hạn." };
   }
+
+  const guardError = await legacyConfirmationError(supabase, requestId);
+  if (guardError) return { ok: false, message: guardError };
 
   const { data, error } = await supabase.rpc(
     "registrant_confirm_equipment_handoff",

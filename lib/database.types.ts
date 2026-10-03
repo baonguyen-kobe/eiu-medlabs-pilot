@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -1345,6 +1350,194 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment_fulfillment_effects: {
+        Row: {
+          classification: string | null
+          condition: string | null
+          event_id: string
+          id: string
+          issue_slice_id: string
+          kind: string
+          location_id: string | null
+          offsets_effect_id: string | null
+          quantity: number
+        }
+        Insert: {
+          classification?: string | null
+          condition?: string | null
+          event_id: string
+          id?: string
+          issue_slice_id: string
+          kind: string
+          location_id?: string | null
+          offsets_effect_id?: string | null
+          quantity: number
+        }
+        Update: {
+          classification?: string | null
+          condition?: string | null
+          event_id?: string
+          id?: string
+          issue_slice_id?: string
+          kind?: string
+          location_id?: string | null
+          offsets_effect_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_fulfillment_effects_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_fulfillment_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_effects_issue_slice_id_fkey"
+            columns: ["issue_slice_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_issue_slices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_effects_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_effects_offsets_effect_id_fkey"
+            columns: ["offsets_effect_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_fulfillment_effects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_fulfillment_events: {
+        Row: {
+          actor_id: string
+          business_key: string
+          corrects_event_id: string | null
+          id: string
+          occurred_at: string
+          operation: string
+          payload: Json
+          preparation_id: string
+          reason: string
+          request_id: string
+          revision: number
+          signature_required: boolean
+          transaction_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          business_key: string
+          corrects_event_id?: string | null
+          id?: string
+          occurred_at?: string
+          operation: string
+          payload: Json
+          preparation_id: string
+          reason: string
+          request_id: string
+          revision: number
+          signature_required?: boolean
+          transaction_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          business_key?: string
+          corrects_event_id?: string | null
+          id?: string
+          occurred_at?: string
+          operation?: string
+          payload?: Json
+          preparation_id?: string
+          reason?: string
+          request_id?: string
+          revision?: number
+          signature_required?: boolean
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_fulfillment_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_events_corrects_event_id_fkey"
+            columns: ["corrects_event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_fulfillment_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_events_preparation_id_fkey"
+            columns: ["preparation_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_preparations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_events_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_fulfillment_signatures: {
+        Row: {
+          actor_id: string
+          event_id: string
+          signature: string
+          signed_at: string
+          snapshot_hash: string
+        }
+        Insert: {
+          actor_id: string
+          event_id: string
+          signature: string
+          signed_at?: string
+          snapshot_hash: string
+        }
+        Update: {
+          actor_id?: string
+          event_id?: string
+          signature?: string
+          signed_at?: string
+          snapshot_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_fulfillment_signatures_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_fulfillment_signatures_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "equipment_fulfillment_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment_inventory_mappings: {
         Row: {
           base_units_per_requested_unit: number
@@ -1406,6 +1599,98 @@ export type Database = {
             columns: ["inventory_item_id"]
             isOneToOne: false
             referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_issue_slices: {
+        Row: {
+          asset_id: string | null
+          base_units_per_requested_unit: number
+          cohort_id: string | null
+          event_id: string
+          id: string
+          inventory_item_id: string
+          location_id: string
+          mapping_id: string
+          quantity: number
+          request_line_id: string
+          return_required: boolean
+        }
+        Insert: {
+          asset_id?: string | null
+          base_units_per_requested_unit: number
+          cohort_id?: string | null
+          event_id: string
+          id?: string
+          inventory_item_id: string
+          location_id: string
+          mapping_id: string
+          quantity: number
+          request_line_id: string
+          return_required: boolean
+        }
+        Update: {
+          asset_id?: string | null
+          base_units_per_requested_unit?: number
+          cohort_id?: string | null
+          event_id?: string
+          id?: string
+          inventory_item_id?: string
+          location_id?: string
+          mapping_id?: string
+          quantity?: number
+          request_line_id?: string
+          return_required?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_issue_slices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_receipt_cohorts"
+            referencedColumns: ["origin_id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_fulfillment_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_mapping_id_fkey"
+            columns: ["mapping_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_inventory_mappings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_issue_slices_request_line_id_fkey"
+            columns: ["request_line_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_request_items"
             referencedColumns: ["id"]
           },
         ]
@@ -1944,6 +2229,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -1980,6 +2266,7 @@ export type Database = {
           created_at?: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision?: number
           handover_effective_at?: string | null
           handover_file_url?: string | null
           handover_recipient_signed_at?: string | null
@@ -2016,6 +2303,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           email_snapshot?: string
+          fulfillment_revision?: number
           handover_effective_at?: string | null
           handover_file_url?: string | null
           handover_recipient_signed_at?: string | null
@@ -4379,6 +4667,19 @@ export type Database = {
         Args: { p_filters?: Json; p_resource: string }
         Returns: Json
       }
+      equipment_fulfillment_command: {
+        Args: {
+          p_operation: string
+          p_payload: Json
+          p_request_id: string
+          p_retry_key: string
+        }
+        Returns: Json
+      }
+      equipment_fulfillment_read: {
+        Args: { p_page?: number; p_request_id: string }
+        Returns: Json
+      }
       equipment_preparation_command: {
         Args: {
           p_operation: string
@@ -4442,6 +4743,12 @@ export type Database = {
       }
       hard_delete_equipment_request: {
         Args: { target_request_id: string }
+        Returns: boolean
+      }
+      has_inventory_preparation: {
+        Args: {
+          p_request: Database["public"]["Tables"]["equipment_requests"]["Row"]
+        }
         Returns: boolean
       }
       hook_only_precreated_personnel: { Args: { event: Json }; Returns: Json }
@@ -4560,6 +4867,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -4605,6 +4913,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -4654,6 +4963,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -4703,6 +5013,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -4828,6 +5139,7 @@ export type Database = {
           created_at: string
           created_by: string
           email_snapshot: string
+          fulfillment_revision: number
           handover_effective_at: string | null
           handover_file_url: string | null
           handover_recipient_signed_at: string | null
@@ -5402,12 +5714,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5431,11 +5743,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5456,11 +5768,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5481,11 +5793,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5498,11 +5810,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5556,4 +5868,3 @@ export const Constants = {
     },
   },
 } as const
-

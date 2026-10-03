@@ -30,7 +30,7 @@ export type EquipmentLateApprovalStatus =
   (typeof equipmentLateApprovalStatuses)[number]["value"];
 
 export const equipmentRequestSelect =
-  "id,preparation_revision,request_domain,source_identity_id,registrant_id,responsible_lecturer_id,status,semester,phone_snapshot,email_snapshot,receive_at,return_at,note,handover_file_url,created_at,updated_at,late_approval_status,late_registration_reason,late_requested_at,late_reviewed_at,late_review_note,handover_staff_confirmed_at,handover_recipient_signed_at,handover_effective_at,return_staff_confirmed_at,return_recipient_signed_at,return_effective_at,profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name,email),class_schedules(id,schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,student_count,rooms(room_code,building_code,room_name)),equipment_request_items(id,quantity,skill_name,note,equipment_catalog(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit),basic_medical_equipment_catalog(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit))";
+  "id,preparation_revision,has_inventory_preparation,request_domain,source_identity_id,registrant_id,responsible_lecturer_id,status,semester,phone_snapshot,email_snapshot,receive_at,return_at,note,handover_file_url,created_at,updated_at,late_approval_status,late_registration_reason,late_requested_at,late_reviewed_at,late_review_note,handover_staff_confirmed_at,handover_recipient_signed_at,handover_effective_at,return_staff_confirmed_at,return_recipient_signed_at,return_effective_at,profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name,email),class_schedules(id,schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,student_count,rooms(room_code,building_code,room_name)),equipment_request_items(id,quantity,skill_name,note,equipment_catalog(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit),basic_medical_equipment_catalog(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit))";
 
 export const equipmentHandoverSelect = `${equipmentRequestSelect},handover_recipient_signature:handover_signature_path,return_recipient_signature:return_signature_path,handover_staff:profiles!equipment_requests_handover_staff_confirmed_by_fkey(full_name),return_staff:profiles!equipment_requests_return_staff_confirmed_by_fkey(full_name)`;
 
@@ -52,6 +52,7 @@ export type EquipmentConfirmationState = {
 export type EquipmentRequestListItem = {
   id: string;
   preparation_revision: number;
+  has_inventory_preparation: boolean;
   request_domain: EquipmentRequestDomain;
   source_identity_id: string;
   registrant_id: string;
@@ -120,6 +121,18 @@ export type EquipmentRequestListItem = {
     } | null;
   }>;
 };
+
+export function usesInventoryFulfillment(
+  request: Pick<
+    EquipmentRequestListItem,
+    "request_domain" | "has_inventory_preparation"
+  >,
+) {
+  return (
+    request.request_domain === "nursing_skills" &&
+    request.has_inventory_preparation === true
+  );
+}
 
 export type EquipmentCatalogListItem = {
   id: string;

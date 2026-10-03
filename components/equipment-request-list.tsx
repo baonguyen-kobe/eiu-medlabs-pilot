@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   type PointerEvent as ReactPointerEvent,
   useEffect,
@@ -27,6 +28,7 @@ import {
   equipmentRequestStatuses,
   equipmentRequestWorkflowStatuses,
   equipmentStatusMeta,
+  usesInventoryFulfillment,
   type EquipmentCatalogListItem,
   type EquipmentConfirmationState,
   type EquipmentLateApprovalStatus,
@@ -896,6 +898,8 @@ export function EquipmentRequestList({
     requestId: string,
     status: EquipmentRequestWorkflowStatus,
   ) {
+    const request = items.find((item) => item.id === requestId);
+    if (!request || usesInventoryFulfillment(request)) return;
     if (
       !canManageStatus ||
       !manageableDomains.includes(
@@ -977,7 +981,7 @@ export function EquipmentRequestList({
 
   function confirmSignature(signature: string) {
     const target = signatureTarget;
-    if (!target) return;
+    if (!target || usesInventoryFulfillment(target.request)) return;
     setUpdatingId(target.request.id);
     setStatusNotice(null);
     startTransition(async () => {
@@ -1182,6 +1186,7 @@ export function EquipmentRequestList({
               const lateRegistrationReason =
                 confirmation?.late_registration_reason ??
                 request.late_registration_reason;
+              const inventoryManaged = usesInventoryFulfillment(request);
               const warehouseStatus = getWarehouseStatus(status, confirmation);
               const isCancelled = warehouseStatus === "cancelled";
               const expanded = expandedIds.has(request.id);
@@ -1212,6 +1217,7 @@ export function EquipmentRequestList({
               );
               const isCompleted = warehouseStatus === "completed";
               const canSignHandover =
+                !inventoryManaged &&
                 canSignForRequest &&
                 warehouseHasHandedOver &&
                 !handoverSigned &&
@@ -1219,6 +1225,7 @@ export function EquipmentRequestList({
                 !isCompleted;
               const canSignReturn =
                 canSignForRequest &&
+                !inventoryManaged &&
                 warehouseHasHandedOver &&
                 (handoverSigned || warehouseHasReturned) &&
                 !returnSigned &&
@@ -1275,6 +1282,21 @@ export function EquipmentRequestList({
                           <span className="request-late-approval request-late-approval-rejected">
                             Đã từ chối đăng ký trễ
                           </span>
+                        ) : inventoryManaged ? (
+                          <>
+                            <StatusBadge status={warehouseStatus} />
+                            {canManageRequest || canSignForRequest ? (
+                              <Link
+                                className="text-link"
+                                href={`/equipment/fulfillment/${request.id}`}
+                                onClick={(event) => event.stopPropagation()}
+                              >
+                                {canManageRequest
+                                  ? "Bàn giao / thu hồi"
+                                  : "Xem và ký xác nhận"}
+                              </Link>
+                            ) : null}
+                          </>
                         ) : isCompleted ? (
                           <StatusBadge status="completed" />
                         ) : warehouseHasReturned && !returnSigned ? (
@@ -1443,39 +1465,51 @@ export function EquipmentRequestList({
                                     isPending && updatingId === request.id
                                   }
                                 >
-                                  {equipmentRequestWorkflowStatuses.map(
-                                    (option) => (
-                                      <button
-                                        type="button"
-                                        key={option.value}
-                                        className={`request-status-button request-status-${option.color}${warehouseStatus === option.value ? " active" : ""}`}
-                                        disabled={
-                                          isCancelled ||
-                                          (isPending &&
-                                            updatingId === request.id) ||
-                                          (option.value === "handed_over" &&
-                                            status === "new" &&
-                                            !canConfirmHandoverEarly) ||
-                                          (option.value === "completed" &&
-                                            status !== "completed") ||
-                                          (
-                                            [
-                                              "pending",
-                                              "rejected",
-                                            ] as EquipmentLateApprovalStatus[]
-                                          ).includes(lateApprovalStatus)
-                                        }
-                                        onClick={() =>
-                                          changeStatus(request.id, option.value)
-                                        }
-                                      >
-                                        {option.value === "handed_over"
-                                          ? "Đã giao"
-                                          : option.value === "returned"
-                                            ? "Đã trả"
-                                            : option.label}
-                                      </button>
-                                    ),
+                                  {inventoryManaged ? (
+                                    <Link
+                                      className="button button-primary"
+                                      href={`/equipment/fulfillment/${request.id}`}
+                                    >
+                                      Bàn giao, thu hồi và ký xác nhận
+                                    </Link>
+                                  ) : (
+                                    equipmentRequestWorkflowStatuses.map(
+                                      (option) => (
+                                        <button
+                                          type="button"
+                                          key={option.value}
+                                          className={`request-status-button request-status-${option.color}${warehouseStatus === option.value ? " active" : ""}`}
+                                          disabled={
+                                            isCancelled ||
+                                            (isPending &&
+                                              updatingId === request.id) ||
+                                            (option.value === "handed_over" &&
+                                              status === "new" &&
+                                              !canConfirmHandoverEarly) ||
+                                            (option.value === "completed" &&
+                                              status !== "completed") ||
+                                            (
+                                              [
+                                                "pending",
+                                                "rejected",
+                                              ] as EquipmentLateApprovalStatus[]
+                                            ).includes(lateApprovalStatus)
+                                          }
+                                          onClick={() =>
+                                            changeStatus(
+                                              request.id,
+                                              option.value,
+                                            )
+                                          }
+                                        >
+                                          {option.value === "handed_over"
+                                            ? "Đã giao"
+                                            : option.value === "returned"
+                                              ? "Đã trả"
+                                              : option.label}
+                                        </button>
+                                      ),
+                                    )
                                   )}
                                 </div>
                                 <a
@@ -1503,35 +1537,63 @@ export function EquipmentRequestList({
                                   </button>
                                 ) : null}
                               </div>
-                              <div className="equipment-confirmation-progress">
-                                <span>
-                                  Giao — Kho:{" "}
-                                  {confirmation?.handover_staff_confirmed_at
-                                    ? "Đã xác nhận"
-                                    : "Chưa"}
-                                </span>
-                                <span>
-                                  {recipientRoleLabel}:{" "}
-                                  {confirmation?.handover_recipient_signed_at
-                                    ? "Đã ký"
-                                    : "Chưa"}
-                                </span>
-                                <span>
-                                  Trả — Kho:{" "}
-                                  {confirmation?.return_staff_confirmed_at
-                                    ? "Đã xác nhận"
-                                    : "Chưa"}
-                                </span>
-                                <span>
-                                  {recipientRoleLabel}:{" "}
-                                  {confirmation?.return_recipient_signed_at
-                                    ? "Đã ký"
-                                    : "Chưa"}
-                                </span>
-                              </div>
+                              {inventoryManaged ? (
+                                <p>
+                                  Thực giao/thực nhận được ghi kho ngay. Xem số
+                                  lượng và ký xác nhận theo từng lần trong không
+                                  gian bàn giao/thu hồi.
+                                </p>
+                              ) : (
+                                <div className="equipment-confirmation-progress">
+                                  <span>
+                                    Giao — Kho:{" "}
+                                    {confirmation?.handover_staff_confirmed_at
+                                      ? "Đã xác nhận"
+                                      : "Chưa"}
+                                  </span>
+                                  <span>
+                                    {recipientRoleLabel}:{" "}
+                                    {confirmation?.handover_recipient_signed_at
+                                      ? "Đã ký"
+                                      : "Chưa"}
+                                  </span>
+                                  <span>
+                                    Trả — Kho:{" "}
+                                    {confirmation?.return_staff_confirmed_at
+                                      ? "Đã xác nhận"
+                                      : "Chưa"}
+                                  </span>
+                                  <span>
+                                    {recipientRoleLabel}:{" "}
+                                    {confirmation?.return_recipient_signed_at
+                                      ? "Đã ký"
+                                      : "Chưa"}
+                                  </span>
+                                </div>
+                              )}
                               <EquipmentRequestLifecycleHistory
                                 requestId={request.id}
                               />
+                            </div>
+                          ) : null}
+                          {inventoryManaged &&
+                          !canManageRequest &&
+                          canSignForRequest ? (
+                            <div className="equipment-status-section equipment-status-section-top">
+                              <strong>
+                                Ký xác nhận từng lần bàn giao/thu hồi
+                              </strong>
+                              <p>
+                                Xem số lượng thực giao/thực nhận trước khi ký
+                                xác nhận. Chữ ký gắn với từng lần, không xác
+                                nhận chung cho cả phiếu.
+                              </p>
+                              <Link
+                                className="button button-primary"
+                                href={`/equipment/fulfillment/${request.id}`}
+                              >
+                                Xem và ký xác nhận bàn giao/thu hồi
+                              </Link>
                             </div>
                           ) : null}
                           <dl className="detail-list equipment-request-detail-grid">
@@ -1665,7 +1727,7 @@ export function EquipmentRequestList({
           onClose={() => setModalRequest(null)}
         />
       ) : null}
-      {signatureTarget ? (
+      {signatureTarget && !usesInventoryFulfillment(signatureTarget.request) ? (
         <SignatureModal
           request={signatureTarget.request}
           phase={signatureTarget.phase}

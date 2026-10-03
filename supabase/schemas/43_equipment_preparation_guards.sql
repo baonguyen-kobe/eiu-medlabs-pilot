@@ -18,6 +18,10 @@ begin
  end if;
  if old.request_domain<>'nursing_skills' then return new; end if;
  select * into p from public.equipment_preparations where request_id=old.id and state in ('draft','prepared','reversing');
+ if coalesce(current_setting('app.s5_command',true),'')='true' then
+  if p.state is distinct from 'prepared' or not exists(select 1 from public.equipment_fulfillment_events where request_id=old.id) then raise exception 'S5_PHYSICAL_EVENT_REQUIRED'; end if;
+  return new;
+ end if;
  if new.status is distinct from old.status then
   if new.status='preparing' and (coalesce(current_setting('app.s4_command',true),'')<>'true' or not exists(select 1 from public.equipment_preparations where request_id=old.id and state='prepared')) then raise exception 'S4_CONFIRM_PREPARATION_REQUIRED'; end if;
   if new.status in ('handed_over','returned','completed') and exists(select 1 from public.equipment_preparations where request_id=old.id) then raise exception 'S5_NOT_AUTHORIZED'; end if;

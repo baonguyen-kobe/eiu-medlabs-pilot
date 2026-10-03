@@ -354,6 +354,20 @@ export function EquipmentPreparationWorkspace({
           Phiên bản {workspace.request.revision} ·{" "}
           {attempt?.state ?? "Chưa bắt đầu"}
         </p>
+        {prepared ? (
+          <div>
+            <p>
+              Đã xác nhận chuẩn bị. Tiếp tục ghi nhận thực giao, thực nhận và ký
+              xác nhận theo từng lần bàn giao/thu hồi.
+            </p>
+            <Link
+              className="button button-primary"
+              href={`/equipment/fulfillment/${requestId}`}
+            >
+              Bàn giao, thu hồi và ký xác nhận
+            </Link>
+          </div>
+        ) : null}
         <button
           type="button"
           className="button button-secondary"
