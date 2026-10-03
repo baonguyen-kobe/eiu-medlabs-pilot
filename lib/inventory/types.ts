@@ -69,7 +69,12 @@ export type TransactionOperationType =
   | "CONDITION_CHANGE"
   | "STOCKTAKE_ADJUST"
   | "STOCKTAKE_SURPLUS"
-  | "VERIFY_SURPLUS";
+  | "VERIFY_SURPLUS"
+  | "ASSET_RECEIVE"
+  | "ASSET_OPEN"
+  | "ASSET_SET_STATE"
+  | "ASSET_SET_LIFECYCLE"
+  | "ASSET_CORRECT";
 
 export interface InventoryUom {
   code: string;

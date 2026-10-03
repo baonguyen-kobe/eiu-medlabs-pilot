@@ -392,6 +392,12 @@ function buildNavigation(
         activeIcon: PackageCheckSolid,
       },
       {
+        label: "Thiết bị cá thể",
+        href: "/inventory/assets",
+        icon: ClipboardList,
+        activeIcon: ClipboardListSolid,
+      },
+      {
         label: "Vật tư & Danh mục",
         href: "/inventory/catalog",
         icon: Settings,
@@ -476,8 +482,17 @@ export function WorkspaceShell({
   canManageEmailNotifications?: boolean;
 }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [currentPathname, setCurrentPathname] = useState(pathname);
+  const [sidebarOpenState, setSidebarOpen] = useState(false);
+  const [accountMenuOpenState, setAccountMenuOpen] = useState(false);
+  if (pathname !== currentPathname) {
+    setCurrentPathname(pathname);
+    setSidebarOpen(false);
+    setAccountMenuOpen(false);
+  }
+  const sidebarOpen = pathname === currentPathname ? sidebarOpenState : false;
+  const accountMenuOpen =
+    pathname === currentPathname ? accountMenuOpenState : false;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const accountMenuRef = useRef<HTMLDivElement>(null);

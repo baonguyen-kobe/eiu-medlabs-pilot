@@ -155,6 +155,36 @@ export function OperationBadge({
           Thẩm định dư thừa / VERIFY_SURPLUS
         </span>
       );
+    case "ASSET_RECEIVE":
+      return (
+        <span className="badge badge-success">
+          Nhận tài sản / Asset receipt
+        </span>
+      );
+    case "ASSET_OPEN":
+      return (
+        <span className="badge badge-indigo">
+          Tài sản đầu kỳ / Asset opening
+        </span>
+      );
+    case "ASSET_SET_STATE":
+      return (
+        <span className="badge badge-info">
+          Hiện trạng tài sản / Asset state
+        </span>
+      );
+    case "ASSET_SET_LIFECYCLE":
+      return (
+        <span className="badge badge-warning">
+          Vòng đời tài sản / Asset lifecycle
+        </span>
+      );
+    case "ASSET_CORRECT":
+      return (
+        <span className="badge badge-amber">
+          Đính chính tài sản / Asset correction
+        </span>
+      );
     default:
       return <span className="badge badge-neutral">{operation}</span>;
   }

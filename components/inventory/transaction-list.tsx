@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "@/components/icons";
@@ -171,6 +171,19 @@ export function TransactionList({
               </option>
               <option value="VERIFY_SURPLUS">
                 Thẩm định dư thừa / VERIFY_SURPLUS
+              </option>
+              <option value="ASSET_RECEIVE">
+                Nhận tài sản / Asset receipt
+              </option>
+              <option value="ASSET_OPEN">Tài sản đầu kỳ / Asset opening</option>
+              <option value="ASSET_SET_STATE">
+                Hiện trạng tài sản / Asset state
+              </option>
+              <option value="ASSET_SET_LIFECYCLE">
+                Vòng đời tài sản / Asset lifecycle
+              </option>
+              <option value="ASSET_CORRECT">
+                Đính chính tài sản / Asset correction
               </option>
             </select>
           </div>

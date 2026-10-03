@@ -1131,6 +1131,178 @@ export type Database = {
           },
         ]
       }
+      equipment_asset_events: {
+        Row: {
+          actor_id: string
+          after_state: Json
+          asset_id: string
+          before_state: Json | null
+          corrects_event_id: string | null
+          evidence_note: string
+          id: string
+          occurred_at: string
+          operation: string
+          posted_at: string
+          reason: string
+          revision: number
+          transaction_id: string
+        }
+        Insert: {
+          actor_id: string
+          after_state: Json
+          asset_id: string
+          before_state?: Json | null
+          corrects_event_id?: string | null
+          evidence_note: string
+          id?: string
+          occurred_at: string
+          operation: string
+          posted_at?: string
+          reason: string
+          revision: number
+          transaction_id: string
+        }
+        Update: {
+          actor_id?: string
+          after_state?: Json
+          asset_id?: string
+          before_state?: Json | null
+          corrects_event_id?: string | null
+          evidence_note?: string
+          id?: string
+          occurred_at?: string
+          operation?: string
+          posted_at?: string
+          reason?: string
+          revision?: number
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_asset_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_asset_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_asset_events_corrects_event_id_fkey"
+            columns: ["corrects_event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_asset_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_asset_events_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_assets: {
+        Row: {
+          asset_code: string
+          catalog_item_id: string
+          created_at: string
+          custodian_id: string | null
+          expiry_date: string | null
+          expiry_precision: string
+          id: string
+          intake_kind: string
+          intake_reference: string
+          lifecycle_status: string
+          location_id: string
+          manufacturer: string | null
+          manufacturer_serial: string | null
+          model: string | null
+          operational_status: string
+          revision: number
+          row_key: string
+          source_line_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_code: string
+          catalog_item_id: string
+          created_at?: string
+          custodian_id?: string | null
+          expiry_date?: string | null
+          expiry_precision?: string
+          id?: string
+          intake_kind: string
+          intake_reference: string
+          lifecycle_status?: string
+          location_id: string
+          manufacturer?: string | null
+          manufacturer_serial?: string | null
+          model?: string | null
+          operational_status?: string
+          revision?: number
+          row_key: string
+          source_line_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_code?: string
+          catalog_item_id?: string
+          created_at?: string
+          custodian_id?: string | null
+          expiry_date?: string | null
+          expiry_precision?: string
+          id?: string
+          intake_kind?: string
+          intake_reference?: string
+          lifecycle_status?: string
+          location_id?: string
+          manufacturer?: string | null
+          manufacturer_serial?: string | null
+          model?: string | null
+          operational_status?: string
+          revision?: number
+          row_key?: string
+          source_line_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_assets_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_assets_custodian_id_fkey"
+            columns: ["custodian_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_assets_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_assets_source_line_id_fkey"
+            columns: ["source_line_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_record_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment_catalog: {
         Row: {
           commercial_name: string
@@ -3585,6 +3757,14 @@ export type Database = {
       delete_skills_lab_class_schedule: {
         Args: { target_schedule_id: string }
         Returns: boolean
+      }
+      equipment_asset_command: {
+        Args: { p_operation: string; p_payload: Json; p_retry_key: string }
+        Returns: Json
+      }
+      equipment_asset_read: {
+        Args: { p_filters?: Json; p_resource: string }
+        Returns: Json
       }
       finalize_import_batch: {
         Args: { target_batch_id: string }

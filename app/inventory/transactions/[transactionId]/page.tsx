@@ -1,5 +1,8 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { assetRead } from "@/lib/inventory/asset-client";
+import type { EquipmentAssetEvent } from "@/lib/inventory/asset-types";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { TransactionDetailView } from "@/components/inventory/transaction-detail-view";
@@ -93,6 +96,19 @@ export default async function TransactionDetailPage({
         </div>
       </div>
     );
+  }
+
+  // Exact-asset effects share the transaction header, not the quantity ledger.
+  if (detail.transaction.operation.startsWith("ASSET_")) {
+    const events = await assetRead<EquipmentAssetEvent>("history", {
+      transaction_id: transactionId,
+      page_size: 1,
+    });
+    const event = events.rows[0];
+    if (!event) {
+      throw new Error("ASSET_TRANSACTION_EFFECT_MISSING");
+    }
+    redirect(`/inventory/assets/${event.asset_id}`);
   }
 
   return (
