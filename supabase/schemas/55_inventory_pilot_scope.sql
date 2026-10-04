@@ -1,12 +1,33 @@
--- INV-062. Mock-only; no operational-stock authorization is represented here.
+-- Bounded P1 scopes. Real authority is provisioned only by Owner-approved migrations.
+create table if not exists private.inventory_pilot_owner_approvals (
+ scope_id uuid not null,
+ scope_version bigint not null check(scope_version>0),
+ manifest_id uuid not null,
+ permission text not null check(permission in ('opening','activate')),
+ manifest jsonb not null check(jsonb_typeof(manifest)='object'
+  and manifest->'synthetic' is not distinct from 'false'::jsonb
+  and manifest->>'dataset_kind' is not distinct from 'real'
+  and manifest->>'target_project_ref' is not distinct from 'kwpyukofofoaqhmxndlc'
+  and (manifest->>'scope_id')::uuid is not distinct from scope_id
+  and (manifest->>'scope_version')::bigint is not distinct from scope_version
+  and (manifest->>'manifest_id')::uuid is not distinct from manifest_id),
+ manifest_hash text generated always as (encode(extensions.digest(manifest::text,'sha256'),'hex')) stored,
+ approval_reference text not null check(btrim(approval_reference)<>''),
+ approved_at timestamptz not null default now(),
+ primary key(scope_id,scope_version,permission)
+);
+alter table private.inventory_pilot_owner_approvals enable row level security;
+revoke all on private.inventory_pilot_owner_approvals from public,anon,authenticated,service_role;
 create table if not exists public.inventory_pilot_scopes (
  id uuid primary key,
  project_ref text not null check(project_ref='kwpyukofofoaqhmxndlc'),
  scope_version bigint not null check(scope_version>0),
  manifest_id uuid not null unique,
- manifest jsonb not null check(jsonb_typeof(manifest)='object' and (manifest->'synthetic') is not distinct from 'true'::jsonb and (manifest->>'dataset_kind') is not distinct from 'mock'),
+ manifest jsonb not null check(jsonb_typeof(manifest)='object'
+  and manifest->'synthetic' is not distinct from to_jsonb(synthetic)
+  and manifest->>'dataset_kind' is not distinct from case when synthetic then 'mock' else 'real' end),
  manifest_hash text not null,
- synthetic boolean not null default true check(synthetic),
+ synthetic boolean not null default true,
  phase text not null default 'OPENING_READY' check(phase in ('OPENING_READY','ACTIVE','PAUSED')),
  admin_id uuid not null references public.profiles(id) on delete restrict,
  staff_ids uuid[] not null check(cardinality(staff_ids)=2),

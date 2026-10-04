@@ -41,6 +41,7 @@ begin
  elsif p_operation='activate' then
   v_reconciliation:=private.p1_reconcile(s.id);
   if not s.opening_confirmed or v_reconciliation->>'ready'<>'true' then raise exception 'P1_ACTIVATION_RECONCILIATION_REQUIRED' using errcode='42501',detail=v_reconciliation::text; end if;
+  if not s.synthetic then perform private.p1_owner_approval(s,'activate'); end if;
   update public.inventory_pilot_scopes set phase='ACTIVE' where id=s.id;
  elsif p_operation in ('pause','report_dual_write','report_discrepancy') then
   if p_operation='report_dual_write' and (coalesce(p_payload->>'writer_id','') not in ('legacy','privileged_import','manual_offline') or nullif(btrim(p_payload->>'physical_reference'),'') is null) then raise exception 'P1_COMPETING_WRITER_EVIDENCE_REQUIRED' using errcode='22023'; end if;

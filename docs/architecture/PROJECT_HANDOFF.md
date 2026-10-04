@@ -34,7 +34,19 @@ INV-041–046 close return/expiry/late-intake/strategy/single-writer/security po
 
 P1 real operational stock, real writer freeze/activation, Basic Medical cutover, production credential rotation, Vercel deployment, upstream push and production mutation remain **NOT AUTHORIZED**. OPS remains local-only.
 
+### Current bounded P1 extension — 2026-10-04
+
+Owner separately authorized the real-opening gate and credential rotation only on the isolated pilot, superseding historical no-rotation restrictions. Migration `20261004160000_inventory_p1_real_opening_gate.sql` is applied/history-registered remotely; private Owner-approved exact manifest and separate activation authority, named Admin OPENING_READY opening, writer evidence, exact asset, atomic retry/duplicate and reconciliation gates are installed. No real approval rows or real scopes exist; the form remains synthetic.
+
+**RUN AND PASS:** 56/56 Inventory Node tests, eight Inventory pgTAP suites/168 checks plus repaired preparation fixture/24 checks, TypeScript, new-secret SDK Auth/Data reads, new DB password over verified TLS, and full original mock marker/physical snapshot equality at `2026-10-04T16:27:59.327Z`. The three pilot memberships and all 522 historical local memberships retain their accepted fingerprints; 20 additional local Node fixture memberships are not historical cleanup or operational enrollment.
+
+**API retirement RUN AND PASS:** old modern/legacy keys denied; delayed exact old bearer Auth denial HTTP 403 `bad_jwt`, Data denial HTTP 401, Storage denial HTTP 400/body 403; new-secret controls HTTP 200. Earlier Auth acceptance was observed, but its cause is unestablished. **DB closure NOT RUN — BLOCKED:** reset and new verified-TLS login succeeded; original-password negative login cannot run because its plaintext is unavailable. Current secret/password are held only in Windows Credential Manager `MedLabs Pilot:kwpyukofofoaqhmxndlc`; app loopback environment, original project and production untouched. [Exact contract, proofs and prerequisite](P1_MOCK_READINESS.md#bounded-real-opening-gate-and-pilot-rotation--2026-10-04).
+
+Do not close the full rotation mandate or start real P1. Supply the original DB password securely for its negative login; then obtain real manifest/cutoff, actual single-writer isolation, Admin opening/reconciliation and explicit Owner ACTIVE authority. OPS stays local-only; authorized Git delivery is pilot origin only.
+
 ## Nursing authority checkpoint — 2026-10-04
+
+**Owner ACCEPTED / CLOSED — `2929440`.** The Nursing authority interruption is closed; all three approved pilot mock memberships and all 522 local legacy memberships remain retained. No personnel cleanup is pending or authorized. Return to the INV-062 mock P1 checkpoint above: implementation/runtime verified, final PAUSED; S1–S5 remain ACCEPTED / CLOSED. This acceptance does not authorize real stock, writer freeze, opening/activation, rotation or production work.
 
 Owner separately authorized the Nursing authority fix on isolated pilot `kwpyukofofoaqhmxndlc`; migration `20261004120000_explicit_profile_room_type_authority.sql` is history-registered remotely after a single-migration dry-run. `RUN AND PASS`: real remote Auth/JWT proved zero role/scope provisioning, no-role scoped-read denial, Lecturer grant/last-role revocation, and Admin override. Staff routing was exercised through current source with actual remote states; Basic-only Staff did not acquire Nursing data access. Temporary verification fixtures/session were removed.
 

@@ -2,6 +2,8 @@
 
 2026-10-04 · INV-062 · **MOCK MARKERS / GATES IMPLEMENTED AND RUNTIME VERIFIED**. This is actual synthetic DB enforcement, not real operational P1 or production readiness. S1–S5 remain ACCEPTED / CLOSED. Canonical authority: [OPS Activation Plan](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md), local OPS INV-062 and [approved implementation supplement](../../openspec/changes/inventory-p1-mock-markers/proposal.md).
 
+**Current extension — 2026-10-04:** Owner authorized the bounded real-opening gate and isolated pilot credential rotation. The gate is applied and locally verified; credential closure is **BLOCKED**, not complete. Current outcomes below supersede historical no-rotation restrictions, not the immutable mock evidence or operational stop boundary.
+
 ## Exact immutable synthetic baseline
 
 - Target: isolated pilot `kwpyukofofoaqhmxndlc`. Original MedLabs `bwhiivfhezoozrzvchmm` was not targeted.
@@ -37,7 +39,7 @@ Schemas `55_inventory_pilot_scope.sql`–`64_inventory_pilot_guard_installation.
 - Five public RPC signatures remain unchanged: quantity, asset, preparation, preparation transfer and fulfillment commands. Their original implementations are revoked private cores; optional `pilot` metadata is validated then excluded from original business retry hashes.
 - Allowed physical writer entries: `inventory_command`, `equipment_asset_command`, `equipment_preparation_command`, `equipment_preparation_transfer`, `equipment_fulfillment_command`. Excluded entries: `legacy`, `privileged_import`, `manual_offline`. ACTIVE requires recorded evidence for all eight, not just an allowed-writer flag.
 - Private transaction/backend-bound capability, not client GUCs. Existing `inventory:s1:writer` advisory mutex serializes transitions and physical writers. Row guards inspect every OLD/NEW item, location, canonical asset/cohort/mapping/request/slice/effect and transfer endpoint. Implicit binding enforces current frozen scope when metadata is omitted; explicit wrong project/scope/manifest/version fails.
-- OPENING_READY permits named Admin synthetic opening only. Existing remote opening is adopted/confirmed using original provenance and original revision-1 asset event, never reposted. A new local synthetic manifest without generated asset IDs proves atomic UUID/code/event binding, duplicate prevention and retry behavior.
+- OPENING_READY permits named Admin opening. Mock behavior is retained; non-synthetic opening additionally requires the exact private Owner approval and complete writer evidence described below. Existing remote opening is adopted/confirmed using original provenance and original revision-1 asset event, never reposted. Local test counterparts without generated asset IDs prove atomic UUID/code/event binding, duplicate prevention and retry behavior.
 - ACTIVE requires complete opening rows and supplied IDs, original qualified ledger/facts/header, initial balances, exact bound asset/event, no unexpected initial stock/assets, required exclusions and no unexplained discrepancy. Historical opening remains qualified after legitimate later movement/fact corrections.
 - PAUSED denies new physical writes, including Admin opening, direct owner/service DML, GUC spoofing, private-core calls and scoped truncation. Reads, audit, reconciliation, authorized pure replay and signatures with zero physical delta survive. Unrelated workflows remain unchanged; no automatic legacy reactivation.
 - Competing-writer/discrepancy reports persist PAUSED and audit evidence; resolution does not reactivate. A failed SQL transaction cannot also persist its own pause: a separate successful report command is required. The observed remote dual-write report was **injected synthetic evidence**, not discovery of an actual offline/real competing writer.
@@ -64,10 +66,55 @@ Schemas `55_inventory_pilot_scope.sql`–`64_inventory_pilot_guard_installation.
 
 [Single-use fixture seed](../../scripts/prepare-p1-mock.mjs) refuses an existing manifest. Never run it again to repair this fixture or use it as a real-stock importer.
 
+## Bounded real-opening gate and pilot rotation — 2026-10-04
+
+### Applied contract
+
+Forward migration `20261004160000_inventory_p1_real_opening_gate.sql` is applied/history-registered on `kwpyukofofoaqhmxndlc`; the remote dry-run listed only this migration, without seeds or roles. It was executed locally before regression verification, then its local applied history was registered without reapplying it. Sources 35 and 55–61 preserve the installed effective core and shared writer lock; the migration refuses an unexpected core rather than replacing unrelated fixes.
+
+- `private.inventory_pilot_owner_approvals` pins scope/version/manifest ID, the immutable full manifest/hash/cutoff and separate `opening` / `activate` permission. No ordinary authenticated, anonymous or service-role client can read/write this authority. A future Owner-reviewed migration must provision actual approval; caller flags and named Admin are insufficient.
+- Non-synthetic quantity/asset opening requires literal `synthetic: false`, matching pilot metadata, named active non-mock Admin, OPENING_READY, correct writer and all eight evidenced writer entries. Quantity input must match the exact frozen opening payload; serialized identity must match the declared tuple and generated binding.
+- Existing business identity, retry/payload checks, atomic posting, good/damaged and expiry rules remain. Unknown/expired origins are counted but unavailable. Reconciliation still requires complete provenance/ledger/balances/exact asset; incomplete exclusions or unresolved discrepancies deny ACTIVE. Real ACTIVE additionally requires separate Owner activation approval.
+- The shared TypeScript opening contract requires pilot metadata for `synthetic: false`. Existing action forwards it; the current opening form intentionally stays synthetic. No new page or real-stock importer was added.
+- Hosted authority rows and real scopes both remain **0**. No operational manifest, real users, actual writer exclusion/freeze, opening or activation was provisioned.
+
+### Current verification
+
+- **RUN AND PASS:** `node --test --test-concurrency=1 tests/inventory-*.test.mjs`: **56/56**, including non-synthetic rollback-only public-RPC counterpart, missing approval/scope/writer evidence, wrong manifest/version, Staff denial, injected late-fact atomic rollback, exact asset, retries/business duplicates, expiry/good-damaged and ACTIVE denial. Existing P1 multi-session races exercise the unchanged shared serialization boundary with mock fixtures; this is not a real operational race rehearsal.
+- **RUN AND PASS:** eight Inventory pgTAP suites, 168 checks; the ninth preparation suite initially failed because its lecturer fixture relied on the removed implicit Nursing grant. Explicit rollback-only Nursing intent was added, matching existing fixture patterns; its targeted rerun passed **24/24**. No authority policy or historical membership was relaxed.
+- **RUN AND PASS:** TypeScript typecheck, actual current Supabase SDK Auth Admin and Data API reads using the new pilot secret, and new DB-password login as `postgres` to `postgres` through the pinned session pooler with official Supabase CA and `sslmode=verify-full`.
+- **RUN AND PASS:** read-only remote marker at `2026-10-04T16:27:59.327Z`, compared with the pre-task snapshot: full marker/events and physical/identity snapshot equal; PAUSED, opening confirmed, eight writers, original six origins/eight ledger lines/two asset events/revision 2. Three pilot memberships retain fingerprint `b34cfbe23add7a13b29b03265ee46b0d`. All 522 accepted local historical rows retain fingerprint `b183ffe94b5d93a7baa4755a9efb9f51`; the Inventory Node run added 20 separate local test-fixture memberships, not operational enrollment or historical cleanup.
+- Independent read-only gate review found no blocking patch defect. Credential review reconciled the initially accepted old Auth bearer with its later exercised denial below. Reviews are not independent runtime PASS. Broader known full-suite debt and declarative shadow construction remain outside this delta; no blanket full-suite PASS.
+- **NOT RUN — NOT REQUIRED FOR CURRENT IMPACT:** visual UI/UAT/build/deployment; no UI/runtime configuration change or hosted pilot application is present.
+
+### Credential operations and unresolved closure
+
+Values were never written to source/docs, command arguments or logs. Current API secret and DB password reside in the per-user Windows Credential Manager target `MedLabs Pilot:kwpyukofofoaqhmxndlc`. The modern publishable key remains unchanged. Management tooling retains its existing account PAT; it was not confused with a project API key or rotated across projects.
+
+Consumer inventory: no pilot GitHub secrets, confirmed deployment, Edge Functions, password-login users, Auth sessions or Storage objects. Two cron jobs are internal SQL, without API-key consumers. The application `.env.local` stays loopback on the dedicated local pilot; no production environment was replaced. Current remote SDK and native DB CLI consumers were exercised against the exact pilot.
+
+| Operation / proof                                                                                                  | Observed result                                                                                                               |
+| :----------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| New modern secret ID `580cba6d-eabf-4b76-af17-795e37c4f95c`                                                        | Created; Auth Admin, real Data API resource and Storage reads HTTP 200                                                        |
+| Old modern secret ID `8ed045dd-6ed0-4ea0-a47f-e2d887b91b41`                                                        | Deleted; old key HTTP 401                                                                                                     |
+| Legacy API keys                                                                                                    | Disabled; old anon/service-role `apikey` values HTTP 401                                                                      |
+| Legacy HS256 key `cce0b690-5df8-4bf6-9edc-bd6793b91299`                                                            | Revoked; existing ES256 signer unchanged                                                                                      |
+| Exact old service-role JWT bearer with modern publishable `apikey`, Data API `/rest/v1/profiles?select=id&limit=1` | HTTP 401, `PGRST301`                                                                                                          |
+| Same exact old JWT bearer, `/auth/v1/admin/users?page=1&per_page=1`                                                | Initially HTTP 200; delayed closure at `2026-10-04T16:38:30.006Z` HTTP 403, `bad_jwt`; same-route new-secret control HTTP 200 |
+| Same exact old JWT bearer, `/storage/v1/bucket`                                                                    | HTTP 400 carrying `statusCode: 403`, `Unauthorized`; new-secret control HTTP 200                                              |
+| Pilot DB password reset                                                                                            | Official Management API HTTP 200; stored SCRAM verifier changed and matches new password; fresh verified-TLS login succeeded  |
+| Original DB password negative login                                                                                | **NOT RUN — BLOCKED:** original plaintext unavailable from environment, CLI cache, credential stores and retained session     |
+
+**RUN AND PASS:** exercised API retirement acceptance: old modern/legacy API keys and exact old bearer Auth/Data/Storage paths denied; new secret and unchanged publishable control accepted. Earlier Auth Admin HTTP 200 remains a genuine historical observation; its later denial occurred without additional Auth/signing-key changes or an explicit restart. DB-password rotation is separately recorded above. The cause is unestablished, not claimed as confirmed cache/propagation behavior. No guessed config, restored credentials or disabled TLS was used.
+
+Remaining credential prerequisite: original DB password supplied through a secure credential channel for its actual negative login. A changed verifier or arbitrary bad password is not that evidence. The DB reset and new-password network login are verified, but the combined old-denied/new-accepted DB criterion remains **NOT RUN — BLOCKED** on the original-password half. [Supabase signing-key guidance](https://supabase.com/docs/guides/auth/signing-keys) and [verified-TLS guidance](https://supabase.com/docs/guides/platform/ssl-enforcement) govern those operations.
+
+After credential closure, the separate operational gates remain exact real manifest/cutoff and Owner approval, actual single-writer isolation evidence, Admin real opening/reconciliation, and explicit Owner ACTIVE authorization. No operational P1 permission is implied by this code or credential change.
+
 ## Safe checkpoint / stop boundary
 
 Remote scope remains **PAUSED**, opening confirmed, original asset bound, all eight writers evidenced, no unresolved discrepancy, reconciliation ready. Readback is safe with `node scripts/verify-p1-mock.mjs --read-remote`. The mutating `--remote` runner deliberately refuses an already registered scope: preserve durable history, never reset/reseed to rerun it.
 
 Delivery is task-owned pilot `origin/main` only; exact commit is recorded in Git and local OPS continuity. Prior delivered checkpoint was `863bd9b`; accepted S5 remains `bdba8d6`. OPS remains local-only.
 
-**STOP AT MOCK IMPLEMENTATION.** Real operational P1/stock, real writer freeze, real activation, rotation/revocation, Basic Medical cutover, production mutation/deploy and upstream/OPS push remain NOT AUTHORIZED. Synthetic facts are never relabeled real. No Astra unavailability/fallback notice was observed. If such a notice is observed later, preserve this marker/history/working tree, record the exact safe checkpoint and wait for Owner; do not start a new slice.
+**STOP AT BOUNDED PILOT CHECKPOINT — CREDENTIAL CLOSURE BLOCKED.** Current Owner authority permits only this gate/rotation and task-owned pilot delivery. Real operational P1/stock, real writer freeze, activation, Basic Medical cutover, production mutation/deploy and upstream/OPS push remain NOT AUTHORIZED. Synthetic facts are never relabeled real. No Astra unavailability/fallback notice was observed. If one is observed later, preserve this marker/history/working tree, record the exact safe checkpoint and wait for Owner; do not start a new slice.

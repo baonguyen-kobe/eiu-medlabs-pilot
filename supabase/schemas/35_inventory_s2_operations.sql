@@ -1067,8 +1067,7 @@ begin
   -- --------------------------------------------------------------------------
   elsif p_operation = 'confirm_opening_balance' then
     if not coalesce((p_payload->>'synthetic')::boolean, false) then
-      raise exception 'SYNTHETIC_CUTOVER_REQUIRED: S1 opening balance must declare synthetic=true'
-        using errcode = '22023';
+      perform private.p1_real_opening(p_payload);
     end if;
 
     perform pg_advisory_xact_lock(hashtext('inventory_opening_scope_lock'));
@@ -1112,7 +1111,7 @@ begin
       cutover_key, scope_description, count_cutoff, provenance_note, synthetic, transaction_id
     ) values (
       v_code, btrim(p_payload->>'scope_description'), (p_payload->>'count_cutoff')::timestamptz,
-      btrim(p_payload->>'provenance_note'), true, v_tx_id
+      btrim(p_payload->>'provenance_note'), (p_payload->>'synthetic')::boolean, v_tx_id
     ) returning id into v_batch_id;
 
     v_line_no := 0;

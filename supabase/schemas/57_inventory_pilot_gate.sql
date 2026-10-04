@@ -22,6 +22,10 @@ begin
  if not exists(select 1 from public.inventory_pilot_scope_items where scope_id=s.id and catalog_item_id=p_item) or (p_location is not null and p_location<>s.location_id) then raise exception 'P1_SCOPE_MISMATCH' using errcode='42501'; end if;
  if p_asset is not null and (a.id is null or a.catalog_item_id is distinct from p_item or (p_location is not null and a.location_id is distinct from p_location)) then raise exception 'P1_ASSET_DIMENSION_MISMATCH' using errcode='42501'; end if;
  perform private.p1_actor(s);
+ if not s.synthetic then
+  perform private.p1_owner_approval(s);
+  if not p_replay and c.operation in ('confirm_opening_balance','open_asset') then perform private.p1_real_opening(c.payload,false); end if;
+ end if;
  if c.pilot is not null then perform private.p1_identity(s,c.pilot); end if;
  if not p_replay and not exists(select 1 from public.inventory_pilot_writers where scope_id=s.id and writer_id=c.writer_id and allowed) then raise exception 'P1_WRITER_DENIED' using errcode='42501'; end if;
  if c.writer_id='equipment_fulfillment_command' and c.operation='sign' then raise exception 'P1_SIGNATURE_IS_NOT_PHYSICAL_AUTHORITY' using errcode='42501'; end if;

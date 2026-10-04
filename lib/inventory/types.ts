@@ -411,14 +411,23 @@ export interface OpeningStockLineInput {
   evidence_note?: string;
 }
 
-export interface ConfirmOpeningBalancePayload {
+export interface InventoryPilotContext {
+  project_ref: "kwpyukofofoaqhmxndlc";
+  scope_id: string;
+  scope_version: number;
+  manifest_id: string;
+}
+
+export type ConfirmOpeningBalancePayload = {
   cutover_key: string;
   count_cutoff: string;
   scope_description: string;
   provenance_note: string;
-  synthetic: true;
   lines: OpeningStockLineInput[];
-}
+} & (
+  | { synthetic: true; pilot?: InventoryPilotContext }
+  | { synthetic: false; pilot: InventoryPilotContext }
+);
 
 export interface CorrectReceiptLineInput {
   origin_id: string;

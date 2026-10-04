@@ -7,6 +7,7 @@ import {
 import { runP1Races } from "./helpers/inventory-p1-races.mjs";
 import { buildP1OpeningSql } from "./helpers/inventory-p1-opening.mjs";
 import { buildP1AuthorizationSql } from "./helpers/inventory-p1-authorization.mjs";
+import { buildP1RealOpeningSql } from "./helpers/inventory-p1-real-opening.mjs";
 
 test("P1: pilot mock markers, writer gate, and concurrent physical serialization", async (t) => {
   const setup = await setupP1Local();
@@ -24,6 +25,13 @@ test("P1: pilot mock markers, writer gate, and concurrent physical serialization
     "P1 opening: incomplete provenance denies activation; generated binding posts once",
     async () => {
       await setup.sql(buildP1OpeningSql(setup.manifest));
+    },
+  );
+
+  await t.test(
+    "P1 real opening: Owner authority, exclusions, exact binding and PAUSED retry",
+    async () => {
+      await setup.sql(buildP1RealOpeningSql(setup.manifest));
     },
   );
 

@@ -10,6 +10,7 @@ begin
  -- The core still checks authorization and its exact payload hash. A replay has no new physical effect.
  replay:=exists(select 1 from public.inventory_operation_replays where actor_id=auth.uid() and operation=replay_operation and retry_key=p_retry);
  select * into c from private.inventory_pilot_writer_context where transaction_id=txid_current();
+ if p_writer='equipment_asset_command' and p_operation='open_asset' and p_payload->'synthetic'='false'::jsonb then perform private.p1_real_opening(p_payload,replay); end if;
  if c.pilot is not null then
   select i.catalog_item_id,s.location_id into target from public.inventory_pilot_scopes s join public.inventory_pilot_scope_items i on i.scope_id=s.id where s.id=(c.pilot->>'scope_id')::uuid order by i.catalog_item_id limit 1;
   perform private.p1_gate(target.catalog_item_id,target.location_id,null,replay);

@@ -5,7 +5,7 @@ declare s public.inventory_pilot_scopes; batch public.inventory_opening_batches;
 begin
  select * into strict s from public.inventory_pilot_scopes where id=p_scope;
  select * into batch from public.inventory_opening_batches where cutover_key=s.opening_reference;
- if batch.id is null or batch.synthetic is distinct from true or batch.count_cutoff is distinct from s.count_cutoff
+ if batch.id is null or batch.synthetic is distinct from s.synthetic or batch.count_cutoff is distinct from s.count_cutoff
   or batch.scope_description is distinct from btrim(s.manifest#>>'{opening_payload,scope_description}')
   or batch.provenance_note is distinct from btrim(s.manifest#>>'{opening_payload,provenance_note}')
   or ((s.manifest#>>'{opening_result,opening_batch_id}') is not null and batch.id is distinct from (s.manifest#>>'{opening_result,opening_batch_id}')::uuid)

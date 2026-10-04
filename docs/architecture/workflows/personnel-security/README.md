@@ -31,6 +31,8 @@ Database authority: `supabase/schemas/01_app.sql`, `02_room_type_scopes.sql`, `0
 
 ### Isolated pilot checkpoint — 2026-10-04
 
+**Owner decision: ACCEPTED / CLOSED** at commit `2929440`. Automatic Nursing Role Trigger is closed; retain the approved migration, explicit scope assignment, application-role requirement, Admin override and Staff routing. Keep all three pilot mock memberships and all 522 local legacy memberships. Audit candidates below are deferred information, not a cleanup task or a pilot/P1 blocker. No bulk or exact-row deletion without separate Owner authorization and intended-authority evidence.
+
 - Owner authorized only `kwpyukofofoaqhmxndlc`, migration `20261004120000_explicit_profile_room_type_authority.sql`, targeted remote verification, read-only provenance audit, and conditional pilot delivery. Original/current MedLabs and production were not mutated.
 - `RUN AND PASS`: remote dry-run contained exactly that migration, with no seed/role payload; actual history records it. Default trigger/function are absent; authenticated helper execution remains allowed and anonymous execution denied.
 - `RUN AND PASS`: real Auth creation/sign-in produced an active profile with zero roles and zero scopes despite role/scope user metadata. An explicitly assigned Nursing member without a role read zero owned rooms/schedules; Lecturer read the Nursing room/schedule but not Basic; last-role revocation denied both reads on the same JWT.
@@ -52,6 +54,17 @@ Read-only audit distinguishes datasets: **522 is the local baseline, not the rem
 - Locally, 510 of the 515 default-compatible Nursing rows have roles; 488 are active. Owner review group: **275 active non-Admin users** (226 Staff, 16 Teaching Assistant, 23 Lecturer, 10 Viewer) have unattributed Nursing scope. The remaining role-bearing partition is 213 active Admin users with independent Admin override and 22 inactive users (including five Admin). Five additional rows have no role.
 - The single recorded-creator Nursing row names the Staff subject itself (`22e44891-bab8-4245-a606-9e115f82b8f1`), without matching personnel-authority audit. It is an attributed write, not proof of authorized personnel scope selection. Basic rows cannot originate from the Nursing-only default, but their author/approved intent is unrecorded.
 - No legacy membership was deleted or rewritten. Local count/fingerprint remained `522` / `b183ffe94b5d93a7baa4755a9efb9f51`. Any cleanup requires Owner identification of intended scopes and separate exact-row authorization; a provenance heuristic alone is insufficient.
+
+### Pilot privileged credential rotation — 2026-10-04
+
+Owner authorized rotation only on `kwpyukofofoaqhmxndlc`; the Nursing authority closure above is not reopened. Modern secret `580cba6d-eabf-4b76-af17-795e37c4f95c` replaces deleted `8ed045dd-6ed0-4ea0-a47f-e2d887b91b41`; legacy API keys disabled and legacy HS256 signer revoked. Existing modern publishable/ES256 keys and account Management PAT unchanged. Current API secret and DB password are in per-user Windows Credential Manager `MedLabs Pilot:kwpyukofofoaqhmxndlc`, never Git/docs/plaintext env files.
+
+- **RUN AND PASS:** old modern/legacy `apikey` values denied HTTP 401; new current SDK Auth Admin/Data resource reads accepted; exact old bearer denied by Data API. DB password reset HTTP 200 and new verified-TLS `postgres` login accepted. No pre-existing client DB sessions, Auth sessions or password-login users were found; no mass session termination or user-password reset occurred.
+- **RUN AND PASS:** delayed exact old bearer Auth Admin denial HTTP 403 `bad_jwt` at `2026-10-04T16:38:30.006Z`, same-route new secret HTTP 200; Storage old bearer HTTP 400/body 403 Unauthorized, new secret HTTP 200. Earlier Auth Admin HTTP 200 remains historical evidence; no particular cache/propagation cause is established and no further Auth/signing-key change, explicit restart or restoration was used. DB-password reset is a separate recorded operation.
+- **NOT RUN — BLOCKED:** original DB-password negative login; plaintext absent from checked environment, CLI cache, secure stores and retained session. Changed SCRAM verifier is not a substitute.
+- No confirmed hosted pilot, pilot GitHub secrets or Edge Functions; internal SQL cron jobs have no API-key consumers. Application `.env.local` stays on the dedicated loopback pilot. Existing three remote memberships and 522 historical local rows are unchanged.
+
+[P1 exact evidence and credential prerequisite](../../P1_MOCK_READINESS.md#bounded-real-opening-gate-and-pilot-rotation--2026-10-04). Exercised API retirement is verified; full rotation closure still requires the securely supplied original DB password for its real negative login. No operational readiness claim.
 
 ### Personnel edit
 

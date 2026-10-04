@@ -9,6 +9,8 @@ insert into public.profiles(id,email,full_name,phone,is_active) values
 ('e4000000-0000-0000-0000-000000000002','s4-lecturer@campus.local','S4 Lecturer','0901234567',true)
 on conflict(id) do update set phone=excluded.phone,is_active=true;
 insert into public.user_roles(user_id,role) values('e4000000-0000-0000-0000-000000000001','admin'),('e4000000-0000-0000-0000-000000000002','lecturer');
+insert into public.profile_room_types(profile_id,room_type_id,receive_schedule_emails)
+values('e4000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000001',false);
 select set_config('request.jwt.claims','{"sub":"e4000000-0000-0000-0000-000000000001","role":"authenticated"}',true);
 insert into public.rooms(id,room_code,building_code,room_type_id) values('e4000000-0000-0000-0000-000000000010','S4_TEST','S4_TEST','40000000-0000-0000-0000-000000000001');
 insert into public.class_schedules(id,course_code_snapshot,course_name_snapshot,room_id,lecturer_id,schedule_date,start_time,end_time,semester,created_by)
