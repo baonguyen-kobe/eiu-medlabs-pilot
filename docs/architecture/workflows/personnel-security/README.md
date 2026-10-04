@@ -8,16 +8,50 @@
 Administrators manage personnel profile data, roles, workspace scopes, import permissions, and password recovery/change operations. The design keeps external Supabase Auth updates separate from durable application-side authority records.
 
 Primary code: `app/admin/actions.ts`, `app/login/actions.ts`, `lib/workspace-access.ts`, `lib/personnel-reconciliation.ts`.  
-Database authority: `supabase/schemas/01_app.sql`, `06_sixth_followup_personnel_and_basic_medical.sql`, `17_personnel_password_and_catalog_batches.sql`, and `20_operations_integrity_master_batch.sql`.
+Database authority: `supabase/schemas/01_app.sql`, `02_room_type_scopes.sql`, `05_personnel_authority.sql`, `06_sixth_followup_personnel_and_basic_medical.sql`, `17_personnel_password_and_catalog_batches.sql`, and `20_operations_integrity_master_batch.sql`.
 
 ## Main flows
 
 ### Authentication and workspace routing
 
 1. User signs in through Supabase Auth.
-2. Server verifies an active `profiles` row, at least one `user_roles` record, and active room-type scope.
+2. Server verifies an active `profiles` row and at least one `user_roles` record. Workspace permissions use active room-type scopes and the explicit Admin/Staff overrides.
 3. A forced password change routes to `/change-password`; otherwise `defaultWorkspacePath` selects an authorized workspace.
 4. Database RLS/RPC rules remain the authorization boundary; UI routing is not relied on alone.
+
+### Explicit room-type provisioning
+
+- Creating an Auth user creates a profile, but grants neither an application role nor a room-type scope. `preapproved` and user metadata are not role/scope authority.
+- Personnel creation/edit/import supplies explicit roles and scopes; the personnel RPC replaces memberships with exactly the selected room types.
+- Non-Admin scoped room/schedule reads require an active profile, an application-role record, and the requested room-type membership. Revoking the last role removes those reads even when the session and membership remain.
+- Active Admin retains all-room access without assigned scopes. Staff's Skills workspace navigation override does not grant Nursing room/schedule access without Nursing membership.
+- Existing memberships are preserved. The legacy production-directory script has no selected scopes; new non-Admin accounts from it remain unassigned until personnel configuration. Local sample users and Nursing workflow fixtures declare their scopes explicitly.
+- Self-profile/membership introspection, room-type metadata, and the active-user course catalog retain their existing policies; they are not a grant to read scoped rooms or schedules.
+- Owner-approved cutover: `20261004120000_explicit_profile_room_type_authority.sql` removes the legacy automatic Nursing trigger and adds the application-role requirement to `private.has_room_type()`. No historical migration or existing membership is rewritten.
+
+### Isolated pilot checkpoint — 2026-10-04
+
+- Owner authorized only `kwpyukofofoaqhmxndlc`, migration `20261004120000_explicit_profile_room_type_authority.sql`, targeted remote verification, read-only provenance audit, and conditional pilot delivery. Original/current MedLabs and production were not mutated.
+- `RUN AND PASS`: remote dry-run contained exactly that migration, with no seed/role payload; actual history records it. Default trigger/function are absent; authenticated helper execution remains allowed and anonymous execution denied.
+- `RUN AND PASS`: real Auth creation/sign-in produced an active profile with zero roles and zero scopes despite role/scope user metadata. An explicitly assigned Nursing member without a role read zero owned rooms/schedules; Lecturer read the Nursing room/schedule but not Basic; last-role revocation denied both reads on the same JWT.
+- `RUN AND PASS`: Admin without scopes read both owned room types and the Nursing schedule. Staff without scopes read neither; Basic-only Staff read Basic but not Nursing. Checked-out workspace routing, exercised with the actual remote role/scope states, retained Skills navigation and `/dashboard` for all three Admin/Staff states. This is not hosted-UI or application-deployment evidence.
+- Owned verification user, course, rooms, schedule and outbox were removed, and the session signed out. The three existing pilot memberships remained byte-for-byte equivalent under the ordered-row fingerprint `b34cfbe23add7a13b29b03265ee46b0d`.
+
+Read-only audit distinguishes datasets: **522 is the local baseline, not the remote pilot count**.
+
+| Evidence group                                                      | Local memberships | Remote pilot memberships |
+| :------------------------------------------------------------------ | ----------------: | -----------------------: |
+| Total                                                               |               522 |                        3 |
+| Nursing, null creator, assignment timestamp equals profile creation |               515 |                        3 |
+| Nursing with a recorded creator                                     |                 1 |                        0 |
+| Basic, null creator                                                 |                 6 |                        0 |
+| Matching creator/personnel-authority audit at assignment time       |                 0 |                        0 |
+
+- The null-creator Nursing signature is compatible with the former default trigger, but cannot distinguish it from an explicit direct write in the same transaction. `created_by` can also become null after creator deletion. These are provenance candidates, not proven unauthorized grants.
+- The three remote rows belong to the already approved synthetic mock identities in `scripts/p1-mock-manifest.sql` (one Admin, two Staff). Their Nursing intent is documented; historical database rows contain no explicit creator/personnel audit. No unknown remote membership was found, and no P1 marker or lifecycle operation was changed.
+- Locally, 510 of the 515 default-compatible Nursing rows have roles; 488 are active. Owner review group: **275 active non-Admin users** (226 Staff, 16 Teaching Assistant, 23 Lecturer, 10 Viewer) have unattributed Nursing scope. The remaining role-bearing partition is 213 active Admin users with independent Admin override and 22 inactive users (including five Admin). Five additional rows have no role.
+- The single recorded-creator Nursing row names the Staff subject itself (`22e44891-bab8-4245-a606-9e115f82b8f1`), without matching personnel-authority audit. It is an attributed write, not proof of authorized personnel scope selection. Basic rows cannot originate from the Nursing-only default, but their author/approved intent is unrecorded.
+- No legacy membership was deleted or rewritten. Local count/fingerprint remained `522` / `b183ffe94b5d93a7baa4755a9efb9f51`. Any cleanup requires Owner identification of intended scopes and separate exact-row authorization; a provenance heuristic alone is insufficient.
 
 ### Personnel edit
 

@@ -165,7 +165,8 @@ export function createS5Harness() {
       insert into public.user_roles(user_id,role) values
         ('${actors[0]}','admin'),('${actors[1]}','lecturer'),('${actors[2]}','staff');
       insert into public.profile_room_types(profile_id,room_type_id)
-      values('${actors[2]}','40000000-0000-0000-0000-000000000001') on conflict do nothing;
+      values('${actors[1]}','40000000-0000-0000-0000-000000000001'),
+        ('${actors[2]}','40000000-0000-0000-0000-000000000001') on conflict do nothing;
       select set_config('request.jwt.claims',${jsonSql({ sub: actors[0], role: "authenticated" })}::text,true);
       insert into public.rooms(id,room_code,building_code,room_type_id)
       values('${id(10)}','S5-${nonce}','S5-${nonce}','40000000-0000-0000-0000-000000000001');

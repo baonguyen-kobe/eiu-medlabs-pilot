@@ -48,6 +48,7 @@ $headers = @{
   "Content-Type" = "application/json"
 }
 
+$nursingRoomTypeId = "40000000-0000-0000-0000-000000000001"
 $users = @(
   @{
     email     = "admin@campus.local"
@@ -55,6 +56,7 @@ $users = @(
     full_name = "Nguyễn An"
     phone     = "0901000001"
     roles     = @("admin", "staff", "lecturer")
+    room_type_ids = @($nursingRoomTypeId)
     can_import_schedules = $true
     allow_early_equipment_handover = $false
   },
@@ -64,6 +66,7 @@ $users = @(
     full_name = "Nguyễn Bảo"
     phone     = "0901000008"
     roles     = @("admin")
+    room_type_ids = @($nursingRoomTypeId)
   },
   @{
     email     = "admin.other@campus.local"
@@ -71,6 +74,7 @@ $users = @(
     full_name = "Quản trị viên khác"
     phone     = "0901000009"
     roles     = @("admin")
+    room_type_ids = @($nursingRoomTypeId)
   },
   @{
     email     = "giangvien@campus.local"
@@ -78,6 +82,7 @@ $users = @(
     full_name = "Nguyễn Ngọc Diễm"
     phone     = "0901000002"
     roles     = @("lecturer")
+    room_type_ids = @($nursingRoomTypeId)
   },
   @{
     email     = "staff@campus.local"
@@ -85,6 +90,7 @@ $users = @(
     full_name = "Nguyễn Bảo"
     phone     = "0901000003"
     roles     = @("staff")
+    room_type_ids = @($nursingRoomTypeId)
   },
   @{
     email     = "importer@campus.local"
@@ -92,6 +98,7 @@ $users = @(
     full_name = "Trần Minh Anh"
     phone     = "0901000004"
     roles     = @("lecturer")
+    room_type_ids = @($nursingRoomTypeId)
     can_import_schedules = $true
   },
   @{
@@ -100,6 +107,7 @@ $users = @(
     full_name = "Lê Hoàng Minh"
     phone     = "0901000005"
     roles     = @("staff")
+    room_type_ids = @($nursingRoomTypeId)
     can_import_schedules = $true
   },
   @{
@@ -108,6 +116,7 @@ $users = @(
     full_name = "Phạm Ngọc D"
     phone     = "0901000006"
     roles     = @("teaching_assistant")
+    room_type_ids = @($nursingRoomTypeId)
     can_import_schedules = $false
   },
   @{
@@ -116,6 +125,7 @@ $users = @(
     full_name = "Võ Thùy E"
     phone     = "0901000007"
     roles     = @("teaching_assistant")
+    room_type_ids = @($nursingRoomTypeId)
     can_import_schedules = $true
   }
 )
@@ -168,6 +178,19 @@ foreach ($entry in $users) {
   & $npxCommand supabase db query --workdir $SupabaseWorkdir --local `
     "update public.profiles set full_name = '$($entry.full_name)', phone = '$($entry.phone)' where id = '$userId';" |
     Out-Null
+
+  $scopeValues = (
+    $entry.room_type_ids |
+      ForEach-Object { "('$userId','$_')" }
+  ) -join ","
+  if ($scopeValues) {
+    & $npxCommand supabase db query --workdir $SupabaseWorkdir --local `
+      "insert into public.profile_room_types (profile_id, room_type_id) values $scopeValues on conflict do nothing;" |
+      Out-Null
+    if ($LASTEXITCODE -ne 0) {
+      throw "Không thể cấu hình phạm vi phòng cho $($entry.email)."
+    }
+  }
 
   if ($entry.can_import_schedules) {
     & $npxCommand supabase db query --workdir $SupabaseWorkdir --local `

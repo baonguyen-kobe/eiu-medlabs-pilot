@@ -121,6 +121,13 @@ test("Nursing-only Staff cannot mutate Basic Medical inventory by table or RPC",
       role: "staff",
     });
     assert.ifError(roleError);
+    const { error: scopeError } = await service
+      .from("profile_room_types")
+      .insert({
+        profile_id: userId,
+        room_type_id: "40000000-0000-0000-0000-000000000001",
+      });
+    assert.ifError(scopeError);
     const scopedStaff = await signIn(email, password);
     const [{ data: inventory }, { data: room }, { data: catalog }] =
       await Promise.all([

@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
 import { assertLocalSupabaseTarget } from "./helpers/local-test-safety.mjs";
@@ -32,6 +34,14 @@ async function signIn(email, password) {
 
 test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () => {
   assertLocalSupabaseTarget(localEnv.NEXT_PUBLIC_SUPABASE_URL);
+  const workdir = process.env.CI_SUPABASE_WORKDIR ?? process.cwd();
+  const config = readFileSync(resolve(workdir, "supabase/config.toml"), "utf8");
+  const project = config.match(/^project_id\s*=\s*"([^"]+)"/m)?.[1];
+  const apiPort = config
+    .match(/\[api\]([\s\S]*?)(?=\r?\n\[)/)?.[1]
+    .match(/^port\s*=\s*(\d+)/m)?.[1];
+  assert.ok(project);
+  assert.equal(new URL(localEnv.NEXT_PUBLIC_SUPABASE_URL).port, apiPort);
   const service = client(localEnv.SUPABASE_SECRET_KEY);
   const suffix = crypto.randomUUID();
   const fixturePhone = (index) => {
@@ -45,6 +55,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
   const invalidLecturerNote = `M2-01 invalid lecturer assignment ${suffix}`;
   const basicCourseId = crypto.randomUUID();
   const basicRoomId = crypto.randomUUID();
+  const skillsRoomId = crypto.randomUUID();
   const equipmentScheduleId = crypto.randomUUID();
   const equipmentRegressionScheduleId = crypto.randomUUID();
   const catalogItemId = crypto.randomUUID();
@@ -141,7 +152,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
     });
     const equipmentNoScopeAssistantFixture = await createLocalUser({
       role: "teaching_assistant",
-      scopes: [],
+      scopes: ["40000000-0000-0000-0000-000000000002"],
     });
     const scopedNoAccessAssistantFixture = await createLocalUser({
       role: "teaching_assistant",
@@ -157,17 +168,6 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
     });
     lecturerId = lecturerFixture.id;
     const admin = await signIn(adminFixture.email, adminFixture.password);
-    assert.ifError(
-      (
-        await service
-          .from("profile_room_types")
-          .update({
-            room_type_id: "40000000-0000-0000-0000-000000000002",
-          })
-          .eq("profile_id", equipmentNoScopeAssistantFixture.id)
-          .eq("room_type_id", "40000000-0000-0000-0000-000000000001")
-      ).error,
-    );
     const staff = await signIn(staffFixture.email, staffFixture.password);
     const lecturer = await signIn(
       lecturerFixture.email,
@@ -212,6 +212,18 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
         })
       ).error,
     );
+    assert.ifError(
+      (
+        await service.from("rooms").insert({
+          id: skillsRoomId,
+          room_code: `M2S-${suffix.slice(0, 8)}`,
+          building_code: "M2",
+          room_name: "M2 Skills contract fixture",
+          capacity: 30,
+          room_type_id: "40000000-0000-0000-0000-000000000001",
+        })
+      ).error,
+    );
     const basicPayload = (date, note) => ({
       target_registration_id: null,
       target_academic_year: "2051-2052",
@@ -242,7 +254,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
     ]) {
       const manual = await actor.rpc("create_manual_class_schedule", {
         target_course_id: "10000000-0000-0000-0000-000000000001",
-        target_room_id: "20000000-0000-0000-0000-000000000001",
+        target_room_id: skillsRoomId,
         target_lecturer_id: lecturerId,
         target_lecturer_2_id: null,
         target_schedule_date: date,
@@ -276,7 +288,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
     await assertManualDomainDenied(
       await lecturer.supabase.rpc("create_manual_class_schedule", {
         target_course_id: basicCourseId,
-        target_room_id: "20000000-0000-0000-0000-000000000001",
+        target_room_id: skillsRoomId,
         target_lecturer_id: lecturerId,
         target_lecturer_2_id: null,
         target_schedule_date: "2051-11-20",
@@ -349,7 +361,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
       "create_manual_class_schedule",
       {
         target_course_id: "10000000-0000-0000-0000-000000000001",
-        target_room_id: "20000000-0000-0000-0000-000000000001",
+        target_room_id: skillsRoomId,
         target_lecturer_id: assistantFixture.id,
         target_lecturer_2_id: null,
         target_schedule_date: "2051-11-13",
@@ -375,7 +387,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
           course_id: "10000000-0000-0000-0000-000000000001",
           course_code_snapshot: "NUR 101",
           course_name_snapshot: "M2 Skills contract fixture",
-          room_id: "20000000-0000-0000-0000-000000000001",
+          room_id: skillsRoomId,
           schedule_date: "2051-11-12",
           start_time: "07:30",
           end_time: "09:30",
@@ -396,7 +408,7 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
           course_id: "10000000-0000-0000-0000-000000000001",
           course_code_snapshot: "NUR 101",
           course_name_snapshot: "M2 Skills regression fixture",
-          room_id: "20000000-0000-0000-0000-000000000001",
+          room_id: skillsRoomId,
           schedule_date: "2051-11-13",
           start_time: "07:30",
           end_time: "09:30",
@@ -570,24 +582,55 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
           basicMedicalScheduleIds.push(id);
           batchAAggregateIds.add(id);
         }
-        await service
-          .from("basic_medical_registration_sessions")
-          .delete()
-          .in("registration_id", registrationIds);
-        await service
-          .from("class_schedules")
-          .delete()
-          .in("basic_medical_registration_id", registrationIds);
-        await service
-          .from("basic_medical_registrations")
-          .delete()
-          .in("id", registrationIds);
       }
-      if (equipmentRequestIds.length) {
-        await service
-          .from("equipment_requests")
-          .delete()
-          .in("id", equipmentRequestIds);
+      if (equipmentRequestIds.length || registrationIds.length) {
+        // Match the S5 fixture convention for immutable, owned test history only.
+        // Restore triggers before Basic teardown; never change personnel authority.
+        for (const id of [...equipmentRequestIds, ...registrationIds]) {
+          assert.match(id, /^[0-9a-f-]{36}$/);
+        }
+        const ownedRequests =
+          equipmentRequestIds.map((id) => `'${id}'`).join(",") || "NULL";
+        const ownedRegistrations =
+          registrationIds.map((id) => `'${id}'`).join(",") || "NULL";
+        const cleanup = spawnSync(
+          "docker",
+          [
+            "exec",
+            "-i",
+            `supabase_db_${project}`,
+            "psql",
+            "-X",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-qAt",
+          ],
+          {
+            encoding: "utf8",
+            input: `begin;
+              do $cleanup$ begin
+                if exists(select 1 from public.equipment_preparations where request_id in(${ownedRequests})) then
+                  raise exception 'Unexpected preparation in Batch A fixture cleanup';
+                end if;
+              end; $cleanup$;
+              set local session_replication_role=replica;
+              delete from public.equipment_preparation_events where request_id in(${ownedRequests});
+              delete from public.equipment_request_items where request_id in(${ownedRequests});
+              delete from public.equipment_requests where id in(${ownedRequests});
+              set local session_replication_role=origin;
+              select set_config('app.basic_medical_registration_mutation','true',true);
+              delete from public.basic_medical_registration_sessions where registration_id in(${ownedRegistrations});
+              delete from public.class_schedules where basic_medical_registration_id in(${ownedRegistrations});
+              delete from public.basic_medical_registrations where id in(${ownedRegistrations});
+              commit;`,
+          },
+        );
+        assert.equal(cleanup.status, 0, cleanup.stderr);
+        for (const id of equipmentRequestIds) batchAAggregateIds.add(id);
       }
       if (manualScheduleIds.length) {
         await service
@@ -603,11 +646,25 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
         .from("class_schedules")
         .delete()
         .eq("id", equipmentRegressionScheduleId);
-      await service.from("equipment_catalog").delete().eq("id", catalogItemId);
-      await service.from("courses").delete().eq("id", basicCourseId);
-      await service.from("rooms").delete().eq("id", basicRoomId);
+      assert.ifError(
+        (
+          await service
+            .from("equipment_catalog")
+            .delete()
+            .eq("id", catalogItemId)
+        ).error,
+      );
+      assert.ifError(
+        (await service.from("courses").delete().eq("id", basicCourseId)).error,
+      );
+      assert.ifError(
+        (await service.from("rooms").delete().eq("id", basicRoomId)).error,
+      );
+      assert.ifError(
+        (await service.from("rooms").delete().eq("id", skillsRoomId)).error,
+      );
       for (const userId of testUserIds) {
-        await service.auth.admin.deleteUser(userId);
+        assert.ifError((await service.auth.admin.deleteUser(userId)).error);
       }
 
       const outboxEventIds = new Set();

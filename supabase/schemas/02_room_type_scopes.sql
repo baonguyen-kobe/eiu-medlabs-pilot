@@ -63,30 +63,6 @@ alter table public.profile_room_types
 create index if not exists profile_room_types_room_type_idx
   on public.profile_room_types (room_type_id, profile_id);
 
-insert into public.profile_room_types (profile_id, room_type_id)
-select profiles.id, '40000000-0000-0000-0000-000000000001'::uuid
-from public.profiles as profiles
-on conflict do nothing;
-
-create or replace function private.assign_default_room_type()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  insert into public.profile_room_types (profile_id, room_type_id)
-  values (new.id, '40000000-0000-0000-0000-000000000001'::uuid)
-  on conflict do nothing;
-  return new;
-end;
-$$;
-
-drop trigger if exists profiles_assign_default_room_type on public.profiles;
-create trigger profiles_assign_default_room_type
-after insert on public.profiles
-for each row execute function private.assign_default_room_type();
-
 alter table public.import_batches
   add column if not exists room_type_id uuid references public.room_types(id) on delete restrict;
 
@@ -145,6 +121,7 @@ as $$
     or exists (
       select 1
       from public.profile_room_types as assignments
+      join public.user_roles as roles on roles.user_id = assignments.profile_id
       where assignments.profile_id = (select auth.uid())
         and assignments.room_type_id = target_room_type_id
     )
@@ -347,7 +324,6 @@ as $$
   );
 $$;
 
-revoke execute on function private.assign_default_room_type() from public, anon, authenticated;
 revoke execute on function private.is_admin() from public, anon;
 revoke execute on function private.has_room_type(uuid) from public, anon;
 revoke execute on function private.can_access_room(uuid) from public, anon;

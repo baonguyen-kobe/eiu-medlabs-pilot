@@ -71,8 +71,6 @@ begin
   on conflict do nothing;
 
   -- Room types
-  delete from public.profile_room_types where profile_id in (staff_user_id, admin_user_id, root_user_id, basic_only_id, history_mgr_id, admin_no_skills_id, lecturer_user_id, teaching_assistant_id, viewer_user_id, staff_no_skills_id);
-
   insert into public.profile_room_types (profile_id, room_type_id, receive_schedule_emails, created_by)
   values
     (staff_user_id, skills_type_id, false, staff_user_id),

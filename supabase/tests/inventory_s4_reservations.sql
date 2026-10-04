@@ -15,9 +15,10 @@ from generate_series(1,4) n on conflict(id) do update set phone=excluded.phone,i
 insert into public.user_roles(user_id,role) values
 (pg_temp.s4r_id(1),'admin'),(pg_temp.s4r_id(2),'lecturer'),
 (pg_temp.s4r_id(3),'staff'),(pg_temp.s4r_id(4),'staff');
-delete from public.profile_room_types where profile_id=pg_temp.s4r_id(4);
 insert into public.profile_room_types(profile_id,room_type_id)
-values(pg_temp.s4r_id(3),'40000000-0000-0000-0000-000000000001') on conflict do nothing;
+values
+(pg_temp.s4r_id(2),'40000000-0000-0000-0000-000000000001'),
+(pg_temp.s4r_id(3),'40000000-0000-0000-0000-000000000001') on conflict do nothing;
 select set_config('request.jwt.claims',jsonb_build_object('sub',pg_temp.s4r_id(1),'role','authenticated')::text,true);
 insert into public.rooms(id,room_code,building_code,room_type_id)
 values(pg_temp.s4r_id(10),'S4R_TEST','S4R_TEST','40000000-0000-0000-0000-000000000001');

@@ -32,8 +32,13 @@ insert into auth.users(id,email,raw_app_meta_data,raw_user_meta_data) values('da
 insert into public.profiles(id,email,full_name,is_active) values('da210218-38de-462f-82c6-b68c3b8e9444','p1-mock-acc2b31a-2@example.invalid','Lê Quang Huy — MOCK Staff 2',true) on conflict(id) do update set full_name=excluded.full_name,is_active=true;
 insert into public.user_roles(user_id,role) values('da210218-38de-462f-82c6-b68c3b8e9444','staff');
 
--- Canonical profile trigger already enrolls nursing_skills; suppress schedule mail for all mock identities.
-update public.profile_room_types set receive_schedule_emails=false where profile_id in ('b45ebb24-7dbb-4071-b5e7-7785b52587d7','6b8f91e8-d47f-4445-b105-ae3124d349cb','da210218-38de-462f-82c6-b68c3b8e9444');
+-- Declare the selected Nursing scope explicitly; mock identities never receive schedule mail.
+insert into public.profile_room_types(profile_id,room_type_id,receive_schedule_emails)
+values
+('b45ebb24-7dbb-4071-b5e7-7785b52587d7','40000000-0000-0000-0000-000000000001',false),
+('6b8f91e8-d47f-4445-b105-ae3124d349cb','40000000-0000-0000-0000-000000000001',false),
+('da210218-38de-462f-82c6-b68c3b8e9444','40000000-0000-0000-0000-000000000001',false)
+on conflict(profile_id,room_type_id) do update set receive_schedule_emails=false;
 
 select pg_temp.p1_assert((select count(*)=3 from public.user_roles where user_id in ('b45ebb24-7dbb-4071-b5e7-7785b52587d7','6b8f91e8-d47f-4445-b105-ae3124d349cb','da210218-38de-462f-82c6-b68c3b8e9444')),'mock actor role cardinality');
 select pg_temp.p1_assert(not exists(select 1 from public.profile_room_types where profile_id in ('b45ebb24-7dbb-4071-b5e7-7785b52587d7','6b8f91e8-d47f-4445-b105-ae3124d349cb','da210218-38de-462f-82c6-b68c3b8e9444') and receive_schedule_emails),'mock schedule email enabled');
