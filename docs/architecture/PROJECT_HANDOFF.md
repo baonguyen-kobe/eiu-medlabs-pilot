@@ -1,6 +1,6 @@
 # EIU MedLabs Inventory — Pilot Handoff
 
-Updated 2026-10-03. **G0 APPROVED / DONE; S1 implementation IN_PROGRESS.** Owner INV-048 authorizes continuous bounded S1 implementation, synthetic local/pilot verification and coherent commit/push to pilot origin. Verify changes, not Git operations.
+Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED.** Owner INV-059 accepts S5 `bdba8d6` and its three isolated-pilot migrations. Current authority is pilot status/docs delivery and P1 readiness/delta review only; no real operational stock or production.
 
 ## Read order
 
@@ -18,18 +18,18 @@ The former READY FOR PHASE 3 verdict and forced one-source/unresolved-delivery s
 - Inventory architecture authority remains `D:/orca/medlabs-OPs`; do not duplicate it wholesale in pilot.
 - Supabase pilot ref `kwpyukofofoaqhmxndlc`, org `agpurdfhmyhnybfktdue`, Singapore; current CLI identity verified ACTIVE_HEALTHY and linked. Dedicated local pilot uses project `eiu-medlabs-pilot` and 583xx ports. Linking/health are not S1 schema or acceptance PASS.
 - Vercel account/team authenticated earlier; no pilot Vercel project confirmed. Prior statements that all three resources were ready were inaccurate.
-- Prior provisioning output exposed sensitive pilot credentials; authorized S1 remains synthetic only. INV-046 requires separately authorized, verified rotation before real operational data/use. No secrets belong in docs/Git or browser client config.
+- Prior provisioning output exposed sensitive pilot credentials. INV-046 requires separately authorized, verified rotation before real operational data/use. Rotation is not verified by S1–S5 acceptance; no secrets belong in docs/Git or browser client config.
 
 ## Current contract
 
 Existing Equipment Request owns demand, workflow events and signatures; Inventory owns physical effects. Retain quantity + serialized, canonical equipment_assets, exact asset/QR, no duplicate request/procurement/user system, existing MedLabs security/evidence boundaries and staged Basic Medical integration.
 
-Q1 physical issue precedes signature; Q2 controlled initial over-plan actual; Q3 controlled multi-source allocations; Q4 actual transfer-back prerequisites before preparation reversal; Q5 good/damaged; Q6 Staff recovery waiver zero stock delta/Admin disposition; Q7 new late-return/offset and Admin settlement reconciliation; Q8 initial-return signature for all requests; Q9 fixed-room in-place vs session consumable vs portable returnable; Q10 no time-window reservation/clock release. F1 chemical expiry without business lots; F2 per-receipt conversion/stable base unit; F3 Skills Lab/Admin opening.
+Q1 physical issue precedes signature; Q2 controlled initial and supplemental over-plan actual under INV-058; Q3 controlled multi-source allocations; Q4 actual transfer-back prerequisites before preparation reversal; Q5 good/damaged; Q6 Staff recovery waiver zero stock delta/Admin disposition; Q7 new late-return/offset and Admin settlement reconciliation; Q8 initial-return signature for all requests; Q9 fixed-room in-place vs session consumable vs portable returnable; Q10 no time-window reservation/clock release. F1 chemical expiry without business lots; F2 per-receipt conversion/stable base unit; F3 Skills Lab/Admin opening.
 
-INV-041–046 close return/expiry/late-intake/strategy/single-writer/security policy. Replacement candidate target, port-back fallback. Owner INV-048 approves [G0 baseline](../../../medlabs-OPs/plans/G0_S1_DESIGN_FREEZE_PACK.md) and linked technical artifacts for S1; historical UNDER_REVIEW labels do not revoke that approval. [Execution slices](../../../medlabs-OPs/plans/S1_IMPLEMENTATION.md) define dependency order and evidence.
+INV-041–046 close return/expiry/late-intake/strategy/single-writer/security policy; INV-059 closes S5. Replacement candidate target, port-back fallback. The approved S1–S5 contracts and accepted implementation remain the reusable baseline; historical UNDER_REVIEW labels do not revoke later approval. [S5 acceptance](INVENTORY_S5_ACCEPTANCE.md) records accepted delivery and historical verification, not operational readiness.
 
 ## Current action and gates
 
-Implement and verify S1 end-to-end: identity/access/reference/source records, opening, quantity receipts/conversion/expiry/good-damaged, immutable ledger/cohorts/balances, corrections and approved pages/actions. Preserve final authorization, replay/business uniqueness, concurrency, rollback, numeric, expiry, opening, history/reconciliation and browser evidence. Commit/push coherent verified pilot checkpoints without rerunning unchanged checks solely for Git.
+Stop S5. Prepare [P1 readiness/delta review](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md) only: credential rotation, exact Skills Lab scope, single-writer boundary, Admin opening, operational marker, rollback/fix-forward and real-data acceptance checklist. Missing runtime/remote readiness evidence is explicit, not silently PASS.
 
-No S2+, P1 operational stock, Basic Medical cutover, Vercel deployment, credential rotation, upstream push or production mutation is authorized. P1 exact scope/single-writer/cutover/Admin opening and R1 production remain separate gates. Stop only at S1 completion or a genuine unresolved Owner decision, not each technical slice.
+P1 real operational stock, Basic Medical cutover, rotation, Vercel deployment, upstream push and production mutation remain NOT AUTHORIZED. Task-owned pilot status/docs commit/push is authorized; OPS remains local-only. Retain stop-at-safe-point on observed fallback/model unavailability; preserve checkpoint/evidence and wait for Owner continuation.

@@ -1,12 +1,12 @@
 # EIU MedLabs Pilot — Inventory Master Roadmap
 
-Updated 2026-10-02. **UNDER_REVIEW / NOT_STARTED**. Documentation reconciliation only; no implementation, migration, deployment or production authorization.
+Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED (INV-059).** Current authorization: pilot status/docs delivery and P1 readiness/delta review only. No real-stock execution, rotation, deployment or production authorization.
 
 ## Authority and verdict
 
 The August roadmap at bootstrap `e802421` is superseded as a live plan. Its useful domain boundaries remain; blanket unresolved delivery, forced single-source and old phase order do not. Historical content remains in Git and the unchanged dated source-of-truth snapshot.
 
-Inventory architecture authority remains `D:/orca/medlabs-OPs`. Read [pilot reconciliation](INVENTORY_PILOT_RECONCILIATION.md) for approved policy and 42 acceptance scenarios; the canonical [G0 S1 Design Freeze Pack](../../../medlabs-OPs/plans/G0_S1_DESIGN_FREEZE_PACK.md) now supplies the bounded technical candidate, DBML/D2, S1 Page Specs and enforcement traceability. This pilot entry does not copy the control plane.
+Inventory architecture authority remains `D:/orca/medlabs-OPs`. The canonical [master plan](../../../medlabs-OPs/roadmap/MASTER_ROADMAP.md) and [current state](../../../medlabs-OPs/CURRENT_STATE.md) govern active status; [pilot reconciliation](INVENTORY_PILOT_RECONCILIATION.md) preserves policy/history. [S5 acceptance](INVENTORY_S5_ACCEPTANCE.md) records accepted `bdba8d6` and three pilot migrations. Next is [P1 readiness/delta review](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md), not P1 execution. This entry does not copy the control plane.
 
 ## Current implementation target
 
@@ -32,4 +32,4 @@ Minimum ledger/condition/expiry representation belongs to S1, not after receipts
 
 Q1–Q10/F1–F3 remain settled as described in the [review matrix](INVENTORY_PILOT_RECONCILIATION.md#3-accept--modify--reject-matrix). In particular Q4 transfer-back prerequisites, Q8 signatures for all requests and no quarantine/business-lot/time-window module remain. No generic Inventory Request/procurement engine/microservice/full-app event sourcing. Repair/formal transfer/loan remain V1.1; maintenance/calibration/inspection remain future required domains, not pilot blockers.
 
-INV-041–046 settle return/expiry/late-intake/strategy/single-writer/security policy. Replacement candidate target, port-back fallback; R1 production permission separate. S1–S5 synthetic only; P1 scoped single writer/Admin opening and mandatory rotation before operational use. Vercel before deployed UAT/deploy. G0 policy closed; bounded design candidate UNDER_REVIEW, G0 OPEN. Exact S1 criteria: canonical pack §16, owner baseline approval plus separate implementation authorization.
+INV-041–046 settle return/expiry/late-intake/strategy/single-writer/security policy. INV-059 closes S5. Replacement candidate target, port-back fallback; R1 production permission separate. P1 requires exact approved scope, single writer, operational marker, Admin opening and mandatory verified rotation before operational use; verified Vercel before deployed UAT/deploy. Readiness review grants none of these execution permissions.

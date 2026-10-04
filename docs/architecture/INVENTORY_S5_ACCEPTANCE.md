@@ -1,5 +1,30 @@
 # S5 Handover + Return + Recovery Acceptance Evidence
 
+## Owner acceptance — 2026-10-04
+
+**S5 ACCEPTED / CLOSED** by explicit Owner decision (INV-059). Accepted implementation: `bdba8d6`, delivered to `baonguyen-kobe/eiu-medlabs-pilot/main`. Isolated Supabase pilot: `kwpyukofofoaqhmxndlc`.
+
+| Gate                      | Status            |
+| :------------------------ | :---------------- |
+| G0                        | DONE              |
+| S1–S4                     | ACCEPTED / CLOSED |
+| S5 Implementation         | DONE              |
+| S5 Remote Pilot Migration | DONE              |
+| S5 Owner Acceptance       | ACCEPTED          |
+| S5                        | ACCEPTED / CLOSED |
+| P1 Real Operational Stock | NOT AUTHORIZED    |
+| Production Cutover        | NOT AUTHORIZED    |
+
+Accepted migrations, previously applied to the isolated pilot:
+
+- `20261003132336_equipment_fulfillment.sql`
+- `20261003133611_equipment_fulfillment_consumers.sql`
+- `20261003135730_equipment_fulfillment_fixes.sql`
+
+The accepted scope is the implementation below, including actual versus planned quantities, supplemental handover, good/damaged returns, return signature, shortage/recovery, reasoned recovery resolution / Bỏ Thu hồi, late return, event-bound signatures and correction/history/audit. The evidence below records prior execution; this documentation closure is not a fresh runtime or remote certification.
+
+Stop S5; reopen only for a new functional/data/security blocker. Next authorized work is [P1 readiness/delta review](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md) only: credential rotation prerequisites, exact scope, single-writer boundary, Admin opening, operational marker, rollback/fix-forward and real-data acceptance checklist. No rotation, real-stock import, cutover marker activation or deployment is authorized. `medlabs-OPs` remains local-only.
+
 ## Implementation summary
 
 Delivered S5 physical fulfillment, return, recovery, resolution, late receipt, consequence, reconciliation, and event-bound signing under delegated authority INV-057 and Owner supplemental decision INV-058.
@@ -75,4 +100,4 @@ Delivered S5 physical fulfillment, return, recovery, resolution, late receipt, c
 ## Boundaries and limits
 
 - Scope is strictly synthetic pilot on local project and isolated pilot DB; no Basic Medical cutover, production migrations, deployment, or OPS remote changes.
-- S5 is DONE; Owner formal acceptance is pending Owner review. P1 must NOT be auto-started.
+- S5 is ACCEPTED / CLOSED. P1 readiness review is authorized; P1 real operational stock and production cutover remain NOT AUTHORIZED.
