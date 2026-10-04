@@ -1,0 +1,1681 @@
+{
+  "kind": "ACTUAL_MOCK_P1_RUNTIME_NOT_REAL_P1",
+  "observed_at": "2026-10-04T09:20:46.104Z",
+  "project_ref": "kwpyukofofoaqhmxndlc",
+  "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+  "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+  "scope_version": 1,
+  "manifest_sha256": "2b2b03dbd2314dc35360806f1a7d3601adfc3e3c35acf34a21e3b6a2a4350a3c",
+  "migration_sha256": "3497de5dfb136a7dc0da8f233955b23abd218985cf21c7c24b43805c6f282e44",
+  "migration_repository_sha256": "171e8624f6b2ef87c1151cebd0a492c460576ea8b3ccbcf65ab93b2c66836a1a",
+  "migration_repository_normalization": "Removed only terminal generator blank lines after CLI application to satisfy staged whitespace hygiene. migration_sha256 retains the original actually applied bytes; repository hash records the EOF-normalized equivalent. SQL statements unchanged; no reapplication or DB mutation.",
+  "smoke_sql_sha256": "1cb55cf487e200a5db276170537d9b04c08a2f6db43c656853084996e5a35424",
+  "smoke": {
+    "kind": "P1_RPC_SMOKE_ROLLBACK_INTEGRITY",
+    "rollback_integrity": true,
+    "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5"
+  },
+  "races": [
+    {
+      "scenario": "activation waits before opening confirmation and is denied",
+      "first_wait": {
+        "blocking_pids": [198542],
+        "pid": 198548
+      },
+      "second_wait": {
+        "blocking_pids": [198542, 198548, 198550, 198551],
+        "pid": 198557
+      },
+      "outcomes": [
+        {
+          "ok": false,
+          "error": "Pilot SQL failed (1): Initialising login role...\n\u001b[31munexpected status 400: {\"message\":\"Failed to run sql query: ERROR:  42501: P1_ACTIVATION_RECONCILIATION_REQUIRED\\nDETAIL:  {\\\"ready\\\": false, \\\"asset_id\\\": null, \\\"observed_at\\\": \\\"2026-10-04T09:19:15.440291+00:00\\\", \\\"opening_rows\\\": 6, \\\"discrepancies\\\": [\\\"SERIALIZED_IDENTITY_UNBOUND_OR_MISMATCHED\\\", \\\"SERIALIZED_EVENT_MISMATCH\\\", \\\"SERIALIZED_OPENING_STATE_MISMATCH\\\"], \\\"opening_batch_id\\\": \\\"91dbc282-6f74-474f-b043-0829f44af420\\\", \\\"opening_complete\\\": false}\\nCONTEXT:  PL/pgSQL function public.inventory_pilot_command(text,jsonb,uuid) line 42 at RAISE\\n\"}\u001b[39m\nTry rerunning the command with --debug to troubleshoot the error.\n"
+        },
+        {
+          "ok": true,
+          "result": {
+            "event_id": "8131cfa2-16c9-4e7a-b807-b49cdc2180db",
+            "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+            "phase": "OPENING_READY",
+            "reconciliation": {
+              "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+              "discrepancies": [],
+              "observed_at": "2026-10-04T09:19:15.489484+00:00",
+              "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+              "opening_complete": true,
+              "opening_rows": 6,
+              "ready": true
+            },
+            "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+            "scope_version": 1
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "opening confirmation then activation serialize without physical repost",
+      "first_wait": {
+        "blocking_pids": [198568],
+        "pid": 198576
+      },
+      "second_wait": {
+        "blocking_pids": [198568, 198576],
+        "pid": 198584
+      },
+      "outcomes": [
+        {
+          "ok": true,
+          "result": {
+            "event_id": "9b32d9d4-828a-4e92-a8a8-2ee69c703a3c",
+            "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+            "phase": "OPENING_READY",
+            "reconciliation": {
+              "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+              "discrepancies": [],
+              "observed_at": "2026-10-04T09:19:37.759461+00:00",
+              "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+              "opening_complete": true,
+              "opening_rows": 6,
+              "ready": true
+            },
+            "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+            "scope_version": 1
+          }
+        },
+        {
+          "ok": true,
+          "result": {
+            "event_id": "80c484f3-4299-4701-a526-77cc3fba0fc7",
+            "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+            "phase": "ACTIVE",
+            "reconciliation": {
+              "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+              "discrepancies": [],
+              "observed_at": "2026-10-04T09:19:37.799788+00:00",
+              "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+              "opening_complete": true,
+              "opening_rows": 6,
+              "ready": true
+            },
+            "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+            "scope_version": 1
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "durable PAUSED before physical write prevents all effects",
+      "first_wait": {
+        "blocking_pids": [198596],
+        "pid": 198604
+      },
+      "second_wait": {
+        "blocking_pids": [198596, 198604],
+        "pid": 198611
+      },
+      "outcomes": [
+        {
+          "ok": true,
+          "result": {
+            "event_id": "d24e740e-d040-4906-ba52-6ed6de0f2f49",
+            "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+            "phase": "PAUSED",
+            "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+            "scope_version": 1
+          }
+        },
+        {
+          "ok": false,
+          "error": "Pilot SQL failed (1): Initialising login role...\n\u001b[31munexpected status 400: {\"message\":\"Failed to run sql query: ERROR:  42501: P1_PAUSED\\nCONTEXT:  PL/pgSQL function private.p1_gate(uuid,uuid,uuid,boolean) line 34 at RAISE\\nSQL statement \\\"SELECT private.p1_gate(target.catalog_item_id,target.location_id,null,replay)\\\"\\nPL/pgSQL function private.p1_preflight(text,text,jsonb,uuid,uuid) line 13 at PERFORM\\nSQL statement \\\"SELECT private.p1_preflight('equipment_asset_command',p_operation,p_payload,null,p_retry_key)\\\"\\nPL/pgSQL function public.equipment_asset_command(text,jsonb,uuid) line 6 at PERFORM\\n\"}\u001b[39m\nTry rerunning the command with --debug to troubleshoot the error.\n"
+        }
+      ]
+    },
+    {
+      "scenario": "physical write observes exactly one effect before queued pause; physical transaction rolls back",
+      "first_wait": {
+        "blocking_pids": [198650],
+        "pid": 198659
+      },
+      "second_wait": {
+        "blocking_pids": [198650, 198659],
+        "pid": 198667
+      },
+      "outcomes": [
+        {
+          "ok": true,
+          "result": {
+            "observed_new_events": 1,
+            "observed_revision": 3,
+            "physical_transaction_rolled_back": true
+          }
+        },
+        {
+          "ok": true,
+          "result": {
+            "event_id": "943d3bc8-260b-4d55-b107-d2543f6c67cf",
+            "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+            "phase": "PAUSED",
+            "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+            "scope_version": 1
+          }
+        }
+      ]
+    }
+  ],
+  "injected_dual_write": {
+    "event_id": "5f71a994-ffa3-42b1-bec6-df310367640a",
+    "real_competing_write_observed": false
+  },
+  "physical_rows_unchanged": true,
+  "original_physical_snapshot": {
+    "asset": {
+      "asset_code": "EIU-AST-7F86198D",
+      "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+      "created_at": "2026-10-04T04:30:19.085831+00:00",
+      "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+      "expiry_date": null,
+      "expiry_precision": "not_required",
+      "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+      "intake_kind": "open",
+      "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+      "lifecycle_status": "in_service",
+      "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+      "manufacturer": "MedLabs Training Devices — MOCK",
+      "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+      "model": "IP-100 training",
+      "operational_status": "ready",
+      "revision": 2,
+      "row_key": "pump-001",
+      "source_line_id": null,
+      "updated_at": "2026-10-04T04:30:19.132991+00:00"
+    },
+    "asset_events": [
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "after_state": {
+          "asset_code": "EIU-AST-7F86198D",
+          "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+          "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "expiry_date": null,
+          "expiry_precision": "not_required",
+          "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+          "intake_kind": "open",
+          "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "lifecycle_status": "registered",
+          "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+          "manufacturer": "MedLabs Training Devices — MOCK",
+          "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+          "model": "IP-100 training",
+          "operational_status": "ready",
+          "revision": 1,
+          "row_key": "pump-001",
+          "source_line_id": null
+        },
+        "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+        "before_state": null,
+        "corrects_event_id": null,
+        "evidence_note": "MOCK manifest; no real asset or stock",
+        "id": "c88ff97a-a547-470c-aa60-807217cfb96a",
+        "occurred_at": "2026-10-04T04:30:19.070774+00:00",
+        "operation": "open_asset",
+        "posted_at": "2026-10-04T04:30:19.094465+00:00",
+        "reason": "SYNTHETIC MOCK training opening",
+        "revision": 1,
+        "transaction_id": "16d4a2ca-1543-43d1-be77-29c5769258a7"
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "after_state": {
+          "asset_code": "EIU-AST-7F86198D",
+          "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+          "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "expiry_date": null,
+          "expiry_precision": "not_required",
+          "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+          "intake_kind": "open",
+          "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "lifecycle_status": "in_service",
+          "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+          "manufacturer": "MedLabs Training Devices — MOCK",
+          "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+          "model": "IP-100 training",
+          "operational_status": "ready",
+          "revision": 2,
+          "row_key": "pump-001",
+          "source_line_id": null
+        },
+        "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+        "before_state": {
+          "asset_code": "EIU-AST-7F86198D",
+          "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+          "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "expiry_date": null,
+          "expiry_precision": "not_required",
+          "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+          "intake_kind": "open",
+          "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "lifecycle_status": "registered",
+          "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+          "manufacturer": "MedLabs Training Devices — MOCK",
+          "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+          "model": "IP-100 training",
+          "operational_status": "ready",
+          "revision": 1,
+          "row_key": "pump-001",
+          "source_line_id": null
+        },
+        "corrects_event_id": null,
+        "evidence_note": "Synthetic mock use only",
+        "id": "2e120e40-1202-4df8-995d-08843ee154fa",
+        "occurred_at": "2026-10-04T04:30:19.113004+00:00",
+        "operation": "set_asset_lifecycle",
+        "posted_at": "2026-10-04T04:30:19.1343+00:00",
+        "reason": "Commission MOCK training asset",
+        "revision": 2,
+        "transaction_id": "d1e74459-1ecc-406a-8d11-e7559594fd62"
+      }
+    ],
+    "balances": [
+      {
+        "cohort_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 50,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 100,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 250,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "condition": "damaged",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 5,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 100,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "condition": "damaged",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 1,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 12,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      },
+      {
+        "cohort_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+        "condition": "good",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity": 1000,
+        "updated_at": "2026-10-04T04:30:18.575437+00:00"
+      }
+    ],
+    "batch": {
+      "count_cutoff": "2026-10-04T04:25:48.938+00:00",
+      "created_at": "2026-10-04T04:30:18.575437+00:00",
+      "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+      "id": "91dbc282-6f74-474f-b043-0829f44af420",
+      "provenance_note": "Fabricated training count only; no production source or real physical stock",
+      "scope_description": "SYNTHETIC MOCK P1 rehearsal; not operational stock",
+      "synthetic": true,
+      "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+    },
+    "facts": [
+      {
+        "base_quantity": 250,
+        "base_uom_code": "p1-mock-acc2b31a_ml",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 0,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": "2028-03-31",
+        "expiry_input": "2028-03",
+        "expiry_precision": "month",
+        "good_quantity": 250,
+        "id": "2f6ed4a4-71d5-4b06-8a96-abfcba06c402",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "ethanol-month"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      },
+      {
+        "base_quantity": 50,
+        "base_uom_code": "p1-mock-acc2b31a_ml",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 0,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": "2026-09-30",
+        "expiry_input": "2026-09-30",
+        "expiry_precision": "day",
+        "good_quantity": 50,
+        "id": "428f64cf-0e2f-41e6-a6ce-2c528b6693e0",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "ethanol-expired"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      },
+      {
+        "base_quantity": 100,
+        "base_uom_code": "p1-mock-acc2b31a_ml",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 0,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": null,
+        "expiry_input": null,
+        "expiry_precision": "unknown",
+        "good_quantity": 100,
+        "id": "68c12500-10fd-4d8d-b978-244ab1bcc95a",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "ethanol-unknown"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      },
+      {
+        "base_quantity": 13,
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 1,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": null,
+        "expiry_input": null,
+        "expiry_precision": "not_required",
+        "good_quantity": 12,
+        "id": "8869e0f5-237e-4255-8266-e7d72bfd1d4b",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "trays"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      },
+      {
+        "base_quantity": 1000,
+        "base_uom_code": "p1-mock-acc2b31a_ml",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 0,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": "2027-12-31",
+        "expiry_input": "2027-12-31",
+        "expiry_precision": "day",
+        "good_quantity": 1000,
+        "id": "92216be3-cf9a-46ff-b6d1-29b1dbda13db",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "ethanol-day"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      },
+      {
+        "base_quantity": 105,
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "conversion_factor": null,
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "damaged_quantity": 5,
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_date": null,
+        "expiry_input": null,
+        "expiry_precision": "not_required",
+        "good_quantity": 100,
+        "id": "d9d9b2a9-f30b-4e6a-9f3c-0eed5d661f3f",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "origin_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "previous_fact_id": null,
+        "purchase_quantity": null,
+        "purchase_uom_code": null,
+        "source_snapshot": {
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "provenance_group": "gloves"
+        },
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199",
+        "version": 0
+      }
+    ],
+    "identities": [
+      {
+        "id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+        "metadata": {
+          "mock_scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+          "preapproved": true,
+          "synthetic": true
+        },
+        "password": null,
+        "profile": {
+          "access_version": 1,
+          "allow_basic_medical_access": false,
+          "allow_early_equipment_handover": false,
+          "can_import_schedules": false,
+          "can_manage_email_notifications": false,
+          "can_manage_shift_history": false,
+          "created_at": "2026-10-04T04:30:18.575437+00:00",
+          "email": "p1-mock-acc2b31a-1@example.invalid",
+          "employee_code": null,
+          "full_name": "Trần Thu Hà — MOCK Staff 1",
+          "id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "is_active": true,
+          "must_change_password": false,
+          "must_change_password_hash": null,
+          "phone": null,
+          "title": null,
+          "updated_at": "2026-10-04T04:30:18.575437+00:00"
+        },
+        "roles": ["staff"]
+      },
+      {
+        "id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "metadata": {
+          "mock_scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+          "preapproved": true,
+          "synthetic": true
+        },
+        "password": null,
+        "profile": {
+          "access_version": 1,
+          "allow_basic_medical_access": false,
+          "allow_early_equipment_handover": false,
+          "can_import_schedules": false,
+          "can_manage_email_notifications": false,
+          "can_manage_shift_history": false,
+          "created_at": "2026-10-04T04:30:18.575437+00:00",
+          "email": "p1-mock-acc2b31a-0@example.invalid",
+          "employee_code": null,
+          "full_name": "Nguyễn Minh An — MOCK Admin",
+          "id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+          "is_active": true,
+          "must_change_password": false,
+          "must_change_password_hash": null,
+          "phone": null,
+          "title": null,
+          "updated_at": "2026-10-04T04:30:18.575437+00:00"
+        },
+        "roles": ["admin"]
+      },
+      {
+        "id": "da210218-38de-462f-82c6-b68c3b8e9444",
+        "metadata": {
+          "mock_scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+          "preapproved": true,
+          "synthetic": true
+        },
+        "password": null,
+        "profile": {
+          "access_version": 1,
+          "allow_basic_medical_access": false,
+          "allow_early_equipment_handover": false,
+          "can_import_schedules": false,
+          "can_manage_email_notifications": false,
+          "can_manage_shift_history": false,
+          "created_at": "2026-10-04T04:30:18.575437+00:00",
+          "email": "p1-mock-acc2b31a-2@example.invalid",
+          "employee_code": null,
+          "full_name": "Lê Quang Huy — MOCK Staff 2",
+          "id": "da210218-38de-462f-82c6-b68c3b8e9444",
+          "is_active": true,
+          "must_change_password": false,
+          "must_change_password_hash": null,
+          "phone": null,
+          "title": null,
+          "updated_at": "2026-10-04T04:30:18.575437+00:00"
+        },
+        "roles": ["staff"]
+      }
+    ],
+    "ledger": [
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "cohort_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 1,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 1000,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "cohort_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 3,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 50,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "cohort_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 5,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 250,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "cohort_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 7,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 100,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 9,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 100,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "condition": "damaged",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 10,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 5,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "condition": "good",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 11,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 12,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      {
+        "catalog_item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "condition": "damaged",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "line_no": 12,
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "quantity_delta": 1,
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      }
+    ],
+    "origins": [
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "03149c32-c8fc-4f18-90b6-216713f86111",
+        "line_key": "ethanol-expired",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "ethanol-expired",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+        "line_key": "ethanol-unknown",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "ethanol-unknown",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+        "line_key": "ethanol-month",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "ethanol-month",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      },
+      {
+        "catalog_item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+        "line_key": "gloves",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "gloves",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      },
+      {
+        "catalog_item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+        "line_key": "trays",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "trays",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      },
+      {
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "created_at": "2026-10-04T04:30:18.575437+00:00",
+        "id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+        "line_key": "ethanol-day",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "provenance_group": "ethanol-day",
+        "receipt_id": null,
+        "source_line_id": null,
+        "surplus_id": null
+      }
+    ]
+  },
+  "final_marker": {
+    "bindings": [
+      {
+        "asset_code": "EIU-AST-7F86198D",
+        "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+        "bound_at": "2026-10-04T09:19:15.461544+00:00",
+        "bound_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+        "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "manufacturer": "MedLabs Training Devices — MOCK",
+        "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+        "model": "IP-100 training",
+        "opening_event_id": "c88ff97a-a547-470c-aa60-807217cfb96a",
+        "row_key": "pump-001",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5"
+      }
+    ],
+    "events": [
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": [],
+            "observed_at": "2026-10-04T09:20:36.680525+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": true
+          }
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:reconcile:8cab3f9c-f8d2-4756-86d2-c788edb41b18",
+        "id": "950c781f-5edf-4327-91b4-3e9db3d96035",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:36.682306+00:00",
+        "operation": "reconcile",
+        "phase": "PAUSED",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "related_event_id": "5f71a994-ffa3-42b1-bec6-df310367640a"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:resolve_discrepancy:fa894482-4f97-4764-b3eb-7f67d8795b5b",
+        "id": "30df4799-73a3-4559-8adc-0ebd8ba9802e",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:34.654889+00:00",
+        "operation": "resolve_discrepancy",
+        "phase": "PAUSED",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": "5f71a994-ffa3-42b1-bec6-df310367640a",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": ["UNRESOLVED_DISCREPANCY"],
+            "observed_at": "2026-10-04T09:20:32.378997+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": false
+          }
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:reconcile:448e099b-ff59-4f58-a295-3f44f838f1ed",
+        "id": "34822689-85bb-4e58-928a-aeb67ca8f984",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:32.380786+00:00",
+        "operation": "reconcile",
+        "phase": "PAUSED",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "physical_reference": "MOCK-INJECTED-COMPETING-WRITER-NO-ACTUAL-OFFLINE-STOCK",
+          "writer_id": "manual_offline"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:report_dual_write:d8a05320-0826-4272-82c0-d97b4a7f14e7",
+        "id": "5f71a994-ffa3-42b1-bec6-df310367640a",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:30.570464+00:00",
+        "operation": "report_dual_write",
+        "phase": "PAUSED",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {},
+        "evidence_reference": "INV062:remote-race:pause:7ac03898-0f12-4567-b63c-fba532df4720",
+        "id": "943d3bc8-260b-4d55-b107-d2543f6c67cf",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:26.670141+00:00",
+        "operation": "pause",
+        "phase": "PAUSED",
+        "reason": "Actual remote MOCK serialization",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": [],
+            "observed_at": "2026-10-04T09:20:06.080781+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": true
+          }
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:activate:51410081-0373-4d77-9177-3c3781c2ddf5",
+        "id": "e5199eaf-6b08-416b-be0b-375d9b966ac4",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:06.083489+00:00",
+        "operation": "activate",
+        "phase": "ACTIVE",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {},
+        "evidence_reference": "INV062:remote-race:pause:eb523632-3d5b-408c-9ebc-5a8c9b0895b3",
+        "id": "d24e740e-d040-4906-ba52-6ed6de0f2f49",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:20:01.081722+00:00",
+        "operation": "pause",
+        "phase": "PAUSED",
+        "reason": "Actual remote MOCK serialization",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": [],
+            "observed_at": "2026-10-04T09:19:37.799788+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": true
+          }
+        },
+        "evidence_reference": "INV062:remote-race:activate:65e3362c-7eb8-4e9b-ae77-252d258bbd36",
+        "id": "80c484f3-4299-4701-a526-77cc3fba0fc7",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:19:37.802507+00:00",
+        "operation": "activate",
+        "phase": "ACTIVE",
+        "reason": "Actual remote MOCK serialization",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": [],
+            "observed_at": "2026-10-04T09:19:37.759461+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": true
+          }
+        },
+        "evidence_reference": "INV062:remote-race:confirm_opening:91f693a2-24b9-4e04-b4ba-1918c600eee3",
+        "id": "9b32d9d4-828a-4e92-a8a8-2ee69c703a3c",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:19:37.762258+00:00",
+        "operation": "confirm_opening",
+        "phase": "OPENING_READY",
+        "reason": "Actual remote MOCK serialization",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "reconciliation": {
+            "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "discrepancies": [],
+            "observed_at": "2026-10-04T09:19:15.489484+00:00",
+            "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+            "opening_complete": true,
+            "opening_rows": 6,
+            "ready": true
+          }
+        },
+        "evidence_reference": "INV062:remote-race:confirm_opening:ffb1d1cc-9047-4ce1-85cd-54db1243fdcc",
+        "id": "8131cfa2-16c9-4e7a-b807-b49cdc2180db",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:19:15.492294+00:00",
+        "operation": "confirm_opening",
+        "phase": "OPENING_READY",
+        "reason": "Actual remote MOCK serialization",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": false,
+          "writer_id": "manual_offline"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:4ceafde4-8d3b-4b7b-84ac-4440f4b5df24",
+        "id": "59f32172-c667-4e93-9e9d-1fedf8c2d26d",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:53.735387+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": false,
+          "writer_id": "privileged_import"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:c14e5184-8df6-4039-98f2-2657efc57322",
+        "id": "bae4e3db-dc34-42cc-a444-725200b9fef6",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:51.713893+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": false,
+          "writer_id": "legacy"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:34daf025-3a94-497f-86f2-f4df9aa427bd",
+        "id": "6b69a317-b73e-4047-8f2e-d93d5f162f66",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:49.934736+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": true,
+          "writer_id": "equipment_fulfillment_command"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:4feade9e-746e-4261-b75d-4cfe0f1fba51",
+        "id": "29d56778-c20f-445d-8082-2ddfe9b78ce3",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:48.093266+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": true,
+          "writer_id": "equipment_preparation_transfer"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:abe533cb-8973-4d6c-9df4-78c97ad3aae2",
+        "id": "05a243e0-b03e-4ebe-bceb-37474b0306a7",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:46.219353+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": true,
+          "writer_id": "equipment_preparation_command"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:afba5ef8-cddc-41d1-b1fd-b30004fad52d",
+        "id": "17a99c62-2918-4272-98ea-7d6ed26e3ef9",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:44.336367+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": true,
+          "writer_id": "equipment_asset_command"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:8cfebf88-5dde-43d0-89f8-fbdd9f0b9bc6",
+        "id": "404e7dfd-2cf0-4fb1-a4a1-05e678ea1f61",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:42.386438+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {
+          "allowed": true,
+          "writer_id": "inventory_command"
+        },
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:f9d9c1b9-c81e-451c-94e4-130071a24554",
+        "id": "302be67b-35a0-4a28-9079-ed3af11de98e",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:40.414493+00:00",
+        "operation": "record_writer",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      },
+      {
+        "actor_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "details": {},
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:register_scope:4943db78-b233-4174-b6fb-faf97587e324",
+        "id": "47903a7e-9afd-47cf-b19b-5d1d980a9c9d",
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "occurred_at": "2026-10-04T09:18:38.434245+00:00",
+        "operation": "register_scope",
+        "phase": "OPENING_READY",
+        "reason": "INV062 actual synthetic pilot verification; no real activation",
+        "related_event_id": null,
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1
+      }
+    ],
+    "scope": {
+      "admin_id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+      "count_cutoff": "2026-10-04T04:25:48.938+00:00",
+      "evidence_reference": "INV062:P1-MOCK-ACC2B31A:reconcile:8cab3f9c-f8d2-4756-86d2-c788edb41b18",
+      "id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+      "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+      "manifest": {
+        "asset": {
+          "asset_code": "EIU-AST-7F86198D",
+          "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+          "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "event_id": "2e120e40-1202-4df8-995d-08843ee154fa",
+          "expiry_precision": "not_required",
+          "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+          "lifecycle_status": "in_service",
+          "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+          "manufacturer": "MedLabs Training Devices — MOCK",
+          "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+          "model": "IP-100 training",
+          "opening_damaged_count": 0,
+          "opening_good_count": 1,
+          "operational_status": "ready",
+          "revision": 2,
+          "row_key": "pump-001",
+          "synthetic": true,
+          "transaction_id": "d1e74459-1ecc-406a-8d11-e7559594fd62"
+        },
+        "asset_opening_result": {
+          "asset_code": "EIU-AST-7F86198D",
+          "event_id": "c88ff97a-a547-470c-aa60-807217cfb96a",
+          "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+          "revision": 1,
+          "transaction_id": "16d4a2ca-1543-43d1-be77-29c5769258a7"
+        },
+        "asset_opening_retry_key": "431c6bd8-cd39-403c-9eed-6c7fe91df288",
+        "balances_read": {
+          "page": 1,
+          "page_size": 100,
+          "rows": [
+            {
+              "available_quantity": "1250.000000",
+              "base_uom_code": "p1-mock-acc2b31a_ml",
+              "base_uom_name": "mL (MOCK)",
+              "condition": "good",
+              "eligible_quantity": "1250.000000",
+              "expired_quantity": "50.000000",
+              "item_code": "P1-MOCK-ACC2B31A-ETOH70",
+              "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+              "item_name": "Dung dịch ethanol 70% dùng thực hành — MOCK",
+              "location_code": "P1-MOCK-ACC2B31A-SKL",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+              "quantity": "1400.000000",
+              "unknown_expiry_quantity": "100.000000"
+            },
+            {
+              "available_quantity": "0",
+              "base_uom_code": "p1-mock-acc2b31a_piece",
+              "base_uom_name": "cái (MOCK)",
+              "condition": "damaged",
+              "eligible_quantity": "0",
+              "expired_quantity": "0",
+              "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+              "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+              "item_name": "Găng nitrile không bột cỡ M — MOCK",
+              "location_code": "P1-MOCK-ACC2B31A-SKL",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+              "quantity": "5.000000",
+              "unknown_expiry_quantity": "0"
+            },
+            {
+              "available_quantity": "100.000000",
+              "base_uom_code": "p1-mock-acc2b31a_piece",
+              "base_uom_name": "cái (MOCK)",
+              "condition": "good",
+              "eligible_quantity": "100.000000",
+              "expired_quantity": "0",
+              "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+              "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+              "item_name": "Găng nitrile không bột cỡ M — MOCK",
+              "location_code": "P1-MOCK-ACC2B31A-SKL",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+              "quantity": "100.000000",
+              "unknown_expiry_quantity": "0"
+            },
+            {
+              "available_quantity": "0",
+              "base_uom_code": "p1-mock-acc2b31a_piece",
+              "base_uom_name": "cái (MOCK)",
+              "condition": "damaged",
+              "eligible_quantity": "0",
+              "expired_quantity": "0",
+              "item_code": "P1-MOCK-ACC2B31A-TRAY",
+              "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+              "item_name": "Khay quả đậu inox 500 mL — MOCK",
+              "location_code": "P1-MOCK-ACC2B31A-SKL",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+              "quantity": "1.000000",
+              "unknown_expiry_quantity": "0"
+            },
+            {
+              "available_quantity": "12.000000",
+              "base_uom_code": "p1-mock-acc2b31a_piece",
+              "base_uom_name": "cái (MOCK)",
+              "condition": "good",
+              "eligible_quantity": "12.000000",
+              "expired_quantity": "0",
+              "item_code": "P1-MOCK-ACC2B31A-TRAY",
+              "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+              "item_name": "Khay quả đậu inox 500 mL — MOCK",
+              "location_code": "P1-MOCK-ACC2B31A-SKL",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+              "quantity": "12.000000",
+              "unknown_expiry_quantity": "0"
+            }
+          ],
+          "total": 5
+        },
+        "count_cutoff": "2026-10-04T04:25:48.938Z",
+        "database_checks": "PASS; failure would rollback entire fixture",
+        "dataset_kind": "mock",
+        "execution": {
+          "fixture_sha256": "92b714a098863f249ced74373e2d1d1b1107af2d7c9be8996951947827c86d99",
+          "interactive_login_verified": false,
+          "kind": "ACTUAL_SYNTHETIC_DATABASE_SMOKE",
+          "observed_at": "2026-10-04T04:30:21.238Z",
+          "target_project_ref": "kwpyukofofoaqhmxndlc",
+          "writer_marker_verified": false
+        },
+        "facts": [
+          {
+            "available_quantity": "1000.000000",
+            "base_quantity": "1000.000000",
+            "cohort_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+            "damaged_quantity": "0.000000",
+            "expiry_date": "2027-12-31",
+            "expiry_precision": "day",
+            "good_quantity": "1000.000000",
+            "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "origin_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+            "row_key": "ethanol-day"
+          },
+          {
+            "available_quantity": "0",
+            "base_quantity": "50.000000",
+            "cohort_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+            "damaged_quantity": "0.000000",
+            "expiry_date": "2026-09-30",
+            "expiry_precision": "day",
+            "good_quantity": "50.000000",
+            "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "origin_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+            "row_key": "ethanol-expired"
+          },
+          {
+            "available_quantity": "250.000000",
+            "base_quantity": "250.000000",
+            "cohort_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+            "damaged_quantity": "0.000000",
+            "expiry_date": "2028-03-31",
+            "expiry_precision": "month",
+            "good_quantity": "250.000000",
+            "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "origin_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+            "row_key": "ethanol-month"
+          },
+          {
+            "available_quantity": "0",
+            "base_quantity": "100.000000",
+            "cohort_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+            "damaged_quantity": "0.000000",
+            "expiry_date": null,
+            "expiry_precision": "unknown",
+            "good_quantity": "100.000000",
+            "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "origin_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+            "row_key": "ethanol-unknown"
+          },
+          {
+            "available_quantity": "100.000000",
+            "base_quantity": "105.000000",
+            "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+            "damaged_quantity": "5.000000",
+            "expiry_date": null,
+            "expiry_precision": "not_required",
+            "good_quantity": "100.000000",
+            "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+            "origin_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+            "row_key": "gloves"
+          },
+          {
+            "available_quantity": "12.000000",
+            "base_quantity": "13.000000",
+            "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+            "damaged_quantity": "1.000000",
+            "expiry_date": null,
+            "expiry_precision": "not_required",
+            "good_quantity": "12.000000",
+            "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+            "origin_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+            "row_key": "trays"
+          }
+        ],
+        "items": [
+          {
+            "code": "P1-MOCK-ACC2B31A-ETOH70",
+            "expiry_required": true,
+            "id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "key": "chemical",
+            "material_kind": "chemical",
+            "name": "Dung dịch ethanol 70% dùng thực hành — MOCK",
+            "return_semantics": "nonreturnable",
+            "tracking_strategy": "quantity",
+            "uom": "p1-mock-acc2b31a_ml",
+            "uom_name": "mL (MOCK)"
+          },
+          {
+            "code": "P1-MOCK-ACC2B31A-GLOVE",
+            "expiry_required": false,
+            "id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+            "key": "consumable",
+            "material_kind": "other",
+            "name": "Găng nitrile không bột cỡ M — MOCK",
+            "return_semantics": "nonreturnable",
+            "tracking_strategy": "quantity",
+            "uom": "p1-mock-acc2b31a_piece",
+            "uom_name": "cái (MOCK)"
+          },
+          {
+            "code": "P1-MOCK-ACC2B31A-TRAY",
+            "expiry_required": false,
+            "id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+            "key": "reusable",
+            "material_kind": "other",
+            "name": "Khay quả đậu inox 500 mL — MOCK",
+            "return_semantics": "returnable",
+            "tracking_strategy": "quantity",
+            "uom": "p1-mock-acc2b31a_piece",
+            "uom_name": "cái (MOCK)"
+          },
+          {
+            "code": "P1-MOCK-ACC2B31A-PUMP",
+            "expiry_required": false,
+            "id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+            "key": "serialized",
+            "material_kind": "other",
+            "name": "Bơm tiêm điện training IP-100 — MOCK",
+            "return_semantics": "returnable",
+            "tracking_strategy": "serialized",
+            "uom": "p1-mock-acc2b31a_piece",
+            "uom_name": "cái (MOCK)"
+          }
+        ],
+        "location": {
+          "code": "P1-MOCK-ACC2B31A-SKL",
+          "id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+          "name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+          "revision": 1,
+          "synthetic": true
+        },
+        "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+        "marker_runtime_enforced": false,
+        "opening": {
+          "provenance_note": "Fabricated training count only; no production source or real physical stock",
+          "reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "rows": [
+            {
+              "base_quantity": "105",
+              "damaged_quantity": "5",
+              "expiry_precision": "not_required",
+              "good_quantity": "100",
+              "item_key": "consumable",
+              "row_key": "gloves"
+            },
+            {
+              "base_quantity": "13",
+              "damaged_quantity": "1",
+              "expiry_precision": "not_required",
+              "good_quantity": "12",
+              "item_key": "reusable",
+              "row_key": "trays"
+            },
+            {
+              "base_quantity": "1000",
+              "damaged_quantity": "0",
+              "expiry_input": "2027-12-31",
+              "expiry_precision": "day",
+              "good_quantity": "1000",
+              "item_key": "chemical",
+              "row_key": "ethanol-day"
+            },
+            {
+              "base_quantity": "250",
+              "damaged_quantity": "0",
+              "expiry_input": "2028-03",
+              "expiry_precision": "month",
+              "good_quantity": "250",
+              "item_key": "chemical",
+              "row_key": "ethanol-month"
+            },
+            {
+              "base_quantity": "100",
+              "damaged_quantity": "0",
+              "expiry_precision": "unknown",
+              "good_quantity": "100",
+              "item_key": "chemical",
+              "row_key": "ethanol-unknown"
+            },
+            {
+              "base_quantity": "50",
+              "damaged_quantity": "0",
+              "expiry_input": "2026-09-30",
+              "expiry_precision": "day",
+              "good_quantity": "50",
+              "item_key": "chemical",
+              "row_key": "ethanol-expired"
+            }
+          ],
+          "scope_description": "SYNTHETIC MOCK P1 rehearsal; not operational stock",
+          "synthetic": true
+        },
+        "opening_payload": {
+          "count_cutoff": "2026-10-04T04:25:48.938Z",
+          "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+          "lines": [
+            {
+              "base_quantity": "1000",
+              "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+              "damaged_quantity": "0",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_input": "2027-12-31",
+              "expiry_precision": "day",
+              "good_quantity": "1000",
+              "item_key": "chemical",
+              "line_key": "ethanol-day",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "ethanol-day",
+              "row_key": "ethanol-day"
+            },
+            {
+              "base_quantity": "50",
+              "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+              "damaged_quantity": "0",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_input": "2026-09-30",
+              "expiry_precision": "day",
+              "good_quantity": "50",
+              "item_key": "chemical",
+              "line_key": "ethanol-expired",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "ethanol-expired",
+              "row_key": "ethanol-expired"
+            },
+            {
+              "base_quantity": "250",
+              "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+              "damaged_quantity": "0",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_input": "2028-03",
+              "expiry_precision": "month",
+              "good_quantity": "250",
+              "item_key": "chemical",
+              "line_key": "ethanol-month",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "ethanol-month",
+              "row_key": "ethanol-month"
+            },
+            {
+              "base_quantity": "100",
+              "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+              "damaged_quantity": "0",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_precision": "unknown",
+              "good_quantity": "100",
+              "item_key": "chemical",
+              "line_key": "ethanol-unknown",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "ethanol-unknown",
+              "row_key": "ethanol-unknown"
+            },
+            {
+              "base_quantity": "105",
+              "catalog_item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+              "damaged_quantity": "5",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_precision": "not_required",
+              "good_quantity": "100",
+              "item_key": "consumable",
+              "line_key": "gloves",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "gloves",
+              "row_key": "gloves"
+            },
+            {
+              "base_quantity": "13",
+              "catalog_item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+              "damaged_quantity": "1",
+              "evidence_note": "MOCK count row; synthetic stock only",
+              "expiry_precision": "not_required",
+              "good_quantity": "12",
+              "item_key": "reusable",
+              "line_key": "trays",
+              "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+              "provenance_group": "trays",
+              "row_key": "trays"
+            }
+          ],
+          "provenance_note": "Fabricated training count only; no production source or real physical stock",
+          "scope_description": "SYNTHETIC MOCK P1 rehearsal; not operational stock",
+          "synthetic": true
+        },
+        "opening_result": {
+          "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+          "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+        },
+        "opening_retry_key": "97df21fa-50f4-4011-8b2e-2aefc75ed409",
+        "real_activation": false,
+        "schema_version": 1,
+        "scope_code": "P1-MOCK-ACC2B31A",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "scope_version": 1,
+        "synthetic": true,
+        "target_project_ref": "kwpyukofofoaqhmxndlc",
+        "users": [
+          {
+            "email": "p1-mock-acc2b31a-0@example.invalid",
+            "full_name": "Nguyễn Minh An — MOCK Admin",
+            "id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+            "interactive_login": false,
+            "is_active": true,
+            "role": "admin",
+            "synthetic": true
+          },
+          {
+            "email": "p1-mock-acc2b31a-1@example.invalid",
+            "full_name": "Trần Thu Hà — MOCK Staff 1",
+            "id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+            "interactive_login": false,
+            "is_active": true,
+            "role": "staff",
+            "synthetic": true
+          },
+          {
+            "email": "p1-mock-acc2b31a-2@example.invalid",
+            "full_name": "Lê Quang Huy — MOCK Staff 2",
+            "id": "da210218-38de-462f-82c6-b68c3b8e9444",
+            "interactive_login": false,
+            "is_active": true,
+            "role": "staff",
+            "synthetic": true
+          }
+        ],
+        "workflow": {
+          "admission": "new requests only",
+          "domain": "nursing_skills",
+          "legacy_obligations": [],
+          "requests": []
+        },
+        "writer_register": [
+          {
+            "model_status": "allowed only per phase and frozen mock scope",
+            "writer": "pilot RPC"
+          },
+          {
+            "model_status": "excluded in simulation; no real writer read/freeze/change",
+            "writer": "legacy/current MedLabs"
+          },
+          {
+            "model_status": "excluded in simulation; no real exclusion proof",
+            "writer": "import/privileged/manual"
+          }
+        ]
+      },
+      "manifest_hash": "b56df25987b14a56f6a036df43faa36e2c2fd8336c7258d634dd5d35101f3e50",
+      "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+      "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+      "opening_confirmed": true,
+      "opening_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+      "phase": "PAUSED",
+      "project_ref": "kwpyukofofoaqhmxndlc",
+      "reconciliation": {
+        "asset_id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+        "discrepancies": [],
+        "observed_at": "2026-10-04T09:20:36.680525+00:00",
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "opening_complete": true,
+        "opening_rows": 6,
+        "ready": true
+      },
+      "registered_at": "2026-10-04T09:18:38.40602+00:00",
+      "registered_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+      "scope_version": 1,
+      "staff_ids": [
+        "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+        "da210218-38de-462f-82c6-b68c3b8e9444"
+      ],
+      "synthetic": true,
+      "updated_at": "2026-10-04T09:20:36.680781+00:00",
+      "updated_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7"
+    },
+    "unresolved_events": [],
+    "writers": [
+      {
+        "allowed": true,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:8cfebf88-5dde-43d0-89f8-fbdd9f0b9bc6",
+        "recorded_at": "2026-10-04T09:18:42.383331+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "equipment_asset_command"
+      },
+      {
+        "allowed": true,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:4feade9e-746e-4261-b75d-4cfe0f1fba51",
+        "recorded_at": "2026-10-04T09:18:48.090311+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "equipment_fulfillment_command"
+      },
+      {
+        "allowed": true,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:afba5ef8-cddc-41d1-b1fd-b30004fad52d",
+        "recorded_at": "2026-10-04T09:18:44.33344+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "equipment_preparation_command"
+      },
+      {
+        "allowed": true,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:abe533cb-8973-4d6c-9df4-78c97ad3aae2",
+        "recorded_at": "2026-10-04T09:18:46.216474+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "equipment_preparation_transfer"
+      },
+      {
+        "allowed": true,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:f9d9c1b9-c81e-451c-94e4-130071a24554",
+        "recorded_at": "2026-10-04T09:18:40.41172+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "inventory_command"
+      },
+      {
+        "allowed": false,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:34daf025-3a94-497f-86f2-f4df9aa427bd",
+        "recorded_at": "2026-10-04T09:18:49.931631+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "legacy"
+      },
+      {
+        "allowed": false,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:4ceafde4-8d3b-4b7b-84ac-4440f4b5df24",
+        "recorded_at": "2026-10-04T09:18:53.732039+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "manual_offline"
+      },
+      {
+        "allowed": false,
+        "evidence_reference": "INV062:P1-MOCK-ACC2B31A:record_writer:c14e5184-8df6-4039-98f2-2657efc57322",
+        "recorded_at": "2026-10-04T09:18:51.710747+00:00",
+        "recorded_by": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+        "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+        "writer_id": "privileged_import"
+      }
+    ]
+  },
+  "interactive_login_verified": false,
+  "real_activation": false
+}

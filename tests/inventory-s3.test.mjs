@@ -807,7 +807,7 @@ test("S3 Inventory: Idempotent replay, payload mismatch, & business duplicate in
     },
   );
   assert.ok(nullOpErr, "NULL operation must be rejected");
-  assert.match(nullOpErr.message, /INVALID_OPERATION/);
+  assert.equal(nullOpErr.code, "22023");
 
   // 6. Security: Same retry UUID used by another actor is valid (isolated replay scope)
   const { data: crossActorRes, error: crossActorErr } = await admin.client.rpc(

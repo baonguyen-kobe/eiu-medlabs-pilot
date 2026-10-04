@@ -1,0 +1,471 @@
+{
+  "asset": {
+    "asset_code": "EIU-AST-7F86198D",
+    "event_id": "2e120e40-1202-4df8-995d-08843ee154fa",
+    "expiry_precision": "not_required",
+    "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+    "manufacturer": "MedLabs Training Devices — MOCK",
+    "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+    "model": "IP-100 training",
+    "operational_status": "ready",
+    "revision": 2,
+    "row_key": "pump-001",
+    "synthetic": true,
+    "transaction_id": "d1e74459-1ecc-406a-8d11-e7559594fd62",
+    "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+    "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+    "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+    "lifecycle_status": "in_service",
+    "opening_good_count": 1,
+    "opening_damaged_count": 0
+  },
+  "asset_opening_result": {
+    "asset_code": "EIU-AST-7F86198D",
+    "event_id": "c88ff97a-a547-470c-aa60-807217cfb96a",
+    "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+    "revision": 1,
+    "transaction_id": "16d4a2ca-1543-43d1-be77-29c5769258a7"
+  },
+  "balances_read": {
+    "page": 1,
+    "page_size": 100,
+    "rows": [
+      {
+        "available_quantity": "1250.000000",
+        "base_uom_code": "p1-mock-acc2b31a_ml",
+        "base_uom_name": "mL (MOCK)",
+        "condition": "good",
+        "eligible_quantity": "1250.000000",
+        "expired_quantity": "50.000000",
+        "item_code": "P1-MOCK-ACC2B31A-ETOH70",
+        "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "item_name": "Dung dịch ethanol 70% dùng thực hành — MOCK",
+        "location_code": "P1-MOCK-ACC2B31A-SKL",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+        "quantity": "1400.000000",
+        "unknown_expiry_quantity": "100.000000"
+      },
+      {
+        "available_quantity": "0",
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "base_uom_name": "cái (MOCK)",
+        "condition": "damaged",
+        "eligible_quantity": "0",
+        "expired_quantity": "0",
+        "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+        "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "item_name": "Găng nitrile không bột cỡ M — MOCK",
+        "location_code": "P1-MOCK-ACC2B31A-SKL",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+        "quantity": "5.000000",
+        "unknown_expiry_quantity": "0"
+      },
+      {
+        "available_quantity": "100.000000",
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "base_uom_name": "cái (MOCK)",
+        "condition": "good",
+        "eligible_quantity": "100.000000",
+        "expired_quantity": "0",
+        "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+        "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "item_name": "Găng nitrile không bột cỡ M — MOCK",
+        "location_code": "P1-MOCK-ACC2B31A-SKL",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+        "quantity": "100.000000",
+        "unknown_expiry_quantity": "0"
+      },
+      {
+        "available_quantity": "0",
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "base_uom_name": "cái (MOCK)",
+        "condition": "damaged",
+        "eligible_quantity": "0",
+        "expired_quantity": "0",
+        "item_code": "P1-MOCK-ACC2B31A-TRAY",
+        "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "item_name": "Khay quả đậu inox 500 mL — MOCK",
+        "location_code": "P1-MOCK-ACC2B31A-SKL",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+        "quantity": "1.000000",
+        "unknown_expiry_quantity": "0"
+      },
+      {
+        "available_quantity": "12.000000",
+        "base_uom_code": "p1-mock-acc2b31a_piece",
+        "base_uom_name": "cái (MOCK)",
+        "condition": "good",
+        "eligible_quantity": "12.000000",
+        "expired_quantity": "0",
+        "item_code": "P1-MOCK-ACC2B31A-TRAY",
+        "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "item_name": "Khay quả đậu inox 500 mL — MOCK",
+        "location_code": "P1-MOCK-ACC2B31A-SKL",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+        "quantity": "12.000000",
+        "unknown_expiry_quantity": "0"
+      }
+    ],
+    "total": 5
+  },
+  "count_cutoff": "2026-10-04T04:25:48.938Z",
+  "database_checks": "PASS; failure would rollback entire fixture",
+  "dataset_kind": "mock",
+  "facts": [
+    {
+      "available_quantity": "1000.000000",
+      "base_quantity": "1000.000000",
+      "cohort_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+      "damaged_quantity": "0.000000",
+      "expiry_date": "2027-12-31",
+      "expiry_precision": "day",
+      "good_quantity": "1000.000000",
+      "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+      "origin_id": "f5d90e66-8e23-465a-822f-cab13f797f0d",
+      "row_key": "ethanol-day"
+    },
+    {
+      "available_quantity": "0",
+      "base_quantity": "50.000000",
+      "cohort_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+      "damaged_quantity": "0.000000",
+      "expiry_date": "2026-09-30",
+      "expiry_precision": "day",
+      "good_quantity": "50.000000",
+      "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+      "origin_id": "03149c32-c8fc-4f18-90b6-216713f86111",
+      "row_key": "ethanol-expired"
+    },
+    {
+      "available_quantity": "250.000000",
+      "base_quantity": "250.000000",
+      "cohort_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+      "damaged_quantity": "0.000000",
+      "expiry_date": "2028-03-31",
+      "expiry_precision": "month",
+      "good_quantity": "250.000000",
+      "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+      "origin_id": "68fb54f6-1de9-4c19-96e5-7f4b069a5c8b",
+      "row_key": "ethanol-month"
+    },
+    {
+      "available_quantity": "0",
+      "base_quantity": "100.000000",
+      "cohort_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+      "damaged_quantity": "0.000000",
+      "expiry_date": null,
+      "expiry_precision": "unknown",
+      "good_quantity": "100.000000",
+      "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+      "origin_id": "478362e4-9532-4ab1-acec-c48fc2dae184",
+      "row_key": "ethanol-unknown"
+    },
+    {
+      "available_quantity": "100.000000",
+      "base_quantity": "105.000000",
+      "cohort_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+      "damaged_quantity": "5.000000",
+      "expiry_date": null,
+      "expiry_precision": "not_required",
+      "good_quantity": "100.000000",
+      "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+      "origin_id": "9e02a6e6-2ed8-492a-98c6-583e63aa7be6",
+      "row_key": "gloves"
+    },
+    {
+      "available_quantity": "12.000000",
+      "base_quantity": "13.000000",
+      "cohort_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+      "damaged_quantity": "1.000000",
+      "expiry_date": null,
+      "expiry_precision": "not_required",
+      "good_quantity": "12.000000",
+      "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+      "origin_id": "c4fc5ea9-e9d4-49cc-b6a8-987e2e2d171e",
+      "row_key": "trays"
+    }
+  ],
+  "items": [
+    {
+      "code": "P1-MOCK-ACC2B31A-ETOH70",
+      "expiry_required": true,
+      "id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+      "key": "chemical",
+      "material_kind": "chemical",
+      "name": "Dung dịch ethanol 70% dùng thực hành — MOCK",
+      "return_semantics": "nonreturnable",
+      "tracking_strategy": "quantity",
+      "uom": "p1-mock-acc2b31a_ml",
+      "uom_name": "mL (MOCK)"
+    },
+    {
+      "code": "P1-MOCK-ACC2B31A-GLOVE",
+      "expiry_required": false,
+      "id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+      "key": "consumable",
+      "material_kind": "other",
+      "name": "Găng nitrile không bột cỡ M — MOCK",
+      "return_semantics": "nonreturnable",
+      "tracking_strategy": "quantity",
+      "uom": "p1-mock-acc2b31a_piece",
+      "uom_name": "cái (MOCK)"
+    },
+    {
+      "code": "P1-MOCK-ACC2B31A-TRAY",
+      "expiry_required": false,
+      "id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+      "key": "reusable",
+      "material_kind": "other",
+      "name": "Khay quả đậu inox 500 mL — MOCK",
+      "return_semantics": "returnable",
+      "tracking_strategy": "quantity",
+      "uom": "p1-mock-acc2b31a_piece",
+      "uom_name": "cái (MOCK)"
+    },
+    {
+      "code": "P1-MOCK-ACC2B31A-PUMP",
+      "expiry_required": false,
+      "id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+      "key": "serialized",
+      "material_kind": "other",
+      "name": "Bơm tiêm điện training IP-100 — MOCK",
+      "return_semantics": "returnable",
+      "tracking_strategy": "serialized",
+      "uom": "p1-mock-acc2b31a_piece",
+      "uom_name": "cái (MOCK)"
+    }
+  ],
+  "location": {
+    "code": "P1-MOCK-ACC2B31A-SKL",
+    "id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+    "name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+    "revision": 1,
+    "synthetic": true
+  },
+  "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+  "opening": {
+    "provenance_note": "Fabricated training count only; no production source or real physical stock",
+    "reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+    "rows": [
+      {
+        "base_quantity": "105",
+        "damaged_quantity": "5",
+        "expiry_precision": "not_required",
+        "good_quantity": "100",
+        "item_key": "consumable",
+        "row_key": "gloves"
+      },
+      {
+        "base_quantity": "13",
+        "damaged_quantity": "1",
+        "expiry_precision": "not_required",
+        "good_quantity": "12",
+        "item_key": "reusable",
+        "row_key": "trays"
+      },
+      {
+        "base_quantity": "1000",
+        "damaged_quantity": "0",
+        "expiry_input": "2027-12-31",
+        "expiry_precision": "day",
+        "good_quantity": "1000",
+        "item_key": "chemical",
+        "row_key": "ethanol-day"
+      },
+      {
+        "base_quantity": "250",
+        "damaged_quantity": "0",
+        "expiry_input": "2028-03",
+        "expiry_precision": "month",
+        "good_quantity": "250",
+        "item_key": "chemical",
+        "row_key": "ethanol-month"
+      },
+      {
+        "base_quantity": "100",
+        "damaged_quantity": "0",
+        "expiry_precision": "unknown",
+        "good_quantity": "100",
+        "item_key": "chemical",
+        "row_key": "ethanol-unknown"
+      },
+      {
+        "base_quantity": "50",
+        "damaged_quantity": "0",
+        "expiry_input": "2026-09-30",
+        "expiry_precision": "day",
+        "good_quantity": "50",
+        "item_key": "chemical",
+        "row_key": "ethanol-expired"
+      }
+    ],
+    "scope_description": "SYNTHETIC MOCK P1 rehearsal; not operational stock",
+    "synthetic": true
+  },
+  "opening_payload": {
+    "count_cutoff": "2026-10-04T04:25:48.938Z",
+    "cutover_key": "P1-MOCK-ACC2B31A-OPEN-V1",
+    "lines": [
+      {
+        "base_quantity": "1000",
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "damaged_quantity": "0",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_input": "2027-12-31",
+        "expiry_precision": "day",
+        "good_quantity": "1000",
+        "item_key": "chemical",
+        "line_key": "ethanol-day",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "ethanol-day",
+        "row_key": "ethanol-day"
+      },
+      {
+        "base_quantity": "50",
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "damaged_quantity": "0",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_input": "2026-09-30",
+        "expiry_precision": "day",
+        "good_quantity": "50",
+        "item_key": "chemical",
+        "line_key": "ethanol-expired",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "ethanol-expired",
+        "row_key": "ethanol-expired"
+      },
+      {
+        "base_quantity": "250",
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "damaged_quantity": "0",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_input": "2028-03",
+        "expiry_precision": "month",
+        "good_quantity": "250",
+        "item_key": "chemical",
+        "line_key": "ethanol-month",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "ethanol-month",
+        "row_key": "ethanol-month"
+      },
+      {
+        "base_quantity": "100",
+        "catalog_item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+        "damaged_quantity": "0",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_precision": "unknown",
+        "good_quantity": "100",
+        "item_key": "chemical",
+        "line_key": "ethanol-unknown",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "ethanol-unknown",
+        "row_key": "ethanol-unknown"
+      },
+      {
+        "base_quantity": "105",
+        "catalog_item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+        "damaged_quantity": "5",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_precision": "not_required",
+        "good_quantity": "100",
+        "item_key": "consumable",
+        "line_key": "gloves",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "gloves",
+        "row_key": "gloves"
+      },
+      {
+        "base_quantity": "13",
+        "catalog_item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+        "damaged_quantity": "1",
+        "evidence_note": "MOCK count row; synthetic stock only",
+        "expiry_precision": "not_required",
+        "good_quantity": "12",
+        "item_key": "reusable",
+        "line_key": "trays",
+        "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+        "provenance_group": "trays",
+        "row_key": "trays"
+      }
+    ],
+    "provenance_note": "Fabricated training count only; no production source or real physical stock",
+    "scope_description": "SYNTHETIC MOCK P1 rehearsal; not operational stock",
+    "synthetic": true
+  },
+  "opening_result": {
+    "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+    "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+  },
+  "real_activation": false,
+  "schema_version": 1,
+  "scope_code": "P1-MOCK-ACC2B31A",
+  "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+  "scope_version": 1,
+  "synthetic": true,
+  "target_project_ref": "kwpyukofofoaqhmxndlc",
+  "users": [
+    {
+      "email": "p1-mock-acc2b31a-0@example.invalid",
+      "full_name": "Nguyễn Minh An — MOCK Admin",
+      "id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+      "interactive_login": false,
+      "is_active": true,
+      "role": "admin",
+      "synthetic": true
+    },
+    {
+      "email": "p1-mock-acc2b31a-1@example.invalid",
+      "full_name": "Trần Thu Hà — MOCK Staff 1",
+      "id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+      "interactive_login": false,
+      "is_active": true,
+      "role": "staff",
+      "synthetic": true
+    },
+    {
+      "email": "p1-mock-acc2b31a-2@example.invalid",
+      "full_name": "Lê Quang Huy — MOCK Staff 2",
+      "id": "da210218-38de-462f-82c6-b68c3b8e9444",
+      "interactive_login": false,
+      "is_active": true,
+      "role": "staff",
+      "synthetic": true
+    }
+  ],
+  "workflow": {
+    "admission": "new requests only",
+    "domain": "nursing_skills",
+    "legacy_obligations": [],
+    "requests": []
+  },
+  "writer_register": [
+    {
+      "model_status": "allowed only per phase and frozen mock scope",
+      "writer": "pilot RPC"
+    },
+    {
+      "model_status": "excluded in simulation; no real writer read/freeze/change",
+      "writer": "legacy/current MedLabs"
+    },
+    {
+      "model_status": "excluded in simulation; no real exclusion proof",
+      "writer": "import/privileged/manual"
+    }
+  ],
+  "opening_retry_key": "97df21fa-50f4-4011-8b2e-2aefc75ed409",
+  "asset_opening_retry_key": "431c6bd8-cd39-403c-9eed-6c7fe91df288",
+  "marker_runtime_enforced": false,
+  "execution": {
+    "observed_at": "2026-10-04T04:30:21.238Z",
+    "target_project_ref": "kwpyukofofoaqhmxndlc",
+    "fixture_sha256": "92b714a098863f249ced74373e2d1d1b1107af2d7c9be8996951947827c86d99",
+    "kind": "ACTUAL_SYNTHETIC_DATABASE_SMOKE",
+    "interactive_login_verified": false,
+    "writer_marker_verified": false
+  }
+}

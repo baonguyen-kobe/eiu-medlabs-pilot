@@ -1,12 +1,12 @@
 # EIU MedLabs Pilot — Inventory Master Roadmap
 
-Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED (INV-059).** Current authorization: pilot status/docs delivery and P1 readiness/delta review only. No real-stock execution, rotation, deployment or production authorization.
+Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED (INV-059); INV-062 MOCK P1 IMPLEMENTED / RUNTIME VERIFIED.** Actual pilot marker ends PAUSED with original synthetic facts unchanged. Local 55/55 Inventory tests, nine Inventory pgTAP suites and remote RPC/rollback/four races passed; broader baseline suites are not green. [Runtime evidence and limits](P1_MOCK_READINESS.md). Real operational stock, production activation, credential rotation, and upstream push remain NOT AUTHORIZED.
 
 ## Authority and verdict
 
 The August roadmap at bootstrap `e802421` is superseded as a live plan. Its useful domain boundaries remain; blanket unresolved delivery, forced single-source and old phase order do not. Historical content remains in Git and the unchanged dated source-of-truth snapshot.
 
-Inventory architecture authority remains `D:/orca/medlabs-OPs`. The canonical [master plan](../../../medlabs-OPs/roadmap/MASTER_ROADMAP.md) and [current state](../../../medlabs-OPs/CURRENT_STATE.md) govern active status; [pilot reconciliation](INVENTORY_PILOT_RECONCILIATION.md) preserves policy/history. [S5 acceptance](INVENTORY_S5_ACCEPTANCE.md) records accepted `bdba8d6` and three pilot migrations. Next is [P1 readiness/delta review](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md), not P1 execution. This entry does not copy the control plane.
+Inventory architecture authority remains `D:/orca/medlabs-OPs`. The canonical [master plan](../../../medlabs-OPs/roadmap/MASTER_ROADMAP.md) and [current state](../../../medlabs-OPs/CURRENT_STATE.md) govern active status; [pilot reconciliation](INVENTORY_PILOT_RECONCILIATION.md) preserves policy/history. [S5 acceptance](INVENTORY_S5_ACCEPTANCE.md) records accepted `bdba8d6`. [P1 Activation Plan](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md) and INV-062 govern the exact [immutable synthetic manifest](P1_MOCK_MANIFEST.json); [actual marker evidence](P1_MOCK_RUNTIME_EVIDENCE.json) verifies the bounded mock implementation, never real P1 authorization. This entry does not copy the control plane.
 
 ## Current implementation target
 

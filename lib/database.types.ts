@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.18"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -2728,6 +2723,344 @@ export type Database = {
           },
         ]
       }
+      inventory_pilot_asset_bindings: {
+        Row: {
+          asset_code: string | null
+          asset_id: string | null
+          bound_at: string | null
+          bound_by: string | null
+          catalog_item_id: string
+          intake_reference: string
+          location_id: string
+          manufacturer: string
+          manufacturer_serial: string
+          model: string
+          opening_event_id: string | null
+          row_key: string
+          scope_id: string
+        }
+        Insert: {
+          asset_code?: string | null
+          asset_id?: string | null
+          bound_at?: string | null
+          bound_by?: string | null
+          catalog_item_id: string
+          intake_reference: string
+          location_id: string
+          manufacturer: string
+          manufacturer_serial: string
+          model: string
+          opening_event_id?: string | null
+          row_key: string
+          scope_id: string
+        }
+        Update: {
+          asset_code?: string | null
+          asset_id?: string | null
+          bound_at?: string | null
+          bound_by?: string | null
+          catalog_item_id?: string
+          intake_reference?: string
+          location_id?: string
+          manufacturer?: string
+          manufacturer_serial?: string
+          model?: string
+          opening_event_id?: string | null
+          row_key?: string
+          scope_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "equipment_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_bound_by_fkey"
+            columns: ["bound_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_opening_event_id_fkey"
+            columns: ["opening_event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_asset_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_asset_bindings_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_pilot_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_pilot_events: {
+        Row: {
+          actor_id: string
+          details: Json
+          evidence_reference: string
+          id: string
+          manifest_id: string
+          occurred_at: string
+          operation: string
+          phase: string
+          reason: string
+          related_event_id: string | null
+          scope_id: string
+          scope_version: number
+        }
+        Insert: {
+          actor_id: string
+          details?: Json
+          evidence_reference: string
+          id?: string
+          manifest_id: string
+          occurred_at?: string
+          operation: string
+          phase: string
+          reason: string
+          related_event_id?: string | null
+          scope_id: string
+          scope_version: number
+        }
+        Update: {
+          actor_id?: string
+          details?: Json
+          evidence_reference?: string
+          id?: string
+          manifest_id?: string
+          occurred_at?: string
+          operation?: string
+          phase?: string
+          reason?: string
+          related_event_id?: string | null
+          scope_id?: string
+          scope_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_pilot_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_events_related_event_id_fkey"
+            columns: ["related_event_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_pilot_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_events_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_pilot_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_pilot_scope_items: {
+        Row: {
+          catalog_item_id: string
+          scope_id: string
+        }
+        Insert: {
+          catalog_item_id: string
+          scope_id: string
+        }
+        Update: {
+          catalog_item_id?: string
+          scope_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_pilot_scope_items_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_scope_items_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_pilot_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_pilot_scopes: {
+        Row: {
+          admin_id: string
+          count_cutoff: string
+          evidence_reference: string
+          id: string
+          location_id: string
+          manifest: Json
+          manifest_hash: string
+          manifest_id: string
+          opening_batch_id: string | null
+          opening_confirmed: boolean
+          opening_reference: string
+          phase: string
+          project_ref: string
+          reconciliation: Json | null
+          registered_at: string
+          registered_by: string
+          scope_version: number
+          staff_ids: string[]
+          synthetic: boolean
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          admin_id: string
+          count_cutoff: string
+          evidence_reference: string
+          id: string
+          location_id: string
+          manifest: Json
+          manifest_hash: string
+          manifest_id: string
+          opening_batch_id?: string | null
+          opening_confirmed?: boolean
+          opening_reference: string
+          phase?: string
+          project_ref: string
+          reconciliation?: Json | null
+          registered_at?: string
+          registered_by: string
+          scope_version: number
+          staff_ids: string[]
+          synthetic?: boolean
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          admin_id?: string
+          count_cutoff?: string
+          evidence_reference?: string
+          id?: string
+          location_id?: string
+          manifest?: Json
+          manifest_hash?: string
+          manifest_id?: string
+          opening_batch_id?: string | null
+          opening_confirmed?: boolean
+          opening_reference?: string
+          phase?: string
+          project_ref?: string
+          reconciliation?: Json | null
+          registered_at?: string
+          registered_by?: string
+          scope_version?: number
+          staff_ids?: string[]
+          synthetic?: boolean
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_pilot_scopes_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_scopes_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_scopes_opening_batch_id_fkey"
+            columns: ["opening_batch_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_opening_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_scopes_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_scopes_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_pilot_writers: {
+        Row: {
+          allowed: boolean
+          evidence_reference: string | null
+          recorded_at: string | null
+          recorded_by: string | null
+          scope_id: string
+          writer_id: string
+        }
+        Insert: {
+          allowed: boolean
+          evidence_reference?: string | null
+          recorded_at?: string | null
+          recorded_by?: string | null
+          scope_id: string
+          writer_id: string
+        }
+        Update: {
+          allowed?: boolean
+          evidence_reference?: string | null
+          recorded_at?: string | null
+          recorded_by?: string | null
+          scope_id?: string
+          writer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_pilot_writers_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_pilot_writers_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_pilot_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_receipt_cohorts: {
         Row: {
           created_at: string
@@ -4765,6 +5098,11 @@ export type Database = {
         Args: { p_operation: string; p_payload: Json; p_retry_key: string }
         Returns: Json
       }
+      inventory_pilot_command: {
+        Args: { p_operation: string; p_payload: Json; p_retry_key: string }
+        Returns: Json
+      }
+      inventory_pilot_read: { Args: { p_scope_id: string }; Returns: Json }
       inventory_read: {
         Args: { p_filters?: Json; p_resource: string }
         Returns: Json
@@ -5714,12 +6052,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5743,11 +6081,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5768,11 +6106,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5793,11 +6131,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5810,11 +6148,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

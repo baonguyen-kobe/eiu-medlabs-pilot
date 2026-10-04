@@ -1,0 +1,22 @@
+# Mock P1 markers and transactional physical gates
+
+Status: **APPROVED / IMPLEMENTED / RUNTIME VERIFIED** — Owner INV-062, 2026-10-04. Canonical authority remains `D:/orca/medlabs-OPs`; accepted baseline `P1-MOCK-ACC2B31A` and its exact manifest. S1–S5 remain CLOSED. Actual local/remote evidence and limitations: [mock runtime checkpoint](../../../docs/architecture/P1_MOCK_READINESS.md). Remote marker ends PAUSED; real P1 remains unauthorized. This is a scoped implementation supplement, not a new Inventory master plan.
+
+## Outcome / non-goals
+
+Actual durable OPENING_READY → reconciled mock ACTIVE → PAUSED; named Admin/two Staff; immutable scope/manifest/version and traceable quantity/asset opening; durable writer evidence and discrepancy history. Enforce existing physical mutation paths transactionally, including direct privileged DML under the installed schema. Keep ordinary out-of-scope behavior unchanged. No new UI, role, request aggregate, ledger, monitoring service, real-stock path, credential rotation, real writer freeze, real P1, production or deploy. User permits isolated-pilot migrations and task-owned pilot commit/push; OPS local-only.
+
+## Boundary
+
+- Store mock-only scope, normalized item/location membership, expected serialized intake identity and generated-ID binding, writer register and append-only events. Validate the manifest against live catalog/UOM/participants, not client authorization claims or user metadata.
+- Only authenticated active named participants; registration/confirmation/activation/writer evidence/issue resolution require the named Admin. Staff may read/reconcile/pause/report competing-writer evidence. Read/audit/reconciliation survive PAUSED.
+- Freeze supplied manifest/version; reject explicit wrong project/scope/version/manifest. Project ref fixed to `kwpyukofofoaqhmxndlc`, synthetic=true required. Installation/delivery additionally pins repository/local/remote identity; never accept current MedLabs as target.
+- Wrap existing public quantity/asset/preparation/fulfillment command implementations as revoked private cores. Preserve signatures and business payload/retry hashes by stripping only optional `pilot` transport metadata. Use private per-transaction writer context, not client-forgeable GUCs; restore nested contexts and remove them before RPC return.
+- Row guards classify every physical dimension by scoped item OR scoped location, validating both old/new endpoints, exact asset and request domain/admission cutoff. Mixed-scope batches fail atomically. Without client metadata, the DB binds current frozen marker/version under the existing shared writer lock; explicit stale/mismatched metadata fails. Pure non-mutating replay is not a new physical write.
+- Existing synthetic opening is confirmed/adopted by original reference/rows/facts/ledger/asset event identity; never post it again under a new key. New serialized opening freezes reference/row/maker/model/serial and binds the generated UUID/code atomically. No quantity double count.
+- ACTIVE requires complete current reconciliation, confirmed opening/binding, required writer exclusion evidence and no unresolved discrepancy. Activation rechecks under the same writer lock; it cannot race an opening or physical post. Competing-writer reports persist an event/discrepancy and PAUSED. Exception rollback cannot persist its own pause; report the denied attempt separately. No automatic legacy reactivation.
+- Owner/superuser disabling triggers/changing schema remains outside the enforceable DB gate; ordinary service-role/direct writes must not silently bypass it.
+
+## Verification / migration / rollback
+
+Actual RPC smoke on local synthetic counterparts and the exact remote baseline; wrong actor/target/scope/version, missing exclusions, partial opening/unbound identity/discrepancy, physical writers across phases, direct/service-role and private-core denials, mixed endpoints, transactional rollback, out-of-scope control. Permanent regressions for real behavioral edges; multi-session opening/activation and pause/write races. Independent read-only security/data-integrity review. Repository declarative source → forward migration → local migration/DB tests → pinned pilot migration → bounded remote mock smoke. Generated database types and targeted quality checks follow actual blast radius. No reset/deletion of historical fixtures. Failure keeps scope non-ACTIVE/PAUSED; repair source via forward migration, never restore another writer automatically. Stop when mock implementation and authorized delivery finish.

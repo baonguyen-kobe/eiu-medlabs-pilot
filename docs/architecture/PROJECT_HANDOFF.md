@@ -1,6 +1,6 @@
 # EIU MedLabs Inventory — Pilot Handoff
 
-Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED.** Owner INV-059 accepts S5 `bdba8d6` and its three isolated-pilot migrations. Current authority is pilot status/docs delivery and P1 readiness/delta review only; no real operational stock or production.
+Updated 2026-10-04. **G0 DONE; S1–S5 ACCEPTED / CLOSED.** INV-059 accepts S5 `bdba8d6`; INV-061 approved mock preparation; INV-062 authorizes the actual synthetic marker delta. [Mock runtime checkpoint](P1_MOCK_READINESS.md): implemented and verified on the isolated pilot, final **PAUSED**, not real operational P1 or production.
 
 ## Read order
 
@@ -30,6 +30,6 @@ INV-041–046 close return/expiry/late-intake/strategy/single-writer/security po
 
 ## Current action and gates
 
-Stop S5. Prepare [P1 readiness/delta review](../../../medlabs-OPs/plans/P1_READINESS_REVIEW.md) only: credential rotation, exact Skills Lab scope, single-writer boundary, Admin opening, operational marker, rollback/fix-forward and real-data acceptance checklist. Missing runtime/remote readiness evidence is explicit, not silently PASS.
+**INV-062 MOCK P1 implementation/runtime verification complete.** Schemas 55–64 and migration `20261004050000_inventory_p1_mock_markers.sql` are applied/history-registered locally and on `kwpyukofofoaqhmxndlc`. Exact remote baseline was adopted without reposting or relabeling; marker is PAUSED, opening confirmed, eight writers evidenced, original asset bound, no unresolved discrepancy. [Actual evidence](P1_MOCK_RUNTIME_EVIDENCE.json) records rollback integrity/four real-session races/unchanged physical facts. Local 55/55 Inventory tests and all nine Inventory pgTAP suites passed; typecheck and task-owned quality checks passed. Independent reviews closed scoped findings. Broader Node/DB suites remain failing on separately classified unchanged baseline debt; full shadow diff is blocked by pre-existing declarative source issues. See the runtime checkpoint for exact limits, safe readback and pilot-only delivery; never reset/reseed the immutable manifest.
 
-P1 real operational stock, Basic Medical cutover, rotation, Vercel deployment, upstream push and production mutation remain NOT AUTHORIZED. Task-owned pilot status/docs commit/push is authorized; OPS remains local-only. Retain stop-at-safe-point on observed fallback/model unavailability; preserve checkpoint/evidence and wait for Owner continuation.
+P1 real operational stock, real writer freeze/activation, Basic Medical cutover, production credential rotation, Vercel deployment, upstream push and production mutation remain **NOT AUTHORIZED**. OPS remains local-only.

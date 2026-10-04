@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-04T04:45:07.982Z",
+  "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+  "scope_version": 1,
+  "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+  "target_project_ref": "kwpyukofofoaqhmxndlc",
+  "synthetic": true,
+  "real_activation": false,
+  "recommendation": "READY FOR MOCK P1 IMPLEMENTATION",
+  "database": {
+    "kind": "ACTUAL_SYNTHETIC_DATABASE_SMOKE",
+    "local_final_rehearsal": "PASS_AND_ROLLBACK",
+    "remote_fixture": "COMMITTED_SYNTHETIC_ONLY",
+    "fixture_sha256": "92b714a098863f249ced74373e2d1d1b1107af2d7c9be8996951947827c86d99",
+    "assertions": 16,
+    "expected_denial_probes": 7,
+    "additional_post_commit_staff_asset_opening": "AUTH_DENIED before replay",
+    "post_commit_assertions": "PASS",
+    "post_commit_observations": {
+      "asset_events": 2,
+      "asset_replay": {
+        "asset_code": "EIU-AST-7F86198D",
+        "event_id": "c88ff97a-a547-470c-aa60-807217cfb96a",
+        "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+        "revision": 1,
+        "transaction_id": "16d4a2ca-1543-43d1-be77-29c5769258a7"
+      },
+      "assets": {
+        "rows": [
+          {
+            "asset_code": "EIU-AST-7F86198D",
+            "available": true,
+            "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+            "created_at": "2026-10-04T04:30:19.085831+00:00",
+            "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+            "custodian_name": "Trần Thu Hà — MOCK Staff 1",
+            "eligible": true,
+            "expiry_date": null,
+            "expiry_precision": "not_required",
+            "id": "ba23929b-1d45-45e1-892e-2d91fd42e1a2",
+            "ineligibility_reasons": [],
+            "intake_kind": "open",
+            "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+            "item_code": "P1-MOCK-ACC2B31A-PUMP",
+            "item_name": "Bơm tiêm điện training IP-100 — MOCK",
+            "lifecycle_status": "in_service",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "manufacturer": "MedLabs Training Devices — MOCK",
+            "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+            "model": "IP-100 training",
+            "operational_status": "ready",
+            "revision": 2,
+            "row_key": "pump-001",
+            "source_line_id": null,
+            "updated_at": "2026-10-04T04:30:19.132991+00:00"
+          }
+        ],
+        "total": 1
+      },
+      "balances": {
+        "page": 1,
+        "page_size": 100,
+        "rows": [
+          {
+            "available_quantity": "1250.000000",
+            "base_uom_code": "p1-mock-acc2b31a_ml",
+            "base_uom_name": "mL (MOCK)",
+            "condition": "good",
+            "eligible_quantity": "1250.000000",
+            "expired_quantity": "50.000000",
+            "item_code": "P1-MOCK-ACC2B31A-ETOH70",
+            "item_id": "b6661d6e-436d-48f1-ae13-f5e4a00c1dc5",
+            "item_name": "Dung dịch ethanol 70% dùng thực hành — MOCK",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "quantity": "1400.000000",
+            "unknown_expiry_quantity": "100.000000"
+          },
+          {
+            "available_quantity": "0",
+            "base_uom_code": "p1-mock-acc2b31a_piece",
+            "base_uom_name": "cái (MOCK)",
+            "condition": "damaged",
+            "eligible_quantity": "0",
+            "expired_quantity": "0",
+            "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+            "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+            "item_name": "Găng nitrile không bột cỡ M — MOCK",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "quantity": "5.000000",
+            "unknown_expiry_quantity": "0"
+          },
+          {
+            "available_quantity": "100.000000",
+            "base_uom_code": "p1-mock-acc2b31a_piece",
+            "base_uom_name": "cái (MOCK)",
+            "condition": "good",
+            "eligible_quantity": "100.000000",
+            "expired_quantity": "0",
+            "item_code": "P1-MOCK-ACC2B31A-GLOVE",
+            "item_id": "22c59171-be4e-4a9a-b02e-ef43e5fa7d4e",
+            "item_name": "Găng nitrile không bột cỡ M — MOCK",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "quantity": "100.000000",
+            "unknown_expiry_quantity": "0"
+          },
+          {
+            "available_quantity": "0",
+            "base_uom_code": "p1-mock-acc2b31a_piece",
+            "base_uom_name": "cái (MOCK)",
+            "condition": "damaged",
+            "eligible_quantity": "0",
+            "expired_quantity": "0",
+            "item_code": "P1-MOCK-ACC2B31A-TRAY",
+            "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+            "item_name": "Khay quả đậu inox 500 mL — MOCK",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "quantity": "1.000000",
+            "unknown_expiry_quantity": "0"
+          },
+          {
+            "available_quantity": "12.000000",
+            "base_uom_code": "p1-mock-acc2b31a_piece",
+            "base_uom_name": "cái (MOCK)",
+            "condition": "good",
+            "eligible_quantity": "12.000000",
+            "expired_quantity": "0",
+            "item_code": "P1-MOCK-ACC2B31A-TRAY",
+            "item_id": "db86363c-4944-4755-b3f6-83cc2fdacba9",
+            "item_name": "Khay quả đậu inox 500 mL — MOCK",
+            "location_code": "P1-MOCK-ACC2B31A-SKL",
+            "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840",
+            "location_name": "Kho thực hành điều dưỡng — MOCK ACC2B31A",
+            "quantity": "12.000000",
+            "unknown_expiry_quantity": "0"
+          }
+        ],
+        "total": 5
+      },
+      "opening_ledger_lines": 8,
+      "opening_replay": {
+        "opening_batch_id": "91dbc282-6f74-474f-b043-0829f44af420",
+        "transaction_id": "8b73f005-378f-46d1-806c-ad0f0762b199"
+      },
+      "origin_count": 6,
+      "scope_pairs": 3,
+      "users": [
+        {
+          "active": true,
+          "email": "p1-mock-acc2b31a-1@example.invalid",
+          "email_enabled": false,
+          "id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+          "role": "staff",
+          "synthetic": true
+        },
+        {
+          "active": true,
+          "email": "p1-mock-acc2b31a-0@example.invalid",
+          "email_enabled": false,
+          "id": "b45ebb24-7dbb-4071-b5e7-7785b52587d7",
+          "role": "admin",
+          "synthetic": true
+        },
+        {
+          "active": true,
+          "email": "p1-mock-acc2b31a-2@example.invalid",
+          "email_enabled": false,
+          "id": "da210218-38de-462f-82c6-b68c3b8e9444",
+          "role": "staff",
+          "synthetic": true
+        }
+      ]
+    },
+    "post_commit_verification_sql": "begin;\ncreate temporary table p1_verify(k text primary key,v jsonb);\ngrant all on p1_verify to authenticated;\nset local role authenticated;\nselect set_config('request.jwt.claims','{\"sub\":\"6b8f91e8-d47f-4445-b105-ae3124d349cb\",\"role\":\"authenticated\"}'::jsonb::text,true);\ninsert into p1_verify values('balances',public.inventory_read('balances','{\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"page_size\":100}'::jsonb));\ninsert into p1_verify values('assets',public.equipment_asset_read('assets','{\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"catalog_item_id\":\"221a01af-d338-4a62-8c97-b03ad5c81fd2\",\"page_size\":100}'::jsonb));\ndo $$ begin begin perform public.equipment_asset_command('open_asset','{\"row_key\":\"pump-001\",\"manufacturer\":\"MedLabs Training Devices — MOCK\",\"model\":\"IP-100 training\",\"manufacturer_serial\":\"P1-MOCK-ACC2B31A-IP100-001\",\"operational_status\":\"ready\",\"expiry_precision\":\"not_required\",\"synthetic\":true,\"intake_reference\":\"P1-MOCK-ACC2B31A-OPEN-V1\",\"reason\":\"SYNTHETIC MOCK training opening\",\"evidence_note\":\"MOCK manifest; no real asset or stock\",\"custodian_id\":\"6b8f91e8-d47f-4445-b105-ae3124d349cb\",\"catalog_item_id\":\"221a01af-d338-4a62-8c97-b03ad5c81fd2\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\"}'::jsonb,'431c6bd8-cd39-403c-9eed-6c7fe91df288'); exception when sqlstate '42501' then if position('AUTH_DENIED' in sqlerrm)=1 then return; end if; raise; end; raise exception 'Staff asset opening unexpectedly allowed'; end $$;\nselect set_config('request.jwt.claims','{\"sub\":\"b45ebb24-7dbb-4071-b5e7-7785b52587d7\",\"role\":\"authenticated\"}'::jsonb::text,true);\ninsert into p1_verify values('opening_replay',public.inventory_command('confirm_opening_balance','{\"count_cutoff\":\"2026-10-04T04:25:48.938Z\",\"cutover_key\":\"P1-MOCK-ACC2B31A-OPEN-V1\",\"lines\":[{\"base_quantity\":\"1000\",\"catalog_item_id\":\"b6661d6e-436d-48f1-ae13-f5e4a00c1dc5\",\"damaged_quantity\":\"0\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_input\":\"2027-12-31\",\"expiry_precision\":\"day\",\"good_quantity\":\"1000\",\"item_key\":\"chemical\",\"line_key\":\"ethanol-day\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"ethanol-day\",\"row_key\":\"ethanol-day\"},{\"base_quantity\":\"50\",\"catalog_item_id\":\"b6661d6e-436d-48f1-ae13-f5e4a00c1dc5\",\"damaged_quantity\":\"0\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_input\":\"2026-09-30\",\"expiry_precision\":\"day\",\"good_quantity\":\"50\",\"item_key\":\"chemical\",\"line_key\":\"ethanol-expired\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"ethanol-expired\",\"row_key\":\"ethanol-expired\"},{\"base_quantity\":\"250\",\"catalog_item_id\":\"b6661d6e-436d-48f1-ae13-f5e4a00c1dc5\",\"damaged_quantity\":\"0\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_input\":\"2028-03\",\"expiry_precision\":\"month\",\"good_quantity\":\"250\",\"item_key\":\"chemical\",\"line_key\":\"ethanol-month\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"ethanol-month\",\"row_key\":\"ethanol-month\"},{\"base_quantity\":\"100\",\"catalog_item_id\":\"b6661d6e-436d-48f1-ae13-f5e4a00c1dc5\",\"damaged_quantity\":\"0\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_precision\":\"unknown\",\"good_quantity\":\"100\",\"item_key\":\"chemical\",\"line_key\":\"ethanol-unknown\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"ethanol-unknown\",\"row_key\":\"ethanol-unknown\"},{\"base_quantity\":\"105\",\"catalog_item_id\":\"22c59171-be4e-4a9a-b02e-ef43e5fa7d4e\",\"damaged_quantity\":\"5\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_precision\":\"not_required\",\"good_quantity\":\"100\",\"item_key\":\"consumable\",\"line_key\":\"gloves\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"gloves\",\"row_key\":\"gloves\"},{\"base_quantity\":\"13\",\"catalog_item_id\":\"db86363c-4944-4755-b3f6-83cc2fdacba9\",\"damaged_quantity\":\"1\",\"evidence_note\":\"MOCK count row; synthetic stock only\",\"expiry_precision\":\"not_required\",\"good_quantity\":\"12\",\"item_key\":\"reusable\",\"line_key\":\"trays\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\",\"provenance_group\":\"trays\",\"row_key\":\"trays\"}],\"provenance_note\":\"Fabricated training count only; no production source or real physical stock\",\"scope_description\":\"SYNTHETIC MOCK P1 rehearsal; not operational stock\",\"synthetic\":true}'::jsonb,'97df21fa-50f4-4011-8b2e-2aefc75ed409'));\ninsert into p1_verify values('asset_replay',public.equipment_asset_command('open_asset','{\"row_key\":\"pump-001\",\"manufacturer\":\"MedLabs Training Devices — MOCK\",\"model\":\"IP-100 training\",\"manufacturer_serial\":\"P1-MOCK-ACC2B31A-IP100-001\",\"operational_status\":\"ready\",\"expiry_precision\":\"not_required\",\"synthetic\":true,\"intake_reference\":\"P1-MOCK-ACC2B31A-OPEN-V1\",\"reason\":\"SYNTHETIC MOCK training opening\",\"evidence_note\":\"MOCK manifest; no real asset or stock\",\"custodian_id\":\"6b8f91e8-d47f-4445-b105-ae3124d349cb\",\"catalog_item_id\":\"221a01af-d338-4a62-8c97-b03ad5c81fd2\",\"location_id\":\"dbae2f2a-ebb7-4706-b87d-15731e79d840\"}'::jsonb,'431c6bd8-cd39-403c-9eed-6c7fe91df288'));\nreset role;\nselect jsonb_build_object('balances',(select v from p1_verify where k='balances'),'assets',(select v from p1_verify where k='assets'),'opening_replay',(select v from p1_verify where k='opening_replay'),'asset_replay',(select v from p1_verify where k='asset_replay'),'origin_count',(select count(*) from public.inventory_stock_origins where opening_batch_id='91dbc282-6f74-474f-b043-0829f44af420'),'scope_pairs',(select count(*) from public.inventory_opening_scope where opening_batch_id='91dbc282-6f74-474f-b043-0829f44af420'),'asset_events',(select count(*) from public.equipment_asset_events where asset_id='ba23929b-1d45-45e1-892e-2d91fd42e1a2'),'opening_ledger_lines',(select count(*) from public.inventory_transaction_lines where transaction_id='8b73f005-378f-46d1-806c-ad0f0762b199'),'users',(select jsonb_agg(jsonb_build_object('id',p.id,'email',p.email,'active',p.is_active,'role',r.role,'synthetic',(u.raw_app_meta_data->>'synthetic')::boolean,'email_enabled',s.receive_schedule_emails)) from public.profiles p join auth.users u on u.id=p.id join public.user_roles r on r.user_id=p.id join public.profile_room_types s on s.profile_id=p.id where p.id in ('b45ebb24-7dbb-4071-b5e7-7785b52587d7'::uuid,'6b8f91e8-d47f-4445-b105-ae3124d349cb'::uuid,'da210218-38de-462f-82c6-b68c3b8e9444'::uuid))) as evidence;\nrollback;",
+    "asset_opening_payload": {
+      "row_key": "pump-001",
+      "manufacturer": "MedLabs Training Devices — MOCK",
+      "model": "IP-100 training",
+      "manufacturer_serial": "P1-MOCK-ACC2B31A-IP100-001",
+      "operational_status": "ready",
+      "expiry_precision": "not_required",
+      "synthetic": true,
+      "intake_reference": "P1-MOCK-ACC2B31A-OPEN-V1",
+      "reason": "SYNTHETIC MOCK training opening",
+      "evidence_note": "MOCK manifest; no real asset or stock",
+      "custodian_id": "6b8f91e8-d47f-4445-b105-ae3124d349cb",
+      "catalog_item_id": "221a01af-d338-4a62-8c97-b03ad5c81fd2",
+      "location_id": "dbae2f2a-ebb7-4706-b87d-15731e79d840"
+    },
+    "interactive_login_verified": false,
+    "runtime_marker_verified": false
+  },
+  "simulation": {
+    "kind": "SIMULATION_ONLY_NO_RUNTIME_ENFORCEMENT",
+    "scope_id": "a27c1f6d-089e-43c5-93e1-4ca7f539b6a5",
+    "scope_version": 1,
+    "manifest_id": "2a312d76-1381-4a05-bea8-747576eab135",
+    "fingerprint": "3284e1b743085928970245a88562ad6c0e465f4b32e3f9eaf4e0dbb6168d51c8",
+    "phase_trace": ["OPENING_READY", "ACTIVE", "PAUSED"],
+    "final_phase": "PAUSED",
+    "checks": 33,
+    "results": [
+      {
+        "name": "named Admin opening in OPENING_READY",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "Staff opening denied: Trần Thu Hà — MOCK Staff 1",
+        "result": "ADMIN_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "Staff opening denied: Lê Quang Huy — MOCK Staff 2",
+        "result": "ADMIN_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "physical write before ACTIVE",
+        "result": "NOT_ACTIVE",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "stale scope version",
+        "result": "STALE_OR_WRONG_MANIFEST",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "changed count/expiry manifest fingerprint",
+        "result": "STALE_OR_WRONG_MANIFEST",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "wrong business manifest",
+        "result": "STALE_OR_WRONG_MANIFEST",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "production target",
+        "result": "WRONG_TARGET",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "wrong location",
+        "result": "OUT_OF_SCOPE",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "wrong item",
+        "result": "OUT_OF_SCOPE",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "unregistered actor",
+        "result": "UNREGISTERED_ACTOR",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "Basic Medical excluded",
+        "result": "EXCLUDED_WORKFLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "old request excluded",
+        "result": "EXCLUDED_WORKFLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "legacy obligation excluded",
+        "result": "EXCLUDED_WORKFLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "legacy writer rejected",
+        "result": "WRITER_NOT_EXCLUSIVE",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "privileged/import bypass rejected",
+        "result": "WRITER_NOT_EXCLUSIVE",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "activation before reconciliation",
+        "result": "RECONCILIATION_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "activation before writer exclusion evidence",
+        "result": "EXCLUSIONS_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "activation with competing writer",
+        "result": "EXCLUSIONS_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "activation after simulated gates",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "opening after ACTIVE",
+        "result": "OPENING_CLOSED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "scoped Staff physical write in ACTIVE: Trần Thu Hà — MOCK Staff 1",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "scoped Staff physical write in ACTIVE: Lê Quang Huy — MOCK Staff 2",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "exact asset allowed",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "wrong exact asset rejected",
+        "result": "WRONG_EXACT_ASSET",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "out-of-scope control unaffected",
+        "result": "OUTSIDE_SCOPE_UNCHANGED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "pilot-only event",
+        "result": "PILOT_EVENT",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "dual-write signal auto-pauses",
+        "result": "DUAL_WRITE_PAUSED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "PAUSED Staff write rejected",
+        "result": "PAUSED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "PAUSED Admin opening rejected",
+        "result": "PAUSED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "unsafe reactivation rejected",
+        "result": "INVALID_TRANSITION",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "pause requires reason",
+        "result": "REASON_REQUIRED",
+        "status": "PASS_SIMULATION_ONLY"
+      },
+      {
+        "name": "manual pause",
+        "result": "ALLOW",
+        "status": "PASS_SIMULATION_ONLY"
+      }
+    ],
+    "limitations": [
+      "No marker deployed",
+      "No real writer frozen or exclusion proved",
+      "No real dual-write detected",
+      "No real P1 activation",
+      "No production target touched",
+      "Privileged bypass is modeled, not DB-enforced"
+    ],
+    "source_sha256": "e778bf2bb8487527e925aa3674ee9c6cb50e75a34c143ec7576ca80146b8da24"
+  },
+  "failures_resolved": [
+    {
+      "kind": "LOCAL_FIXTURE",
+      "error": "duplicate canonical nursing profile-room-type enrollment",
+      "resolution": "Removed redundant insert; trigger already provides enrollment; local transaction rolled back and corrected rehearsal passed"
+    },
+    {
+      "kind": "THROWAWAY_PARSER",
+      "error": "Inline query JSON was an array, unlike file-query rows envelope",
+      "resolution": "Parsed already-returned array; no DB rerun or schema weakening"
+    }
+  ],
+  "not_verified": [
+    "real_stock_manifest",
+    "real_writer_freeze_or_exclusions",
+    "runtime_marker_scope_version_or_phase_gates",
+    "real_dual_write_detection",
+    "marker_concurrency_or_partial_failure",
+    "credential_rotation_or_revocation",
+    "interactive_auth_or_browser_UAT",
+    "production_cutover"
+  ],
+  "safe_point": {
+    "model_fallback_observed": false,
+    "last_delivered_commit": "863bd9b",
+    "accepted_implementation_commit": "bdba8d6",
+    "git_delivery_performed": false,
+    "ops_local_only": true,
+    "db_mutations": "One approved synthetic fixture transaction on kwpyukofofoaqhmxndlc only; no permanent schema migration",
+    "resume": "Bounded readback of recorded manifest; separately authorize and implement bounded synthetic marker delta; never reseed opening or start real P1",
+    "task_owned_app_paths": [
+      "scripts/p1-mock-manifest.sql",
+      "scripts/prepare-p1-mock.mjs",
+      "scripts/rehearse-p1-mock.mjs",
+      "docs/architecture/P1_MOCK_MANIFEST.json",
+      "docs/architecture/P1_MOCK_EVIDENCE.json",
+      "docs/architecture/P1_MOCK_READINESS.md",
+      "docs/architecture/PROJECT_HANDOFF.md",
+      "docs/architecture/MASTER_ROADMAP.md"
+    ]
+  }
+}
