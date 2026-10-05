@@ -81,6 +81,10 @@ export function EquipmentFulfillmentWorkspace({
     effectiveOperation === "initial_return" || effectiveOperation === "recover";
   const administrative =
     effectiveOperation === "consequence" || effectiveOperation === "reconcile";
+  const selectableIssues = workspace.issues.filter(
+    (issue) => !receiving || issue.return_required,
+  );
+  const selectedIssue = selectableIssues.find((issue) => issue.id === sliceId);
   const selectedSource = sources[sourceIndex];
   const signEvent = workspace.events.find((event) => event.id === signingId);
 
@@ -249,14 +253,14 @@ export function EquipmentFulfillmentWorkspace({
         },
       ]);
     } else {
-      if (!sliceId) {
+      if (!selectedIssue) {
         setMessage("Chọn phần thực giao cần xử lý.");
         return;
       }
       setRows((current) => [
         ...current,
         {
-          issue_slice_id: sliceId,
+          issue_slice_id: selectedIssue.id,
           quantity,
           ...(receiving
             ? { location_id: locationId, condition }
@@ -515,11 +519,11 @@ export function EquipmentFulfillmentWorkspace({
                 <label>
                   Phần thực giao
                   <select
-                    value={sliceId}
+                    value={selectedIssue?.id ?? ""}
                     onChange={(event) => setSliceId(event.target.value)}
                   >
                     <option value="">Chọn phần thực giao</option>
-                    {workspace.issues.map((issue) => (
+                    {selectableIssues.map((issue) => (
                       <option key={issue.id} value={issue.id}>
                         {issue.item_name} {issue.asset_code ?? issue.id} — còn{" "}
                         {issue.due}, resolve {issue.resolved}, hold {issue.held}

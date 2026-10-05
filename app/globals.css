@@ -10418,6 +10418,10 @@ body {
   backdrop-filter: blur(14px);
 }
 
+.workspace-main > .workspace-topbar.page-header {
+  z-index: 36;
+}
+
 .page-header-copy {
   min-width: 0;
 }
@@ -11539,6 +11543,11 @@ time,
   .workspace-actions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .notification-popover {
+    right: auto;
+    left: 0;
   }
 
   .workspace-content.page-container,
