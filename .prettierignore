@@ -19,3 +19,4 @@ lib/database.types.ts
 next-env.d.ts
 .codex/skills/openspec-*/
 docs/ui-modernization/audits/
+docs/erd/liam/

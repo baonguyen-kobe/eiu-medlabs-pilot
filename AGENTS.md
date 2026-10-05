@@ -65,6 +65,7 @@ Regenerate the index only during explicit framework upgrades or tooling maintena
 ```powershell
 npx.cmd @next/codemod agents-md --output NEXTJS_AGENTS.md
 ```
+
 Do not run codemods or package updates during documentation or localized bug tasks.
 
 ## Coding guardrails
