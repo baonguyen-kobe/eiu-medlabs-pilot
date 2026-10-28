@@ -15,6 +15,8 @@ export const fulfillmentSchema = z.object({
       name: z.string(),
       registered_quantity: amount,
       planned_quantity: amount,
+      requested_quantity: amount.optional(),
+      baseline_source: z.string().optional(),
       unit: z.string(),
     }),
   ),
@@ -31,6 +33,7 @@ export const fulfillmentSchema = z.object({
       asset_id: z.guid().nullable(),
       asset_code: z.string().nullable(),
       item_name: z.string(),
+      base_uom_code: z.string(),
       return_required: z.boolean(),
       issued: amount,
       returned: amount,
@@ -44,12 +47,27 @@ export const fulfillmentSchema = z.object({
       id: z.guid(),
       revision: z.number(),
       operation: z.string(),
+      actor_id: z.guid(),
       occurred_at: z.string(),
       reason: z.string(),
       signature_required: z.boolean(),
       superseded: z.boolean(),
       snapshot_hash: z.string(),
       snapshot: z.json(),
+      display_lines: z
+        .array(
+          z.object({
+            id: z.guid(),
+            kind: z.string(),
+            item_name: z.string(),
+            unit: z.string(),
+            quantity: z.string(),
+            condition: z.string().nullable(),
+            asset_code: z.string().nullable(),
+            issue_slice_id: z.guid(),
+          }),
+        )
+        .optional(),
       payload: z.record(z.string(), z.json()),
       signature: z
         .object({
@@ -64,6 +82,7 @@ export const fulfillmentSchema = z.object({
 });
 export type Fulfillment = z.infer<typeof fulfillmentSchema>;
 export type FulfillmentOperation =
+  | "add_supplemental_line"
   | "handover"
   | "supplement"
   | "initial_return"
@@ -74,6 +93,7 @@ export type FulfillmentOperation =
   | "correct"
   | "sign";
 export const fulfillmentLabels: Record<FulfillmentOperation, string> = {
+  add_supplemental_line: "Ghi nhận dụng cụ phát sinh",
   handover: "Thực giao lần đầu",
   supplement: "Giao bổ sung",
   initial_return: "Xác nhận thực trả lần đầu",

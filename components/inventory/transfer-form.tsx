@@ -39,6 +39,8 @@ import type {
   StockCondition,
   TransferStockPayload,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const STOCK_PAGE_SIZE = 20;
 
@@ -67,6 +69,8 @@ export function TransferForm({
   preselectedTargetId?: string;
   preselectedOriginId?: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [sourceLocationId, setSourceLocationId] = useState(preselectedSourceId);
   const [targetLocationId, setTargetLocationId] = useState(preselectedTargetId);
   const [reason, setReason] = useState("");
@@ -448,14 +452,17 @@ export function TransferForm({
             />
           )}
           <div className="space-y-1">
-            <p className="font-semibold text-sm">{notice.message}</p>
+            <p className="font-semibold text-sm">
+              <LocalizedText text={notice.message ?? ""} />
+            </p>
             {notice.transactionId ? (
               <p className="text-xs">
                 <Link
                   href={`/inventory/transactions/${notice.transactionId}`}
                   className="font-medium underline hover:text-emerald-800"
                 >
-                  Xem chi tiết giao dịch điều chuyển #{notice.transactionId} →
+                  {uiText("Xem chi tiết giao dịch điều chuyển #")}
+                  {notice.transactionId} →
                 </Link>
               </p>
             ) : null}
@@ -475,7 +482,9 @@ export function TransferForm({
           role="alert"
           className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center justify-between"
         >
-          <span>{validationError}</span>
+          <span>
+            <LocalizedText text={validationError ?? ""} />
+          </span>
           <button
             type="button"
             onClick={() => setValidationError(null)}
@@ -490,12 +499,14 @@ export function TransferForm({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <ArrowRight className="text-sky-600" size={18} />
-          <span>Thông tin Điều chuyển kho / Stock Transfer Details</span>
+          <span>
+            {uiText("Thông tin Điều chuyển kho / Stock Transfer Details")}
+          </span>
         </h2>
         <p className="text-xs text-slate-500">
-          Điều chuyển vật tư thực tế giữa hai kho lưu trữ. Hệ thống bảo toàn
-          tính toàn vẹn của lô, trạng thái tạm giữ (Hold) và tình trạng
-          tốt/hỏng.
+          {uiText(
+            "Điều chuyển vật tư thực tế giữa hai kho lưu trữ. Hệ thống bảo toàn tính toàn vẹn của lô, trạng thái tạm giữ (Hold) và tình trạng tốt/hỏng.",
+          )}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 min-w-0">
@@ -505,9 +516,9 @@ export function TransferForm({
               resource="locations"
               filters={{ active: true }}
               value={sourceLocationId}
-              label="Kho xuất (Nguồn) *"
+              label={uiText("Kho xuất (Nguồn) *")}
               id="transfer-source-location"
-              placeholder="Chọn kho nguồn..."
+              placeholder={uiText("Chọn kho nguồn...")}
               onSelect={(loc) => handleSourceLocationChange(loc.id)}
             />
           </div>
@@ -518,16 +529,16 @@ export function TransferForm({
               resource="locations"
               filters={{ active: true }}
               value={targetLocationId}
-              label="Kho nhập (Đích) *"
+              label={uiText("Kho nhập (Đích) *")}
               id="transfer-target-location"
-              placeholder="Chọn kho đích..."
+              placeholder={uiText("Chọn kho đích...")}
               onSelect={(loc) => setTargetLocationId(loc.id)}
             />
             {sourceLocationId &&
             targetLocationId &&
             sourceLocationId === targetLocationId ? (
               <span className="text-[11px] text-rose-600">
-                Kho đích phải khác kho nguồn!
+                {uiText("Kho đích phải khác kho nguồn!")}
               </span>
             ) : null}
           </div>
@@ -538,7 +549,7 @@ export function TransferForm({
               htmlFor="transfer-occurred-at"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Thời điểm điều chuyển *
+              {uiText("Thời điểm điều chuyển *")}
             </label>
             <input
               id="transfer-occurred-at"
@@ -555,14 +566,16 @@ export function TransferForm({
               htmlFor="transfer-reason"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Lý do điều chuyển
+              {uiText("Lý do điều chuyển")}
             </label>
             <input
               id="transfer-reason"
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="VD: Điều chuyển cấp phát thực hành, chuyển kho bảo quản..."
+              placeholder={uiText(
+                "VD: Điều chuyển cấp phát thực hành, chuyển kho bảo quản...",
+              )}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 bg-white"
             />
           </div>
@@ -575,12 +588,16 @@ export function TransferForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Chọn vật tư từ kho nguồn / Available Stock in Source (
-                {totalStock} lô)
+                {uiText(
+                  "Chọn vật tư từ kho nguồn / Available Stock in Source (",
+                )}
+                {totalStock}
+                {uiText(" lô)")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Tìm kiếm và chọn lô vật tư cần điều chuyển (hỗ trợ phân trang
-                không giới hạn)
+                {uiText(
+                  "Tìm kiếm và chọn lô vật tư cần điều chuyển (hỗ trợ phân trang không giới hạn)",
+                )}
               </p>
             </div>
 
@@ -598,7 +615,7 @@ export function TransferForm({
                   type="text"
                   value={stockSearch}
                   onChange={(e) => setStockSearch(e.target.value)}
-                  placeholder="Tìm theo SKU, tên vật tư..."
+                  placeholder={uiText("Tìm theo SKU, tên vật tư...")}
                   className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 w-56"
                 />
               </div>
@@ -606,18 +623,20 @@ export function TransferForm({
                 type="submit"
                 className="button button-secondary text-xs py-1.5 px-3"
               >
-                Tìm
+                {uiText("Tìm")}
               </button>
             </form>
           </div>
 
           {isLoadingStock ? (
             <div className="text-center py-8 text-xs text-sky-600 font-medium animate-pulse">
-              Đang tải danh sách lô tồn kho...
+              {uiText("Đang tải danh sách lô tồn kho...")}
             </div>
           ) : availableStock.length === 0 ? (
             <p className="text-xs text-slate-400 py-6 text-center">
-              Kho nguồn hiện không có lô vật tư nào phù hợp với bộ lọc.
+              {uiText(
+                "Kho nguồn hiện không có lô vật tư nào phù hợp với bộ lọc.",
+              )}
             </p>
           ) : (
             <>
@@ -625,13 +644,25 @@ export function TransferForm({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                      <th className="py-2 px-3">Mã SKU {"&"} Tên vật tư</th>
-                      <th className="py-2 px-3">Tình trạng</th>
-                      <th className="py-2 px-3">Trạng thái giữ (Hold)</th>
-                      <th className="py-2 px-3 text-right">Tổng tồn</th>
-                      <th className="py-2 px-3 text-right">Khả dụng</th>
-                      <th className="py-2 px-3">Hạn dùng</th>
-                      <th className="py-2 px-3 text-center">Thao tác</th>
+                      <th className="py-2 px-3">
+                        {uiText("Mã SKU ")}
+                        {"&"}
+                        {uiText(" Tên vật tư")}
+                      </th>
+                      <th className="py-2 px-3">{uiText("Tình trạng")}</th>
+                      <th className="py-2 px-3">
+                        {uiText("Trạng thái giữ (Hold)")}
+                      </th>
+                      <th className="py-2 px-3 text-right">
+                        {uiText("Tổng tồn")}
+                      </th>
+                      <th className="py-2 px-3 text-right">
+                        {uiText("Khả dụng")}
+                      </th>
+                      <th className="py-2 px-3">{uiText("Hạn dùng")}</th>
+                      <th className="py-2 px-3 text-center">
+                        {uiText("Thao tác")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -687,7 +718,9 @@ export function TransferForm({
                                   : "button-secondary"
                               }`}
                             >
-                              {isSelected ? "Đã chọn" : "+ Thêm vào phiếu"}
+                              {isSelected
+                                ? uiText("Đã chọn")
+                                : uiText("+ Thêm vào phiếu")}
                             </button>
                           </td>
                         </tr>
@@ -700,7 +733,11 @@ export function TransferForm({
               {/* Bounded pagination controls */}
               <div className="flex items-center justify-between pt-2">
                 <span className="text-xs text-slate-500">
-                  Hiển thị trang {stockPage} trên tổng số {totalStock} lô
+                  {uiText("Hiển thị trang ")}
+                  {stockPage}
+                  {uiText(" trên tổng số ")}
+                  {totalStock}
+                  {uiText(" lô")}
                 </span>
                 <PaginationControls
                   currentPage={stockPage}
@@ -719,10 +756,11 @@ export function TransferForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Danh sách vật tư điều chuyển / Lines to Transfer ({lines.length})
+              {uiText("Danh sách vật tư điều chuyển / Lines to Transfer (")}
+              {lines.length})
             </h3>
             <p className="text-xs text-slate-500">
-              Nhập số lượng cần chuyển cho từng lô đã chọn
+              {uiText("Nhập số lượng cần chuyển cho từng lô đã chọn")}
             </p>
           </div>
         </div>
@@ -731,8 +769,9 @@ export function TransferForm({
           <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
             <PackageCheck className="mx-auto text-slate-300 mb-2" size={28} />
             <p className="text-xs text-slate-500">
-              Chưa có dòng vật tư nào được chọn. Hãy chọn kho nguồn và thêm vật
-              tư ở bảng trên.
+              {uiText(
+                "Chưa có dòng vật tư nào được chọn. Hãy chọn kho nguồn và thêm vật tư ở bảng trên.",
+              )}
             </p>
           </div>
         ) : (
@@ -740,13 +779,23 @@ export function TransferForm({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3">Vật tư {"&"} Tình trạng</th>
-                  <th className="py-2.5 px-3">Cảnh báo trạng thái</th>
-                  <th className="py-2.5 px-3 text-right">Tồn tại nguồn</th>
-                  <th className="py-2.5 px-3 text-right w-48">
-                    Số lượng chuyển *
+                  <th className="py-2.5 px-3">
+                    {uiText("Vật tư ")}
+                    {"&"}
+                    {uiText(" Tình trạng")}
                   </th>
-                  <th className="py-2.5 px-3 text-center w-16">Xóa</th>
+                  <th className="py-2.5 px-3">
+                    {uiText("Cảnh báo trạng thái")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Tồn tại nguồn")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right w-48">
+                    {uiText("Số lượng chuyển *")}
+                  </th>
+                  <th className="py-2.5 px-3 text-center w-16">
+                    {uiText("Xóa")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -762,7 +811,8 @@ export function TransferForm({
                       <div className="flex items-center gap-2 mt-1">
                         <ConditionBadge condition={line.condition} />
                         <span className="text-[11px] text-slate-400 font-mono">
-                          Lô: {line.originId.slice(0, 8)}...
+                          {uiText("Lô: ")}
+                          {line.originId.slice(0, 8)}...
                         </span>
                       </div>
                     </td>
@@ -774,13 +824,14 @@ export function TransferForm({
                             holdReason={line.holdReason}
                           />
                           <p className="text-[11px] text-amber-700 font-medium">
-                            Lưu ý: Số lượng này sẽ tiếp tục bị TẠM GIỮ tại kho
-                            đích.
+                            {uiText(
+                              "Lưu ý: Số lượng này sẽ tiếp tục bị TẠM GIỮ tại kho đích.",
+                            )}
                           </p>
                         </div>
                       ) : (
                         <span className="text-slate-400 text-xs">
-                          Bình thường
+                          {uiText("Bình thường")}
                         </span>
                       )}
                     </td>
@@ -808,7 +859,7 @@ export function TransferForm({
                       </div>
                       {error ? (
                         <p className="text-[11px] text-rose-600 mt-1 text-right">
-                          {error}
+                          <LocalizedText text={error ?? ""} />
                         </p>
                       ) : null}
                     </td>
@@ -817,7 +868,7 @@ export function TransferForm({
                         type="button"
                         onClick={() => handleRemoveLine(idx)}
                         className="text-slate-400 hover:text-rose-600 p-1 rounded"
-                        title="Xóa dòng"
+                        title={uiText("Xóa dòng")}
                       >
                         <Trash2 size={15} />
                       </button>
@@ -831,7 +882,9 @@ export function TransferForm({
 
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Tổng cộng: <strong>{lines.length}</strong> dòng điều chuyển
+            {uiText("Tổng cộng: ")}
+            <strong>{lines.length}</strong>
+            {uiText(" dòng điều chuyển")}
           </span>
           <button
             type="button"
@@ -841,7 +894,9 @@ export function TransferForm({
               !canSubmit || isPending ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {isPending ? "Đang xử lý..." : "Xác nhận Điều chuyển kho →"}
+            {isPending
+              ? uiText("Đang xử lý...")
+              : uiText("Xác nhận Điều chuyển kho →")}
           </button>
         </div>
       </div>
@@ -852,30 +907,34 @@ export function TransferForm({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ArrowRight className="text-sky-600" size={18} />
-              <span>Xác nhận giao dịch điều chuyển kho</span>
+              <span>{uiText("Xác nhận giao dịch điều chuyển kho")}</span>
             </h3>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Bạn có chắc chắn muốn thực hiện giao dịch chuyển kho cho{" "}
-              <strong>{lines.length}</strong> dòng vật tư này không? Giao dịch
-              sẽ ghi sổ bất biến vào Sổ cái kho và cập nhật số dư tức thời.
+              {uiText(
+                "Bạn có chắc chắn muốn thực hiện giao dịch chuyển kho cho",
+              )}{" "}
+              <strong>{lines.length}</strong>
+              {uiText(
+                " dòng vật tư này không? Giao dịch sẽ ghi sổ bất biến vào Sổ cái kho và cập nhật số dư tức thời.",
+              )}
             </p>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-slate-500">Kho nguồn:</span>
+                <span className="text-slate-500">{uiText("Kho nguồn:")}</span>
                 <span className="font-semibold text-slate-800">
                   {sourceLocationId}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Kho đích:</span>
+                <span className="text-slate-500">{uiText("Kho đích:")}</span>
                 <span className="font-semibold text-slate-800">
                   {targetLocationId}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Số dòng:</span>
+                <span className="text-slate-500">{uiText("Số dòng:")}</span>
                 <span className="font-semibold text-slate-800">
                   {lines.length}
                 </span>
@@ -888,14 +947,14 @@ export function TransferForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                Hủy bỏ / Cancel
+                {uiText("Hủy bỏ / Cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button button-primary text-xs"
               >
-                Ghi sổ điều chuyển / Confirm Transfer
+                {uiText("Ghi sổ điều chuyển / Confirm Transfer")}
               </button>
             </div>
           </div>

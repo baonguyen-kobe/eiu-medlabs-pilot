@@ -51,7 +51,7 @@ revoke all on function private.s4_guard_class_schedule_source() from public,anon
 
 create or replace function public.remove_equipment_request_item(target_item_id uuid)
 returns boolean language plpgsql security definer set search_path='' as $$
-declare r public.equipment_requests; ln public.equipment_request_items;
+declare r public.equipment_requests; ln public.equipment_request_items; previous_context text;
 begin
  perform pg_advisory_xact_lock(hashtextextended('inventory:s1:writer',0));
  if not private.is_active_user() then raise exception 'AUTH_DENIED' using errcode='42501'; end if;
@@ -60,7 +60,10 @@ begin
  if not found or not(r.registrant_id=auth.uid() or private.can_manage_equipment_request(r.id)) then raise exception 'AUTH_DENIED' using errcode='42501'; end if;
  if r.status<>'new' and r.request_domain='nursing_skills' then raise exception 'S4_USE_QUANTITY_ADJUSTMENT'; end if;
  if r.status not in ('new','preparing') then raise exception 'EQUIPMENT_REQUEST_NOT_EDITABLE'; end if;
+ previous_context:=current_setting('app.s4_command',true);
+ perform set_config('app.s4_command','true',true);
  update public.equipment_request_items set removed_at=clock_timestamp() where id=ln.id;
+ perform set_config('app.s4_command',coalesce(previous_context,''),true);
  insert into public.audit_logs(actor_id,action,entity_type,entity_id,metadata) values(auth.uid(),'equipment_request.item_removed','equipment_request',r.id,jsonb_build_object('item_id',ln.id));
  return true;
 end; $$;
@@ -69,7 +72,7 @@ grant execute on function public.remove_equipment_request_item(uuid) to authenti
 
 create or replace function public.add_equipment_request_item(target_request_id uuid,target_skill_name text,target_catalog_item_id uuid,target_quantity integer,target_note text default null)
 returns uuid language plpgsql security definer set search_path='' as $$
-declare r public.equipment_requests; item_id uuid;
+declare r public.equipment_requests; item_id uuid; previous_context text;
 begin
  perform pg_advisory_xact_lock(hashtextextended('inventory:s1:writer',0));
  if not private.is_active_user() or not private.can_manage_equipment_request(target_request_id) then raise exception 'AUTH_DENIED' using errcode='42501'; end if;
@@ -79,7 +82,10 @@ begin
  if not exists(select 1 from public.equipment_catalog where id=target_catalog_item_id and is_active) then raise exception 'CATALOG_ITEM_INACTIVE_OR_MISSING'; end if;
  if not exists(select 1 from public.equipment_request_items where request_id=r.id and skill_name=btrim(target_skill_name) and removed_at is null) then raise exception 'SKILL_NOT_FOUND_IN_REQUEST'; end if;
  perform set_config('app.s4_registration','',true);
+ previous_context:=current_setting('app.s4_command',true);
+ perform set_config('app.s4_command','true',true);
  insert into public.equipment_request_items(request_id,skill_name,catalog_item_id,quantity,note) values(r.id,btrim(target_skill_name),target_catalog_item_id,target_quantity,nullif(btrim(target_note),'')) returning id into item_id;
+ perform set_config('app.s4_command',coalesce(previous_context,''),true);
  insert into public.audit_logs(actor_id,action,entity_type,entity_id,metadata) values(auth.uid(),'equipment_request.item_added','equipment_request',r.id,jsonb_build_object('item_id',item_id,'quantity',target_quantity));
  return item_id;
 end; $$;

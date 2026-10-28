@@ -4,6 +4,7 @@ import {
   totalPagesFor,
   visiblePageNumbers,
 } from "@/lib/pagination";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 type QueryValues = Record<string, string | number | null | undefined>;
 
@@ -48,7 +49,12 @@ export function PaginationLinks({
     );
 
   return (
-    <nav className="table-pagination" aria-label="Phân trang">
+    <LocalizedElement
+      as="nav"
+      textAttributes={["aria-label"]}
+      className="table-pagination"
+      aria-label="Phân trang"
+    >
       {pageLink(1, "<<", page === 1)}
       {pageLink(page - 1, "<", page === 1)}
       {visiblePageNumbers(page, totalPages).map((pageNumber) => (
@@ -64,6 +70,6 @@ export function PaginationLinks({
       ))}
       {pageLink(page + 1, ">", page === totalPages)}
       {pageLink(totalPages, ">>", page === totalPages)}
-    </nav>
+    </LocalizedElement>
   );
 }

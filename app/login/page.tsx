@@ -1,9 +1,11 @@
-import Image from "next/image";
+import { getInterfaceText } from "@/lib/i18n/server";
+import { LocalizedImage as Image } from "@/components/i18n/localized-image";
 import { LoginForm } from "./login-form";
 
-export const metadata = {
-  title: "Đăng nhập",
-};
+export async function generateMetadata() {
+  const text = await getInterfaceText();
+  return { title: text("Đăng nhập") };
+}
 
 export default async function LoginPage({
   searchParams,

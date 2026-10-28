@@ -7,7 +7,7 @@ Canonical path:
 docs/UI_DESIGN_SYSTEM_V2_MASTER.md
 
 Last updated:
-2026-08-16
+2026-10-28
 
 ---
 
@@ -77,6 +77,30 @@ without redefining it.
 ---
 
 # 1. DESIGN DIALS — FINAL
+
+## Application language — owner correction, 2026-10-28
+
+The application supports an explicit VI/EN selector and defaults to Vietnamese
+when no valid preference exists. Display one selected language at a time;
+stacked or slash-separated Vietnamese/English labels are not the language UI.
+Apply the preference to static interface copy across the application, including
+visible and accessible labels. Persist it across navigation and reloads without
+resetting an in-progress form, filter, preparation lock or retry intent.
+
+Translate presentation only. Names, catalog/course data, notes, stored
+notifications, signed snapshots and historical records retain their original
+content. Codes, enum values, URLs, import formats and canonical date/quantity
+payloads do not change with locale. Business time remains Asia/Ho_Chi_Minh.
+
+Place the selector in shared authenticated chrome and on authentication screens;
+use keyboard-operable buttons with a clear selected state and visible focus.
+The language selector itself may show VI and EN together as choices.
+
+## Inventory operational presentation — 2026-10-28
+
+Under the owner's approved Inventory implementation plan, the outer WorkspaceShell owns the page h1 and sticky topbar. Inventory child headings use a normal-flow h2 and contextual actions, inheriting existing tokens and controls.
+
+Receiving presents quantity for this visit, good/damaged condition, current obligations and a readable review of the complete event. Original demand, planned quantity, actual issue and received quantity remain distinct. Signing presents readable immutable event facts and snapshot identity; technical JSON is secondary detail. These presentation rules do not change signer authorization, physical posting, reservation policy, or completion rules. Rendered implementation stays VERIFY until user visual acceptance.
 
 ```text
 Variance: 2 / 10

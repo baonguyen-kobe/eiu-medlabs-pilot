@@ -5013,6 +5013,7 @@ export type Database = {
         Args: { p_page?: number; p_request_id: string }
         Returns: Json
       }
+      equipment_operations_read: { Args: { p_filters?: Json }; Returns: Json }
       equipment_preparation_command: {
         Args: {
           p_operation: string

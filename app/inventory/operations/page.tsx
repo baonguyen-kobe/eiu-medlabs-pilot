@@ -3,8 +3,9 @@ import Link from "next/link";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { OperationsHub } from "@/components/inventory/operations-hub";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type { InventoryOperationStock } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function InventoryOperationsPage() {
   const viewer = await requireInventoryViewer();
@@ -27,21 +28,31 @@ export default async function InventoryOperationsPage() {
   return (
     <div className="inventory-operations min-w-0 w-full space-y-6">
       <PageHeader
-        title="Nghiệp vụ Kho Thực tế / Physical Inventory Operations"
-        description="Điều chuyển giữa các kho, Hạ phẩm cấp (Tốt → Hỏng), Kiểm kê đối soát thực tế và Thẩm định giải tỏa hàng thừa"
+        title={
+          <LocalizedText
+            text={"Nghiệp vụ Kho Thực tế / Physical Inventory Operations"}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Điều chuyển giữa các kho, Hạ phẩm cấp (Tốt → Hỏng), Kiểm kê đối soát thực tế và Thẩm định giải tỏa hàng thừa"
+            }
+          />
+        }
         actions={
           <>
             <Link
               href="/inventory/stock"
               className="button button-secondary text-xs"
             >
-              ← Xem Tồn kho / Stock Balances
+              <LocalizedText text={"← Xem Tồn kho / Stock Balances"} />
             </Link>
             <Link
               href="/inventory/transactions"
               className="button button-secondary text-xs"
             >
-              Lịch sử Sổ cái / Ledger →
+              <LocalizedText text={"Lịch sử Sổ cái / Ledger →"} />
             </Link>
           </>
         }

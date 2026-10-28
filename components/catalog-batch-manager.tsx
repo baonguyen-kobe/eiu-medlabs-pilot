@@ -12,6 +12,8 @@ import {
   updateCatalogRoomsBatch,
 } from "@/app/admin/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type RoomType = { id: string; name: string; is_active: boolean };
 type CatalogItem = {
@@ -54,6 +56,8 @@ export function CatalogBatchManager({
   initialItems: CatalogItem[];
   roomTypes: RoomType[];
 }) {
+  const { text: uiText } = useLanguage();
+
   const [items, setItems] = useState(initialItems);
   const [selected, setSelected] = useState<string[]>([]);
   const [editing, setEditing] = useState<string[]>([]);
@@ -126,7 +130,7 @@ export function CatalogBatchManager({
     });
   }
 
-  const itemLabel = kind === "rooms" ? "phòng" : "môn học";
+  const itemLabel = kind === "rooms" ? uiText("phòng") : uiText("môn học");
 
   function save() {
     if (!editingItems.length || pending) return;
@@ -256,10 +260,15 @@ export function CatalogBatchManager({
       <div
         className="equipment-catalog-toolbar"
         aria-label={
-          editing.length ? "Chỉnh sửa nội tuyến" : "Thao tác danh mục"
+          editing.length
+            ? uiText("Chỉnh sửa nội tuyến")
+            : uiText("Thao tác danh mục")
         }
       >
-        <span>{editing.length || selected.length} mục được chọn</span>
+        <span>
+          {editing.length || selected.length}
+          {uiText(" mục được chọn")}
+        </span>
         <div className="catalog-master-action-group">
           <button
             className="button button-primary"
@@ -267,7 +276,7 @@ export function CatalogBatchManager({
             disabled={Boolean(editing.length) || !selected.length || pending}
             onClick={() => setActiveConfirmation(true)}
           >
-            Kích hoạt
+            {uiText("Kích hoạt")}
           </button>
           <button
             className="button button-secondary"
@@ -275,7 +284,7 @@ export function CatalogBatchManager({
             disabled={pending || (!editing.length && !selected.length)}
             onClick={() => (editing.length ? save() : beginEdit(selected))}
           >
-            {editing.length ? "Lưu chỉnh sửa" : "Sửa"}
+            {editing.length ? uiText("Lưu chỉnh sửa") : uiText("Sửa")}
           </button>
           <button
             className="button button-secondary"
@@ -283,7 +292,7 @@ export function CatalogBatchManager({
             disabled={Boolean(editing.length) || !selected.length || pending}
             onClick={() => setActiveConfirmation(false)}
           >
-            Ngừng sử dụng
+            {uiText("Ngừng sử dụng")}
           </button>
           <button
             className="button button-danger"
@@ -297,7 +306,7 @@ export function CatalogBatchManager({
               )
             }
           >
-            Xóa
+            {uiText("Xóa")}
           </button>
         </div>
         {editing.length ? (
@@ -307,19 +316,21 @@ export function CatalogBatchManager({
             disabled={pending}
             onClick={cancelEdit}
           >
-            Hủy
+            {uiText("Hủy")}
           </button>
         ) : null}
       </div>
       {notice ? (
         <p className="action-feedback" role="status">
-          {notice}
+          <LocalizedText text={notice ?? ""} />
         </p>
       ) : null}
       <ConfirmDialog
         open={activeConfirmation !== null}
-        title={`${activeConfirmation ? "Kích hoạt" : "Ngừng sử dụng"} ${selected.length} ${itemLabel}?`}
-        description="Thao tác chỉ áp dụng một lần cho đúng các mục đang chọn."
+        title={`${activeConfirmation ? uiText("Kích hoạt") : uiText("Ngừng sử dụng")} ${selected.length} ${itemLabel}?`}
+        description={uiText(
+          "Thao tác chỉ áp dụng một lần cho đúng các mục đang chọn.",
+        )}
         tone={activeConfirmation ? "primary" : "danger"}
         pending={pending}
         onCancel={() => setActiveConfirmation(null)}
@@ -331,8 +342,10 @@ export function CatalogBatchManager({
       />
       <ConfirmDialog
         open={deleteTarget !== null}
-        title={`Xóa ${itemLabel} này?`}
-        description="Thao tác chỉ thành công khi không có dữ liệu liên quan."
+        title={uiText("Xóa {0} này?", [itemLabel])}
+        description={uiText(
+          "Thao tác chỉ thành công khi không có dữ liệu liên quan.",
+        )}
         tone="danger"
         pending={pending}
         onCancel={() => setDeleteTarget(null)}
@@ -343,8 +356,8 @@ export function CatalogBatchManager({
         role="region"
         aria-label={
           kind === "rooms"
-            ? "Danh mục phòng; vuốt ngang để xem đầy đủ"
-            : "Danh mục môn học; vuốt ngang để xem đầy đủ"
+            ? uiText("Danh mục phòng; vuốt ngang để xem đầy đủ")
+            : uiText("Danh mục môn học; vuốt ngang để xem đầy đủ")
         }
         tabIndex={0}
       >
@@ -353,7 +366,7 @@ export function CatalogBatchManager({
             <tr>
               <th>
                 <input
-                  aria-label="Chọn tất cả mục đang xem"
+                  aria-label={uiText("Chọn tất cả mục đang xem")}
                   type="checkbox"
                   checked={allSelected}
                   disabled={editing.length > 0 || pending}
@@ -362,11 +375,11 @@ export function CatalogBatchManager({
                   }
                 />
               </th>
-              <th>Mã</th>
-              <th>Tên</th>
-              <th>Loại</th>
-              {kind === "rooms" ? <th>Sức chứa</th> : null}
-              <th>Trạng thái</th>
+              <th>{uiText("Mã")}</th>
+              <th>{uiText("Tên")}</th>
+              <th>{uiText("Loại")}</th>
+              {kind === "rooms" ? <th>{uiText("Sức chứa")}</th> : null}
+              <th>{uiText("Trạng thái")}</th>
               <th />
             </tr>
           </thead>
@@ -381,7 +394,9 @@ export function CatalogBatchManager({
                 >
                   <td>
                     <input
-                      aria-label={`Chọn ${kind === "rooms" ? item.room_code : item.course_code}`}
+                      aria-label={uiText("Chọn {0}", [
+                        kind === "rooms" ? item.room_code : item.course_code,
+                      ])}
                       type="checkbox"
                       checked={selected.includes(item.id)}
                       disabled={isEditing || editing.length > 0 || pending}
@@ -393,7 +408,7 @@ export function CatalogBatchManager({
                       kind === "rooms" ? (
                         <div className="catalog-inline-fields">
                           <input
-                            aria-label="Mã phòng"
+                            aria-label={uiText("Mã phòng")}
                             required
                             value={draft.code}
                             onChange={(event) =>
@@ -401,7 +416,7 @@ export function CatalogBatchManager({
                             }
                           />
                           <input
-                            aria-label="Tòa nhà"
+                            aria-label={uiText("Tòa nhà")}
                             required
                             value={draft.building}
                             onChange={(event) =>
@@ -415,7 +430,7 @@ export function CatalogBatchManager({
                         </div>
                       ) : (
                         <input
-                          aria-label="Mã môn học"
+                          aria-label={uiText("Mã môn học")}
                           required
                           value={draft.code}
                           onChange={(event) =>
@@ -433,7 +448,9 @@ export function CatalogBatchManager({
                     {isEditing ? (
                       <input
                         aria-label={
-                          kind === "rooms" ? "Tên phòng" : "Tên môn học"
+                          kind === "rooms"
+                            ? uiText("Tên phòng")
+                            : uiText("Tên môn học")
                         }
                         required={kind === "courses"}
                         value={draft.name}
@@ -450,7 +467,7 @@ export function CatalogBatchManager({
                   <td>
                     {isEditing ? (
                       <select
-                        aria-label="Loại phòng"
+                        aria-label={uiText("Loại phòng")}
                         value={draft.roomTypeId}
                         onChange={(event) =>
                           updateDraft(item.id, "roomTypeId", event.target.value)
@@ -472,7 +489,7 @@ export function CatalogBatchManager({
                     <td>
                       {isEditing ? (
                         <input
-                          aria-label="Sức chứa"
+                          aria-label={uiText("Sức chứa")}
                           type="number"
                           min="1"
                           step="1"
@@ -490,12 +507,14 @@ export function CatalogBatchManager({
                     <span
                       className={`status-pill ${item.is_active ? "is-active" : ""}`}
                     >
-                      {item.is_active ? "Đang dùng" : "Ngừng dùng"}
+                      {item.is_active
+                        ? uiText("Đang dùng")
+                        : uiText("Ngừng dùng")}
                     </span>
                   </td>
                   <td className="catalog-row-actions">
                     {isEditing ? (
-                      <span className="field-note">Đang sửa</span>
+                      <span className="field-note">{uiText("Đang sửa")}</span>
                     ) : (
                       <>
                         <button
@@ -504,7 +523,7 @@ export function CatalogBatchManager({
                           disabled={pending}
                           onClick={() => beginEdit([item.id])}
                         >
-                          Sửa
+                          {uiText("Sửa")}
                         </button>
                         <button
                           className="table-action delete-action"
@@ -512,7 +531,7 @@ export function CatalogBatchManager({
                           disabled={pending}
                           onClick={() => setDeleteTarget(item)}
                         >
-                          Xóa
+                          {uiText("Xóa")}
                         </button>
                       </>
                     )}

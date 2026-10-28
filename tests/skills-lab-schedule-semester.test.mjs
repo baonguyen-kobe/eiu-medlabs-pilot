@@ -305,7 +305,7 @@ test("ImportWizard enforces batch-level semester selector before Step 1 upload",
   );
   assert.match(
     wizardSource,
-    /Học kỳ: <b>\{semester\}<\/b>/,
+    /uiText\("Học kỳ: "\)\}\s*<b>\{semester\}<\/b>/,
     "Preview steps must display the selected batch semester",
   );
 });

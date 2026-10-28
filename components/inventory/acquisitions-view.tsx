@@ -30,6 +30,9 @@ import type {
   InventorySupplier,
   InventoryUom,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
+
 function extractRevision(data: unknown): string | number | undefined {
   if (!data || typeof data !== "object") return undefined;
   if (
@@ -116,6 +119,8 @@ export function AcquisitionsView({
   initialReceipts: InventorySourceReceipt[];
   isAdmin: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -271,7 +276,9 @@ export function AcquisitionsView({
               : "bg-red-50 text-red-800 border-red-200"
           }`}
         >
-          <span>{notice.message}</span>
+          <span>
+            <LocalizedText text={notice.message ?? ""} />
+          </span>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 p-1"
@@ -287,12 +294,14 @@ export function AcquisitionsView({
         <ClipboardList size={18} className="text-blue-600 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <span className="font-semibold block mb-0.5">
-            Quy định bất biến hồ sơ nguồn (Invariants D09 / PAGE-004):
+            {uiText(
+              "Quy định bất biến hồ sơ nguồn (Invariants D09 / PAGE-004):",
+            )}
           </span>
-          Lưu hồ sơ nguồn có biến động tồn kho bằng 0 (Delta = 0). Dữ liệu này
-          ghi nhận bằng chứng mua sắm / hợp đồng / tài trợ. Hàng hóa thực tế chỉ
-          được ghi nhận vào sổ cái khi hoàn tất thủ tục{" "}
-          <strong>Nhận kho (Receive Stock)</strong>.
+          {uiText(
+            "Lưu hồ sơ nguồn có biến động tồn kho bằng 0 (Delta = 0). Dữ liệu này ghi nhận bằng chứng mua sắm / hợp đồng / tài trợ. Hàng hóa thực tế chỉ được ghi nhận vào sổ cái khi hoàn tất thủ tục",
+          )}{" "}
+          <strong>{uiText("Nhận kho (Receive Stock)")}</strong>.
         </div>
       </div>
 
@@ -302,14 +311,16 @@ export function AcquisitionsView({
         <div className="lg:col-span-1 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              Danh sách hồ sơ nguồn ({sourcesTotal})
+              {uiText("Danh sách hồ sơ nguồn (")}
+              {sourcesTotal})
             </h2>
             <button
               type="button"
               className="button button-primary text-xs"
               onClick={() => setCreateSourceOpen(true)}
             >
-              <Plus size={14} /> Tạo hồ sơ mới
+              <Plus size={14} />
+              {uiText(" Tạo hồ sơ mới")}
             </button>
           </div>
 
@@ -326,9 +337,11 @@ export function AcquisitionsView({
                 />
                 <input
                   id="acquisitions-search"
-                  aria-label="Tìm mã hồ sơ, nhà cung cấp / Search Source or Supplier"
+                  aria-label={uiText(
+                    "Tìm mã hồ sơ, nhà cung cấp / Search Source or Supplier",
+                  )}
                   type="text"
-                  placeholder="Tìm mã hồ sơ, nhà cung cấp..."
+                  placeholder={uiText("Tìm mã hồ sơ, nhà cung cấp...")}
                   className="w-full text-xs pl-8 pr-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -338,7 +351,7 @@ export function AcquisitionsView({
                 type="submit"
                 className="button button-secondary text-xs px-2.5 py-1.5"
               >
-                Tìm
+                {uiText("Tìm")}
               </button>
             </form>
             <div className="space-y-1.5 text-xs">
@@ -349,10 +362,10 @@ export function AcquisitionsView({
                     filters={{ active: true }}
                     value={supplierFilter}
                     valueKey="id"
-                    label="Lọc theo nhà cung cấp"
+                    label={uiText("Lọc theo nhà cung cấp")}
                     id="acquisitions-supplier-filter"
                     selectedLabel={selectedSupplierFilterLabel}
-                    placeholder="Tất cả NCC / All Suppliers"
+                    placeholder={uiText("Tất cả NCC / All Suppliers")}
                     hideLabel={true}
                     onSelect={(sup) => {
                       setSupplierFilter(sup.id);
@@ -370,8 +383,8 @@ export function AcquisitionsView({
                       setSelectedSupplierFilterLabel("");
                       updateParams({ supplier_id: undefined, page: undefined });
                     }}
-                    title="Bỏ lọc NCC"
-                    aria-label="Bỏ lọc NCC"
+                    title={uiText("Bỏ lọc NCC")}
+                    aria-label={uiText("Bỏ lọc NCC")}
                   >
                     <X size={14} />
                   </button>
@@ -381,14 +394,18 @@ export function AcquisitionsView({
               <div>
                 <select
                   id="acquisitions-status-filter"
-                  aria-label="Lọc theo trạng thái / Filter by Status"
+                  aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
                   className="w-full text-[11px] p-1.5 border border-slate-300 rounded-lg bg-white"
                   value={statusFilter}
                   onChange={(e) => handleStatusChange(e.target.value)}
                 >
-                  <option value="all">Tất cả TT / All Statuses</option>
-                  <option value="active">Đang hiệu lực / Active</option>
-                  <option value="voided">Đã hủy / Voided</option>
+                  <option value="all">
+                    {uiText("Tất cả TT / All Statuses")}
+                  </option>
+                  <option value="active">
+                    {uiText("Đang hiệu lực / Active")}
+                  </option>
+                  <option value="voided">{uiText("Đã hủy / Voided")}</option>
                 </select>
               </div>
             </div>
@@ -398,7 +415,7 @@ export function AcquisitionsView({
           <div className="space-y-2">
             {sources.length === 0 ? (
               <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-xs text-slate-400">
-                Chưa có hồ sơ nguồn nào phù hợp.
+                {uiText("Chưa có hồ sơ nguồn nào phù hợp.")}
               </div>
             ) : (
               sources.map((source) => {
@@ -425,23 +442,26 @@ export function AcquisitionsView({
                       </span>
                       {source.status === "voided" ? (
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-700">
-                          Đã hủy / Voided
+                          {uiText("Đã hủy / Voided")}
                         </span>
                       ) : (
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700">
-                          Hiệu lực / Active
+                          {uiText("Hiệu lực / Active")}
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-slate-600 mb-1 line-clamp-1">
-                      {source.supplier_name || "Nhà cung cấp chưa đặt tên"}
+                      {source.supplier_name ||
+                        uiText("Nhà cung cấp chưa đặt tên")}
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
                       <span>
-                        Ngày: {formatInventoryDate(source.reference_date)}
+                        {uiText("Ngày: ")}
+                        {formatInventoryDate(source.reference_date)}
                       </span>
                       <span className="font-mono">
-                        r{String(source.revision)}
+                        {uiText("r")}
+                        {String(source.revision)}
                       </span>
                     </div>
                   </div>
@@ -474,19 +494,19 @@ export function AcquisitionsView({
                       </h3>
                       {selectedSource.status === "voided" ? (
                         <span className="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700">
-                          Đã hủy / Voided
+                          {uiText("Đã hủy / Voided")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-700">
-                          Đang hiệu lực / Active
+                          {uiText("Đang hiệu lực / Active")}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      Nhà cung cấp:{" "}
+                      {uiText("Nhà cung cấp:")}{" "}
                       <strong className="text-slate-700">
                         {selectedSource.supplier_name ||
-                          "Nhà cung cấp chưa đặt tên"}
+                          uiText("Nhà cung cấp chưa đặt tên")}
                       </strong>
                     </p>
                   </div>
@@ -498,14 +518,16 @@ export function AcquisitionsView({
                           href={`/inventory/receive?sourceId=${selectedSource.id}`}
                           className="button button-primary text-xs"
                         >
-                          <Plus size={14} /> Nhận hàng từ hồ sơ này
+                          <Plus size={14} />
+                          {uiText(" Nhận hàng từ hồ sơ này")}
                         </Link>
                         <button
                           type="button"
                           className="button button-secondary text-xs"
                           onClick={() => setEditSource(selectedSource)}
                         >
-                          <Settings size={14} /> Sửa thông tin
+                          <Settings size={14} />
+                          {uiText(" Sửa thông tin")}
                         </button>
                         {isAdmin ? (
                           <button
@@ -513,7 +535,7 @@ export function AcquisitionsView({
                             className="button button-danger text-xs"
                             onClick={() => setVoidSource(selectedSource)}
                           >
-                            Hủy hồ sơ
+                            {uiText("Hủy hồ sơ")}
                           </button>
                         ) : null}
                       </>
@@ -524,7 +546,7 @@ export function AcquisitionsView({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div>
                     <span className="text-slate-400 block text-[11px]">
-                      Ngày hồ sơ:
+                      {uiText("Ngày hồ sơ:")}
                     </span>
                     <span className="font-semibold text-slate-800">
                       {formatInventoryDate(selectedSource.reference_date)}
@@ -532,7 +554,7 @@ export function AcquisitionsView({
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px]">
-                      Nguồn kinh phí:
+                      {uiText("Nguồn kinh phí:")}
                     </span>
                     <span className="font-semibold text-slate-800">
                       {selectedSource.funding_source || "—"}
@@ -540,7 +562,7 @@ export function AcquisitionsView({
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px]">
-                      Mã tham chiếu ngoài:
+                      {uiText("Mã tham chiếu ngoài:")}
                     </span>
                     <span className="font-mono text-slate-800">
                       {selectedSource.external_reference || "—"}
@@ -548,10 +570,11 @@ export function AcquisitionsView({
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px]">
-                      Phiên bản:
+                      {uiText("Phiên bản:")}
                     </span>
                     <span className="font-mono text-slate-800">
-                      r{String(selectedSource.revision)}
+                      {uiText("r")}
+                      {String(selectedSource.revision)}
                     </span>
                   </div>
                 </div>
@@ -559,7 +582,7 @@ export function AcquisitionsView({
                 {selectedSource.notes ? (
                   <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
                     <span className="font-semibold text-slate-700">
-                      Ghi chú:
+                      {uiText("Ghi chú:")}
                     </span>{" "}
                     {selectedSource.notes}
                   </div>
@@ -571,7 +594,8 @@ export function AcquisitionsView({
                 <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex items-center gap-3">
                     <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                      Các dòng vật tư cam kết ({linesTotal})
+                      {uiText("Các dòng vật tư cam kết (")}
+                      {linesTotal})
                     </h4>
                     <form
                       onSubmit={handleLineSearchSubmit}
@@ -584,9 +608,9 @@ export function AcquisitionsView({
                         />
                         <input
                           id="search-source-lines"
-                          aria-label="Tìm dòng vật tư"
+                          aria-label={uiText("Tìm dòng vật tư")}
                           type="text"
-                          placeholder="Tìm SKU, tên..."
+                          placeholder={uiText("Tìm SKU, tên...")}
                           className="text-[11px] pl-6 pr-2 py-1 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500 w-36 sm:w-48"
                           value={lineSearch}
                           onChange={(e) => setLineSearch(e.target.value)}
@@ -596,7 +620,7 @@ export function AcquisitionsView({
                         type="submit"
                         className="button button-secondary text-[11px] px-2 py-1"
                       >
-                        Tìm
+                        {uiText("Tìm")}
                       </button>
                     </form>
                   </div>
@@ -606,7 +630,8 @@ export function AcquisitionsView({
                       className="button button-primary text-xs"
                       onClick={() => setCreateLineOpen(true)}
                     >
-                      <Plus size={14} /> Thêm dòng vật tư
+                      <Plus size={14} />
+                      {uiText(" Thêm dòng vật tư")}
                     </button>
                   ) : null}
                 </div>
@@ -615,16 +640,26 @@ export function AcquisitionsView({
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                        <th className="py-2.5 px-3">Dòng / Key</th>
-                        <th className="py-2.5 px-3">Vật tư / Item</th>
-                        <th className="py-2.5 px-3">SL Cam kết</th>
-                        <th className="py-2.5 px-3">So sánh SL cơ sở</th>
-                        <th className="py-2.5 px-3">Đóng gói thực nhận</th>
-                        <th className="py-2.5 px-3">Phiếu nhận thực tế</th>
-                        <th className="py-2.5 px-3 text-right">
-                          Đơn giá (INV-018)
+                        <th className="py-2.5 px-3">{uiText("Dòng / Key")}</th>
+                        <th className="py-2.5 px-3">
+                          {uiText("Vật tư / Item")}
                         </th>
-                        <th className="py-2.5 px-3 text-right">Thao tác</th>
+                        <th className="py-2.5 px-3">{uiText("SL Cam kết")}</th>
+                        <th className="py-2.5 px-3">
+                          {uiText("So sánh SL cơ sở")}
+                        </th>
+                        <th className="py-2.5 px-3">
+                          {uiText("Đóng gói thực nhận")}
+                        </th>
+                        <th className="py-2.5 px-3">
+                          {uiText("Phiếu nhận thực tế")}
+                        </th>
+                        <th className="py-2.5 px-3 text-right">
+                          {uiText("Đơn giá (INV-018)")}
+                        </th>
+                        <th className="py-2.5 px-3 text-right">
+                          {uiText("Thao tác")}
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -634,7 +669,9 @@ export function AcquisitionsView({
                             colSpan={8}
                             className="py-8 text-center text-slate-400"
                           >
-                            Hồ sơ này chưa có dòng vật tư cam kết nào.
+                            {uiText(
+                              "Hồ sơ này chưa có dòng vật tư cam kết nào.",
+                            )}
                           </td>
                         </tr>
                       ) : (
@@ -678,7 +715,7 @@ export function AcquisitionsView({
                                 </span>
                                 {hasFactor ? (
                                   <span className="text-[11px] text-slate-400 block font-normal">
-                                    QĐ: ×
+                                    {uiText("QĐ: ×")}
                                     {formatDisplayQuantity(
                                       line.expected_conversion_factor!,
                                     )}
@@ -689,7 +726,7 @@ export function AcquisitionsView({
                                 <div className="space-y-0.5 text-[11px]">
                                   <div>
                                     <span className="text-slate-400">
-                                      Dự kiến:{" "}
+                                      {uiText("Dự kiến:")}{" "}
                                     </span>
                                     <span className="font-mono font-medium">
                                       {line.expected_base_quantity
@@ -701,7 +738,7 @@ export function AcquisitionsView({
                                   </div>
                                   <div>
                                     <span className="text-slate-400">
-                                      Thực nhận:{" "}
+                                      {uiText("Thực nhận:")}{" "}
                                     </span>
                                     <span className="font-mono font-bold text-slate-900">
                                       {formatDisplayQuantity(
@@ -711,7 +748,7 @@ export function AcquisitionsView({
                                   </div>
                                   <div>
                                     <span className="text-slate-400">
-                                      Lệch:{" "}
+                                      {uiText("Lệch:")}{" "}
                                     </span>
                                     {hasFactor && discrepancyNum !== null ? (
                                       <span
@@ -731,7 +768,7 @@ export function AcquisitionsView({
                                       </span>
                                     ) : (
                                       <span className="text-slate-400 italic">
-                                        Không xác định
+                                        {uiText("Không xác định")}
                                       </span>
                                     )}
                                   </div>
@@ -749,7 +786,7 @@ export function AcquisitionsView({
                                           {pkg.purchase_uom_code}
                                         </span>{" "}
                                         <span className="text-slate-500">
-                                          (×
+                                          {uiText("(×")}
                                           {formatDisplayQuantity(
                                             pkg.conversion_factor,
                                           )}{" "}
@@ -764,7 +801,7 @@ export function AcquisitionsView({
                                   </div>
                                 ) : (
                                   <span className="text-slate-400 text-[11px] italic">
-                                    Chưa nhận
+                                    {uiText("Chưa nhận")}
                                   </span>
                                 )}
                               </td>
@@ -776,7 +813,10 @@ export function AcquisitionsView({
                                         key={idx}
                                         href={`/inventory/transactions/${rcpt.transaction_id}?origin=${rcpt.origin_id}`}
                                         className="block text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-mono"
-                                        title={`Xem chứng từ nhận kho ${rcpt.receipt_reference}`}
+                                        title={uiText(
+                                          "Xem chứng từ nhận kho {0}",
+                                          [rcpt.receipt_reference],
+                                        )}
                                       >
                                         {rcpt.receipt_reference} (
                                         {formatDisplayQuantity(
@@ -818,7 +858,7 @@ export function AcquisitionsView({
                                     className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                                     onClick={() => setEditLine(line)}
                                   >
-                                    Sửa
+                                    {uiText("Sửa")}
                                   </button>
                                 ) : null}
                               </td>
@@ -832,7 +872,11 @@ export function AcquisitionsView({
 
                 <div className="p-3 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-xs text-slate-500">
-                    Hiển thị {lines.length} trên tổng số {linesTotal} dòng
+                    {uiText("Hiển thị ")}
+                    {lines.length}
+                    {uiText(" trên tổng số ")}
+                    {linesTotal}
+                    {uiText(" dòng")}
                   </span>
                   <PaginationControls
                     currentPage={currentLinePage}
@@ -847,7 +891,9 @@ export function AcquisitionsView({
             </>
           ) : (
             <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400 text-xs">
-              Vui lòng chọn hoặc tạo một hồ sơ nguồn để xem chi tiết.
+              {uiText(
+                "Vui lòng chọn hoặc tạo một hồ sơ nguồn để xem chi tiết.",
+              )}
             </div>
           )}
         </div>
@@ -902,11 +948,13 @@ export function AcquisitionsView({
       {voidSource ? (
         <ConfirmActionModal
           open={Boolean(voidSource)}
-          title="Hủy hồ sơ nguồn / Void Acquisition Source"
-          description="Hồ sơ nguồn sẽ chuyển sang trạng thái đã hủy (voided) và không thể tiếp tục nhận hàng. Lưu ý: Thao tác này có biến động tồn kho bằng 0 (Delta = 0) và không làm xóa hay thay đổi các phiếu nhận hàng thực tế đã ghi nhận trước đó."
+          title={uiText("Hủy hồ sơ nguồn / Void Acquisition Source")}
+          description={uiText(
+            "Hồ sơ nguồn sẽ chuyển sang trạng thái đã hủy (voided) và không thể tiếp tục nhận hàng. Lưu ý: Thao tác này có biến động tồn kho bằng 0 (Delta = 0) và không làm xóa hay thay đổi các phiếu nhận hàng thực tế đã ghi nhận trước đó.",
+          )}
           targetName={voidSource.source_reference}
           currentRevision={voidSource.revision}
-          actionLabel="Xác nhận hủy hồ sơ"
+          actionLabel={uiText("Xác nhận hủy hồ sơ")}
           actionVariant="danger"
           isPending={isPending}
           onConfirm={handleConfirmVoid}
@@ -987,6 +1035,8 @@ function CreateSourceDialog({
   onClose: () => void;
   onCreated: (source: AcquisitionRecord) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [sourceRef, setSourceRef] = useState("");
   const [supplierId, setSupplierId] = useState("");
   const [selectedSupplierLabel, setSelectedSupplierLabel] = useState("");
@@ -1045,13 +1095,13 @@ function CreateSourceDialog({
             id="create-source-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Tạo hồ sơ nguồn mới / Create Acquisition Source
+            {uiText("Tạo hồ sơ nguồn mới / Create Acquisition Source")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -1064,13 +1114,14 @@ function CreateSourceDialog({
                 htmlFor="create-source-ref"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã hồ sơ nguồn <span className="text-red-500">*</span>
+                {uiText("Mã hồ sơ nguồn ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-source-ref"
                 type="text"
                 className="w-full text-xs font-mono uppercase border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: HD-2026-001"
+                placeholder={uiText("VD: HD-2026-001")}
                 value={sourceRef}
                 onChange={(e) => setSourceRef(e.target.value)}
                 required
@@ -1081,7 +1132,8 @@ function CreateSourceDialog({
                 htmlFor="create-source-date"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Ngày hồ sơ <span className="text-red-500">*</span>
+                {uiText("Ngày hồ sơ ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-source-date"
@@ -1099,17 +1151,18 @@ function CreateSourceDialog({
               htmlFor="create-source-supplier"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Nhà cung cấp <span className="text-red-500">*</span>
+              {uiText("Nhà cung cấp ")}
+              <span className="text-red-500">*</span>
             </label>
             <InventoryLookup<InventorySupplier>
               resource="suppliers"
               filters={{ active: true }}
               value={supplierId}
               valueKey="id"
-              label="Nhà cung cấp"
+              label={uiText("Nhà cung cấp")}
               id="create-source-supplier"
               selectedLabel={selectedSupplierLabel}
-              placeholder="Chọn hoặc tìm kiếm nhà cung cấp…"
+              placeholder={uiText("Chọn hoặc tìm kiếm nhà cung cấp…")}
               hideLabel={true}
               required={true}
               onSelect={(sup) => {
@@ -1125,13 +1178,13 @@ function CreateSourceDialog({
                 htmlFor="create-source-funding"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nguồn kinh phí / Dự án
+                {uiText("Nguồn kinh phí / Dự án")}
               </label>
               <input
                 id="create-source-funding"
                 type="text"
                 className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: Ngân sách ĐH EIU"
+                placeholder={uiText("VD: Ngân sách ĐH EIU")}
                 value={fundingSource}
                 onChange={(e) => setFundingSource(e.target.value)}
               />
@@ -1141,13 +1194,13 @@ function CreateSourceDialog({
                 htmlFor="create-source-external-ref"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Số tham chiếu ngoài (HĐ/HĐĐT)
+                {uiText("Số tham chiếu ngoài (HĐ/HĐĐT)")}
               </label>
               <input
                 id="create-source-external-ref"
                 type="text"
                 className="w-full text-xs font-mono border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: INV-789012"
+                placeholder={uiText("VD: INV-789012")}
                 value={externalRef}
                 onChange={(e) => setExternalRef(e.target.value)}
               />
@@ -1159,13 +1212,13 @@ function CreateSourceDialog({
               htmlFor="create-source-notes"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Ghi chú
+              {uiText("Ghi chú")}
             </label>
             <textarea
               id="create-source-notes"
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
               rows={2}
-              placeholder="Ghi chú chi tiết về hồ sơ..."
+              placeholder={uiText("Ghi chú chi tiết về hồ sơ...")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -1173,7 +1226,7 @@ function CreateSourceDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -1184,14 +1237,14 @@ function CreateSourceDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu hồ sơ nguồn"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu hồ sơ nguồn")}
             </button>
           </div>
         </form>
@@ -1212,6 +1265,8 @@ function EditSourceDialog({
   onClose: () => void;
   onUpdated: (source: AcquisitionRecord) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [sourceRef, setSourceRef] = useState(source.source_reference);
   const [supplierId, setSupplierId] = useState(source.supplier_id);
   const [selectedSupplierLabel, setSelectedSupplierLabel] = useState(
@@ -1273,13 +1328,13 @@ function EditSourceDialog({
             id="edit-source-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Sửa hồ sơ nguồn / Edit Source
+            {uiText("Sửa hồ sơ nguồn / Edit Source")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -1292,7 +1347,8 @@ function EditSourceDialog({
                 htmlFor="edit-source-ref"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã hồ sơ <span className="text-red-500">*</span>
+                {uiText("Mã hồ sơ ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="edit-source-ref"
@@ -1308,7 +1364,8 @@ function EditSourceDialog({
                 htmlFor="edit-source-date"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Ngày hồ sơ <span className="text-red-500">*</span>
+                {uiText("Ngày hồ sơ ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="edit-source-date"
@@ -1326,17 +1383,18 @@ function EditSourceDialog({
               htmlFor="edit-source-supplier"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Nhà cung cấp <span className="text-red-500">*</span>
+              {uiText("Nhà cung cấp ")}
+              <span className="text-red-500">*</span>
             </label>
             <InventoryLookup<InventorySupplier>
               resource="suppliers"
               filters={{ active: true }}
               value={supplierId}
               valueKey="id"
-              label="Nhà cung cấp"
+              label={uiText("Nhà cung cấp")}
               id="edit-source-supplier"
               selectedLabel={selectedSupplierLabel || source.supplier_name}
-              placeholder="Chọn hoặc tìm kiếm nhà cung cấp…"
+              placeholder={uiText("Chọn hoặc tìm kiếm nhà cung cấp…")}
               hideLabel={true}
               required={true}
               onSelect={(sup) => {
@@ -1351,7 +1409,7 @@ function EditSourceDialog({
                 htmlFor="edit-source-funding"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nguồn kinh phí
+                {uiText("Nguồn kinh phí")}
               </label>
               <input
                 id="edit-source-funding"
@@ -1366,7 +1424,7 @@ function EditSourceDialog({
                 htmlFor="edit-source-external-ref"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã tham chiếu ngoài
+                {uiText("Mã tham chiếu ngoài")}
               </label>
               <input
                 id="edit-source-external-ref"
@@ -1383,7 +1441,7 @@ function EditSourceDialog({
               htmlFor="edit-source-notes"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Ghi chú
+              {uiText("Ghi chú")}
             </label>
             <textarea
               id="edit-source-notes"
@@ -1396,7 +1454,7 @@ function EditSourceDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -1407,14 +1465,14 @@ function EditSourceDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
             </button>
           </div>
         </form>
@@ -1440,6 +1498,8 @@ function CreateSourceLineDialog({
     sourceRevision?: string | number,
   ) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [lineKey, setLineKey] = useState("L1");
   const [catalogItemId, setCatalogItemId] = useState("");
   const [selectedItem, setSelectedItem] = useState<InventoryCatalogItem | null>(
@@ -1560,13 +1620,13 @@ function CreateSourceLineDialog({
             id="create-source-line-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Thêm dòng vật tư cam kết / Add Source Line
+            {uiText("Thêm dòng vật tư cam kết / Add Source Line")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -1579,13 +1639,14 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-key"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Ký hiệu dòng (Line Key) <span className="text-red-500">*</span>
+                {uiText("Ký hiệu dòng (Line Key) ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-line-key"
                 type="text"
                 className="w-full text-xs font-mono border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: L1, L2"
+                placeholder={uiText("VD: L1, L2")}
                 value={lineKey}
                 onChange={(e) => setLineKey(e.target.value)}
                 required
@@ -1596,17 +1657,18 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-item"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Vật tư danh mục <span className="text-red-500">*</span>
+                {uiText("Vật tư danh mục ")}
+                <span className="text-red-500">*</span>
               </label>
               <InventoryLookup<InventoryCatalogItem>
                 resource="items"
                 filters={{ active: true }}
                 value={catalogItemId}
                 valueKey="id"
-                label="Vật tư danh mục"
+                label={uiText("Vật tư danh mục")}
                 id="create-line-item"
                 selectedLabel={selectedItemLabel}
-                placeholder="Chọn hoặc tìm kiếm vật tư SKU…"
+                placeholder={uiText("Chọn hoặc tìm kiếm vật tư SKU…")}
                 hideLabel={true}
                 required={true}
                 onSelect={(it) => {
@@ -1630,7 +1692,8 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-qty"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                SL Đặt/Cam kết <span className="text-red-500">*</span>
+                {uiText("SL Đặt/Cam kết ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-line-qty"
@@ -1647,17 +1710,18 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-uom"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                ĐVT Nhập <span className="text-red-500">*</span>
+                {uiText("ĐVT Nhập ")}
+                <span className="text-red-500">*</span>
               </label>
               <InventoryLookup<InventoryUom>
                 resource="uoms"
                 filters={{ active: true }}
                 value={purchaseUomCode}
                 valueKey="code"
-                label="ĐVT Nhập"
+                label={uiText("ĐVT Nhập")}
                 id="create-line-uom"
                 selectedLabel={selectedPurchaseUomLabel}
-                placeholder="Chọn ĐVT nhập…"
+                placeholder={uiText("Chọn ĐVT nhập…")}
                 hideLabel={true}
                 required={true}
                 onSelect={(uom) => {
@@ -1671,7 +1735,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-factor"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Hệ số quy đổi dự kiến
+                {uiText("Hệ số quy đổi dự kiến")}
               </label>
               <input
                 id="create-line-factor"
@@ -1691,13 +1755,13 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-cost"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Đơn giá mua (INV-018)
+                {uiText("Đơn giá mua (INV-018)")}
               </label>
               <input
                 id="create-line-cost"
                 type="text"
                 inputMode="decimal"
-                placeholder="VD: 55000"
+                placeholder={uiText("VD: 55000")}
                 className="w-full text-xs font-mono border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
                 value={unitCost}
                 onChange={(e) => setUnitCost(e.target.value)}
@@ -1708,7 +1772,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-currency"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Loại tiền
+                {uiText("Loại tiền")}
               </label>
               <input
                 id="create-line-currency"
@@ -1726,7 +1790,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-manufacturer"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Hãng sản xuất
+                {uiText("Hãng sản xuất")}
               </label>
               <input
                 id="create-line-manufacturer"
@@ -1741,7 +1805,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-model"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Model
+                {uiText("Model")}
               </label>
               <input
                 id="create-line-model"
@@ -1756,7 +1820,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-country"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nước sản xuất
+                {uiText("Nước sản xuất")}
               </label>
               <input
                 id="create-line-country"
@@ -1774,7 +1838,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-warranty-start"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Bảo hành từ (Warranty Start)
+                {uiText("Bảo hành từ (Warranty Start)")}
               </label>
               <input
                 id="create-line-warranty-start"
@@ -1789,7 +1853,7 @@ function CreateSourceLineDialog({
                 htmlFor="create-line-warranty-end"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Bảo hành đến (Warranty End)
+                {uiText("Bảo hành đến (Warranty End)")}
               </label>
               <input
                 id="create-line-warranty-end"
@@ -1806,13 +1870,13 @@ function CreateSourceLineDialog({
               htmlFor="create-line-notes"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Ghi chú dòng vật tư
+              {uiText("Ghi chú dòng vật tư")}
             </label>
             <textarea
               id="create-line-notes"
               rows={2}
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-              placeholder="Ghi chú quy cách, xuất xứ, điều kiện..."
+              placeholder={uiText("Ghi chú quy cách, xuất xứ, điều kiện...")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -1820,7 +1884,7 @@ function CreateSourceLineDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -1831,14 +1895,14 @@ function CreateSourceLineDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Thêm dòng vật tư"}
+              {isPending ? uiText("Đang lưu...") : uiText("Thêm dòng vật tư")}
             </button>
           </div>
         </form>
@@ -1863,6 +1927,8 @@ function EditSourceLineDialog({
     sourceRevision?: string | number,
   ) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [expectedQty, setExpectedQty] = useState(
     line.expected_purchase_quantity,
   );
@@ -1983,13 +2049,14 @@ function EditSourceLineDialog({
             id="edit-source-line-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Sửa dòng vật tư / Edit Line ({line.line_key})
+            {uiText("Sửa dòng vật tư / Edit Line (")}
+            {line.line_key})
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -2001,7 +2068,8 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-qty"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                SL Đặt/Cam kết <span className="text-red-500">*</span>
+                {uiText("SL Đặt/Cam kết ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="edit-line-qty"
@@ -2018,17 +2086,18 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-uom"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                ĐVT Nhập <span className="text-red-500">*</span>
+                {uiText("ĐVT Nhập ")}
+                <span className="text-red-500">*</span>
               </label>
               <InventoryLookup<InventoryUom>
                 resource="uoms"
                 filters={{ active: true }}
                 value={purchaseUomCode}
                 valueKey="code"
-                label="ĐVT Nhập"
+                label={uiText("ĐVT Nhập")}
                 id="edit-line-uom"
                 selectedLabel={selectedPurchaseUomLabel}
-                placeholder="Chọn ĐVT nhập…"
+                placeholder={uiText("Chọn ĐVT nhập…")}
                 hideLabel={true}
                 required={true}
                 onSelect={(uom) => {
@@ -2042,7 +2111,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-factor"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Hệ số quy đổi
+                {uiText("Hệ số quy đổi")}
               </label>
               <input
                 id="edit-line-factor"
@@ -2061,7 +2130,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-cost"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Đơn giá mua (INV-018)
+                {uiText("Đơn giá mua (INV-018)")}
               </label>
               <input
                 id="edit-line-cost"
@@ -2077,7 +2146,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-currency"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Loại tiền
+                {uiText("Loại tiền")}
               </label>
               <input
                 id="edit-line-currency"
@@ -2095,7 +2164,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-manufacturer"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Hãng sản xuất
+                {uiText("Hãng sản xuất")}
               </label>
               <input
                 id="edit-line-manufacturer"
@@ -2110,7 +2179,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-model"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Model
+                {uiText("Model")}
               </label>
               <input
                 id="edit-line-model"
@@ -2125,7 +2194,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-country"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nước sản xuất
+                {uiText("Nước sản xuất")}
               </label>
               <input
                 id="edit-line-country"
@@ -2143,7 +2212,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-warranty-start"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Bảo hành từ (Warranty Start)
+                {uiText("Bảo hành từ (Warranty Start)")}
               </label>
               <input
                 id="edit-line-warranty-start"
@@ -2158,7 +2227,7 @@ function EditSourceLineDialog({
                 htmlFor="edit-line-warranty-end"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Bảo hành đến (Warranty End)
+                {uiText("Bảo hành đến (Warranty End)")}
               </label>
               <input
                 id="edit-line-warranty-end"
@@ -2175,13 +2244,13 @@ function EditSourceLineDialog({
               htmlFor="edit-line-notes"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Ghi chú dòng vật tư
+              {uiText("Ghi chú dòng vật tư")}
             </label>
             <textarea
               id="edit-line-notes"
               rows={2}
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-              placeholder="Ghi chú quy cách, xuất xứ, điều kiện..."
+              placeholder={uiText("Ghi chú quy cách, xuất xứ, điều kiện...")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -2189,7 +2258,7 @@ function EditSourceLineDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -2200,14 +2269,14 @@ function EditSourceLineDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
             </button>
           </div>
         </form>

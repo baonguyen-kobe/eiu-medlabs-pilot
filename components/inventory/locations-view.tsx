@@ -15,6 +15,8 @@ import { PaginationControls } from "@/components/pagination-controls";
 import { InventoryLookup } from "./inventory-lookup";
 import { TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type { InventoryStorageLocation } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export function LocationsView({
   initialLocations,
@@ -37,6 +39,8 @@ export function LocationsView({
   rooms: Array<{ id: string; room_code: string; building_code?: string }>;
   isAdmin: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -167,7 +171,9 @@ export function LocationsView({
               : "bg-red-50 text-red-800 border-red-200"
           }`}
         >
-          <span>{notice.message}</span>
+          <span>
+            <LocalizedText text={notice.message ?? ""} />
+          </span>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 p-1"
@@ -186,11 +192,14 @@ export function LocationsView({
             className="button button-primary text-xs"
             onClick={() => setCreateOpen(true)}
           >
-            <Plus size={15} /> Thêm vị trí kho mới / Add Location
+            <Plus size={15} />
+            {uiText(" Thêm vị trí kho mới / Add Location")}
           </button>
         </div>
         <span className="text-xs text-slate-500">
-          Tổng cộng: <strong>{total}</strong> vị trí lưu kho
+          {uiText("Tổng cộng: ")}
+          <strong>{total}</strong>
+          {uiText(" vị trí lưu kho")}
         </span>
       </div>
 
@@ -208,10 +217,12 @@ export function LocationsView({
               />
               <input
                 id="locations-search"
-                aria-label="Tìm theo mã vị trí, tên, phòng / Search Location"
+                aria-label={uiText(
+                  "Tìm theo mã vị trí, tên, phòng / Search Location",
+                )}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Tìm theo mã vị trí, tên, phòng..."
+                placeholder={uiText("Tìm theo mã vị trí, tên, phòng...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -220,21 +231,27 @@ export function LocationsView({
               type="submit"
               className="button button-secondary text-xs px-3 py-2"
             >
-              Tìm kiếm
+              {uiText("Tìm kiếm")}
             </button>
           </form>
 
           <div>
             <select
               id="locations-active-filter"
-              aria-label="Lọc theo trạng thái / Filter by Status"
+              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">Tất cả trạng thái / All Statuses</option>
-              <option value="active">Đang hoạt động / Active</option>
-              <option value="inactive">Đã ngừng hoạt động / Inactive</option>
+              <option value="all">
+                {uiText("Tất cả trạng thái / All Statuses")}
+              </option>
+              <option value="active">
+                {uiText("Đang hoạt động / Active")}
+              </option>
+              <option value="inactive">
+                {uiText("Đã ngừng hoạt động / Inactive")}
+              </option>
             </select>
           </div>
         </div>
@@ -245,20 +262,22 @@ export function LocationsView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Mã vị trí / Code</th>
-                <th className="py-3 px-4">Tên vị trí kho / Name</th>
-                <th className="py-3 px-4">Vị trí cha / Parent</th>
-                <th className="py-3 px-4">Phòng thực hành / Room</th>
-                <th className="py-3 px-4">Trạng thái / Status</th>
-                <th className="py-3 px-4 text-center">Bản / Rev</th>
-                <th className="py-3 px-4 text-right">Thao tác</th>
+                <th className="py-3 px-4">{uiText("Mã vị trí / Code")}</th>
+                <th className="py-3 px-4">{uiText("Tên vị trí kho / Name")}</th>
+                <th className="py-3 px-4">{uiText("Vị trí cha / Parent")}</th>
+                <th className="py-3 px-4">
+                  {uiText("Phòng thực hành / Room")}
+                </th>
+                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
+                <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {locations.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    Chưa có vị trí lưu kho nào phù hợp.
+                    {uiText("Chưa có vị trí lưu kho nào phù hợp.")}
                   </td>
                 </tr>
               ) : (
@@ -283,7 +302,7 @@ export function LocationsView({
                           ? `${parentLoc.name} (${parentLoc.code})`
                           : loc.parent_location_name
                             ? loc.parent_location_name
-                            : "— (Cấp gốc)"}
+                            : uiText("— (Cấp gốc)")}
                       </td>
                       <td className="py-3 px-4 text-slate-600">
                         {room ? room.room_code : loc.room_code || "—"}
@@ -292,7 +311,8 @@ export function LocationsView({
                         <ActiveBadge active={loc.active} />
                       </td>
                       <td className="py-3 px-4 text-center font-mono text-[11px] text-slate-400">
-                        r{String(loc.revision)}
+                        {uiText("r")}
+                        {String(loc.revision)}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="inline-flex items-center gap-1.5">
@@ -301,7 +321,7 @@ export function LocationsView({
                             className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                             onClick={() => setEditLocation(loc)}
                           >
-                            Sửa
+                            {uiText("Sửa")}
                           </button>
                           {isAdmin ? (
                             loc.active ? (
@@ -315,7 +335,7 @@ export function LocationsView({
                                   })
                                 }
                               >
-                                Ngừng HĐ
+                                {uiText("Ngừng HĐ")}
                               </button>
                             ) : (
                               <button
@@ -328,7 +348,7 @@ export function LocationsView({
                                   })
                                 }
                               >
-                                Kích hoạt
+                                {uiText("Kích hoạt")}
                               </button>
                             )
                           ) : null}
@@ -344,7 +364,11 @@ export function LocationsView({
 
         <div className="p-4 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Hiển thị {locations.length} trên tổng số {total} vị trí
+            {uiText("Hiển thị ")}
+            {locations.length}
+            {uiText(" trên tổng số ")}
+            {total}
+            {uiText(" vị trí")}
           </span>
           <PaginationControls
             currentPage={currentPage}
@@ -405,20 +429,24 @@ export function LocationsView({
           open={Boolean(targetStateChange)}
           title={
             targetStateChange.targetActive
-              ? "Kích hoạt lại vị trí lưu kho"
-              : "Ngừng hoạt động vị trí lưu kho"
+              ? uiText("Kích hoạt lại vị trí lưu kho")
+              : uiText("Ngừng hoạt động vị trí lưu kho")
           }
           description={
             targetStateChange.targetActive
-              ? "Vị trí sẽ có thể được chọn lại khi tiếp nhận hoặc di chuyển kho mới."
-              : "Vị trí sẽ không còn được chọn cho các nghiệp vụ nhận kho mới, nhưng toàn bộ lịch sử và số dư hàng đang tồn tại vị trí này vẫn được bảo lưu nguyên vẹn."
+              ? uiText(
+                  "Vị trí sẽ có thể được chọn lại khi tiếp nhận hoặc di chuyển kho mới.",
+                )
+              : uiText(
+                  "Vị trí sẽ không còn được chọn cho các nghiệp vụ nhận kho mới, nhưng toàn bộ lịch sử và số dư hàng đang tồn tại vị trí này vẫn được bảo lưu nguyên vẹn.",
+                )
           }
           targetName={`${targetStateChange.location.code} - ${targetStateChange.location.name}`}
           currentRevision={targetStateChange.location.revision}
           actionLabel={
             targetStateChange.targetActive
-              ? "Xác nhận kích hoạt"
-              : "Xác nhận ngừng hoạt động"
+              ? uiText("Xác nhận kích hoạt")
+              : uiText("Xác nhận ngừng hoạt động")
           }
           actionVariant={targetStateChange.targetActive ? "primary" : "danger"}
           isPending={isPending}
@@ -442,6 +470,8 @@ function CreateLocationDialog({
   onClose: () => void;
   onCreated: (loc: InventoryStorageLocation) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [parentLocationId, setParentLocationId] = useState("");
@@ -494,13 +524,13 @@ function CreateLocationDialog({
             id="create-location-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Thêm vị trí kho mới / Create Location
+            {uiText("Thêm vị trí kho mới / Create Location")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -512,13 +542,14 @@ function CreateLocationDialog({
                 htmlFor="create-location-code"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã vị trí <span className="text-red-500">*</span>
+                {uiText("Mã vị trí ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-location-code"
                 type="text"
                 className="w-full text-xs font-mono uppercase border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: KHO-CHINH-K1"
+                placeholder={uiText("VD: KHO-CHINH-K1")}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
@@ -529,7 +560,7 @@ function CreateLocationDialog({
                 htmlFor="create-location-room"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Phòng thực hành liên kết
+                {uiText("Phòng thực hành liên kết")}
               </label>
               <select
                 id="create-location-room"
@@ -537,7 +568,7 @@ function CreateLocationDialog({
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
               >
-                <option value="">-- Không liên kết --</option>
+                <option value="">{uiText("-- Không liên kết --")}</option>
                 {rooms.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.room_code}
@@ -552,13 +583,14 @@ function CreateLocationDialog({
               htmlFor="create-location-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên vị trí kho <span className="text-red-500">*</span>
+              {uiText("Tên vị trí kho ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="create-location-name"
               type="text"
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-              placeholder="VD: Kho chính - Kệ số 1"
+              placeholder={uiText("VD: Kho chính - Kệ số 1")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -571,7 +603,7 @@ function CreateLocationDialog({
                 htmlFor="create-location-parent"
                 className="block text-xs font-semibold text-slate-700"
               >
-                Vị trí cha (Phân cấp kho)
+                {uiText("Vị trí cha (Phân cấp kho)")}
               </label>
               {parentLocationId ? (
                 <button
@@ -582,7 +614,7 @@ function CreateLocationDialog({
                     setSelectedParentLabel("");
                   }}
                 >
-                  Xóa / Đặt về cấp gốc
+                  {uiText("Xóa / Đặt về cấp gốc")}
                 </button>
               ) : null}
             </div>
@@ -591,10 +623,12 @@ function CreateLocationDialog({
               filters={{ active: true }}
               value={parentLocationId}
               valueKey="id"
-              label="Vị trí cha (Phân cấp kho)"
+              label={uiText("Vị trí cha (Phân cấp kho)")}
               id="create-location-parent"
               selectedLabel={selectedParentLabel}
-              placeholder="-- Vị trí cấp gốc (Root level) hoặc tìm vị trí cha --"
+              placeholder={uiText(
+                "-- Vị trí cấp gốc (Root level) hoặc tìm vị trí cha --",
+              )}
               hideLabel={true}
               onSelect={(loc) => {
                 setParentLocationId(loc.id);
@@ -605,7 +639,7 @@ function CreateLocationDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -616,14 +650,14 @@ function CreateLocationDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu vị trí kho"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu vị trí kho")}
             </button>
           </div>
         </form>
@@ -646,6 +680,8 @@ function EditLocationDialog({
   onClose: () => void;
   onUpdated: (loc: InventoryStorageLocation) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [name, setName] = useState(location.name);
   const [parentLocationId, setParentLocationId] = useState(
     location.parent_location_id || "",
@@ -705,20 +741,22 @@ function EditLocationDialog({
             id="edit-location-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Sửa vị trí kho / Edit Location
+            {uiText("Sửa vị trí kho / Edit Location")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           <div className="rounded-lg bg-slate-50 p-2.5 text-xs border border-slate-100 flex justify-between">
-            <span className="text-slate-500">Mã vị trí (Bất biến):</span>
+            <span className="text-slate-500">
+              {uiText("Mã vị trí (Bất biến):")}
+            </span>
             <span className="font-mono font-bold text-slate-900">
               {location.code}
             </span>
@@ -729,7 +767,8 @@ function EditLocationDialog({
               htmlFor="edit-location-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên vị trí kho <span className="text-red-500">*</span>
+              {uiText("Tên vị trí kho ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="edit-location-name"
@@ -747,7 +786,7 @@ function EditLocationDialog({
                 htmlFor="edit-location-parent"
                 className="block text-xs font-semibold text-slate-700"
               >
-                Vị trí cha (Acyclic guard)
+                {uiText("Vị trí cha (Acyclic guard)")}
               </label>
               {parentLocationId ? (
                 <button
@@ -758,7 +797,7 @@ function EditLocationDialog({
                     setSelectedParentLabel("");
                   }}
                 >
-                  Xóa / Đặt về cấp gốc
+                  {uiText("Xóa / Đặt về cấp gốc")}
                 </button>
               ) : null}
             </div>
@@ -767,10 +806,12 @@ function EditLocationDialog({
               filters={{ active: true }}
               value={parentLocationId}
               valueKey="id"
-              label="Vị trí cha (Acyclic guard)"
+              label={uiText("Vị trí cha (Acyclic guard)")}
               id="edit-location-parent"
               selectedLabel={selectedParentLabel}
-              placeholder="-- Vị trí cấp gốc (Root level) hoặc tìm vị trí cha --"
+              placeholder={uiText(
+                "-- Vị trí cấp gốc (Root level) hoặc tìm vị trí cha --",
+              )}
               hideLabel={true}
               onSelect={(loc) => {
                 if (loc.id === location.id) {
@@ -791,7 +832,7 @@ function EditLocationDialog({
               htmlFor="edit-location-room"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Phòng thực hành liên kết
+              {uiText("Phòng thực hành liên kết")}
             </label>
             <select
               id="edit-location-room"
@@ -799,7 +840,7 @@ function EditLocationDialog({
               value={roomId}
               onChange={(e) => setRoomId(e.target.value)}
             >
-              <option value="">-- Không liên kết --</option>
+              <option value="">{uiText("-- Không liên kết --")}</option>
               {rooms.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.room_code}
@@ -809,7 +850,7 @@ function EditLocationDialog({
           </div>
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -820,14 +861,14 @@ function EditLocationDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
             </button>
           </div>
         </form>

@@ -7,6 +7,8 @@ import {
   type PreparationAddedTarget,
   type PreparationCatalog,
 } from "@/lib/equipment-preparation";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export function PreparationAddedLine({
   requestId,
@@ -23,6 +25,8 @@ export function PreparationAddedLine({
   actionLabel: string;
   onAdd: (target: PreparationAddedTarget, reason: string) => Promise<boolean>;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [search, setSearch] = useState("");
   const [catalog, setCatalog] = useState<PreparationCatalog | null>(null);
   const [error, setError] = useState("");
@@ -48,13 +52,14 @@ export function PreparationAddedLine({
   }
   return (
     <details className="rounded-xl border p-4 space-y-3">
-      <summary className="font-semibold">{title}</summary>
+      <summary className="font-semibold">{uiText(title)}</summary>
       <p>
-        Dòng mới độc lập có baseline đăng ký bằng 0. Không đổi thiết bị gốc
-        thành SKU thay thế theo tên.
+        {uiText(
+          "Dòng mới độc lập có baseline đăng ký bằng 0. Không đổi thiết bị gốc thành SKU thay thế theo tên.",
+        )}
       </p>
       <label>
-        Tìm thiết bị đăng ký
+        {uiText("Tìm thiết bị đăng ký")}
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -67,7 +72,7 @@ export function PreparationAddedLine({
         disabled={disabled || busy}
         onClick={() => void load(1)}
       >
-        Tìm thiết bị
+        {uiText("Tìm thiết bị")}
       </button>
       <form
         className="space-y-3"
@@ -110,10 +115,10 @@ export function PreparationAddedLine({
       >
         <fieldset disabled={disabled || busy} className="space-y-3">
           <label>
-            Thiết bị
+            {uiText("Thiết bị")}
             <select name="catalog" required defaultValue="">
               <option value="" disabled>
-                Chọn thiết bị
+                {uiText("Chọn thiết bị")}
               </option>
               {catalog?.rows.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -130,7 +135,7 @@ export function PreparationAddedLine({
                 disabled={catalog.page === 1}
                 onClick={() => void load(catalog.page - 1)}
               >
-                Danh mục trước
+                {uiText("Danh mục trước")}
               </button>
               <span>
                 {catalog.page} / {Math.max(1, Math.ceil(catalog.total / 100))}
@@ -141,12 +146,12 @@ export function PreparationAddedLine({
                 disabled={catalog.page * 100 >= catalog.total}
                 onClick={() => void load(catalog.page + 1)}
               >
-                Danh mục tiếp
+                {uiText("Danh mục tiếp")}
               </button>
             </div>
           ) : null}
           <label>
-            Hoạt động đã đăng ký
+            {uiText("Hoạt động đã đăng ký")}
             <select name="activity" required>
               {activities.map((activity) => (
                 <option key={activity} value={activity}>
@@ -156,7 +161,7 @@ export function PreparationAddedLine({
             </select>
           </label>
           <label>
-            SL tuyệt đối
+            {uiText("SL tuyệt đối")}
             <input
               name="quantity"
               inputMode="numeric"
@@ -166,11 +171,11 @@ export function PreparationAddedLine({
             />
           </label>
           <label>
-            Ghi chú
+            {uiText("Ghi chú")}
             <input name="note" maxLength={1000} />
           </label>
           <label>
-            Lý do thêm dòng
+            {uiText("Lý do thêm dòng")}
             <textarea name="reason" required maxLength={1000} />
           </label>
           <button type="submit" className="button">
@@ -178,7 +183,11 @@ export function PreparationAddedLine({
           </button>
         </fieldset>
       </form>
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? (
+        <p role="alert">
+          <LocalizedText text={error ?? ""} />
+        </p>
+      ) : null}
     </details>
   );
 }

@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin";
 import { CatalogTabs } from "@/components/catalog-tabs";
 import { PaginationLinks } from "@/components/pagination-links";
 import { normalizePage, paginationRange } from "@/lib/pagination";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 const actionLabels: Record<string, string> = {
   "class_schedule.created": "Tạo lịch học",
@@ -43,12 +45,18 @@ export default async function AuditPage({
   return (
     <AdminShell
       title="Audit log"
-      description="Lịch sử thay đổi nghiệp vụ, chỉ admin được xem."
+      description={
+        <LocalizedText
+          text={"Lịch sử thay đổi nghiệp vụ, chỉ admin được xem."}
+        />
+      }
       active="/admin/audit"
     >
       <CatalogTabs active="/admin/audit" />
       <div className="data-panel catalog-data-panel">
-        <div
+        <LocalizedElement
+          as="div"
+          textAttributes={["aria-label"]}
           className="responsive-table"
           role="region"
           aria-label="Lịch sử thay đổi; vuốt ngang để xem đầy đủ"
@@ -57,11 +65,21 @@ export default async function AuditPage({
           <table className="data-table catalog-data-table">
             <thead>
               <tr>
-                <th>Thời gian</th>
-                <th>Người thao tác</th>
-                <th>Hành động</th>
-                <th>Đối tượng</th>
-                <th>Mã bản ghi</th>
+                <th>
+                  <LocalizedText text={"Thời gian"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Người thao tác"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Hành động"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Đối tượng"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Mã bản ghi"} />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -80,11 +98,15 @@ export default async function AuditPage({
                       }).format(new Date(log.created_at))}
                     </td>
                     <td>
-                      {actor?.full_name ?? "Hệ thống"}
+                      {actor?.full_name ?? <LocalizedText text={"Hệ thống"} />}
                       <small>{actor?.email}</small>
                     </td>
                     <td>
-                      <strong>{actionLabels[log.action] ?? log.action}</strong>
+                      <strong>
+                        <LocalizedText
+                          text={actionLabels[log.action] ?? log.action}
+                        />
+                      </strong>
                     </td>
                     <td className="mono">{log.entity_type}</td>
                     <td className="mono">
@@ -95,7 +117,7 @@ export default async function AuditPage({
               })}
             </tbody>
           </table>
-        </div>
+        </LocalizedElement>
         <PaginationLinks
           currentPage={currentPage}
           totalItems={count ?? 0}

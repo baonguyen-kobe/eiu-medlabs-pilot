@@ -2,8 +2,9 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { SuppliersView } from "@/components/inventory/suppliers-view";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type { InventorySupplier } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface SuppliersPageProps {
   searchParams: Promise<{
@@ -45,8 +46,16 @@ export default async function SuppliersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Danh mục Nhà cung cấp / Inventory Suppliers"
-        description="Quản lý thông tin nhà cung cấp phục vụ tạo hồ sơ nguồn và đối chiếu nguồn gốc vật tư"
+        title={
+          <LocalizedText text={"Danh mục Nhà cung cấp / Inventory Suppliers"} />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Quản lý thông tin nhà cung cấp phục vụ tạo hồ sơ nguồn và đối chiếu nguồn gốc vật tư"
+            }
+          />
+        }
       />
 
       <SuppliersView

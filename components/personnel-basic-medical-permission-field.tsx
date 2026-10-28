@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BASIC_MEDICAL_ROOM_TYPE_ID } from "@/lib/room-types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function PersonnelBasicMedicalPermissionField() {
+  const { text: uiText } = useLanguage();
+
   const containerRef = useRef<HTMLLabelElement>(null);
   const [eligible, setEligible] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -44,10 +47,12 @@ export function PersonnelBasicMedicalPermissionField() {
           type="checkbox"
           value="true"
         />
-        Cho phép tạo lịch Y cơ sở
+        {uiText("Cho phép tạo lịch Y cơ sở")}
       </label>
       {!eligible ? (
-        <small>Chỉ dành cho Giảng viên/Trợ giảng có loại phòng Y cơ sở.</small>
+        <small>
+          {uiText("Chỉ dành cho Giảng viên/Trợ giảng có loại phòng Y cơ sở.")}
+        </small>
       ) : null}
     </>
   );

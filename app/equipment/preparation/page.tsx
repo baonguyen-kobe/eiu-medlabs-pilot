@@ -3,6 +3,7 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 import { EquipmentPreparationQueue } from "@/components/equipment-preparation-queue";
 import { preparationQueueSchema } from "@/lib/equipment-preparation-operations";
 import { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function PreparationQueuePage() {
   const viewer = await getViewer();
@@ -27,8 +28,14 @@ export default async function PreparationQueuePage() {
       canImportSchedules={viewer.canImportSchedules}
       canManagePersonnel={viewer.canManagePersonnel}
       canManageEmailNotifications={viewer.canManageEmailNotifications}
-      title="Hàng đợi chuẩn bị thiết bị"
-      description="Điều phối chuẩn bị Skills Lab trong phạm vi được phân công; không tự nhận việc hoặc bàn giao."
+      title={<LocalizedText text={"Hàng đợi chuẩn bị thiết bị"} />}
+      description={
+        <LocalizedText
+          text={
+            "Điều phối chuẩn bị Skills Lab trong phạm vi được phân công; không tự nhận việc hoặc bàn giao."
+          }
+        />
+      }
     >
       <EquipmentPreparationQueue initial={queue} />
     </WorkspaceShell>

@@ -150,7 +150,10 @@ test("Basic Medical session selection reuses the Skills picker layout without ch
   assert.match(selector, /className="class-picker-row"/);
   assert.doesNotMatch(selector, /className="data-panel"/);
   assert.match(selector, /Buổi học Y cơ sở \*/);
-  assert.match(selector, /placeholder="Chọn buổi học theo ngày, giờ và phòng"/);
+  assert.match(
+    selector,
+    /placeholder=\{uiText\("Chọn buổi học theo ngày, giờ và phòng"\)\}/,
+  );
   assert.match(selector, /\+ Tạo lịch Y cơ sở/);
   assert.match(selector, /href="\/basic-medical\/new"/);
   assert.doesNotMatch(selector, /schedule-entry\/new/);

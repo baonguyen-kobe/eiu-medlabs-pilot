@@ -8,6 +8,7 @@ import type {
   BasicMedicalRegistrationListItem,
   BasicMedicalRegistrationSessionItem,
 } from "@/lib/basic-medical-equipment";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 function formatDate(value?: string) {
   return value ? value.split("-").reverse().join("/") : "—";
@@ -42,44 +43,63 @@ function SourceDetails({
   return (
     <dl className="basic-medical-equipment-source-grid">
       <div>
-        <dt>Môn học</dt>
+        <dt>
+          <LocalizedText text={"Môn học"} />
+        </dt>
         <dd>
           {registration.courses?.course_code ?? "—"} ·{" "}
           {registration.courses?.course_name ?? "—"}
         </dd>
       </div>
       <div>
-        <dt>Học kỳ</dt>
+        <dt>
+          <LocalizedText text={"Học kỳ"} />
+        </dt>
         <dd>{registration.semester}</dd>
       </div>
       <div>
-        <dt>Buổi học</dt>
-        <dd>Buổi {session.session_number}</dd>
+        <dt>
+          <LocalizedText text={"Buổi học"} />
+        </dt>
+        <dd>
+          <LocalizedText text={"Buổi "} />
+          {session.session_number}
+        </dd>
       </div>
       <div>
-        <dt>Tên bài TN-TH</dt>
+        <dt>
+          <LocalizedText text={"Tên bài TN-TH"} />
+        </dt>
         <dd>{session.lesson_title}</dd>
       </div>
       <div>
-        <dt>Ngày / thời gian</dt>
+        <dt>
+          <LocalizedText text={"Ngày / thời gian"} />
+        </dt>
         <dd>
           {formatDate(schedule?.schedule_date)} ·{" "}
           {formatTime(schedule?.start_time)}–{formatTime(schedule?.end_time)}
         </dd>
       </div>
       <div>
-        <dt>Phòng</dt>
+        <dt>
+          <LocalizedText text={"Phòng"} />
+        </dt>
         <dd>
           {room?.room_code ?? "—"}.{room?.building_code ?? "—"}
           {room?.room_name ? ` · ${room.room_name}` : ""}
         </dd>
       </div>
       <div>
-        <dt>Giảng viên giảng dạy/hướng dẫn</dt>
+        <dt>
+          <LocalizedText text={"Giảng viên giảng dạy/hướng dẫn"} />
+        </dt>
         <dd>{session.teaching?.full_name ?? "—"}</dd>
       </div>
       <div>
-        <dt>Người đăng ký</dt>
+        <dt>
+          <LocalizedText text={"Người đăng ký"} />
+        </dt>
         <dd>{registration.registrant?.full_name ?? "—"}</dd>
       </div>
     </dl>
@@ -105,29 +125,41 @@ export function BasicMedicalEquipmentRequestDetail({
     <div className="basic-medical-equipment-detail">
       <div className="basic-medical-equipment-detail-summary">
         <div>
-          <span>Mã phiếu</span>
+          <span>
+            <LocalizedText text={"Mã phiếu"} />
+          </span>
           <strong>{formatEquipmentRequestCode(request.created_at)}</strong>
         </div>
         <div>
-          <span>Trạng thái</span>
+          <span>
+            <LocalizedText text={"Trạng thái"} />
+          </span>
           <strong className={`request-status request-status-${status.color}`}>
-            {status.label}
+            <LocalizedText text={status.label} />
           </strong>
         </div>
         <div>
-          <span>Người đăng ký</span>
+          <span>
+            <LocalizedText text={"Người đăng ký"} />
+          </span>
           <strong>{request.profiles?.full_name ?? "—"}</strong>
         </div>
         <div>
-          <span>Email</span>
+          <span>
+            <LocalizedText text={"Email"} />
+          </span>
           <strong>{request.email_snapshot || "—"}</strong>
         </div>
         <div>
-          <span>Số điện thoại</span>
+          <span>
+            <LocalizedText text={"Số điện thoại"} />
+          </span>
           <strong>{request.phone_snapshot || "—"}</strong>
         </div>
         <div>
-          <span>Giảng viên phụ trách</span>
+          <span>
+            <LocalizedText text={"Giảng viên phụ trách"} />
+          </span>
           <strong>
             {request.responsible?.full_name ??
               session.teaching?.full_name ??
@@ -135,42 +167,76 @@ export function BasicMedicalEquipmentRequestDetail({
           </strong>
         </div>
         <div>
-          <span>Nhận thiết bị</span>
+          <span>
+            <LocalizedText text={"Nhận thiết bị"} />
+          </span>
           <strong>{formatDateTime(request.receive_at)}</strong>
         </div>
         <div>
-          <span>Trả thiết bị</span>
+          <span>
+            <LocalizedText text={"Trả thiết bị"} />
+          </span>
           <strong>{formatDateTime(request.return_at)}</strong>
         </div>
         <div>
-          <span>Duyệt đăng ký trễ</span>
+          <span>
+            <LocalizedText text={"Duyệt đăng ký trễ"} />
+          </span>
           <strong>{lateApprovalLabel}</strong>
         </div>
         <div>
-          <span>Ghi chú</span>
-          <strong>{request.note || "Không có ghi chú"}</strong>
+          <span>
+            <LocalizedText text={"Ghi chú"} />
+          </span>
+          <strong>
+            {request.note || <LocalizedText text={"Không có ghi chú"} />}
+          </strong>
         </div>
       </div>
       <section>
-        <h3>Nguồn buổi học</h3>
+        <h3>
+          <LocalizedText text={"Nguồn buổi học"} />
+        </h3>
         <SourceDetails registration={registration} session={session} />
       </section>
       <section>
-        <h3>Thiết bị Y cơ sở</h3>
+        <h3>
+          <LocalizedText text={"Thiết bị Y cơ sở"} />
+        </h3>
         <div className="responsive-table">
           <table className="data-table equipment-detail-table">
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Tên thiết bị và vật tư</th>
-                <th>Tên thương mại</th>
-                <th>Loại</th>
-                <th>Nước SX</th>
-                <th>Hãng</th>
-                <th>Model</th>
-                <th>ĐVT</th>
-                <th>Số lượng</th>
-                <th>Ghi chú</th>
+                <th>
+                  <LocalizedText text={"STT"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Tên thiết bị và vật tư"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Tên thương mại"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Loại"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Nước SX"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Hãng"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Model"} />
+                </th>
+                <th>
+                  <LocalizedText text={"ĐVT"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Số lượng"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Ghi chú"} />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -181,8 +247,11 @@ export function BasicMedicalEquipmentRequestDetail({
                     <td>{index + 1}</td>
                     <td>
                       <strong>
-                        {catalog?.item_name ||
-                          "Danh mục thiết bị không còn khả dụng"}
+                        {catalog?.item_name || (
+                          <LocalizedText
+                            text={"Danh mục thiết bị không còn khả dụng"}
+                          />
+                        )}
                       </strong>
                     </td>
                     <td>{catalog?.commercial_name || "—"}</td>

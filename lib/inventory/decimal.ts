@@ -373,6 +373,15 @@ export function formatDisplayQuantity(
   return fracPart ? `${formattedInt}.${fracPart}` : formattedInt;
 }
 
+/** Exact signed preview; incomplete/invalid input must not appear as zero. */
+export function formatQuantityDelta(current: string, previous: string): string {
+  const next = validateDecimalString(current);
+  const before = validateDecimalString(previous);
+  if (!next.valid || !before.valid) return "—";
+  const delta = subtractExact(next.normalized!, before.normalized!);
+  return compareExact(delta, "0") > 0 ? `+${delta}` : delta;
+}
+
 /**
  * Formats currency amount (numeric(20,4)) for display.
  */

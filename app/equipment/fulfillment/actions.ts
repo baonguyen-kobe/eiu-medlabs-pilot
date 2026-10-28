@@ -61,6 +61,7 @@ export async function changeFulfillment(
   for (const path of [
     "/equipment/requests",
     "/equipment/mine",
+    "/equipment/operations",
     "/inventory/stock",
     "/inventory/assets",
     `/equipment/fulfillment/${requestId}`,

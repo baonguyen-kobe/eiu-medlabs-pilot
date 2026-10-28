@@ -9,6 +9,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 function emptySubscribe() {
   return () => {};
@@ -49,6 +50,8 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const mounted = useIsClient();
   const titleId = useId();
   const descriptionId = useId();
@@ -120,7 +123,7 @@ export function ConfirmDialog({
       <button
         type="button"
         className="confirm-dialog-backdrop"
-        aria-label="Đóng hộp thoại xác nhận"
+        aria-label={uiText("Đóng hộp thoại xác nhận")}
         onClick={onCancel}
         disabled={pending}
       />
@@ -137,8 +140,8 @@ export function ConfirmDialog({
             <AlertTriangle size={26} />
           </div>
           <div className="confirm-dialog-copy">
-            <h2 id={titleId}>{title}</h2>
-            <p id={descriptionId}>{description}</p>
+            <h2 id={titleId}>{uiText(title)}</h2>
+            <p id={descriptionId}>{uiText(description)}</p>
           </div>
         </div>
         {children ? (
@@ -152,7 +155,7 @@ export function ConfirmDialog({
             onClick={onCancel}
             disabled={pending}
           >
-            {cancelLabel}
+            {uiText(cancelLabel)}
           </button>
           <button
             type="button"
@@ -160,7 +163,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={pending || confirmDisabled}
           >
-            {pending ? "Đang xử lý…" : confirmLabel}
+            {pending ? uiText("Đang xử lý…") : uiText(confirmLabel)}
           </button>
         </footer>
       </section>

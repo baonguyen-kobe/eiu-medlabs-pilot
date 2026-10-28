@@ -355,10 +355,8 @@ export function t(key: string, lang: Language = "vi"): string {
 }
 
 /**
- * Returns formatted bilingual label: "Tiếng Việt / English"
+ * Compatibility helper: returns one label in the selected language.
  */
-export function bilingualLabel(key: string): string {
-  const item = inventoryTranslations[key];
-  if (!item) return key;
-  return `${item.vi} / ${item.en}`;
+export function bilingualLabel(key: string, lang: Language = "vi"): string {
+  return t(key, lang);
 }

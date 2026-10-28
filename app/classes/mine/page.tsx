@@ -9,6 +9,7 @@ import { isClassStartInFuture } from "@/lib/business-time";
 import { redirect } from "next/navigation";
 import { defaultWorkspacePath } from "@/lib/workspace-access";
 import { NURSING_SKILLS_ROOM_TYPE_ID } from "@/lib/room-types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function MyClassesPage({
   searchParams,
@@ -130,8 +131,12 @@ export default async function MyClassesPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Lớp của tôi"
-      description="Theo dõi lớp đã nhận và rút lớp chưa bắt đầu khi cần."
+      title={<LocalizedText text={"Lớp của tôi"} />}
+      description={
+        <LocalizedText
+          text={"Theo dõi lớp đã nhận và rút lớp chưa bắt đầu khi cần."}
+        />
+      }
     >
       <ClassRegistrationList
         classes={classes}

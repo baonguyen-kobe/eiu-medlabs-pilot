@@ -13,6 +13,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getNameInitials } from "@/lib/person-name";
 import type { AppRole } from "@/lib/viewer";
 import { BASIC_MEDICAL_ROOM_TYPE_ID } from "@/lib/room-types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export type PersonnelListItem = {
   id: string;
@@ -82,6 +84,8 @@ export function PersonnelManagementList({
   viewerIsRoot: boolean;
   passwordReconciliationItems?: PasswordReconciliationItem[];
 }) {
+  const { text: uiText } = useLanguage();
+
   const [items, setItems] = useState(initialItems);
   const [original, setOriginal] = useState<PersonnelListItem | null>(null);
   const [draft, setDraft] = useState<PersonnelListItem | null>(null);
@@ -428,18 +432,18 @@ export function PersonnelManagementList({
         className="personnel-password-section"
         disabled={pending || !draft.can_edit_security}
       >
-        <legend>Mật khẩu / Bảo mật</legend>
+        <legend>{uiText("Mật khẩu / Bảo mật")}</legend>
         <button
           className="button button-secondary"
           type="button"
           onClick={resetPassword}
         >
-          Đặt lại mật khẩu
+          {uiText("Đặt lại mật khẩu")}
         </button>
         {viewerIsRoot ? (
           <>
             <label>
-              Mật khẩu mới
+              {uiText("Mật khẩu mới")}
               <input
                 type="password"
                 value={passwordDraft}
@@ -448,7 +452,7 @@ export function PersonnelManagementList({
               />
             </label>
             <label>
-              Xác nhận mật khẩu mới
+              {uiText("Xác nhận mật khẩu mới")}
               <input
                 type="password"
                 value={passwordConfirmation}
@@ -463,7 +467,7 @@ export function PersonnelManagementList({
               type="button"
               onClick={changePasswordAsRoot}
             >
-              Đổi mật khẩu
+              {uiText("Đổi mật khẩu")}
             </button>
           </>
         ) : null}
@@ -471,11 +475,11 @@ export function PersonnelManagementList({
     ) : (
       <section
         className="personnel-password-section"
-        aria-label="Mật khẩu / Bảo mật"
+        aria-label={uiText("Mật khẩu / Bảo mật")}
       >
-        <h3>Mật khẩu / Bảo mật</h3>
+        <h3>{uiText("Mật khẩu / Bảo mật")}</h3>
         <p className="field-note">
-          Tài khoản Google-only không có thao tác mật khẩu.
+          {uiText("Tài khoản Google-only không có thao tác mật khẩu.")}
         </p>
       </section>
     )
@@ -484,17 +488,20 @@ export function PersonnelManagementList({
   return (
     <>
       {viewerIsRoot && passwordReconciliationItems.length ? (
-        <section className="data-panel" aria-label="Đối soát mật khẩu">
-          <h2>Thao tác mật khẩu cần đối soát</h2>
+        <section
+          className="data-panel"
+          aria-label={uiText("Đối soát mật khẩu")}
+        >
+          <h2>{uiText("Thao tác mật khẩu cần đối soát")}</h2>
           <div className="responsive-table">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Mã thao tác</th>
-                  <th>Nhân sự</th>
-                  <th>Loại</th>
-                  <th>Trạng thái</th>
-                  <th>Thời điểm</th>
+                  <th>{uiText("Mã thao tác")}</th>
+                  <th>{uiText("Nhân sự")}</th>
+                  <th>{uiText("Loại")}</th>
+                  <th>{uiText("Trạng thái")}</th>
+                  <th>{uiText("Thời điểm")}</th>
                   <th />
                 </tr>
               </thead>
@@ -504,7 +511,7 @@ export function PersonnelManagementList({
                     <td className="mono">
                       {operation.correlation_id.slice(0, 8)}
                     </td>
-                    <td>{operation.target?.full_name ?? "Nhân sự"}</td>
+                    <td>{operation.target?.full_name ?? uiText("Nhân sự")}</td>
                     <td>{operation.action}</td>
                     <td>{operation.status}</td>
                     <td>
@@ -520,8 +527,8 @@ export function PersonnelManagementList({
                         onClick={() => reconcilePasswordOperation(operation.id)}
                       >
                         {reconcilingId === operation.id
-                          ? "Đang đối soát…"
-                          : "Đối soát"}
+                          ? uiText("Đang đối soát…")
+                          : uiText("Đối soát")}
                       </button>
                     </td>
                   </tr>
@@ -535,14 +542,14 @@ export function PersonnelManagementList({
         <table className="personnel-table">
           <thead>
             <tr>
-              <th>Mã</th>
-              <th>Họ và tên</th>
-              <th>Email</th>
-              <th>Vai trò</th>
-              <th>Quyền bổ sung</th>
-              <th>Phạm vi</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
+              <th>{uiText("Mã")}</th>
+              <th>{uiText("Họ và tên")}</th>
+              <th>{uiText("Email")}</th>
+              <th>{uiText("Vai trò")}</th>
+              <th>{uiText("Quyền bổ sung")}</th>
+              <th>{uiText("Phạm vi")}</th>
+              <th>{uiText("Trạng thái")}</th>
+              <th>{uiText("Thao tác")}</th>
             </tr>
           </thead>
           <tbody>
@@ -562,7 +569,7 @@ export function PersonnelManagementList({
                   <span className="personnel-badges">
                     {item.roles.map((role) => (
                       <span className="role-chip selected" key={role}>
-                        {roleLabels[role]}
+                        {uiText(roleLabels[role])}
                       </span>
                     ))}
                   </span>
@@ -571,15 +578,19 @@ export function PersonnelManagementList({
                   <span className="personnel-badges">
                     {item.is_root_administrator ? (
                       <span className="permission-badge">
-                        Root Administrator
+                        {uiText("Root Administrator")}
                       </span>
                     ) : null}
                     {item.is_security_principal &&
                     !item.is_root_administrator ? (
-                      <span className="permission-badge">Quản lý nhân sự</span>
+                      <span className="permission-badge">
+                        {uiText("Quản lý nhân sự")}
+                      </span>
                     ) : null}
                     {item.can_import_schedules ? (
-                      <span className="permission-badge">Nhập lịch</span>
+                      <span className="permission-badge">
+                        {uiText("Nhập lịch")}
+                      </span>
                     ) : null}
                     {!item.is_root_administrator &&
                     !item.is_security_principal &&
@@ -605,7 +616,7 @@ export function PersonnelManagementList({
                   <span
                     className={`status-pill ${item.is_active ? "is-active" : ""}`}
                   >
-                    {item.is_active ? "Hoạt động" : "Đã khóa"}
+                    {item.is_active ? uiText("Hoạt động") : uiText("Đã khóa")}
                   </span>
                 </td>
                 <td>
@@ -614,7 +625,7 @@ export function PersonnelManagementList({
                     type="button"
                     onClick={() => open(item)}
                   >
-                    {item.can_edit_security ? "Sửa" : "Xem"}
+                    {item.can_edit_security ? uiText("Sửa") : uiText("Xem")}
                   </button>
                 </td>
               </tr>
@@ -639,17 +650,19 @@ export function PersonnelManagementList({
           >
             <header>
               <div>
-                <h2 id="personnel-drawer-title">Chỉnh sửa nhân sự</h2>
+                <h2 id="personnel-drawer-title">
+                  {uiText("Chỉnh sửa nhân sự")}
+                </h2>
                 <p>{draft.email}</p>
               </div>
               <button
-                aria-label="Đóng"
+                aria-label={uiText("Đóng")}
                 className="button button-secondary"
                 type="button"
                 onClick={close}
                 disabled={pending}
               >
-                ×
+                {uiText("×")}
               </button>
             </header>
             <div className="personnel-drawer-body">
@@ -658,20 +671,24 @@ export function PersonnelManagementList({
                   className={`action-feedback ${result.ok ? "success" : "error"}`}
                   role="status"
                 >
-                  {result.message}
+                  <LocalizedText text={result.message ?? ""} />
                 </p>
               ) : null}
               {!draft.can_edit_security ? (
                 <p className="action-feedback">
                   {draft.is_root_administrator
-                    ? "Đây là tài khoản Root Administrator của hệ thống. Tài khoản này không thể bị khóa hoặc gỡ quyền Admin."
-                    : "Chỉ Root Administrator được thay đổi tài khoản đang có quyền Admin."}
+                    ? uiText(
+                        "Đây là tài khoản Root Administrator của hệ thống. Tài khoản này không thể bị khóa hoặc gỡ quyền Admin.",
+                      )
+                    : uiText(
+                        "Chỉ Root Administrator được thay đổi tài khoản đang có quyền Admin.",
+                      )}
                 </p>
               ) : null}
               <fieldset disabled={pending || !draft.can_edit_security}>
-                <legend>Thông tin cơ bản</legend>
+                <legend>{uiText("Thông tin cơ bản")}</legend>
                 <label>
-                  Họ và tên
+                  {uiText("Họ và tên")}
                   <input
                     value={draft.full_name}
                     onChange={(event) =>
@@ -680,7 +697,7 @@ export function PersonnelManagementList({
                   />
                 </label>
                 <label>
-                  Email đăng nhập
+                  {uiText("Email đăng nhập")}
                   <input
                     type="email"
                     value={draft.email}
@@ -690,10 +707,12 @@ export function PersonnelManagementList({
                   />
                 </label>
                 <p className="field-note">
-                  Thay đổi email sẽ thay đổi tên đăng nhập của người dùng.
+                  {uiText(
+                    "Thay đổi email sẽ thay đổi tên đăng nhập của người dùng.",
+                  )}
                 </p>
                 <label>
-                  Số điện thoại
+                  {uiText("Số điện thoại")}
                   <input
                     value={draft.phone ?? ""}
                     onChange={(event) =>
@@ -702,7 +721,7 @@ export function PersonnelManagementList({
                   />
                 </label>
                 <label>
-                  Chức danh
+                  {uiText("Chức danh")}
                   <input
                     value={draft.title ?? ""}
                     onChange={(event) =>
@@ -713,7 +732,7 @@ export function PersonnelManagementList({
               </fieldset>
 
               <fieldset disabled={pending || !draft.can_edit_security}>
-                <legend>Vai trò chính</legend>
+                <legend>{uiText("Vai trò chính")}</legend>
                 {(Object.keys(roleLabels) as AppRole[]).map((role) => (
                   <label className="check-label" key={role}>
                     <input
@@ -722,19 +741,20 @@ export function PersonnelManagementList({
                       onChange={() => toggleRole(role)}
                       disabled={draft.id === viewerId && role === "admin"}
                     />
-                    {roleLabels[role]}
+                    {uiText(roleLabels[role])}
                   </label>
                 ))}
                 {draft.roles.includes("viewer") ? (
                   <p className="field-note">
-                    Người xem chỉ có quyền đọc và không thể kết hợp với vai trò
-                    khác.
+                    {uiText(
+                      "Người xem chỉ có quyền đọc và không thể kết hợp với vai trò khác.",
+                    )}
                   </p>
                 ) : null}
               </fieldset>
 
               <fieldset disabled={pending || !draft.can_edit_security}>
-                <legend>Quyền bổ sung</legend>
+                <legend>{uiText("Quyền bổ sung")}</legend>
                 <label className="check-label">
                   <input
                     type="checkbox"
@@ -753,7 +773,7 @@ export function PersonnelManagementList({
                       })
                     }
                   />
-                  Cho phép nhập lịch
+                  {uiText("Cho phép nhập lịch")}
                 </label>
                 {draft.roles.includes("staff") ? (
                   <label className="check-label">
@@ -764,15 +784,16 @@ export function PersonnelManagementList({
                         setEmailCapability(event.target.checked)
                       }
                     />
-                    Quản lý Email Notifications
+                    {uiText("Quản lý Email Notifications")}
                   </label>
                 ) : null}
                 {!draft.roles.some((role) =>
                   ["staff", "lecturer", "teaching_assistant"].includes(role),
                 ) ? (
                   <p className="field-note">
-                    Quyền nhập lịch chỉ áp dụng cho Chuyên viên, Giảng viên hoặc
-                    Trợ giảng.
+                    {uiText(
+                      "Quyền nhập lịch chỉ áp dụng cho Chuyên viên, Giảng viên hoặc Trợ giảng.",
+                    )}
                   </p>
                 ) : null}
                 <label className="check-label">
@@ -787,18 +808,19 @@ export function PersonnelManagementList({
                       })
                     }
                   />
-                  Cho phép tạo lịch Y cơ sở
+                  {uiText("Cho phép tạo lịch Y cơ sở")}
                 </label>
                 {!basicMedicalEligible ? (
                   <p className="field-note">
-                    Chỉ Giảng viên hoặc Trợ giảng thuộc phạm vi Y cơ sở mới có
-                    thể nhận quyền này.
+                    {uiText(
+                      "Chỉ Giảng viên hoặc Trợ giảng thuộc phạm vi Y cơ sở mới có thể nhận quyền này.",
+                    )}
                   </p>
                 ) : null}
               </fieldset>
 
               <fieldset disabled={pending || !draft.can_edit_security}>
-                <legend>Phạm vi phụ trách</legend>
+                <legend>{uiText("Phạm vi phụ trách")}</legend>
                 {roomTypes.map((roomType) => {
                   const assigned = draft.room_type_ids.includes(roomType.id);
                   return (
@@ -848,7 +870,7 @@ export function PersonnelManagementList({
                               })
                             }
                           />
-                          Nhận email lịch của loại phòng này
+                          {uiText("Nhận email lịch của loại phòng này")}
                         </label>
                       ) : null}
                     </div>
@@ -857,7 +879,7 @@ export function PersonnelManagementList({
               </fieldset>
 
               <fieldset disabled={pending || !draft.can_edit_security}>
-                <legend>Trạng thái</legend>
+                <legend>{uiText("Trạng thái")}</legend>
                 <label className="check-label">
                   <input
                     type="checkbox"
@@ -867,7 +889,7 @@ export function PersonnelManagementList({
                       setDraft({ ...draft, is_active: event.target.checked })
                     }
                   />
-                  Đang hoạt động
+                  {uiText("Đang hoạt động")}
                 </label>
               </fieldset>
               {passwordSection}
@@ -875,9 +897,9 @@ export function PersonnelManagementList({
             <footer>
               <span>
                 {hasChanges
-                  ? "Có thay đổi chưa lưu"
+                  ? uiText("Có thay đổi chưa lưu")
                   : result?.ok
-                    ? "Đã lưu"
+                    ? uiText("Đã lưu")
                     : ""}
               </span>
               <button
@@ -886,7 +908,7 @@ export function PersonnelManagementList({
                 onClick={close}
                 disabled={pending}
               >
-                Hủy
+                {uiText("Hủy")}
               </button>
               <button
                 className="button button-primary"
@@ -900,7 +922,7 @@ export function PersonnelManagementList({
                   draft.room_type_ids.length === 0
                 }
               >
-                {pending ? "Đang lưu…" : "Lưu thay đổi"}
+                {pending ? uiText("Đang lưu…") : uiText("Lưu thay đổi")}
               </button>
             </footer>
           </section>

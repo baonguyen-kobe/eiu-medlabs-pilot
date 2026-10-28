@@ -1,8 +1,11 @@
 import React from "react";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 export default function InventoryLoading() {
   return (
-    <div
+    <LocalizedElement
+      as="div"
+      textAttributes={["aria-label"]}
       className="space-y-6 animate-pulse"
       aria-busy="true"
       aria-label="Đang tải dữ liệu..."
@@ -38,6 +41,6 @@ export default function InventoryLoading() {
           ))}
         </div>
       </div>
-    </div>
+    </LocalizedElement>
   );
 }

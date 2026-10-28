@@ -14,6 +14,7 @@ import {
 import { formatDisplayQuantity, isPositive } from "@/lib/inventory/decimal";
 import { ConditionBadge } from "./status-badge";
 import type { InventoryStockBalance } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface OverviewMetrics {
   activeItemCount: number;
@@ -33,6 +34,8 @@ export function OverviewView({
   metrics: OverviewMetrics;
   isAdmin: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const totalAttention =
     metrics.totalAttentionCount ?? metrics.attentionItems.length;
 
@@ -53,7 +56,7 @@ export function OverviewView({
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Phím tắt tác vụ / Quick Actions:
+            {uiText("Phím tắt tác vụ / Quick Actions:")}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -62,28 +65,28 @@ export function OverviewView({
             className="button button-primary text-xs"
           >
             <Plus size={15} />
-            <span>Nhận kho / Receive Stock</span>
+            <span>{uiText("Nhận kho / Receive Stock")}</span>
           </Link>
           <Link
             href="/inventory/stock"
             className="button button-secondary text-xs"
           >
             <PackageCheck size={15} />
-            <span>Tồn kho / Stock</span>
+            <span>{uiText("Tồn kho / Stock")}</span>
           </Link>
           <Link
             href="/inventory/catalog"
             className="button button-secondary text-xs"
           >
             <Settings size={15} />
-            <span>Danh mục vật tư / Items</span>
+            <span>{uiText("Danh mục vật tư / Items")}</span>
           </Link>
           <Link
             href="/inventory/acquisitions"
             className="button button-secondary text-xs"
           >
             <ClipboardList size={15} />
-            <span>Hồ sơ nguồn / Acquisitions</span>
+            <span>{uiText("Hồ sơ nguồn / Acquisitions")}</span>
           </Link>
           {isAdmin ? (
             <Link
@@ -91,7 +94,7 @@ export function OverviewView({
               className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50"
             >
               <Import size={15} />
-              <span>Tồn đầu kỳ / Opening (Admin)</span>
+              <span>{uiText("Tồn đầu kỳ / Opening (Admin)")}</span>
             </Link>
           ) : null}
           <Link
@@ -99,18 +102,18 @@ export function OverviewView({
             className="button button-secondary text-xs"
           >
             <FileClock size={15} />
-            <span>Lịch sử / History</span>
+            <span>{uiText("Lịch sử / History")}</span>
           </Link>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <section className="kpi-grid" aria-label="Chỉ số tổng quan kho">
+      <section className="kpi-grid" aria-label={uiText("Chỉ số tổng quan kho")}>
         <article className="kpi-card kpi-teal">
           <div className="kpi-icon">
             <Settings />
           </div>
-          <span>Danh mục vật tư hoạt động / Active Items</span>
+          <span>{uiText("Danh mục vật tư hoạt động / Active Items")}</span>
           <strong>{metrics.activeItemCount}</strong>
         </article>
 
@@ -118,7 +121,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <ClipboardList />
           </div>
-          <span>Hồ sơ nguồn đang hiệu lực / Active Sources</span>
+          <span>{uiText("Hồ sơ nguồn đang hiệu lực / Active Sources")}</span>
           <strong>{metrics.activeSourceCount}</strong>
         </article>
 
@@ -126,7 +129,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <PackageCheck />
           </div>
-          <span>Số dòng tồn kho / Stock Balances</span>
+          <span>{uiText("Số dòng tồn kho / Stock Balances")}</span>
           <strong>{metrics.totalBalanceRows}</strong>
         </article>
 
@@ -134,7 +137,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <AlertTriangle />
           </div>
-          <span>Vật tư cần chú ý / Attention Items</span>
+          <span>{uiText("Vật tư cần chú ý / Attention Items")}</span>
           <strong>{totalAttention}</strong>
         </article>
       </section>
@@ -145,7 +148,7 @@ export function OverviewView({
           <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
             <AlertTriangle size={18} className="text-amber-600" />
             <span>
-              Cảnh báo vật tư kho cần lưu ý / Attention Required (
+              {uiText("Cảnh báo vật tư kho cần lưu ý / Attention Required (")}
               {totalAttention})
             </span>
           </div>
@@ -153,35 +156,40 @@ export function OverviewView({
             {expiredCount > 0 ? (
               <div className="p-3 bg-white rounded-lg border border-amber-200">
                 <span className="font-semibold text-red-700 block mb-1">
-                  Có số lượng hết hạn / Expired: {expiredCount} dòng số dư
+                  {uiText("Có số lượng hết hạn / Expired: ")}
+                  {expiredCount}
+                  {uiText(" dòng số dư")}
                 </span>
                 <p className="text-slate-600">
-                  Các dòng số dư này có phần số lượng đã hết hạn sử dụng, bị
-                  loại khỏi cấp phát khả dụng (Not eligible).
+                  {uiText(
+                    "Các dòng số dư này có phần số lượng đã hết hạn sử dụng, bị loại khỏi cấp phát khả dụng (Not eligible).",
+                  )}
                 </p>
                 <Link
                   href="/inventory/stock?expiry_state=expired"
                   className="inline-block mt-2 font-semibold text-blue-600 hover:underline"
                 >
-                  Xem danh sách hết hạn &rarr;
+                  {uiText("Xem danh sách hết hạn &rarr;")}
                 </Link>
               </div>
             ) : null}
             {unknownCount > 0 ? (
               <div className="p-3 bg-white rounded-lg border border-amber-200">
                 <span className="font-semibold text-amber-800 block mb-1">
-                  Chưa rõ hạn sử dụng (Tồn đầu kỳ) / Unknown Expiry:{" "}
-                  {unknownCount} dòng số dư
+                  {uiText("Chưa rõ hạn sử dụng (Tồn đầu kỳ) / Unknown Expiry:")}{" "}
+                  {unknownCount}
+                  {uiText(" dòng số dư")}
                 </span>
                 <p className="text-slate-600">
-                  Số lượng tồn đầu kỳ chưa rõ hạn dùng, cần Quản trị viên
-                  (Admin) thẩm tra và xác minh.
+                  {uiText(
+                    "Số lượng tồn đầu kỳ chưa rõ hạn dùng, cần Quản trị viên (Admin) thẩm tra và xác minh.",
+                  )}
                 </p>
                 <Link
                   href="/inventory/stock?expiry_state=unknown"
                   className="inline-block mt-2 font-semibold text-blue-600 hover:underline"
                 >
-                  Xem danh sách cần xác minh &rarr;
+                  {uiText("Xem danh sách cần xác minh &rarr;")}
                 </Link>
               </div>
             ) : null}
@@ -194,18 +202,19 @@ export function OverviewView({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              Tồn kho hiện hữu gần nhất / Current Stock Balances
+              {uiText("Tồn kho hiện hữu gần nhất / Current Stock Balances")}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Dữ liệu tổng hợp từ sổ cái thực tế, phân tách theo tình trạng
-              tốt/hỏng và hạn dùng
+              {uiText(
+                "Dữ liệu tổng hợp từ sổ cái thực tế, phân tách theo tình trạng tốt/hỏng và hạn dùng",
+              )}
             </p>
           </div>
           <Link
             href="/inventory/stock"
             className="button button-secondary text-xs"
           >
-            Xem toàn bộ tồn kho &rarr;
+            {uiText("Xem toàn bộ tồn kho &rarr;")}
           </Link>
         </div>
 
@@ -214,34 +223,34 @@ export function OverviewView({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th scope="col" className="py-3 px-4">
-                  Mã / SKU
+                  {uiText("Mã / SKU")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Tên vật tư / Name
+                  {uiText("Tên vật tư / Name")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Vị trí kho / Location
+                  {uiText("Vị trí kho / Location")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Tình trạng / Condition
+                  {uiText("Tình trạng / Condition")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Tồn thực tế / On hand
+                  {uiText("Tồn thực tế / On hand")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Đủ ĐK / Eligible
+                  {uiText("Đủ ĐK / Eligible")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Khả dụng cho yêu cầu mới / Available for new
+                  {uiText("Khả dụng cho yêu cầu mới / Available for new")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Hết hạn / Expired
+                  {uiText("Hết hạn / Expired")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Chưa rõ HSD / Unknown
+                  {uiText("Chưa rõ HSD / Unknown")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  ĐVT / Unit
+                  {uiText("ĐVT / Unit")}
                 </th>
               </tr>
             </thead>
@@ -249,8 +258,9 @@ export function OverviewView({
               {metrics.recentBalances.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-8 text-center text-slate-400">
-                    Kho hiện chưa có số dư tồn kho nào. Hãy thực hiện Nhận kho
-                    hoặc Khởi tạo tồn đầu.
+                    {uiText(
+                      "Kho hiện chưa có số dư tồn kho nào. Hãy thực hiện Nhận kho hoặc Khởi tạo tồn đầu.",
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -282,7 +292,7 @@ export function OverviewView({
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
                         {bal.available_quantity == null
-                          ? "Chưa xác định / Unknown"
+                          ? uiText("Chưa xác định / Unknown")
                           : formatDisplayQuantity(bal.available_quantity)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-rose-600">

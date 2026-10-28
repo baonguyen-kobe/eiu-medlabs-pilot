@@ -8,6 +8,7 @@ import {
   canImportBasicMedicalSchedules,
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function BasicMedicalImportPage() {
   const {
@@ -38,8 +39,14 @@ export default async function BasicMedicalImportPage() {
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Import lịch Y cơ sở"
-      description="Kiểm tra dữ liệu theo phạm vi phòng và giảng viên Y cơ sở trước khi tạo lịch."
+      title={<LocalizedText text={"Import lịch Y cơ sở"} />}
+      description={
+        <LocalizedText
+          text={
+            "Kiểm tra dữ liệu theo phạm vi phòng và giảng viên Y cơ sở trước khi tạo lịch."
+          }
+        />
+      }
       actions={
         <>
           <Link
@@ -48,7 +55,8 @@ export default async function BasicMedicalImportPage() {
             href="/api/import-template/csv?scope=basic_medical"
             prefetch={false}
           >
-            <Download size={16} /> Template CSV
+            <Download size={16} />
+            <LocalizedText text={" Template CSV"} />
           </Link>
           <Link
             className="button button-primary"
@@ -56,7 +64,8 @@ export default async function BasicMedicalImportPage() {
             href="/api/import-template/xlsx?scope=basic_medical"
             prefetch={false}
           >
-            <Download size={16} /> Template XLSX
+            <Download size={16} />
+            <LocalizedText text={" Template XLSX"} />
           </Link>
         </>
       }

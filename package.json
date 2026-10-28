@@ -44,7 +44,7 @@
     "@supabase/supabase-js": "2.111.0",
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
-    "next": "16.2.12",
+    "next": "16.4.3",
     "papaparse": "5.5.3",
     "pdfkit": "^0.19.1",
     "qrcode": "1.5.4",
@@ -52,7 +52,7 @@
     "react-dom": "19.2.6",
     "react-hook-form": "7.62.0",
     "tailwind-merge": "3.3.1",
-    "zod": "4.1.11"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
@@ -66,7 +66,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.4.3",
     "prettier": "^3.9.6",
     "react-doctor": "^0.9.3",
     "supabase": "2.110.0",
@@ -83,7 +83,8 @@
       "brace-expansion": "5.0.9"
     },
     "postcss": "8.5.25",
-    "sharp": "0.35.3"
+    "sharp": "0.35.5",
+    "source-map-js": "1.2.2"
   },
   "type": "module"
 }

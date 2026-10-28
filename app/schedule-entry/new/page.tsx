@@ -1,3 +1,4 @@
+import { getInterfaceText } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { ScheduleForm } from "@/components/schedule-form";
 import { WorkspaceShell } from "@/components/workspace-shell";
@@ -7,8 +8,12 @@ import {
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
-export const metadata = { title: "Tạo lịch Skills lab" };
+export async function generateMetadata() {
+  const text = await getInterfaceText();
+  return { title: text("Tạo lịch Skills lab") };
+}
 
 function equipmentRegisterReturnTo(value?: string) {
   if (!value?.startsWith("/") || value.startsWith("//")) return undefined;
@@ -93,8 +98,12 @@ export default async function NewSchedulePage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Tạo lịch Skills lab"
-      description="Lịch hợp lệ được tạo và hiển thị ngay trong hệ thống."
+      title={<LocalizedText text={"Tạo lịch Skills lab"} />}
+      description={
+        <LocalizedText
+          text={"Lịch hợp lệ được tạo và hiển thị ngay trong hệ thống."}
+        />
+      }
     >
       <ScheduleForm
         courses={courses ?? []}

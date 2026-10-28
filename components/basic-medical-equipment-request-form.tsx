@@ -20,6 +20,8 @@ import type {
   BasicMedicalRegistrationListItem,
   BasicMedicalRegistrationSessionItem,
 } from "@/lib/basic-medical-equipment";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export type BasicMedicalEquipmentRegistrant = {
   id: string;
@@ -79,6 +81,8 @@ export function BasicMedicalEquipmentRequestForm({
   equipmentRegistrant: BasicMedicalEquipmentRegistrant;
   initialData?: BasicMedicalEquipmentRequestInitialData;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const isEditMode = initialData?.mode === "edit";
   const [state, formAction, pending] = useActionState(
@@ -282,8 +286,8 @@ export function BasicMedicalEquipmentRequestForm({
         >
           <strong>
             {initialData.mode === "copy"
-              ? "Đang sao chép phiếu"
-              : "Đang điều chỉnh phiếu"}{" "}
+              ? uiText("Đang sao chép phiếu")
+              : uiText("Đang điều chỉnh phiếu")}{" "}
             #{initialData.sourceRequestCode}
           </strong>
         </div>
@@ -292,54 +296,54 @@ export function BasicMedicalEquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">01</span>
-            <h2>Thông tin môn học</h2>
+            <h2>{uiText("Thông tin môn học")}</h2>
           </div>
         </div>
         <div className="form-grid four">
           <label>
-            Ngày học
+            {uiText("Ngày học")}
             <input value={formatDate(scheduleDate)} readOnly />
           </label>
           <label>
-            Giờ học
+            {uiText("Giờ học")}
             <input
               value={`${formatTime(session.class_schedules?.start_time)}–${formatTime(session.class_schedules?.end_time)}`}
               readOnly
             />
           </label>
           <label>
-            Học kỳ
+            {uiText("Học kỳ")}
             <input value={registration.semester} readOnly />
           </label>
           <label>
-            Mã môn học
+            {uiText("Mã môn học")}
             <input value={registration.courses?.course_code ?? ""} readOnly />
           </label>
           <label>
-            Tên môn học
+            {uiText("Tên môn học")}
             <input value={registration.courses?.course_name ?? ""} readOnly />
           </label>
           <label>
-            Số lượng sinh viên
+            {uiText("Số lượng sinh viên")}
             <input value={registration.student_count} readOnly />
           </label>
           <label>
-            Loại lab
+            {uiText("Loại lab")}
             <input value="Y cơ sở" readOnly />
           </label>
           <label>
-            Phòng/Lab
+            {uiText("Phòng/Lab")}
             <input
               value={`${registration.rooms?.room_code ?? ""}.${registration.rooms?.building_code ?? ""}`}
               readOnly
             />
           </label>
           <label>
-            Buổi học
+            {uiText("Buổi học")}
             <input value={`Buổi ${session.session_number}`} readOnly />
           </label>
           <label>
-            Tên bài TN-TH
+            {uiText("Tên bài TN-TH")}
             <input value={session.lesson_title} readOnly />
           </label>
         </div>
@@ -348,27 +352,28 @@ export function BasicMedicalEquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">02</span>
-            <h2>Thông tin người đăng ký</h2>
+            <h2>{uiText("Thông tin người đăng ký")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Người đăng ký
+            {uiText("Người đăng ký")}
             <input value={equipmentRegistrant.fullName} readOnly />
           </label>
           <label>
-            Email
+            {uiText("Email")}
             <input value={equipmentRegistrant.email} readOnly />
           </label>
           <label>
-            Số điện thoại *
+            {uiText("Số điện thoại *")}
             <input value={equipmentRegistrant.phone} readOnly />
           </label>
         </div>
         {!phoneIsValid ? (
           <p className="form-error" role="alert">
-            Hồ sơ Nhân sự chưa có số điện thoại 10 chữ số. Vui lòng bổ sung
-            trước khi đăng ký.
+            {uiText(
+              "Hồ sơ Nhân sự chưa có số điện thoại 10 chữ số. Vui lòng bổ sung trước khi đăng ký.",
+            )}
           </p>
         ) : null}
       </section>
@@ -376,12 +381,12 @@ export function BasicMedicalEquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">03</span>
-            <h2>Thông tin giảng viên phụ trách</h2>
+            <h2>{uiText("Thông tin giảng viên phụ trách")}</h2>
           </div>
         </div>
         <div className="form-grid">
           <label>
-            Giảng viên phụ trách
+            {uiText("Giảng viên phụ trách")}
             <input value={session.teaching?.full_name ?? ""} readOnly />
           </label>
         </div>
@@ -390,12 +395,12 @@ export function BasicMedicalEquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">04</span>
-            <h2>Thông tin nhận thiết bị</h2>
+            <h2>{uiText("Thông tin nhận thiết bị")}</h2>
           </div>
         </div>
         <div className="form-grid four">
           <label>
-            Ngày nhận *
+            {uiText("Ngày nhận *")}
             <input
               name="receive_date"
               type="date"
@@ -410,7 +415,7 @@ export function BasicMedicalEquipmentRequestForm({
             />
           </label>
           <label>
-            Giờ nhận *
+            {uiText("Giờ nhận *")}
             <select
               name="receive_time"
               value={receiveTime}
@@ -428,7 +433,7 @@ export function BasicMedicalEquipmentRequestForm({
             </select>
           </label>
           <label>
-            Ngày trả *
+            {uiText("Ngày trả *")}
             <input
               name="return_date"
               type="date"
@@ -442,7 +447,7 @@ export function BasicMedicalEquipmentRequestForm({
             />
           </label>
           <label>
-            Giờ trả *
+            {uiText("Giờ trả *")}
             <select
               name="return_time"
               value={returnTime}
@@ -464,7 +469,7 @@ export function BasicMedicalEquipmentRequestForm({
           <div className="equipment-late-warning" role="alert">
             <strong>{lateEquipmentWarning(leadTime.remainingMs)}</strong>
             <label>
-              Lý do đăng ký trễ *
+              {uiText("Lý do đăng ký trễ *")}
               <textarea
                 name="late_registration_reason"
                 rows={3}
@@ -485,26 +490,26 @@ export function BasicMedicalEquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">05</span>
-            <h2>Thiết bị theo bài TN-TH</h2>
+            <h2>{uiText("Thiết bị theo bài TN-TH")}</h2>
           </div>
         </div>
         <article className="equipment-skill-card">
           <label>
-            Tên kỹ năng/Bài thực hành *
+            {uiText("Tên kỹ năng/Bài thực hành *")}
             <input value={session.lesson_title} readOnly />
           </label>
           <div className="responsive-table">
             <table className="data-table equipment-items-table">
               <thead>
                 <tr>
-                  <th>STT</th>
-                  <th>Tên thiết bị và vật tư *</th>
-                  <th>Tên thương mại *</th>
-                  <th>ĐVT</th>
-                  <th>Số lượng *</th>
-                  <th>Ghi chú</th>
+                  <th>{uiText("STT")}</th>
+                  <th>{uiText("Tên thiết bị và vật tư *")}</th>
+                  <th>{uiText("Tên thương mại *")}</th>
+                  <th>{uiText("ĐVT")}</th>
+                  <th>{uiText("Số lượng *")}</th>
+                  <th>{uiText("Ghi chú")}</th>
                   <th>
-                    <span className="sr-only">Xóa</span>
+                    <span className="sr-only">{uiText("Xóa")}</span>
                   </th>
                 </tr>
               </thead>
@@ -525,8 +530,10 @@ export function BasicMedicalEquipmentRequestForm({
                           options={catalogIndex.itemNameOptions}
                           onChange={(value) => selectItemName(item, value)}
                           required
-                          ariaLabel={`Tên thiết bị dòng ${index + 1}`}
-                          placeholder="Gõ hoặc chọn tên thiết bị…"
+                          ariaLabel={uiText("Tên thiết bị dòng {0}", [
+                            index + 1,
+                          ])}
+                          placeholder={uiText("Gõ hoặc chọn tên thiết bị…")}
                         />
                       </td>
                       <td>
@@ -537,8 +544,10 @@ export function BasicMedicalEquipmentRequestForm({
                             selectCommercialItem(item, value)
                           }
                           required
-                          ariaLabel={`Tên thương mại dòng ${index + 1}`}
-                          placeholder="Gõ hoặc chọn tên thương mại…"
+                          ariaLabel={uiText("Tên thương mại dòng {0}", [
+                            index + 1,
+                          ])}
+                          placeholder={uiText("Gõ hoặc chọn tên thương mại…")}
                         />
                       </td>
                       <td>
@@ -552,7 +561,9 @@ export function BasicMedicalEquipmentRequestForm({
                       </td>
                       <td>
                         <input
-                          aria-label={`Số lượng thiết bị dòng ${index + 1}`}
+                          aria-label={uiText("Số lượng thiết bị dòng {0}", [
+                            index + 1,
+                          ])}
                           type="number"
                           min="1"
                           value={item.quantity}
@@ -566,12 +577,14 @@ export function BasicMedicalEquipmentRequestForm({
                       </td>
                       <td>
                         <input
-                          aria-label={`Ghi chú thiết bị dòng ${index + 1}`}
+                          aria-label={uiText("Ghi chú thiết bị dòng {0}", [
+                            index + 1,
+                          ])}
                           value={item.note}
                           onChange={(event) =>
                             updateItem(item.key, { note: event.target.value })
                           }
-                          placeholder="Nếu có"
+                          placeholder={uiText("Nếu có")}
                         />
                       </td>
                       <td>
@@ -587,7 +600,7 @@ export function BasicMedicalEquipmentRequestForm({
                             )
                           }
                         >
-                          Xóa
+                          {uiText("Xóa")}
                         </button>
                       </td>
                     </tr>
@@ -613,24 +626,24 @@ export function BasicMedicalEquipmentRequestForm({
               ])
             }
           >
-            + Thêm dòng
+            {uiText("+ Thêm dòng")}
           </button>
         </article>
       </section>
       <section>
         <label>
-          Ghi chú chung
+          {uiText("Ghi chú chung")}
           <textarea name="note" rows={3} defaultValue={initialData?.note} />
         </label>
       </section>
       {clientError ? (
         <p className="form-error" role="alert">
-          {clientError}
+          <LocalizedText text={clientError ?? ""} />
         </p>
       ) : null}
       {state.message ? (
         <p className={state.ok ? "form-success" : "form-error"} role="status">
-          {state.message}
+          <LocalizedText text={state.message ?? ""} />
         </p>
       ) : null}
       <footer>
@@ -638,7 +651,7 @@ export function BasicMedicalEquipmentRequestForm({
           className="button button-secondary"
           href="/basic-medical/equipment-requests"
         >
-          Hủy
+          {uiText("Hủy")}
         </a>
         <button
           type="submit"
@@ -646,14 +659,14 @@ export function BasicMedicalEquipmentRequestForm({
           disabled={pending || !catalog.length || !phoneIsValid}
         >
           {pending
-            ? "Đang lưu…"
+            ? uiText("Đang lưu…")
             : leadTime?.requiresLateApproval
-              ? "Gửi yêu cầu duyệt đăng ký trễ"
+              ? uiText("Gửi yêu cầu duyệt đăng ký trễ")
               : isEditMode
-                ? "Lưu điều chỉnh"
+                ? uiText("Lưu điều chỉnh")
                 : initialData?.mode === "copy"
-                  ? "Tạo phiếu sao chép"
-                  : "Gửi đăng ký"}
+                  ? uiText("Tạo phiếu sao chép")
+                  : uiText("Gửi đăng ký")}
         </button>
       </footer>
     </form>

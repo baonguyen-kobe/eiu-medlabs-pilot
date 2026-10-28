@@ -17,6 +17,8 @@ import {
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 type RequestMode = "copy" | "edit";
 
@@ -118,34 +120,38 @@ function RequestModePicker({
   editOptions: RequestOption[];
 }) {
   return (
-    <section
+    <LocalizedElement
+      as="section"
+      textAttributes={["aria-label"]}
       className="equipment-registration-tools"
       aria-label="Sao chép hoặc điều chỉnh phiếu"
     >
       <div className="equipment-registration-tools-heading">
-        <strong>Thao tác với phiếu đã đăng ký</strong>
+        <strong>
+          <LocalizedText text={"Thao tác với phiếu đã đăng ký"} />
+        </strong>
         {mode ? (
           <a className="button button-secondary" href="/equipment/register">
-            Đăng ký mới
+            <LocalizedText text={"Đăng ký mới"} />
           </a>
         ) : null}
       </div>
       <div className="equipment-registration-mode-grid">
         <details className="equipment-registration-mode" open={mode === "edit"}>
           <summary className="button equipment-mode-button equipment-mode-edit">
-            Điều chỉnh phiếu
+            <LocalizedText text={"Điều chỉnh phiếu"} />
           </summary>
           <form action="/equipment/register" method="get">
             <input type="hidden" name="mode" value="edit" />
             <label>
-              Chọn phiếu cần điều chỉnh
+              <LocalizedText text={"Chọn phiếu cần điều chỉnh"} />
               <select
                 name="request"
                 required
                 defaultValue={mode === "edit" ? activeRequestId : ""}
               >
                 <option value="" disabled>
-                  Chọn phiếu của bạn
+                  <LocalizedText text={"Chọn phiếu của bạn"} />
                 </option>
                 {editOptions.map((request) => (
                   <option key={request.id} value={request.id}>
@@ -158,20 +164,22 @@ function RequestModePicker({
               className="button button-primary"
               disabled={!editOptions.length}
             >
-              Tải phiếu để điều chỉnh
+              <LocalizedText text={"Tải phiếu để điều chỉnh"} />
             </button>
           </form>
         </details>
 
         <details className="equipment-registration-mode" open={mode === "copy"}>
           <summary className="button equipment-mode-button equipment-mode-copy">
-            Sao chép phiếu
+            <LocalizedText text={"Sao chép phiếu"} />
           </summary>
           <form action="/equipment/register" method="get">
             <input type="hidden" name="mode" value="copy" />
             <label>
-              Mã phiếu nguồn
-              <input
+              <LocalizedText text={"Mã phiếu nguồn"} />
+              <LocalizedElement
+                as="input"
+                textAttributes={["placeholder"]}
                 name="request"
                 required
                 defaultValue={mode === "copy" ? activeRequestId : ""}
@@ -181,12 +189,12 @@ function RequestModePicker({
               />
             </label>
             <button className="button button-primary">
-              Tải dữ liệu để sao chép
+              <LocalizedText text={"Tải dữ liệu để sao chép"} />
             </button>
           </form>
         </details>
       </div>
-    </section>
+    </LocalizedElement>
   );
 }
 
@@ -471,8 +479,12 @@ export default async function EquipmentRegisterPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Đăng ký thiết bị"
-      description="Phiếu trang thiết bị thực hành cho lớp Skills lab."
+      title={<LocalizedText text={"Đăng ký thiết bị"} />}
+      description={
+        <LocalizedText
+          text={"Phiếu trang thiết bị thực hành cho lớp Skills lab."}
+        />
+      }
     >
       <RequestModePicker
         mode={mode}
@@ -481,7 +493,7 @@ export default async function EquipmentRegisterPage({
       />
       {loadError ? (
         <p className="form-error" role="alert">
-          {loadError}
+          <LocalizedText text={loadError ?? ""} />
         </p>
       ) : null}
       <EquipmentRequestForm

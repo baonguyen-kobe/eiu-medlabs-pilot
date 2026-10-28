@@ -36,6 +36,7 @@ import { logout } from "@/app/login/actions";
 import { getNameInitials } from "@/lib/person-name";
 import { PageHeader } from "@/components/patterns/page-header";
 import { NotificationBell } from "@/components/notification-bell";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   canCreateBasicMedicalSchedules,
   canImportBasicMedicalSchedules,
@@ -46,6 +47,7 @@ import {
   canViewBasicMedicalRegistrations,
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 const roleLabels: Record<AppRole, string> = {
   admin: "Quản trị viên",
@@ -380,6 +382,12 @@ function buildNavigation(
   if (isAdmin || isStaff) {
     const inventoryItems: NavItem[] = [
       {
+        label: "Công việc & giao nhận",
+        href: "/equipment/operations",
+        icon: PackageCheck,
+        activeIcon: PackageCheckSolid,
+      },
+      {
         label: "Tổng quan",
         href: "/inventory",
         icon: LayoutDashboard,
@@ -471,8 +479,8 @@ export function WorkspaceShell({
 }: {
   fullName: string;
   roles: AppRole[];
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
   roomTypeCodes?: string[];
@@ -481,6 +489,8 @@ export function WorkspaceShell({
   canManagePersonnel?: boolean;
   canManageEmailNotifications?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const pathname = usePathname();
   const [currentPathname, setCurrentPathname] = useState(pathname);
   const [sidebarOpenState, setSidebarOpen] = useState(false);
@@ -581,7 +591,7 @@ export function WorkspaceShell({
   return (
     <div className="app-shell">
       <aside
-        aria-label="Menu chính"
+        aria-label={uiText("Menu chính")}
         aria-modal={sidebarOpen ? "true" : undefined}
         className={`sidebar workspace-sidebar ${sidebarOpen ? "sidebar-open" : ""}`}
         id="workspace-navigation"
@@ -598,12 +608,12 @@ export function WorkspaceShell({
             />
           </div>
           <div className="brand-copy">
-            <strong>MedLabs Calendar</strong>
+            <strong>{uiText("MedLabs Calendar")}</strong>
           </div>
           <button
             className="icon-button sidebar-close"
             onClick={() => setSidebarOpen(false)}
-            aria-label="Đóng menu"
+            aria-label={uiText("Đóng menu")}
             ref={closeButtonRef}
           >
             <PanelLeftClose size={19} />
@@ -611,7 +621,7 @@ export function WorkspaceShell({
         </div>
 
         <nav
-          aria-label="Điều hướng chính"
+          aria-label={uiText("Điều hướng chính")}
           className="workspace-nav"
           ref={navigationRef}
           onScroll={rememberSidebarScroll}
@@ -625,7 +635,7 @@ export function WorkspaceShell({
             if (!items.length) return null;
             return (
               <div className="nav-group" key={group.label}>
-                <p className="nav-heading">{group.label}</p>
+                <p className="nav-heading">{uiText(group.label)}</p>
                 {items.map(
                   ({
                     label,
@@ -660,7 +670,7 @@ export function WorkspaceShell({
                         ) : (
                           <OutlineIcon size={19} />
                         )}
-                        <span>{label}</span>
+                        <span>{uiText(label)}</span>
                       </Link>
                     );
                   },
@@ -683,7 +693,7 @@ export function WorkspaceShell({
                   ref={logoutButtonRef}
                 >
                   <LogOut aria-hidden="true" size={19} />
-                  <span>Đăng xuất</span>
+                  <span>{uiText("Đăng xuất")}</span>
                 </button>
               </form>
             </div>
@@ -691,7 +701,7 @@ export function WorkspaceShell({
           <button
             aria-controls="workspace-account-actions"
             aria-expanded={accountMenuOpen}
-            aria-label={`Tài khoản của ${fullName}`}
+            aria-label={uiText("Tài khoản của {0}", [fullName])}
             className="user-card workspace-user workspace-user-trigger"
             onClick={() => setAccountMenuOpen((open) => !open)}
             ref={accountTriggerRef}
@@ -702,7 +712,7 @@ export function WorkspaceShell({
             </span>
             <span className="workspace-user-copy">
               <strong>{fullName}</strong>
-              <span>{primaryRoleLabel}</span>
+              <span>{uiText(primaryRoleLabel)}</span>
             </span>
             <ChevronRight
               aria-hidden="true"
@@ -717,7 +727,7 @@ export function WorkspaceShell({
         <button
           className="sidebar-scrim"
           onClick={() => setSidebarOpen(false)}
-          aria-label="Đóng menu"
+          aria-label={uiText("Đóng menu")}
         />
       ) : null}
 
@@ -729,7 +739,7 @@ export function WorkspaceShell({
               aria-expanded={sidebarOpen}
               className="icon-button menu-button"
               onClick={() => setSidebarOpen(true)}
-              aria-label="Mở menu"
+              aria-label={uiText("Mở menu")}
               ref={menuButtonRef}
             >
               <Menu size={21} />
@@ -739,6 +749,7 @@ export function WorkspaceShell({
           description={description}
           actions={
             <>
+              <LanguageSwitcher />
               <NotificationBell />
               {actions}
             </>

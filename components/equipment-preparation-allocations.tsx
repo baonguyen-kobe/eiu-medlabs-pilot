@@ -17,6 +17,8 @@ import {
   preparationAssetsSchema,
   preparationInventoryOptionsSchema,
 } from "@/lib/equipment-preparation";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Command = (
   operation: PreparationOperation,
@@ -40,6 +42,8 @@ export function PreparationAllocations({
   onChange: (allocations: PreparationAllocation[]) => void;
   command: Command;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [sources, setSources] = useState<PreparationSource[]>([]);
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
@@ -139,7 +143,7 @@ export function PreparationAllocations({
             disabled={busy}
             onClick={() => void loadSources()}
           >
-            Chọn nguồn / Thêm allocation
+            {uiText("Chọn nguồn / Thêm allocation")}
           </button>
           {sources.length ? (
             <div className="space-y-2">
@@ -152,7 +156,7 @@ export function PreparationAllocations({
                     {source.item_code} · {source.item_name} ·{" "}
                     {source.location_name} ·{" "}
                     {source.tracking_strategy === "serialized"
-                      ? "Chọn đúng tài sản"
+                      ? uiText("Chọn đúng tài sản")
                       : `Available-for-new: ${source.available_quantity} ${source.base_uom_code}`}{" "}
                     · 1 {demand.unit} = {source.conversion_factor}{" "}
                     {source.base_uom_code}
@@ -162,7 +166,7 @@ export function PreparationAllocations({
                     className="button button-secondary"
                     onClick={() => add(source)}
                   >
-                    Dùng nguồn
+                    {uiText("Dùng nguồn")}
                   </button>
                 </div>
               ))}
@@ -175,26 +179,30 @@ export function PreparationAllocations({
               disabled={busy || page === 1}
               onClick={() => void loadSources(page - 1)}
             >
-              Nguồn trước
+              {uiText("Nguồn trước")}
             </button>
-            <span>Trang nguồn {page}</span>
+            <span>
+              {uiText("Trang nguồn ")}
+              {page}
+            </span>
             <button
               type="button"
               className="button button-secondary"
               disabled={busy || sources.length < 100}
               onClick={() => void loadSources(page + 1)}
             >
-              Nguồn tiếp
+              {uiText("Nguồn tiếp")}
             </button>
           </div>
           <details>
-            <summary>Mapping Inventory đã xác minh</summary>
+            <summary>{uiText("Mapping Inventory đã xác minh")}</summary>
             <p>
-              Chọn tường minh SKU tương thích và hệ số đơn vị; không suy từ tên
-              thiết bị.
+              {uiText(
+                "Chọn tường minh SKU tương thích và hệ số đơn vị; không suy từ tên thiết bị.",
+              )}
             </p>
             <label>
-              Tìm SKU Inventory
+              {uiText("Tìm SKU Inventory")}
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -206,7 +214,7 @@ export function PreparationAllocations({
               disabled={busy}
               onClick={() => void searchItems()}
             >
-              Tìm SKU
+              {uiText("Tìm SKU")}
             </button>
             <form
               onSubmit={async (event) => {
@@ -222,10 +230,10 @@ export function PreparationAllocations({
               }}
             >
               <label>
-                SKU đã xác minh
+                {uiText("SKU đã xác minh")}
                 <select name="item" required defaultValue="">
                   <option value="" disabled>
-                    Chọn Inventory item
+                    {uiText("Chọn Inventory item")}
                   </option>
                   {items.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -241,7 +249,7 @@ export function PreparationAllocations({
                   disabled={busy || itemPage === 1}
                   onClick={() => void searchItems(itemPage - 1)}
                 >
-                  SKU trước
+                  {uiText("SKU trước")}
                 </button>
                 <span>
                   {itemPage} / {Math.max(1, Math.ceil(itemTotal / 25))}
@@ -252,11 +260,12 @@ export function PreparationAllocations({
                   disabled={busy || itemPage * 25 >= itemTotal}
                   onClick={() => void searchItems(itemPage + 1)}
                 >
-                  SKU tiếp
+                  {uiText("SKU tiếp")}
                 </button>
               </div>
               <label>
-                Số base unit trong 1 {demand.unit}
+                {uiText("Số base unit trong 1 ")}
+                {demand.unit}
                 <input
                   name="factor"
                   required
@@ -266,17 +275,21 @@ export function PreparationAllocations({
                 />
               </label>
               <label>
-                Căn cứ tương thích và quy đổi
+                {uiText("Căn cứ tương thích và quy đổi")}
                 <input name="reason" required />
               </label>
               <button type="submit" className="button" disabled={busy}>
-                Lưu mapping
+                {uiText("Lưu mapping")}
               </button>
             </form>
           </details>
         </>
       ) : null}
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? (
+        <p role="alert">
+          <LocalizedText text={error ?? ""} />
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -296,6 +309,8 @@ function AllocationRow({
   onChange: (allocation: PreparationAllocation) => void;
   onRemove: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [assets, setAssets] = useState<PreparationAsset[]>([]);
   const [assetCode, setAssetCode] = useState("");
   const [page, setPage] = useState(1);
@@ -349,10 +364,11 @@ function AllocationRow({
       <legend>
         {source
           ? `${source.item_name} · ${source.location_name}`
-          : "Allocation đã lưu — tải nguồn để đối chiếu"}
+          : uiText("Allocation đã lưu — tải nguồn để đối chiếu")}
       </legend>
       <label>
-        SL base unit {source?.base_uom_code}
+        {uiText("SL base unit ")}
+        {source?.base_uom_code}
         <input
           inputMode="decimal"
           value={allocation.base_quantity}
@@ -361,18 +377,22 @@ function AllocationRow({
           }
         />
       </label>
-      <p>Đã chọn {allocation.asset_ids.length} tài sản chính xác.</p>
+      <p>
+        {uiText("Đã chọn ")}
+        {allocation.asset_ids.length}
+        {uiText(" tài sản chính xác.")}
+      </p>
       <button
         type="button"
         className="button button-secondary"
         onClick={onRemove}
       >
-        Bỏ allocation
+        {uiText("Bỏ allocation")}
       </button>
       {source?.tracking_strategy === "serialized" ? (
         <>
           <label>
-            Quét hoặc nhập mã EIU-AST
+            {uiText("Quét hoặc nhập mã EIU-AST")}
             <input
               value={assetCode}
               onChange={(event) => setAssetCode(event.target.value)}
@@ -390,7 +410,7 @@ function AllocationRow({
             disabled={busy}
             onClick={() => void loadAssets(1, true)}
           >
-            Kiểm tra và chọn QR
+            {uiText("Kiểm tra và chọn QR")}
           </button>
           <button
             type="button"
@@ -398,7 +418,7 @@ function AllocationRow({
             disabled={busy}
             onClick={() => void loadAssets(1)}
           >
-            Danh sách tài sản
+            {uiText("Danh sách tài sản")}
           </button>
           {assets.map((asset) => (
             <label key={asset.id} className="flex items-center gap-2">
@@ -416,10 +436,10 @@ function AllocationRow({
                 }
               />
               {asset.asset_code} ·{" "}
-              {asset.manufacturer_serial ?? "Không serial NSX"} ·{" "}
+              {asset.manufacturer_serial ?? uiText("Không serial NSX")} ·{" "}
               {asset.eligible && asset.unreserved
-                ? "Có thể chọn"
-                : "Không khả dụng"}
+                ? uiText("Có thể chọn")
+                : uiText("Không khả dụng")}
             </label>
           ))}
           <div className="flex flex-wrap gap-2">
@@ -429,7 +449,7 @@ function AllocationRow({
               disabled={busy || page === 1}
               onClick={() => void loadAssets(page - 1)}
             >
-              Tài sản trước
+              {uiText("Tài sản trước")}
             </button>
             <span>
               {page} / {Math.max(1, Math.ceil(total / 100))}
@@ -440,12 +460,16 @@ function AllocationRow({
               disabled={busy || page * 100 >= total}
               onClick={() => void loadAssets(page + 1)}
             >
-              Tài sản tiếp
+              {uiText("Tài sản tiếp")}
             </button>
           </div>
         </>
       ) : null}
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? (
+        <p role="alert">
+          <LocalizedText text={error ?? ""} />
+        </p>
+      ) : null}
     </fieldset>
   );
 }

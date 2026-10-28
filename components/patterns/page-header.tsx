@@ -12,8 +12,8 @@ export function PageHeader({
   actions,
 }: {
   menu?: ReactNode;
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
   actions?: ReactNode;
 }) {
   return (

@@ -2,12 +2,13 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { AcquisitionsView } from "@/components/inventory/acquisitions-view";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type {
   AcquisitionRecord,
   AcquisitionRecordLine,
   InventorySourceReceipt,
 } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface AcquisitionsPageProps {
   searchParams: Promise<{
@@ -97,8 +98,18 @@ export default async function AcquisitionsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Hồ sơ nguồn & Cam kết mua sắm / Acquisition Sources"
-        description="Quản lý bằng chứng xuất xứ, hợp đồng và đơn giá mua sắm. Lưu hồ sơ có biến động tồn kho bằng 0"
+        title={
+          <LocalizedText
+            text={"Hồ sơ nguồn & Cam kết mua sắm / Acquisition Sources"}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Quản lý bằng chứng xuất xứ, hợp đồng và đơn giá mua sắm. Lưu hồ sơ có biến động tồn kho bằng 0"
+            }
+          />
+        }
       />
 
       <AcquisitionsView

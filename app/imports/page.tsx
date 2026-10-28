@@ -5,6 +5,8 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 import { getViewer } from "@/lib/viewer";
 import { PaginationLinks } from "@/components/pagination-links";
 import { normalizePage, paginationRange } from "@/lib/pagination";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 const importStatusLabels: Record<string, string> = {
   uploaded: "Đã tải lên",
@@ -69,21 +71,33 @@ export default async function ImportsPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Lịch sử import"
-      description="Theo dõi số dòng đã tạo, cảnh báo, lỗi và dữ liệu trùng."
+      title={<LocalizedText text={"Lịch sử import"} />}
+      description={
+        <LocalizedText
+          text={"Theo dõi số dòng đã tạo, cảnh báo, lỗi và dữ liệu trùng."}
+        />
+      }
       actions={
         <Link className="button button-primary" href="/schedule-entry/import">
-          <Plus size={17} /> Import mới
+          <Plus size={17} />
+          <LocalizedText text={" Import mới"} />
         </Link>
       }
     >
       <section className="data-panel">
         <div className="data-toolbar">
           <Import size={20} />
-          <h2 className="standard-section-heading">Các phiên import gần đây</h2>
-          <span>{batches?.length ?? 0} phiên</span>
+          <h2 className="standard-section-heading">
+            <LocalizedText text={"Các phiên import gần đây"} />
+          </h2>
+          <span>
+            {batches?.length ?? 0}
+            <LocalizedText text={" phiên"} />
+          </span>
         </div>
-        <div
+        <LocalizedElement
+          as="div"
+          textAttributes={["aria-label"]}
           className="responsive-table"
           role="region"
           aria-label="Lịch sử import; vuốt ngang để xem đầy đủ"
@@ -92,16 +106,36 @@ export default async function ImportsPage({
           <table className="data-table import-history-table">
             <thead>
               <tr>
-                <th>File</th>
-                <th>Thời điểm</th>
-                <th>Trạng thái</th>
-                <th>Phạm vi</th>
-                <th>Tổng</th>
-                <th>Đã tạo</th>
-                <th>Cảnh báo</th>
-                <th>Lỗi</th>
-                <th>Trùng</th>
-                <th>Xung đột</th>
+                <th>
+                  <LocalizedText text={"File"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Thời điểm"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Trạng thái"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Phạm vi"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Tổng"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Đã tạo"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Cảnh báo"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Lỗi"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Trùng"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Xung đột"} />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -122,13 +156,15 @@ export default async function ImportsPage({
                   </td>
                   <td>
                     <span className="status-pill">
-                      {importStatusLabels[batch.status] ?? batch.status}
+                      <LocalizedText
+                        text={importStatusLabels[batch.status] ?? batch.status}
+                      />
                     </span>
                   </td>
                   <td>
                     <strong>
                       {(batch.room_types as unknown as { name: string } | null)
-                        ?.name ?? "Kỹ năng Điều dưỡng"}
+                        ?.name ?? <LocalizedText text={"Kỹ năng Điều dưỡng"} />}
                     </strong>
                   </td>
                   <td>{batch.total_rows}</td>
@@ -141,9 +177,11 @@ export default async function ImportsPage({
               ))}
             </tbody>
           </table>
-        </div>
+        </LocalizedElement>
         {!batches?.length ? (
-          <p className="panel-empty">Chưa có phiên import nào.</p>
+          <p className="panel-empty">
+            <LocalizedText text={"Chưa có phiên import nào."} />
+          </p>
         ) : null}
         <PaginationLinks
           currentPage={currentPage}

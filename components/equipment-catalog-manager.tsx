@@ -27,6 +27,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { CatalogReconciliationImport } from "@/components/catalog-reconciliation-import";
 import { CatalogImportNew } from "@/components/catalog-import-new";
 import { TABLE_PAGE_SIZE, totalPagesFor } from "@/lib/pagination";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export type EquipmentCatalogItem = EquipmentCatalogInput & {
   id: string;
@@ -81,6 +83,8 @@ export function EquipmentCatalogManager({
 }: {
   initialItems: EquipmentCatalogItem[];
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [rows, setRows] = useState(initialItems);
   const [drafts, setDrafts] = useState<Record<string, EquipmentCatalogItem>>(
@@ -297,7 +301,8 @@ export function EquipmentCatalogManager({
             href="/api/admin-catalog-template/equipment"
             prefetch={false}
           >
-            <Download size={17} /> Tải template
+            <Download size={17} />
+            {uiText(" Tải template")}
           </Link>
           <CatalogImportNew action={importEquipmentCatalog} />
           <CatalogReconciliationImport
@@ -308,7 +313,8 @@ export function EquipmentCatalogManager({
             className="button equipment-export-all"
             href="/api/equipment-catalog/export"
           >
-            <Download size={17} /> Export tất cả
+            <Download size={17} />
+            {uiText(" Export tất cả")}
           </a>
         </div>
       </section>
@@ -323,32 +329,34 @@ export function EquipmentCatalogManager({
                 setQuery(event.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Tìm theo tên, thương mại, loại, nước SX, hãng, model, ĐVT…"
+              placeholder={uiText(
+                "Tìm theo tên, thương mại, loại, nước SX, hãng, model, ĐVT…",
+              )}
               autoComplete="off"
               spellCheck={false}
             />
           </label>
           <select
-            aria-label="Lọc trạng thái thiết bị"
+            aria-label={uiText("Lọc trạng thái thiết bị")}
             value={statusFilter}
             onChange={(event) => {
               setStatusFilter(event.target.value);
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang sử dụng</option>
-            <option value="inactive">Ngừng sử dụng</option>
+            <option value="">{uiText("Tất cả trạng thái")}</option>
+            <option value="active">{uiText("Đang sử dụng")}</option>
+            <option value="inactive">{uiText("Ngừng sử dụng")}</option>
           </select>
           <select
-            aria-label="Lọc loại thiết bị"
+            aria-label={uiText("Lọc loại thiết bị")}
             value={typeFilter}
             onChange={(event) => {
               setTypeFilter(event.target.value);
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả loại</option>
+            <option value="">{uiText("Tất cả loại")}</option>
             {types.map((value) => (
               <option value={value} key={value}>
                 {value}
@@ -356,14 +364,14 @@ export function EquipmentCatalogManager({
             ))}
           </select>
           <select
-            aria-label="Lọc nước sản xuất"
+            aria-label={uiText("Lọc nước sản xuất")}
             value={countryFilter}
             onChange={(event) => {
               setCountryFilter(event.target.value);
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả nước SX</option>
+            <option value="">{uiText("Tất cả nước SX")}</option>
             {countries.map((value) => (
               <option value={value} key={value}>
                 {value}
@@ -371,14 +379,14 @@ export function EquipmentCatalogManager({
             ))}
           </select>
           <select
-            aria-label="Lọc hãng thiết bị"
+            aria-label={uiText("Lọc hãng thiết bị")}
             value={manufacturerFilter}
             onChange={(event) => {
               setManufacturerFilter(event.target.value);
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả hãng</option>
+            <option value="">{uiText("Tất cả hãng")}</option>
             {manufacturers.map((value) => (
               <option value={value} key={value}>
                 {value}
@@ -386,14 +394,14 @@ export function EquipmentCatalogManager({
             ))}
           </select>
           <select
-            aria-label="Lọc đơn vị tính"
+            aria-label={uiText("Lọc đơn vị tính")}
             value={unitFilter}
             onChange={(event) => {
               setUnitFilter(event.target.value);
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả ĐVT</option>
+            <option value="">{uiText("Tất cả ĐVT")}</option>
             {units.map((value) => (
               <option value={value} key={value}>
                 {value}
@@ -405,11 +413,12 @@ export function EquipmentCatalogManager({
             className="button button-secondary"
             onClick={clearFilters}
           >
-            Xóa bộ lọc
+            {uiText("Xóa bộ lọc")}
           </button>
           <span className="inline-toolbar-count-slot">
             <span className="equipment-catalog-count">
-              {visibleRows.length}/{rows.length} thiết bị
+              {visibleRows.length}/{rows.length}
+              {uiText(" thiết bị")}
             </span>
           </span>
         </div>
@@ -422,7 +431,8 @@ export function EquipmentCatalogManager({
               disabled={isPending || (mode !== null && mode !== "activate")}
               onClick={() => switchMode("activate")}
             >
-              <PackageCheck size={17} /> Kích hoạt
+              <PackageCheck size={17} />
+              {uiText(" Kích hoạt")}
             </button>
             <button
               type="button"
@@ -433,7 +443,7 @@ export function EquipmentCatalogManager({
               }
             >
               {mode === "edit" ? <Save size={17} /> : <Settings size={17} />}
-              {mode === "edit" ? "Lưu chỉnh sửa" : "Sửa"}
+              {mode === "edit" ? uiText("Lưu chỉnh sửa") : uiText("Sửa")}
             </button>
             <button
               type="button"
@@ -441,7 +451,8 @@ export function EquipmentCatalogManager({
               disabled={isPending || (mode !== null && mode !== "disable")}
               onClick={() => switchMode("disable")}
             >
-              <PackageCheck size={17} /> Ngừng sử dụng
+              <PackageCheck size={17} />
+              {uiText(" Ngừng sử dụng")}
             </button>
             <button
               type="button"
@@ -449,7 +460,8 @@ export function EquipmentCatalogManager({
               disabled={isPending || (mode !== null && mode !== "delete")}
               onClick={() => switchMode("delete")}
             >
-              <Trash2 size={17} /> Xóa
+              <Trash2 size={17} />
+              {uiText(" Xóa")}
             </button>
           </div>
           {mode ? (
@@ -459,14 +471,19 @@ export function EquipmentCatalogManager({
               onClick={() => switchMode(null)}
               disabled={isPending}
             >
-              <X size={16} /> Hủy thao tác
+              <X size={16} />
+              {uiText(" Hủy thao tác")}
             </button>
           ) : null}
         </div>
 
         {mode === "activate" || mode === "disable" || mode === "delete" ? (
           <div className={`equipment-bulk-confirm equipment-bulk-${mode}`}>
-            <span>Đã chọn {selectedIds.size} thiết bị</span>
+            <span>
+              {uiText("Đã chọn ")}
+              {selectedIds.size}
+              {uiText(" thiết bị")}
+            </span>
             <button
               type="button"
               className="button"
@@ -474,20 +491,29 @@ export function EquipmentCatalogManager({
               onClick={() => setConfirmApply(true)}
             >
               {isPending
-                ? "Đang xử lý…"
+                ? uiText("Đang xử lý…")
                 : mode === "activate"
-                  ? "Kích hoạt"
+                  ? uiText("Kích hoạt")
                   : mode === "disable"
-                    ? "Xác nhận ngừng sử dụng"
-                    : "Xác nhận xóa"}
+                    ? uiText("Xác nhận ngừng sử dụng")
+                    : uiText("Xác nhận xóa")}
             </button>
           </div>
         ) : null}
 
         <ConfirmDialog
           open={confirmApply}
-          title={`${mode === "disable" ? "Ngừng sử dụng" : mode === "activate" ? "Kích hoạt" : "Xóa"} ${selectedIds.size} thiết bị?`}
-          description="Thao tác chỉ áp dụng một lần cho đúng các thiết bị đã chọn."
+          title={uiText("{0} {1} thiết bị?", [
+            mode === "disable"
+              ? uiText("Ngừng sử dụng")
+              : mode === "activate"
+                ? uiText("Kích hoạt")
+                : uiText("Xóa"),
+            selectedIds.size,
+          ])}
+          description={uiText(
+            "Thao tác chỉ áp dụng một lần cho đúng các thiết bị đã chọn.",
+          )}
           tone={mode === "activate" ? "primary" : "danger"}
           pending={isPending}
           onCancel={() => setConfirmApply(false)}
@@ -502,7 +528,7 @@ export function EquipmentCatalogManager({
             className={notice.ok ? "form-success" : "form-error"}
             role="status"
           >
-            {notice.message}
+            <LocalizedText text={notice.message ?? ""} />
           </p>
         ) : null}
 
@@ -530,7 +556,7 @@ export function EquipmentCatalogManager({
                 mode === "delete" ? (
                   <th className="equipment-select-column">
                     <input
-                      aria-label="Chọn tất cả thiết bị đang hiển thị"
+                      aria-label={uiText("Chọn tất cả thiết bị đang hiển thị")}
                       type="checkbox"
                       checked={allVisibleSelected}
                       onChange={(event) => {
@@ -563,7 +589,7 @@ export function EquipmentCatalogManager({
                       className="equipment-sort-button"
                       onClick={() => changeSort(key)}
                     >
-                      <span>{label}</span>
+                      <span>{uiText(label)}</span>
                       <span aria-hidden="true">
                         {sortKey === key
                           ? sortDirection === "asc"
@@ -593,7 +619,7 @@ export function EquipmentCatalogManager({
                     mode === "delete" ? (
                       <td className="equipment-select-column">
                         <input
-                          aria-label={`Chọn ${item.item_name}`}
+                          aria-label={uiText("Chọn {0}", [item.item_name])}
                           type="checkbox"
                           checked={selectedIds.has(item.id)}
                           onChange={(event) =>
@@ -615,11 +641,16 @@ export function EquipmentCatalogManager({
                               item.is_active ? "active" : "inactive"
                             }`}
                           >
-                            {item.is_active ? "Đang sử dụng" : "Ngừng sử dụng"}
+                            {item.is_active
+                              ? uiText("Đang sử dụng")
+                              : uiText("Ngừng sử dụng")}
                           </span>
                         ) : mode === "edit" ? (
                           <input
-                            aria-label={`${label} của ${item.item_name}`}
+                            aria-label={uiText("{0} của {1}", [
+                              label,
+                              item.item_name,
+                            ])}
                             required={
                               key === "item_name" ||
                               key === "commercial_name" ||
@@ -643,7 +674,9 @@ export function EquipmentCatalogManager({
             </tbody>
           </table>
           {!visibleRows.length ? (
-            <p className="panel-empty">Không có thiết bị phù hợp bộ lọc.</p>
+            <p className="panel-empty">
+              {uiText("Không có thiết bị phù hợp bộ lọc.")}
+            </p>
           ) : null}
         </div>
         <PaginationControls

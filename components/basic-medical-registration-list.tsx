@@ -36,6 +36,8 @@ import {
   equipmentStatusMeta,
   type EquipmentRequestListItem,
 } from "@/lib/equipment-requests";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: "Asia/Ho_Chi_Minh",
@@ -81,6 +83,8 @@ function BasicMedicalConfirmationModal({
   onClose: () => void;
   onConfirmed: (confirmation: { id: string; signed_at: string }) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [stage, setStage] = useState<"condition" | "signature">("condition");
   const [damageByInventory, setDamageByInventory] = useState<DamageDraft>({});
   const [notice, setNotice] = useState<{ ok: boolean; message: string } | null>(
@@ -190,7 +194,7 @@ function BasicMedicalConfirmationModal({
       <button
         type="button"
         className="equipment-modal-backdrop"
-        aria-label="Đóng cửa sổ xác nhận"
+        aria-label={uiText("Đóng cửa sổ xác nhận")}
         onClick={() => !isPending && onClose()}
       />
       <section
@@ -201,7 +205,7 @@ function BasicMedicalConfirmationModal({
       >
         <header className="equipment-modal-header">
           <div>
-            <span>Xác nhận buổi học Y cơ sở</span>
+            <span>{uiText("Xác nhận buổi học Y cơ sở")}</span>
             <h2 id="basic-medical-confirmation-title">
               {registration.courses?.course_code} · {session.lesson_title}
             </h2>
@@ -216,10 +220,10 @@ function BasicMedicalConfirmationModal({
             type="button"
             className="equipment-modal-close"
             disabled={isPending}
-            aria-label="Đóng cửa sổ xác nhận"
+            aria-label={uiText("Đóng cửa sổ xác nhận")}
             onClick={onClose}
           >
-            ×
+            {uiText("×")}
           </button>
         </header>
         <div className="equipment-modal-body">
@@ -228,35 +232,41 @@ function BasicMedicalConfirmationModal({
               className={notice.ok ? "form-success" : "form-error"}
               role="status"
             >
-              {notice.message}
+              <LocalizedText text={notice.message ?? ""} />
             </p>
           ) : null}
           {stage === "condition" ? (
             <>
               <div className="basic-medical-condition-heading">
                 <div>
-                  <strong>Thay đổi tình trạng thiết bị phòng</strong>
-                  <p>Số lượng Hư là số hư mới phát hiện trong buổi học này.</p>
+                  <strong>
+                    {uiText("Thay đổi tình trạng thiết bị phòng")}
+                  </strong>
+                  <p>
+                    {uiText(
+                      "Số lượng Hư là số hư mới phát hiện trong buổi học này.",
+                    )}
+                  </p>
                 </div>
                 <button
                   type="button"
                   className="button button-primary"
                   onClick={validateAndContinue}
                 >
-                  Lưu tình trạng
+                  {uiText("Lưu tình trạng")}
                 </button>
               </div>
               <div className="responsive-table">
                 <table className="data-table basic-medical-condition-table">
                   <thead>
                     <tr>
-                      <th>STT</th>
-                      <th>Tên thiết bị và vật tư</th>
-                      <th>Tên thương mại</th>
-                      <th>ĐVT</th>
-                      <th>Hiện có</th>
-                      <th>Tình trạng</th>
-                      <th>Số lượng hư mới</th>
+                      <th>{uiText("STT")}</th>
+                      <th>{uiText("Tên thiết bị và vật tư")}</th>
+                      <th>{uiText("Tên thương mại")}</th>
+                      <th>{uiText("ĐVT")}</th>
+                      <th>{uiText("Hiện có")}</th>
+                      <th>{uiText("Tình trạng")}</th>
+                      <th>{uiText("Số lượng hư mới")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -272,8 +282,9 @@ function BasicMedicalConfirmationModal({
                           <td>{inventory.catalog?.commercial_name || "—"}</td>
                           <td>{inventory.catalog?.unit || "—"}</td>
                           <td>
-                            {inventory.good_quantity} Tốt ·{" "}
-                            {inventory.damaged_quantity} Hư
+                            {inventory.good_quantity}
+                            {uiText(" Tốt ·")} {inventory.damaged_quantity}
+                            {uiText(" Hư")}
                           </td>
                           <td>
                             <label className="inline-choice">
@@ -288,7 +299,7 @@ function BasicMedicalConfirmationModal({
                                   }))
                                 }
                               />
-                              Tốt
+                              {uiText("Tốt")}
                             </label>
                             <label className="inline-choice">
                               <input
@@ -302,13 +313,16 @@ function BasicMedicalConfirmationModal({
                                   }))
                                 }
                               />
-                              Hư
+                              {uiText("Hư")}
                             </label>
                           </td>
                           <td>
                             {isDamaged ? (
                               <input
-                                aria-label={`Số lượng hư mới của ${inventory.catalog?.item_name ?? "thiết bị"}`}
+                                aria-label={uiText("Số lượng hư mới của {0}", [
+                                  inventory.catalog?.item_name ??
+                                    uiText("thiết bị"),
+                                ])}
                                 type="number"
                                 min="1"
                                 max={inventory.good_quantity}
@@ -332,8 +346,9 @@ function BasicMedicalConfirmationModal({
               </div>
               {!inventories.length ? (
                 <p className="panel-empty">
-                  Phòng chưa có thiết bị trong danh mục. Bạn vẫn có thể tiếp tục
-                  ký xác nhận.
+                  {uiText(
+                    "Phòng chưa có thiết bị trong danh mục. Bạn vẫn có thể tiếp tục ký xác nhận.",
+                  )}
                 </p>
               ) : null}
               <div className="signature-modal-actions">
@@ -342,22 +357,23 @@ function BasicMedicalConfirmationModal({
                   className="button button-secondary"
                   onClick={onClose}
                 >
-                  Hủy
+                  {uiText("Hủy")}
                 </button>
                 <button
                   type="button"
                   className="button button-primary"
                   onClick={validateAndContinue}
                 >
-                  Lưu tình trạng và tiếp tục ký
+                  {uiText("Lưu tình trạng và tiếp tục ký")}
                 </button>
               </div>
             </>
           ) : (
             <div className="signature-modal-body basic-medical-signature-step">
               <p>
-                Ký trong khung để xác nhận buổi học và tình trạng thiết bị
-                phòng.
+                {uiText(
+                  "Ký trong khung để xác nhận buổi học và tình trạng thiết bị phòng.",
+                )}
               </p>
               <button
                 type="button"
@@ -365,12 +381,12 @@ function BasicMedicalConfirmationModal({
                 disabled={isPending}
                 onClick={() => setStage("condition")}
               >
-                Thay đổi tình trạng thiết bị phòng
+                {uiText("Thay đổi tình trạng thiết bị phòng")}
               </button>
               <canvas
                 ref={canvasRef}
                 className="signature-canvas"
-                aria-label="Khung vẽ chữ ký"
+                aria-label={uiText("Khung vẽ chữ ký")}
                 onPointerDown={(event) => {
                   event.preventDefault();
                   drawingRef.current = true;
@@ -404,7 +420,7 @@ function BasicMedicalConfirmationModal({
                   disabled={isPending}
                   onClick={onClose}
                 >
-                  Hủy
+                  {uiText("Hủy")}
                 </button>
                 <button
                   type="button"
@@ -412,7 +428,7 @@ function BasicMedicalConfirmationModal({
                   disabled={isPending || !hasInk}
                   onClick={clearSignature}
                 >
-                  Ký lại
+                  {uiText("Ký lại")}
                 </button>
                 <button
                   type="button"
@@ -423,7 +439,7 @@ function BasicMedicalConfirmationModal({
                     if (signature) submitConfirmation(signature);
                   }}
                 >
-                  {isPending ? "Đang lưu…" : "Ký và xác nhận"}
+                  {isPending ? uiText("Đang lưu…") : uiText("Ký và xác nhận")}
                 </button>
               </div>
             </div>
@@ -454,10 +470,14 @@ function SessionStatus({
   now: number;
   onOpen: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   if (confirmation) {
     return (
       <div className="basic-medical-session-status">
-        <span className="request-status request-status-green">Xác nhận</span>
+        <span className="request-status request-status-green">
+          {uiText("Xác nhận")}
+        </span>
         <small>
           {dateTimeFormatter.format(new Date(confirmation.signed_at))}
         </small>
@@ -467,7 +487,7 @@ function SessionStatus({
               className="button button-secondary basic-medical-confirm-button"
               href={`/basic-medical/registrations/confirmations/${confirmation.id}`}
             >
-              Xem bằng chứng
+              {uiText("Xem bằng chứng")}
             </Link>
             {historicalConfirmations
               .filter(
@@ -481,7 +501,7 @@ function SessionStatus({
                   className="button button-secondary basic-medical-confirm-button"
                   href={`/basic-medical/registrations/confirmations/${historical.id}`}
                 >
-                  Bằng chứng đã vô hiệu
+                  {uiText("Bằng chứng đã vô hiệu")}
                 </Link>
               ))}
           </>
@@ -496,7 +516,7 @@ function SessionStatus({
     return (
       <div className="basic-medical-session-status">
         <span className="request-status request-status-gray">
-          Xác nhận đã vô hiệu
+          {uiText("Xác nhận đã vô hiệu")}
         </span>
         {evidenceEnabled
           ? invalidatedConfirmations.map((historical) => (
@@ -505,7 +525,7 @@ function SessionStatus({
                 className="button button-secondary basic-medical-confirm-button"
                 href={`/basic-medical/registrations/confirmations/${historical.id}`}
               >
-                Xem bằng chứng
+                {uiText("Xem bằng chứng")}
               </Link>
             ))
           : null}
@@ -522,15 +542,21 @@ function SessionStatus({
       "Người dùng";
     return (
       <div className="basic-medical-session-status">
-        <span className="request-status request-status-gray">Đã hủy</span>
+        <span className="request-status request-status-gray">
+          {uiText("Đã hủy")}
+        </span>
         {session.cancellation_reason ? (
           <div className="basic-medical-session-cancellation-metadata">
             <div>
-              <span className="cancellation-meta-label">Người hủy lớp:</span>{" "}
+              <span className="cancellation-meta-label">
+                {uiText("Người hủy lớp:")}
+              </span>{" "}
               <strong>{cancellerName}</strong>
             </div>
             <div>
-              <span className="cancellation-meta-label">Lý do hủy:</span>{" "}
+              <span className="cancellation-meta-label">
+                {uiText("Lý do hủy:")}
+              </span>{" "}
               <span>{session.cancellation_reason}</span>
             </div>
           </div>
@@ -546,7 +572,9 @@ function SessionStatus({
   );
   if (!isTeachingLecturer) {
     return (
-      <span className="request-status request-status-red">Chưa xác nhận</span>
+      <span className="request-status request-status-red">
+        {uiText("Chưa xác nhận")}
+      </span>
     );
   }
   return (
@@ -557,10 +585,13 @@ function SessionStatus({
         disabled={tooEarly}
         onClick={onOpen}
       >
-        Xác nhận
+        {uiText("Xác nhận")}
       </button>
       {tooEarly && earliest ? (
-        <small>Từ {dateTimeFormatter.format(earliest)}</small>
+        <small>
+          {uiText("Từ ")}
+          {dateTimeFormatter.format(earliest)}
+        </small>
       ) : null}
     </div>
   );
@@ -583,6 +614,8 @@ function SessionLecturerCell({
   onLecturerChange: (lecturerId: string) => void;
   isSaving: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   if (!isEditing) {
     const displayName =
       instructors.find(
@@ -602,7 +635,7 @@ function SessionLecturerCell({
           value={selectedLecturerId}
           onChange={(event) => onLecturerChange(event.target.value)}
           disabled={isSaving}
-          aria-label="Giảng viên giảng dạy/hướng dẫn"
+          aria-label={uiText("Giảng viên giảng dạy/hướng dẫn")}
         >
           {instructors.map((instructor) => (
             <option key={instructor.id} value={instructor.id}>
@@ -630,6 +663,8 @@ function SessionAdministrativeActions({
   viewerId: string;
   isAdmin?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [invalidateOpen, setInvalidateOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -661,13 +696,15 @@ function SessionAdministrativeActions({
           className="button button-danger basic-medical-confirm-button"
           onClick={() => setCancelOpen(true)}
         >
-          Hủy lớp
+          {uiText("Hủy lớp")}
         </button>
         <ConfirmDialog
           open={cancelOpen}
-          title="Hủy buổi học Y cơ sở?"
-          description="Chỉ hủy đúng buổi đã chọn; các buổi khác của Phiếu Y cơ sở không thay đổi."
-          confirmLabel="Hủy buổi học"
+          title={uiText("Hủy buổi học Y cơ sở?")}
+          description={uiText(
+            "Chỉ hủy đúng buổi đã chọn; các buổi khác của Phiếu Y cơ sở không thay đổi.",
+          )}
+          confirmLabel={uiText("Hủy buổi học")}
           pending={isPending}
           onCancel={() => setCancelOpen(false)}
           onConfirm={() => {
@@ -687,12 +724,12 @@ function SessionAdministrativeActions({
           }}
         >
           <label className="form-field">
-            <span>Lý do hủy buổi học *</span>
+            <span>{uiText("Lý do hủy buổi học *")}</span>
             <input
               value={cancellationReason}
               required
               onChange={(event) => setCancellationReason(event.target.value)}
-              placeholder="Nhập lý do bắt buộc"
+              placeholder={uiText("Nhập lý do bắt buộc")}
             />
           </label>
         </ConfirmDialog>
@@ -713,13 +750,29 @@ function SessionAdministrativeActions({
         disabled={isPending}
         onClick={() => setInvalidateOpen(true)}
       >
-        Vô hiệu hóa xác nhận
+        {uiText("Vô hiệu hóa xác nhận")}
       </button>
       <ConfirmDialog
         open={invalidateOpen}
-        title="Vô hiệu hóa xác nhận buổi học?"
-        description={`${registration.courses?.course_code ?? "Môn học"} · ${registration.courses?.course_name ?? ""} | ${formatDate(session.class_schedules?.schedule_date)} · ${formatTime(session.class_schedules?.start_time)}–${formatTime(session.class_schedules?.end_time)} | ${registration.rooms?.building_code ?? ""} ${registration.rooms?.room_code ?? ""}${registration.rooms?.room_name ? ` – ${registration.rooms.room_name}` : ""} | Giảng viên buổi học: ${session.teaching?.full_name ?? "Không xác định"} · Xác nhận lúc ${dateTimeFormatter.format(new Date(confirmation.signed_at))}. Chữ ký và bằng chứng gốc sẽ được giữ nguyên.`}
-        confirmLabel="Vô hiệu hóa"
+        title={uiText("Vô hiệu hóa xác nhận buổi học?")}
+        description={uiText(
+          "{0} · {1} | {2} · {3}–{4} | {5} {6}{7} | Giảng viên buổi học: {8} · Xác nhận lúc {9}. Chữ ký và bằng chứng gốc sẽ được giữ nguyên.",
+          [
+            registration.courses?.course_code ?? uiText("Môn học"),
+            registration.courses?.course_name ?? "",
+            formatDate(session.class_schedules?.schedule_date),
+            formatTime(session.class_schedules?.start_time),
+            formatTime(session.class_schedules?.end_time),
+            registration.rooms?.building_code ?? "",
+            registration.rooms?.room_code ?? "",
+            registration.rooms?.room_name
+              ? ` – ${registration.rooms.room_name}`
+              : "",
+            session.teaching?.full_name ?? uiText("Không xác định"),
+            dateTimeFormatter.format(new Date(confirmation.signed_at)),
+          ],
+        )}
+        confirmLabel={uiText("Vô hiệu hóa")}
         pending={isPending}
         onCancel={() => setInvalidateOpen(false)}
         onConfirm={() => {
@@ -739,12 +792,12 @@ function SessionAdministrativeActions({
         }}
       >
         <label className="form-field">
-          <span>Lý do vô hiệu hóa *</span>
+          <span>{uiText("Lý do vô hiệu hóa *")}</span>
           <input
             value={reason}
             required
             onChange={(event) => setReason(event.target.value)}
-            placeholder="Nhập lý do bắt buộc"
+            placeholder={uiText("Nhập lý do bắt buộc")}
           />
         </label>
       </ConfirmDialog>
@@ -777,6 +830,8 @@ export function BasicMedicalRegistrationList({
   equipmentRequestsBySession: Record<string, EquipmentRequestListItem>;
   today: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [confirmationNow, setConfirmationNow] = useState(() => Date.now());
@@ -892,11 +947,11 @@ export function BasicMedicalRegistrationList({
             </colgroup>
             <thead>
               <tr>
-                <th>Môn học</th>
-                <th>Thời gian đăng ký</th>
-                <th>Phòng</th>
-                <th>Số buổi</th>
-                <th>Trạng thái</th>
+                <th>{uiText("Môn học")}</th>
+                <th>{uiText("Thời gian đăng ký")}</th>
+                <th>{uiText("Phòng")}</th>
+                <th>{uiText("Số buổi")}</th>
+                <th>{uiText("Trạng thái")}</th>
               </tr>
             </thead>
             {registrations.map((registration) => {
@@ -959,15 +1014,19 @@ export function BasicMedicalRegistrationList({
                           className={`request-status request-status-${isCancelled ? "gray" : isCompleted ? "green" : "red"}`}
                         >
                           {isCancelled
-                            ? "Đã hủy"
+                            ? uiText("Đã hủy")
                             : isCompleted
-                              ? "Hoàn thành"
-                              : "Chưa hoàn thành"}
+                              ? uiText("Hoàn thành")
+                              : uiText("Chưa hoàn thành")}
                         </span>
                         <button
                           type="button"
                           className={`equipment-request-chevron${isOpen ? " is-open" : ""}`}
-                          aria-label={isOpen ? "Thu gọn phiếu" : "Mở phiếu"}
+                          aria-label={
+                            isOpen
+                              ? uiText("Thu gọn phiếu")
+                              : uiText("Mở phiếu")
+                          }
                           onClick={(event) => {
                             event.stopPropagation();
                             toggleRegistration();
@@ -984,7 +1043,7 @@ export function BasicMedicalRegistrationList({
                         <div className="equipment-request-details">
                           <div className="equipment-request-detail-grid basic-medical-registration-detail-grid">
                             <div className="basic-medical-registration-detail-code">
-                              <span>Mã phiếu</span>
+                              <span>{uiText("Mã phiếu")}</span>
                               <strong className="mono">
                                 {formatBasicMedicalRegistrationCode(
                                   registration.registration_code,
@@ -992,25 +1051,26 @@ export function BasicMedicalRegistrationList({
                               </strong>
                             </div>
                             <div className="basic-medical-registration-detail-registrant">
-                              <span>Người đăng ký</span>
+                              <span>{uiText("Người đăng ký")}</span>
                               <strong>
                                 {registration.registrant?.full_name}
                               </strong>
                             </div>
                             <div className="basic-medical-registration-detail-responsible">
-                              <span>Giảng viên phụ trách</span>
+                              <span>{uiText("Giảng viên phụ trách")}</span>
                               <strong>
                                 {registration.responsible?.full_name}
                               </strong>
                             </div>
                             <div className="basic-medical-registration-detail-student-count">
-                              <span>Số sinh viên</span>
+                              <span>{uiText("Số sinh viên")}</span>
                               <strong>{registration.student_count}</strong>
                             </div>
                             <div className="basic-medical-registration-detail-note">
-                              <span>Ghi chú</span>
+                              <span>{uiText("Ghi chú")}</span>
                               <strong>
-                                {registration.note || "Không có ghi chú"}
+                                {registration.note ||
+                                  uiText("Không có ghi chú")}
                               </strong>
                             </div>
                             {canDelete && !isCancelled ? (
@@ -1023,10 +1083,16 @@ export function BasicMedicalRegistrationList({
                                   />
                                   <ConfirmSubmitButton
                                     className="button button-danger"
-                                    message={`Hủy phiếu ${registration.courses?.course_code ?? "Y cơ sở"}? Các lịch tương lai sẽ chuyển sang Đã hủy. Dữ liệu và lịch sử đã có được giữ lại.`}
+                                    message={uiText(
+                                      "Hủy phiếu {0}? Các lịch tương lai sẽ chuyển sang Đã hủy. Dữ liệu và lịch sử đã có được giữ lại.",
+                                      [
+                                        registration.courses?.course_code ??
+                                          uiText("Y cơ sở"),
+                                      ],
+                                    )}
                                   >
-                                    <Trash2 size={17} aria-hidden="true" /> Hủy
-                                    phiếu
+                                    <Trash2 size={17} aria-hidden="true" />
+                                    {uiText(" Hủy phiếu")}
                                   </ConfirmSubmitButton>
                                 </form>
                               </div>
@@ -1034,7 +1100,7 @@ export function BasicMedicalRegistrationList({
                             {isCancelled ? (
                               <div className="basic-medical-registration-detail-history">
                                 <div>
-                                  <span>Thời điểm hủy</span>
+                                  <span>{uiText("Thời điểm hủy")}</span>
                                   <strong>
                                     {dateTimeFormatter.format(
                                       new Date(registration.cancelled_at ?? ""),
@@ -1042,10 +1108,10 @@ export function BasicMedicalRegistrationList({
                                   </strong>
                                 </div>
                                 <div>
-                                  <span>Lý do hủy</span>
+                                  <span>{uiText("Lý do hủy")}</span>
                                   <strong>
                                     {registration.cancel_reason ||
-                                      "Không có lý do"}
+                                      uiText("Không có lý do")}
                                   </strong>
                                 </div>
                               </div>
@@ -1061,25 +1127,28 @@ export function BasicMedicalRegistrationList({
                                   const sCancellerName =
                                     (s.cancelled_by
                                       ? peopleById.get(s.cancelled_by)
-                                      : null) ?? "Người dùng";
+                                      : null) ?? uiText("Người dùng");
                                   return (
                                     <div
                                       key={`cancelled-session-${s.id}`}
                                       className="basic-medical-registration-detail-session-cancellation"
                                     >
                                       <div className="basic-medical-session-cancel-track-1">
-                                        <span>Buổi học</span>
-                                        <strong>Buổi {s.session_number}</strong>
+                                        <span>{uiText("Buổi học")}</span>
+                                        <strong>
+                                          {uiText("Buổi ")}
+                                          {s.session_number}
+                                        </strong>
                                       </div>
                                       <div className="basic-medical-session-cancel-track-2">
-                                        <span>Người hủy lớp</span>
+                                        <span>{uiText("Người hủy lớp")}</span>
                                         <strong>{sCancellerName}</strong>
                                       </div>
                                       <div className="basic-medical-session-cancel-track-3">
-                                        <span>Lý do hủy</span>
+                                        <span>{uiText("Lý do hủy")}</span>
                                         <strong>
                                           {s.cancellation_reason ||
-                                            "Không có lý do"}
+                                            uiText("Không có lý do")}
                                         </strong>
                                       </div>
                                     </div>
@@ -1099,11 +1168,13 @@ export function BasicMedicalRegistrationList({
                               <thead>
                                 <tr>
                                   <th>#</th>
-                                  <th>Ngày</th>
-                                  <th>Thời gian</th>
-                                  <th>Tên bài TN-TH</th>
-                                  <th>Giảng viên giảng dạy/hướng dẫn</th>
-                                  <th>Trạng thái / Thao tác</th>
+                                  <th>{uiText("Ngày")}</th>
+                                  <th>{uiText("Thời gian")}</th>
+                                  <th>{uiText("Tên bài TN-TH")}</th>
+                                  <th>
+                                    {uiText("Giảng viên giảng dạy/hướng dẫn")}
+                                  </th>
+                                  <th>{uiText("Trạng thái / Thao tác")}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1219,8 +1290,8 @@ export function BasicMedicalRegistrationList({
                                                     }
                                                   >
                                                     {isSavingLecturer
-                                                      ? "Đang lưu…"
-                                                      : "Lưu"}
+                                                      ? uiText("Đang lưu…")
+                                                      : uiText("Lưu")}
                                                   </button>
                                                   <button
                                                     type="button"
@@ -1230,7 +1301,7 @@ export function BasicMedicalRegistrationList({
                                                       handleCancelEditLecturer
                                                     }
                                                   >
-                                                    Hủy
+                                                    {uiText("Hủy")}
                                                   </button>
                                                 </div>
                                               ) : (
@@ -1244,7 +1315,7 @@ export function BasicMedicalRegistrationList({
                                                       )
                                                     }
                                                   >
-                                                    Sửa
+                                                    {uiText("Sửa")}
                                                   </button>
                                                 </div>
                                               )
@@ -1262,13 +1333,15 @@ export function BasicMedicalRegistrationList({
                                             "cancelled" ? (
                                               <div className="basic-medical-equipment-request-actions">
                                                 <span className="request-status request-status-red">
-                                                  Phiếu thiết bị đã hủy
+                                                  {uiText(
+                                                    "Phiếu thiết bị đã hủy",
+                                                  )}
                                                 </span>
                                                 <Link
                                                   className="button button-secondary"
                                                   href={`/basic-medical/equipment-requests?session=${session.id}`}
                                                 >
-                                                  Xem phiếu thiết bị
+                                                  {uiText("Xem phiếu thiết bị")}
                                                 </Link>
                                               </div>
                                             ) : (
@@ -1286,7 +1359,7 @@ export function BasicMedicalRegistrationList({
                                                   className="button button-secondary"
                                                   href={`/basic-medical/equipment-requests?session=${session.id}`}
                                                 >
-                                                  Xem phiếu thiết bị
+                                                  {uiText("Xem phiếu thiết bị")}
                                                 </Link>
                                               </div>
                                             )
@@ -1295,7 +1368,7 @@ export function BasicMedicalRegistrationList({
                                               className="button button-primary"
                                               href={`/basic-medical/equipment-requests?session=${session.id}`}
                                             >
-                                              Đăng ký thiết bị
+                                              {uiText("Đăng ký thiết bị")}
                                             </Link>
                                           ) : null}
                                         </div>
@@ -1317,7 +1390,7 @@ export function BasicMedicalRegistrationList({
         </div>
         {!registrations.length ? (
           <p className="panel-empty">
-            Không có phiếu phù hợp với bộ lọc hiện tại.
+            {uiText("Không có phiếu phù hợp với bộ lọc hiện tại.")}
           </p>
         ) : null}
       </div>

@@ -1,3 +1,4 @@
+import { getInterfaceText } from "@/lib/i18n/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -20,8 +21,13 @@ import {
   canCreateBasicMedicalSchedules,
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
-export const metadata = { title: "Tạo lịch Y cơ sở" };
+export async function generateMetadata() {
+  const text = await getInterfaceText();
+  return { title: text("Tạo lịch Y cơ sở") };
+}
 
 type RegistrationMode = "copy" | "edit";
 
@@ -94,34 +100,38 @@ function RegistrationModePicker({
   editOptions: RegistrationOption[];
 }) {
   return (
-    <section
+    <LocalizedElement
+      as="section"
+      textAttributes={["aria-label"]}
       className="equipment-registration-tools"
       aria-label="Sao chép hoặc điều chỉnh phiếu Y cơ sở"
     >
       <div className="equipment-registration-tools-heading">
-        <strong>Thao tác với phiếu đã đăng ký</strong>
+        <strong>
+          <LocalizedText text={"Thao tác với phiếu đã đăng ký"} />
+        </strong>
         {mode ? (
           <Link className="button button-secondary" href="/basic-medical/new">
-            Đăng ký mới
+            <LocalizedText text={"Đăng ký mới"} />
           </Link>
         ) : null}
       </div>
       <div className="equipment-registration-mode-grid">
         <details className="equipment-registration-mode" open={mode === "edit"}>
           <summary className="button equipment-mode-button equipment-mode-edit">
-            Điều chỉnh phiếu
+            <LocalizedText text={"Điều chỉnh phiếu"} />
           </summary>
           <form action="/basic-medical/new" method="get">
             <input type="hidden" name="mode" value="edit" />
             <label>
-              Chọn phiếu cần điều chỉnh
+              <LocalizedText text={"Chọn phiếu cần điều chỉnh"} />
               <select
                 name="registration"
                 required
                 defaultValue={mode === "edit" ? activeRegistrationKey : ""}
               >
                 <option value="" disabled>
-                  Chọn phiếu của bạn
+                  <LocalizedText text={"Chọn phiếu của bạn"} />
                 </option>
                 {editOptions.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -135,14 +145,16 @@ function RegistrationModePicker({
               className="button button-primary"
               disabled={!editOptions.length}
             >
-              Tải phiếu để điều chỉnh
+              <LocalizedText text={"Tải phiếu để điều chỉnh"} />
             </button>
           </form>
           <form action="/basic-medical/new" method="get">
             <input type="hidden" name="mode" value="edit" />
             <label>
-              Không thấy phiếu? Nhập mã phiếu
-              <input
+              <LocalizedText text={"Không thấy phiếu? Nhập mã phiếu"} />
+              <LocalizedElement
+                as="input"
+                textAttributes={["placeholder"]}
                 name="registration"
                 required
                 defaultValue={mode === "edit" ? activeRegistrationKey : ""}
@@ -152,20 +164,22 @@ function RegistrationModePicker({
               />
             </label>
             <button type="submit" className="button button-secondary">
-              Tìm phiếu để điều chỉnh
+              <LocalizedText text={"Tìm phiếu để điều chỉnh"} />
             </button>
           </form>
         </details>
 
         <details className="equipment-registration-mode" open={mode === "copy"}>
           <summary className="button equipment-mode-button equipment-mode-copy">
-            Sao chép phiếu
+            <LocalizedText text={"Sao chép phiếu"} />
           </summary>
           <form action="/basic-medical/new" method="get">
             <input type="hidden" name="mode" value="copy" />
             <label>
-              Mã phiếu nguồn
-              <input
+              <LocalizedText text={"Mã phiếu nguồn"} />
+              <LocalizedElement
+                as="input"
+                textAttributes={["placeholder"]}
                 name="registration"
                 required
                 defaultValue={mode === "copy" ? activeRegistrationKey : ""}
@@ -175,12 +189,12 @@ function RegistrationModePicker({
               />
             </label>
             <button type="submit" className="button button-primary">
-              Tải dữ liệu để sao chép
+              <LocalizedText text={"Tải dữ liệu để sao chép"} />
             </button>
           </form>
         </details>
       </div>
-    </section>
+    </LocalizedElement>
   );
 }
 
@@ -371,8 +385,10 @@ export default async function NewBasicMedicalSchedulePage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Tạo lịch Y cơ sở"
-      description="Phiếu đăng ký nhiều buổi thực hành Y cơ sở."
+      title={<LocalizedText text={"Tạo lịch Y cơ sở"} />}
+      description={
+        <LocalizedText text={"Phiếu đăng ký nhiều buổi thực hành Y cơ sở."} />
+      }
     >
       <RegistrationModePicker
         mode={mode}
@@ -381,7 +397,7 @@ export default async function NewBasicMedicalSchedulePage({
       />
       {loadError ? (
         <p className="form-error" role="alert">
-          {loadError}
+          <LocalizedText text={loadError ?? ""} />
         </p>
       ) : null}
       <BasicMedicalRegistrationForm
@@ -402,7 +418,9 @@ export default async function NewBasicMedicalSchedulePage({
         }
         registrantName={
           editingAnotherRegistrant && source
-            ? (source.registrant?.full_name ?? "Người đăng ký")
+            ? (source.registrant?.full_name ?? (
+                <LocalizedText text={"Người đăng ký"} />
+              ))
             : fullName
         }
         registrantEmail={

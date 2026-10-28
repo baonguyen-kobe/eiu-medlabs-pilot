@@ -20,6 +20,8 @@ import {
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
 import { normalizeCalendarEquipmentRequest } from "@/lib/equipment-calendar-request";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 export default async function DashboardPage() {
   const {
@@ -126,8 +128,13 @@ export default async function DashboardPage() {
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Tổng quan"
-      description={`Hôm nay ${formatBusinessDate(todayText)}`}
+      title={<LocalizedText text={"Tổng quan"} />}
+      description={
+        <LocalizedText
+          text="Hôm nay {0}"
+          values={[formatBusinessDate(todayText)]}
+        />
+      }
       actions={
         canCreate ? (
           <>
@@ -136,54 +143,74 @@ export default async function DashboardPage() {
                 className="button button-secondary"
                 href="/schedule-entry/import"
               >
-                Import lịch Skills lab
+                <LocalizedText text={"Import lịch Skills lab"} />
               </Link>
             ) : null}
             <Link className="button button-primary" href="/schedule-entry/new">
-              <Plus size={17} /> Tạo lịch
+              <Plus size={17} />
+              <LocalizedText text={" Tạo lịch"} />
             </Link>
           </>
         ) : undefined
       }
     >
-      <section className="kpi-grid" aria-label="Chỉ số tổng quan">
+      <LocalizedElement
+        as="section"
+        textAttributes={["aria-label"]}
+        className="kpi-grid"
+        aria-label="Chỉ số tổng quan"
+      >
         <article className="kpi-card kpi-teal">
           <div className="kpi-icon">
             <CalendarDays />
           </div>
-          <span>Tổng lớp học trong tháng</span>
+          <span>
+            <LocalizedText text={"Tổng lớp học trong tháng"} />
+          </span>
           <strong>{monthClasses.length}</strong>
         </article>
         <article className="kpi-card kpi-indigo">
           <div className="kpi-icon">
             <GraduationCap />
           </div>
-          <span>Số lớp đã có Giảng viên</span>
+          <span>
+            <LocalizedText text={"Số lớp đã có Giảng viên"} />
+          </span>
           <strong>{monthClasses.length - openClasses.length}</strong>
         </article>
         <article className="kpi-card kpi-amber">
           <div className="kpi-icon">
             <GraduationCap />
           </div>
-          <span>Số lớp chưa có Giảng viên</span>
+          <span>
+            <LocalizedText text={"Số lớp chưa có Giảng viên"} />
+          </span>
           <strong>{openClasses.length}</strong>
         </article>
         <article className="kpi-card kpi-violet">
           <div className="kpi-icon">
             <PackageCheck />
           </div>
-          <span>Số lớp chưa đăng ký thiết bị</span>
+          <span>
+            <LocalizedText text={"Số lớp chưa đăng ký thiết bị"} />
+          </span>
           <strong>{monthClassesWithoutEffectiveEquipmentRequest.length}</strong>
         </article>
-      </section>
+      </LocalizedElement>
 
       <section className="overview-grid">
         <article className="overview-panel overview-schedule-panel">
           <div className="overview-panel-heading">
-            <h2>LỊCH HỌC 7 NGÀY TỚI</h2>
-            <Link href="/class-schedules">Xem lịch Skills lab</Link>
+            <h2>
+              <LocalizedText text={"LỊCH HỌC 7 NGÀY TỚI"} />
+            </h2>
+            <Link href="/class-schedules">
+              <LocalizedText text={"Xem lịch Skills lab"} />
+            </Link>
           </div>
-          <div
+          <LocalizedElement
+            as="div"
+            textAttributes={["aria-label"]}
             className="responsive-table"
             role="region"
             aria-label="Lịch học 7 ngày tới; vuốt ngang để xem đầy đủ"
@@ -192,12 +219,24 @@ export default async function DashboardPage() {
             <table className="data-table overview-schedule-table">
               <thead>
                 <tr>
-                  <th>Ngày</th>
-                  <th>Thời gian</th>
-                  <th>Mã môn</th>
-                  <th>Tên môn học</th>
-                  <th>Phòng</th>
-                  <th>Giảng viên</th>
+                  <th>
+                    <LocalizedText text={"Ngày"} />
+                  </th>
+                  <th>
+                    <LocalizedText text={"Thời gian"} />
+                  </th>
+                  <th>
+                    <LocalizedText text={"Mã môn"} />
+                  </th>
+                  <th>
+                    <LocalizedText text={"Tên môn học"} />
+                  </th>
+                  <th>
+                    <LocalizedText text={"Phòng"} />
+                  </th>
+                  <th>
+                    <LocalizedText text={"Giảng viên"} />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -218,9 +257,11 @@ export default async function DashboardPage() {
                       </td>
                       <td>{schedule.course_name_snapshot}</td>
                       <td>
-                        {room
-                          ? `${room.room_code} · ${room.building_code}`
-                          : "Chưa có phòng"}
+                        {room ? (
+                          `${room.room_code} · ${room.building_code}`
+                        ) : (
+                          <LocalizedText text={"Chưa có phòng"} />
+                        )}
                       </td>
                       <td className="lecturer-name">
                         {schedule.lecturer_id || schedule.lecturer_2_id ? (
@@ -229,12 +270,16 @@ export default async function DashboardPage() {
                               .filter(Boolean)
                               .map((id) => (
                                 <strong key={id as string}>
-                                  {peopleById.get(id as string) ?? "Giảng viên"}
+                                  {peopleById.get(id as string) ?? (
+                                    <LocalizedText text={"Giảng viên"} />
+                                  )}
                                 </strong>
                               ))}
                           </span>
                         ) : (
-                          <strong>Chưa có giảng viên</strong>
+                          <strong>
+                            <LocalizedText text={"Chưa có giảng viên"} />
+                          </strong>
                         )}
                       </td>
                     </tr>
@@ -242,9 +287,11 @@ export default async function DashboardPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </LocalizedElement>
           {!upcomingClasses.length ? (
-            <p className="panel-empty">Chưa có lịch học trong 7 ngày tới.</p>
+            <p className="panel-empty">
+              <LocalizedText text={"Chưa có lịch học trong 7 ngày tới."} />
+            </p>
           ) : null}
         </article>
 
@@ -252,10 +299,16 @@ export default async function DashboardPage() {
           <article className="overview-panel">
             <div className="overview-panel-heading">
               <div>
-                <span>Giảng viên</span>
-                <h2>Lớp đang mở gần nhất</h2>
+                <span>
+                  <LocalizedText text={"Giảng viên"} />
+                </span>
+                <h2>
+                  <LocalizedText text={"Lớp đang mở gần nhất"} />
+                </h2>
               </div>
-              <Link href="/classes/open">Xem tất cả</Link>
+              <Link href="/classes/open">
+                <LocalizedText text={"Xem tất cả"} />
+              </Link>
             </div>
             <div className="overview-list">
               {openClasses.slice(0, 6).map((schedule) => (
@@ -270,7 +323,9 @@ export default async function DashboardPage() {
                 </div>
               ))}
               {!openClasses.length ? (
-                <p className="empty-state">Không có lớp đang chờ nhận.</p>
+                <p className="empty-state">
+                  <LocalizedText text={"Không có lớp đang chờ nhận."} />
+                </p>
               ) : null}
             </div>
           </article>

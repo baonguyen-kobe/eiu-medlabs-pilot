@@ -44,15 +44,15 @@ cpSync(sourceSupabaseDir, `${targetWorkdir}/supabase`, {
 const configPath = `${targetWorkdir}/supabase/config.toml`;
 let config = readFileSync(configPath, "utf8");
 const runtimeReplacements = [
-  ['project_id = "lich-truc-app"', 'project_id = "lich-truc-app-ci"'],
-  ["port = 54321", "port = 55421"],
-  ["port = 54322", "port = 55422"],
-  ["shadow_port = 54320", "shadow_port = 55420"],
-  ["port = 54329", "port = 55429"],
-  ["port = 54323", "port = 55423"],
-  ["port = 54324", "port = 55424"],
-  ["inspector_port = 8083", "inspector_port = 55883"],
-  ["port = 54327", "port = 55427"],
+  ['project_id = "eiu-medlabs-pilot"', 'project_id = "lich-truc-app-ci"'],
+  ["port = 58321", "port = 55421"],
+  ["port = 58322", "port = 55422"],
+  ["shadow_port = 58320", "shadow_port = 55420"],
+  ["port = 58329", "port = 55429"],
+  ["port = 58323", "port = 55423"],
+  ["port = 58324", "port = 55424"],
+  ["inspector_port = 8183", "inspector_port = 55883"],
+  ["port = 58327", "port = 55427"],
   ["sign_in_sign_ups = 30", "sign_in_sign_ups = 1000"],
 ];
 

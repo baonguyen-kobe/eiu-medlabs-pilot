@@ -15,6 +15,7 @@ import {
 } from "@/components/inventory/status-badge";
 import { PaginationControls } from "@/components/pagination-controls";
 import type { StockCondition } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 const STOCK_PAGE_SIZE = 20;
 
@@ -75,18 +76,21 @@ export function StocktakeCountTable({
   onToggleInclude,
   onRecount,
 }: StocktakeCountTableProps) {
+  const { text: uiText } = useLanguage();
+
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900">
-            1. Đối chiếu Lô tồn kho hiện có / Existing Cohorts (
-            {totalStockCount} lô tại kho)
+            {uiText("1. Đối chiếu Lô tồn kho hiện có / Existing Cohorts (")}
+            {totalStockCount}
+            {uiText(" lô tại kho)")}
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Nhập số lượng thực tế đếm được. Hệ thống tính toán chênh lệch
-            (Delta) và ghi nhận cả các lô khớp số liệu (Delta = 0) thành bằng
-            chứng kiểm kê.
+            {uiText(
+              "Nhập số lượng thực tế đếm được. Hệ thống tính toán chênh lệch (Delta) và ghi nhận cả các lô khớp số liệu (Delta = 0) thành bằng chứng kiểm kê.",
+            )}
           </p>
         </div>
 
@@ -101,7 +105,7 @@ export function StocktakeCountTable({
               type="text"
               value={stockSearch}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Tìm SKU, tên vật tư..."
+              placeholder={uiText("Tìm SKU, tên vật tư...")}
               className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 w-52"
             />
           </div>
@@ -109,19 +113,20 @@ export function StocktakeCountTable({
             type="submit"
             className="button button-secondary text-xs py-1.5 px-3"
           >
-            Tìm
+            {uiText("Tìm")}
           </button>
         </form>
       </div>
 
       {isLoadingStock ? (
         <div className="text-center py-8 text-xs text-purple-600 font-medium animate-pulse">
-          Đang tải danh sách tồn kho kiểm đếm...
+          {uiText("Đang tải danh sách tồn kho kiểm đếm...")}
         </div>
       ) : currentPageStock.length === 0 ? (
         <p className="text-xs text-slate-400 py-6 text-center">
-          Kho này hiện không có lô vật tư nào còn số dư hoặc khớp bộ lọc tìm
-          kiếm. Bạn có thể ghi nhận hàng thừa ở phần 2 dưới đây.
+          {uiText(
+            "Kho này hiện không có lô vật tư nào còn số dư hoặc khớp bộ lọc tìm kiếm. Bạn có thể ghi nhận hàng thừa ở phần 2 dưới đây.",
+          )}
         </p>
       ) : (
         <>
@@ -129,15 +134,25 @@ export function StocktakeCountTable({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3 w-10 text-center">Ghi nhận</th>
-                  <th className="py-2.5 px-3">Lô {"&"} Vật tư</th>
-                  <th className="py-2.5 px-3">Tình trạng</th>
-                  <th className="py-2.5 px-3">Trạng thái giữ</th>
-                  <th className="py-2.5 px-3 text-right">Tồn sổ sách</th>
-                  <th className="py-2.5 px-3 text-right w-44">
-                    SL Thực tế đếm *
+                  <th className="py-2.5 px-3 w-10 text-center">
+                    {uiText("Ghi nhận")}
                   </th>
-                  <th className="py-2.5 px-3 text-right">Chênh lệch (Delta)</th>
+                  <th className="py-2.5 px-3">
+                    {uiText("Lô ")}
+                    {"&"}
+                    {uiText(" Vật tư")}
+                  </th>
+                  <th className="py-2.5 px-3">{uiText("Tình trạng")}</th>
+                  <th className="py-2.5 px-3">{uiText("Trạng thái giữ")}</th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Tồn sổ sách")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right w-44">
+                    {uiText("SL Thực tế đếm *")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Chênh lệch (Delta)")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -195,7 +210,9 @@ export function StocktakeCountTable({
                             onToggleInclude(row.originId, row.condition)
                           }
                           className="rounded text-purple-600 focus:ring-purple-500"
-                          title="Tích chọn để đưa vào biên bản kiểm kê"
+                          title={uiText(
+                            "Tích chọn để đưa vào biên bản kiểm kê",
+                          )}
                         />
                       </td>
                       <td className="py-3 px-3">
@@ -205,13 +222,15 @@ export function StocktakeCountTable({
                           </span>
                           {state.isStale ? (
                             <span className="badge bg-amber-100 text-amber-900 border-amber-300 font-bold text-[10px] animate-pulse shrink-0">
-                              Lỗi thời (Stale)
+                              {uiText("Lỗi thời (Stale)")}
                             </span>
                           ) : null}
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono mt-0.5">
                           <span>
-                            Lô: {row.originId.slice(0, 8)}... | Phiên bản kho: r
+                            {uiText("Lô: ")}
+                            {row.originId.slice(0, 8)}
+                            {uiText("... | Phiên bản kho: r")}
                             {state.snapshotStockRevision}
                           </span>
                           {state.isStale && onRecount ? (
@@ -222,7 +241,7 @@ export function StocktakeCountTable({
                               }
                               className="button button-secondary text-[10px] py-0 px-1.5 text-amber-800 bg-amber-50 border-amber-200 font-semibold"
                             >
-                              Đếm lại / Recount
+                              {uiText("Đếm lại / Recount")}
                             </button>
                           ) : null}
                         </div>
@@ -265,17 +284,17 @@ export function StocktakeCountTable({
                         </div>
                         {state.isStale ? (
                           <p className="text-[11px] text-amber-700 font-medium mt-1 text-right">
-                            Số dư kho đã đổi! Bấm &quot;Đếm lại&quot;
+                            {uiText('Số dư kho đã đổi! Bấm "Đếm lại"')}
                           </p>
                         ) : !val.valid ? (
                           <p className="text-[11px] text-rose-600 mt-1 text-right">
                             {state.countedQuantity === ""
-                              ? "Bắt buộc nhập số lượng"
+                              ? uiText("Bắt buộc nhập số lượng")
                               : val.error}
                           </p>
                         ) : !isNonNeg ? (
                           <p className="text-[11px] text-rose-600 mt-1 text-right">
-                            Không được âm
+                            {uiText("Không được âm")}
                           </p>
                         ) : null}
                       </td>
@@ -283,16 +302,18 @@ export function StocktakeCountTable({
                         {!val.valid || state.isStale ? (
                           <span className="text-slate-400">—</span>
                         ) : deltaType === "match" ? (
-                          <span className="text-slate-400">0 (Khớp)</span>
+                          <span className="text-slate-400">
+                            {uiText("0 (Khớp)")}
+                          </span>
                         ) : deltaType === "surplus" ? (
                           <span className="text-emerald-700 font-bold">
                             +{formatDisplayQuantity(delta)} {row.baseUomCode}{" "}
-                            (Thừa)
+                            {uiText("(Thừa)")}
                           </span>
                         ) : (
                           <span className="text-rose-600 font-bold">
                             {formatDisplayQuantity(delta)} {row.baseUomCode}{" "}
-                            (Thiếu)
+                            {uiText("(Thiếu)")}
                           </span>
                         )}
                       </td>
@@ -306,7 +327,11 @@ export function StocktakeCountTable({
           {/* Bounded pagination controls */}
           <div className="flex items-center justify-between pt-2">
             <span className="text-xs text-slate-500">
-              Hiển thị trang {stockPage} trên tổng số {totalStockCount} lô tồn
+              {uiText("Hiển thị trang ")}
+              {stockPage}
+              {uiText(" trên tổng số ")}
+              {totalStockCount}
+              {uiText(" lô tồn")}
             </span>
             <PaginationControls
               currentPage={stockPage}

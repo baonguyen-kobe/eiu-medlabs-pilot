@@ -11,6 +11,7 @@ import {
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function MyEquipmentRequestsPage({
   searchParams,
@@ -62,8 +63,12 @@ export default async function MyEquipmentRequestsPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Phiếu thiết bị của tôi"
-      description="Các phiếu mà bạn là người đăng ký hoặc giảng viên phụ trách."
+      title={<LocalizedText text={"Phiếu thiết bị của tôi"} />}
+      description={
+        <LocalizedText
+          text={"Các phiếu mà bạn là người đăng ký hoặc giảng viên phụ trách."}
+        />
+      }
     >
       <EquipmentRequestList
         requests={data ?? []}

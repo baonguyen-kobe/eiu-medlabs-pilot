@@ -5,10 +5,14 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { login, type LoginState } from "./actions";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 
 const initialState: LoginState = {};
 
 export function LoginForm({ oauthError }: { oauthError?: string }) {
+  const { text: uiText } = useLanguage();
+
   const [state, formAction, pending] = useActionState(login, initialState);
   const [googlePending, setGooglePending] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
@@ -39,23 +43,28 @@ export function LoginForm({ oauthError }: { oauthError?: string }) {
 
   return (
     <form className="login-form" action={formAction}>
+      <div className="flex justify-end">
+        <LanguageSwitcher />
+      </div>
       <header className="login-form-heading">
-        <p className="login-faculty-title">KHOA KHOA HỌC SỨC KHỎE</p>
-        <h2>MedLabs Calendar</h2>
+        <p className="login-faculty-title">
+          {uiText("KHOA KHOA HỌC SỨC KHỎE")}
+        </p>
+        <h2>{uiText("MedLabs Calendar")}</h2>
         <p className="login-subtitle">
-          <strong>Quản lý nội bộ</strong>
-          <span>Phòng thí nghiệm - Phòng thực hành kỹ năng</span>
+          <strong>{uiText("Quản lý nội bộ")}</strong>
+          <span>{uiText("Phòng thí nghiệm - Phòng thực hành kỹ năng")}</span>
         </p>
       </header>
       <label>
-        ID hoặc email
+        {uiText("ID hoặc email")}
         <span className="input-with-icon">
           <Mail size={20} />
           <input name="email" type="text" autoComplete="username" required />
         </span>
       </label>
       <label>
-        Mật khẩu
+        {uiText("Mật khẩu")}
         <span className="input-with-icon">
           <LockKeyhole size={20} />
           <input
@@ -68,9 +77,10 @@ export function LoginForm({ oauthError }: { oauthError?: string }) {
       </label>
       <div className="login-options">
         <label>
-          <input type="checkbox" /> Ghi nhớ đăng nhập
+          <input type="checkbox" />
+          {uiText(" Ghi nhớ đăng nhập")}
         </label>
-        <Link href="/forgot-password">Quên mật khẩu?</Link>
+        <Link href="/forgot-password">{uiText("Quên mật khẩu?")}</Link>
       </div>
       {state.error || oauthError || googleError ? (
         <p className="form-error" role="alert">
@@ -82,10 +92,10 @@ export function LoginForm({ oauthError }: { oauthError?: string }) {
         type="submit"
         disabled={pending}
       >
-        {pending ? "Đang đăng nhập…" : "Đăng nhập"}
+        {pending ? uiText("Đang đăng nhập…") : uiText("Đăng nhập")}
       </button>
       <div className="login-divider">
-        <span>hoặc</span>
+        <span>{uiText("hoặc")}</span>
       </div>
       <button
         className="button google-login full-width"
@@ -111,13 +121,17 @@ export function LoginForm({ oauthError }: { oauthError?: string }) {
             d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.5l3.3 2.6c.8-2.4 3-4.2 5.6-4.2Z"
           />
         </svg>
-        {googlePending ? "Đang chuyển sang Google…" : "Đăng nhập bằng Google"}
+        {googlePending
+          ? uiText("Đang chuyển sang Google…")
+          : uiText("Đăng nhập bằng Google")}
       </button>
       <small className="google-domain-note">
-        Chỉ chấp nhận tài khoản Google có email @eiu.edu.vn.
+        {uiText("Chỉ chấp nhận tài khoản Google có email @eiu.edu.vn.")}
       </small>
       <small>
-        Chỉ nhân sự đã được tạo trước và cấp vai trò mới có thể đăng nhập.
+        {uiText(
+          "Chỉ nhân sự đã được tạo trước và cấp vai trò mới có thể đăng nhập.",
+        )}
       </small>
     </form>
   );

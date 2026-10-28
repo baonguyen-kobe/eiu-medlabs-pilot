@@ -7,6 +7,8 @@ import { createScheduleDraft } from "@/app/schedule-entry/new/actions";
 import { CANONICAL_SEMESTERS } from "@/lib/semesters";
 import { SearchableCombobox } from "@/components/searchable-combobox";
 import { TimePicker } from "@/components/time-picker";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const initialCreateScheduleState = {
   ok: false,
@@ -48,6 +50,8 @@ export function ScheduleForm({
   scope: "skills_lab" | "basic_medical";
   returnTo?: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [state, formAction, pending] = useActionState(
     createScheduleDraft,
     initialCreateScheduleState,
@@ -61,7 +65,7 @@ export function ScheduleForm({
       ) : null}
       {state.message ? (
         <p className={state.ok ? "form-success" : "form-error"} role="status">
-          {state.message}
+          <LocalizedText text={state.message ?? ""} />
         </p>
       ) : null}
 
@@ -69,27 +73,27 @@ export function ScheduleForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">01</span>
-            <h2 className="standard-section-heading">Môn học</h2>
+            <h2 className="standard-section-heading">{uiText("Môn học")}</h2>
           </div>
-          <p>Chọn từ danh mục để dùng đúng mã và tên môn học.</p>
+          <p>{uiText("Chọn từ danh mục để dùng đúng mã và tên môn học.")}</p>
         </div>
         <div className="form-grid two">
           <label>
-            Môn học *
+            {uiText("Môn học *")}
             <SearchableCombobox
-              ariaLabel="Tìm và chọn môn học"
+              ariaLabel={uiText("Tìm và chọn môn học")}
               name="course_id"
               options={courses.map((course) => ({
                 value: course.id,
                 label: `${course.course_code} — ${course.course_name}`,
                 keywords: `${course.course_code} ${course.course_name}`,
               }))}
-              placeholder="Gõ mã hoặc tên môn học…"
+              placeholder={uiText("Gõ mã hoặc tên môn học…")}
               required
             />
           </label>
           <label>
-            Số sinh viên *
+            {uiText("Số sinh viên *")}
             <input
               name="student_count"
               type="number"
@@ -102,37 +106,38 @@ export function ScheduleForm({
         {canAssignLecturer ? (
           <div className="lecturer-comboboxes">
             <label>
-              Giảng viên 1
+              {uiText("Giảng viên 1")}
               <SearchableCombobox
-                ariaLabel="Tìm và chọn giảng viên thứ nhất"
-                emptyLabel="Chưa chọn giảng viên"
+                ariaLabel={uiText("Tìm và chọn giảng viên thứ nhất")}
+                emptyLabel={uiText("Chưa chọn giảng viên")}
                 name="lecturer_ids"
                 defaultValue={defaultLecturerId}
                 options={lecturers.map((lecturer) => ({
                   value: lecturer.id,
                   label: lecturer.full_name,
                 }))}
-                placeholder="Gõ tên giảng viên…"
+                placeholder={uiText("Gõ tên giảng viên…")}
               />
             </label>
             <label>
-              Giảng viên 2
+              {uiText("Giảng viên 2")}
               <SearchableCombobox
-                ariaLabel="Tìm và chọn giảng viên thứ hai"
-                emptyLabel="Không có giảng viên thứ hai"
+                ariaLabel={uiText("Tìm và chọn giảng viên thứ hai")}
+                emptyLabel={uiText("Không có giảng viên thứ hai")}
                 name="lecturer_ids"
                 options={lecturers.map((lecturer) => ({
                   value: lecturer.id,
                   label: lecturer.full_name,
                 }))}
-                placeholder="Gõ tên giảng viên…"
+                placeholder={uiText("Gõ tên giảng viên…")}
               />
             </label>
           </div>
         ) : (
           <p className="field-note">
-            Lịch được tạo chưa phân công giảng viên. Admin có thể phân công sau
-            khi rà soát.
+            {uiText(
+              "Lịch được tạo chưa phân công giảng viên. Admin có thể phân công sau khi rà soát.",
+            )}
           </p>
         )}
       </section>
@@ -141,16 +146,20 @@ export function ScheduleForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">02</span>
-            <h2 className="standard-section-heading">Phòng & thời gian</h2>
+            <h2 className="standard-section-heading">
+              {uiText("Phòng & thời gian")}
+            </h2>
           </div>
-          <p>Database sẽ chặn trùng phòng và trùng lịch giảng viên.</p>
+          <p>
+            {uiText("Database sẽ chặn trùng phòng và trùng lịch giảng viên.")}
+          </p>
         </div>
         <div className="form-grid three">
           <label className="schedule-room-field">
-            Phòng *
+            {uiText("Phòng *")}
             <select name="room_id" defaultValue="" required>
               <option value="" disabled>
-                Chọn phòng
+                {uiText("Chọn phòng")}
               </option>
               {rooms.map((room) => (
                 <option key={room.id} value={room.id}>
@@ -161,10 +170,10 @@ export function ScheduleForm({
             </select>
           </label>
           <label>
-            Học kỳ *
+            {uiText("Học kỳ *")}
             <select name="semester" defaultValue="" required>
               <option value="" disabled>
-                Chọn học kỳ
+                {uiText("Chọn học kỳ")}
               </option>
               {CANONICAL_SEMESTERS.map((semester) => (
                 <option key={semester} value={semester}>
@@ -174,28 +183,28 @@ export function ScheduleForm({
             </select>
           </label>
           <label>
-            Ngày học *
+            {uiText("Ngày học *")}
             <span className="field-icon">
               <CalendarDays size={16} />
               <input name="schedule_date" type="date" required />
             </span>
           </label>
           <label>
-            Giờ bắt đầu *
+            {uiText("Giờ bắt đầu *")}
             <TimePicker
               name="start_time"
               defaultValue="07:30"
               required
-              ariaLabel="Giờ bắt đầu"
+              ariaLabel={uiText("Giờ bắt đầu")}
             />
           </label>
           <label>
-            Giờ kết thúc *
+            {uiText("Giờ kết thúc *")}
             <TimePicker
               name="end_time"
               defaultValue="11:30"
               required
-              ariaLabel="Giờ kết thúc"
+              ariaLabel={uiText("Giờ kết thúc")}
             />
           </label>
         </div>
@@ -205,13 +214,17 @@ export function ScheduleForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">03</span>
-            <h2 className="standard-section-heading">Ghi chú</h2>
+            <h2 className="standard-section-heading">{uiText("Ghi chú")}</h2>
           </div>
-          <p>Thông tin nội bộ bổ sung nếu cần.</p>
+          <p>{uiText("Thông tin nội bộ bổ sung nếu cần.")}</p>
         </div>
         <label>
-          Ghi chú
-          <textarea name="note" rows={4} placeholder="Nhập ghi chú…" />
+          {uiText("Ghi chú")}
+          <textarea
+            name="note"
+            rows={4}
+            placeholder={uiText("Nhập ghi chú…")}
+          />
         </label>
       </section>
 
@@ -220,14 +233,15 @@ export function ScheduleForm({
           className="button button-secondary"
           href={returnTo ?? "/dashboard"}
         >
-          Hủy
+          {uiText("Hủy")}
         </Link>
         <button
           className="button button-primary"
           type="submit"
           disabled={pending}
         >
-          <Save size={16} /> {pending ? "Đang lưu…" : "Tạo lịch"}
+          <Save size={16} />{" "}
+          {pending ? uiText("Đang lưu…") : uiText("Tạo lịch")}
         </button>
       </footer>
     </form>

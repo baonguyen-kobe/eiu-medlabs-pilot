@@ -36,6 +36,9 @@ import type {
   TrackingStrategy,
   UomDimension,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
+
 function extractRevision(data: unknown): string | number | undefined {
   if (!data || typeof data !== "object") return undefined;
   if (
@@ -78,6 +81,8 @@ export function CatalogView({
   currentSort?: string;
   isAdmin: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -213,7 +218,9 @@ export function CatalogView({
               : "bg-red-50 text-red-800 border-red-200"
           }`}
         >
-          <span>{notice.message}</span>
+          <span>
+            <LocalizedText text={notice.message ?? ""} />
+          </span>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 p-1"
@@ -232,27 +239,32 @@ export function CatalogView({
             className="button button-primary text-xs"
             onClick={() => setCreateItemOpen(true)}
           >
-            <Plus size={15} /> Thêm vật tư mới / Add Item
+            <Plus size={15} />
+            {uiText(" Thêm vật tư mới / Add Item")}
           </button>
           <button
             type="button"
             className="button button-secondary text-xs"
             onClick={() => setCategoryModalOpen(true)}
           >
-            <Settings size={15} /> Quản lý nhóm / Categories
+            <Settings size={15} />
+            {uiText(" Quản lý nhóm / Categories")}
           </button>
           <button
             type="button"
             className="button button-secondary text-xs"
             onClick={() => setUomModalOpen(true)}
           >
-            <Settings size={15} /> Đơn vị tính / UOMs
+            <Settings size={15} />
+            {uiText(" Đơn vị tính / UOMs")}
           </button>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500">
-            Tổng cộng: <strong>{total}</strong> vật tư
+            {uiText("Tổng cộng: ")}
+            <strong>{total}</strong>
+            {uiText(" vật tư")}
           </span>
         </div>
       </div>
@@ -270,10 +282,12 @@ export function CatalogView({
               />
               <input
                 id="catalog-search"
-                aria-label="Tìm theo mã SKU, tên vật tư / Search SKU or Name"
+                aria-label={uiText(
+                  "Tìm theo mã SKU, tên vật tư / Search SKU or Name",
+                )}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Tìm theo mã SKU, tên vật tư..."
+                placeholder={uiText("Tìm theo mã SKU, tên vật tư...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -282,7 +296,7 @@ export function CatalogView({
               type="submit"
               className="button button-secondary text-xs px-3 py-2"
             >
-              Tìm kiếm
+              {uiText("Tìm kiếm")}
             </button>
           </form>
 
@@ -293,10 +307,10 @@ export function CatalogView({
                 filters={{ active: true }}
                 value={categoryFilter}
                 valueKey="id"
-                label="Lọc theo nhóm vật tư"
+                label={uiText("Lọc theo nhóm vật tư")}
                 id="catalog-category-filter"
                 selectedLabel={selectedCategoryFilterLabel}
-                placeholder="Tất cả nhóm vật tư / All Categories"
+                placeholder={uiText("Tất cả nhóm vật tư / All Categories")}
                 hideLabel={true}
                 onSelect={(cat) => {
                   setCategoryFilter(cat.id);
@@ -314,8 +328,8 @@ export function CatalogView({
                   setSelectedCategoryFilterLabel("");
                   updateParams({ category_id: undefined, page: undefined });
                 }}
-                title="Bỏ lọc nhóm"
-                aria-label="Bỏ lọc nhóm"
+                title={uiText("Bỏ lọc nhóm")}
+                aria-label={uiText("Bỏ lọc nhóm")}
               >
                 <X size={15} />
               </button>
@@ -325,14 +339,20 @@ export function CatalogView({
           <div>
             <select
               id="catalog-status-filter"
-              aria-label="Lọc theo trạng thái / Filter by Status"
+              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">Tất cả trạng thái / All Statuses</option>
-              <option value="active">Đang hoạt động / Active</option>
-              <option value="inactive">Đã ngừng hoạt động / Inactive</option>
+              <option value="all">
+                {uiText("Tất cả trạng thái / All Statuses")}
+              </option>
+              <option value="active">
+                {uiText("Đang hoạt động / Active")}
+              </option>
+              <option value="inactive">
+                {uiText("Đã ngừng hoạt động / Inactive")}
+              </option>
             </select>
           </div>
         </div>
@@ -344,23 +364,25 @@ export function CatalogView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Mã SKU / Code</th>
-                <th className="py-3 px-4">Tên vật tư / Name</th>
-                <th className="py-3 px-4">Nhóm / Category</th>
-                <th className="py-3 px-4">ĐVT cơ sở / Unit</th>
-                <th className="py-3 px-4">Phân loại / Kind</th>
-                <th className="py-3 px-4">Cơ chế trả / Return</th>
-                <th className="py-3 px-4">Bắt buộc HSD / Expiry</th>
-                <th className="py-3 px-4">Trạng thái / Status</th>
-                <th className="py-3 px-4 text-center">Bản / Rev</th>
-                <th className="py-3 px-4 text-right">Thao tác / Actions</th>
+                <th className="py-3 px-4">{uiText("Mã SKU / Code")}</th>
+                <th className="py-3 px-4">{uiText("Tên vật tư / Name")}</th>
+                <th className="py-3 px-4">{uiText("Nhóm / Category")}</th>
+                <th className="py-3 px-4">{uiText("ĐVT cơ sở / Unit")}</th>
+                <th className="py-3 px-4">{uiText("Phân loại / Kind")}</th>
+                <th className="py-3 px-4">{uiText("Cơ chế trả / Return")}</th>
+                <th className="py-3 px-4">{uiText("Bắt buộc HSD / Expiry")}</th>
+                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
+                <th className="py-3 px-4 text-right">
+                  {uiText("Thao tác / Actions")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {items.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-12 text-center text-slate-400">
-                    Chưa có vật tư nào phù hợp với bộ lọc tìm kiếm.
+                    {uiText("Chưa có vật tư nào phù hợp với bộ lọc tìm kiếm.")}
                   </td>
                 </tr>
               ) : (
@@ -390,11 +412,11 @@ export function CatalogView({
                     <td className="py-3 px-4">
                       {item.expiry_required ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          Bắt buộc / Required
+                          {uiText("Bắt buộc / Required")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">
-                          Không / No
+                          {uiText("Không / No")}
                         </span>
                       )}
                     </td>
@@ -402,7 +424,8 @@ export function CatalogView({
                       <ActiveBadge active={item.active} />
                     </td>
                     <td className="py-3 px-4 text-center font-mono text-[11px] text-slate-500">
-                      r{String(item.revision)}
+                      {uiText("r")}
+                      {String(item.revision)}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
@@ -411,7 +434,7 @@ export function CatalogView({
                           className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                           onClick={() => setEditItem(item)}
                         >
-                          Sửa / Edit
+                          {uiText("Sửa / Edit")}
                         </button>
                         {isAdmin ? (
                           item.active ? (
@@ -425,7 +448,7 @@ export function CatalogView({
                                 })
                               }
                             >
-                              Ngừng HĐ
+                              {uiText("Ngừng HĐ")}
                             </button>
                           ) : (
                             <button
@@ -438,7 +461,7 @@ export function CatalogView({
                                 })
                               }
                             >
-                              Kích hoạt
+                              {uiText("Kích hoạt")}
                             </button>
                           )
                         ) : null}
@@ -454,7 +477,11 @@ export function CatalogView({
         {/* Pagination */}
         <div className="p-4 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Hiển thị {items.length} trên tổng số {total} dòng
+            {uiText("Hiển thị ")}
+            {items.length}
+            {uiText(" trên tổng số ")}
+            {total}
+            {uiText(" dòng")}
           </span>
           <PaginationControls
             currentPage={currentPage}
@@ -513,20 +540,24 @@ export function CatalogView({
           open={Boolean(targetItemForState)}
           title={
             targetItemForState.targetActive
-              ? "Kích hoạt lại vật tư / Reactivate Item"
-              : "Ngừng hoạt động vật tư / Inactivate Item"
+              ? uiText("Kích hoạt lại vật tư / Reactivate Item")
+              : uiText("Ngừng hoạt động vật tư / Inactivate Item")
           }
           description={
             targetItemForState.targetActive
-              ? "Vật tư sẽ có thể được chọn lại khi tạo hồ sơ hoặc nhận kho mới."
-              : "Vật tư sẽ không còn được chọn cho các nghiệp vụ nhận kho mới, nhưng toàn bộ lịch sử và tồn kho hiện tại được bảo lưu nguyên vẹn."
+              ? uiText(
+                  "Vật tư sẽ có thể được chọn lại khi tạo hồ sơ hoặc nhận kho mới.",
+                )
+              : uiText(
+                  "Vật tư sẽ không còn được chọn cho các nghiệp vụ nhận kho mới, nhưng toàn bộ lịch sử và tồn kho hiện tại được bảo lưu nguyên vẹn.",
+                )
           }
           targetName={`${targetItemForState.item.code} - ${targetItemForState.item.name}`}
           currentRevision={targetItemForState.item.revision}
           actionLabel={
             targetItemForState.targetActive
-              ? "Xác nhận kích hoạt lại"
-              : "Xác nhận ngừng hoạt động"
+              ? uiText("Xác nhận kích hoạt lại")
+              : uiText("Xác nhận ngừng hoạt động")
           }
           actionVariant={targetItemForState.targetActive ? "primary" : "danger"}
           isPending={isPending}
@@ -568,6 +599,8 @@ function CreateItemDialog({
   onClose: () => void;
   onCreated: (item: InventoryCatalogItem) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -636,13 +669,13 @@ function CreateItemDialog({
             id="create-item-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Thêm vật tư mới / Create Item
+            {uiText("Thêm vật tư mới / Create Item")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -655,13 +688,14 @@ function CreateItemDialog({
                 htmlFor="create-item-code"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã SKU <span className="text-red-500">*</span>
+                {uiText("Mã SKU ")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="create-item-code"
                 type="text"
                 className="w-full text-xs font-mono uppercase border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-                placeholder="VD: MED-GLV-01"
+                placeholder={uiText("VD: MED-GLV-01")}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
@@ -672,17 +706,18 @@ function CreateItemDialog({
                 htmlFor="create-item-category"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nhóm vật tư <span className="text-red-500">*</span>
+                {uiText("Nhóm vật tư ")}
+                <span className="text-red-500">*</span>
               </label>
               <InventoryLookup<InventoryCategory>
                 resource="categories"
                 filters={{ active: true }}
                 value={categoryId}
                 valueKey="id"
-                label="Nhóm vật tư"
+                label={uiText("Nhóm vật tư")}
                 id="create-item-category"
                 selectedLabel={selectedCategoryLabel}
-                placeholder="Chọn hoặc tìm nhóm vật tư…"
+                placeholder={uiText("Chọn hoặc tìm nhóm vật tư…")}
                 hideLabel={true}
                 required={true}
                 onSelect={(cat) => {
@@ -698,13 +733,14 @@ function CreateItemDialog({
               htmlFor="create-item-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên vật tư <span className="text-red-500">*</span>
+              {uiText("Tên vật tư ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="create-item-name"
               type="text"
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-              placeholder="VD: Găng tay y tế có bột cỡ M"
+              placeholder={uiText("VD: Găng tay y tế có bột cỡ M")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -717,17 +753,18 @@ function CreateItemDialog({
                 htmlFor="create-item-base-uom"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                ĐVT cơ sở <span className="text-red-500">*</span>
+                {uiText("ĐVT cơ sở ")}
+                <span className="text-red-500">*</span>
               </label>
               <InventoryLookup<InventoryUom>
                 resource="uoms"
                 filters={{ active: true }}
                 value={baseUomCode}
                 valueKey="code"
-                label="ĐVT cơ sở"
+                label={uiText("ĐVT cơ sở")}
                 id="create-item-base-uom"
                 selectedLabel={selectedUomLabel}
-                placeholder="Chọn hoặc tìm ĐVT cơ sở…"
+                placeholder={uiText("Chọn hoặc tìm ĐVT cơ sở…")}
                 hideLabel={true}
                 required={true}
                 onSelect={(uom) => {
@@ -741,7 +778,8 @@ function CreateItemDialog({
                 htmlFor="create-item-material-kind"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Phân loại vật chất <span className="text-red-500">*</span>
+                {uiText("Phân loại vật chất ")}
+                <span className="text-red-500">*</span>
               </label>
               <select
                 id="create-item-material-kind"
@@ -752,8 +790,10 @@ function CreateItemDialog({
                 }
                 required
               >
-                <option value="other">Thông thường / Other</option>
-                <option value="chemical">Hóa chất / Chemical</option>
+                <option value="other">{uiText("Thông thường / Other")}</option>
+                <option value="chemical">
+                  {uiText("Hóa chất / Chemical")}
+                </option>
               </select>
             </div>
           </div>
@@ -764,7 +804,7 @@ function CreateItemDialog({
                 htmlFor="create-item-tracking"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Chiến lược theo dõi
+                {uiText("Chiến lược theo dõi")}
               </label>
               <select
                 id="create-item-tracking"
@@ -774,8 +814,12 @@ function CreateItemDialog({
                   setTrackingStrategy(e.target.value as TrackingStrategy)
                 }
               >
-                <option value="quantity">Theo số lượng / Quantity</option>
-                <option value="serialized">Theo số sê-ri / Serialized</option>
+                <option value="quantity">
+                  {uiText("Theo số lượng / Quantity")}
+                </option>
+                <option value="serialized">
+                  {uiText("Theo số sê-ri / Serialized")}
+                </option>
               </select>
             </div>
             <div>
@@ -783,7 +827,7 @@ function CreateItemDialog({
                 htmlFor="create-item-return"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Cơ chế hoàn trả
+                {uiText("Cơ chế hoàn trả")}
               </label>
               <select
                 id="create-item-return"
@@ -794,10 +838,14 @@ function CreateItemDialog({
                 }
               >
                 <option value="nonreturnable">
-                  Không hoàn trả / Consumable
+                  {uiText("Không hoàn trả / Consumable")}
                 </option>
-                <option value="returnable">Có thể hoàn trả / Returnable</option>
-                <option value="in_place">Sử dụng tại chỗ / In-place</option>
+                <option value="returnable">
+                  {uiText("Có thể hoàn trả / Returnable")}
+                </option>
+                <option value="in_place">
+                  {uiText("Sử dụng tại chỗ / In-place")}
+                </option>
               </select>
             </div>
           </div>
@@ -817,12 +865,16 @@ function CreateItemDialog({
               />
               <div className="text-xs">
                 <span className="font-semibold text-slate-800 block">
-                  Bắt buộc có Hạn sử dụng (Expiry Date)
+                  {uiText("Bắt buộc có Hạn sử dụng (Expiry Date)")}
                 </span>
                 <span className="text-slate-500 text-[11px]">
                   {materialKind === "chemical"
-                    ? "Vật tư hóa chất bắt buộc phải có HSD theo chính sách an toàn O01."
-                    : "Nếu bật, khi nhận kho bắt buộc phải nhập ngày hoặc tháng hết hạn."}
+                    ? uiText(
+                        "Vật tư hóa chất bắt buộc phải có HSD theo chính sách an toàn O01.",
+                      )
+                    : uiText(
+                        "Nếu bật, khi nhận kho bắt buộc phải nhập ngày hoặc tháng hết hạn.",
+                      )}
                 </span>
               </div>
             </label>
@@ -830,7 +882,7 @@ function CreateItemDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -841,14 +893,14 @@ function CreateItemDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang tạo..." : "Lưu vật tư mới"}
+              {isPending ? uiText("Đang tạo...") : uiText("Lưu vật tư mới")}
             </button>
           </div>
         </form>
@@ -869,6 +921,8 @@ function EditItemDialog({
   onClose: () => void;
   onUpdated: (item: InventoryCatalogItem) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [name, setName] = useState(item.name);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -912,13 +966,13 @@ function EditItemDialog({
             id="edit-item-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Chỉnh sửa vật tư / Edit Item
+            {uiText("Chỉnh sửa vật tư / Edit Item")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -926,21 +980,22 @@ function EditItemDialog({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="rounded-lg bg-slate-50 p-3 space-y-1 text-xs border border-slate-100">
             <div className="flex justify-between">
-              <span className="text-slate-500">Mã SKU:</span>
+              <span className="text-slate-500">{uiText("Mã SKU:")}</span>
               <span className="font-mono font-bold text-slate-900">
                 {item.code}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">ĐVT cơ sở:</span>
+              <span className="text-slate-500">{uiText("ĐVT cơ sở:")}</span>
               <span className="font-medium text-slate-800">
                 {item.base_uom_code}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Phiên bản:</span>
+              <span className="text-slate-500">{uiText("Phiên bản:")}</span>
               <span className="font-mono text-slate-700">
-                r{String(item.revision)}
+                {uiText("r")}
+                {String(item.revision)}
               </span>
             </div>
           </div>
@@ -950,7 +1005,8 @@ function EditItemDialog({
               htmlFor="edit-item-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên vật tư <span className="text-red-500">*</span>
+              {uiText("Tên vật tư ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="edit-item-name"
@@ -962,14 +1018,14 @@ function EditItemDialog({
             />
           </div>
           <div className="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg text-[11px] text-blue-800 leading-relaxed">
-            Ghi chú: Theo bất biến D01, Mã SKU, ĐVT cơ sở, Phân loại hóa chất và
-            Cơ chế hoàn trả bị khóa bất biến sau khi phát sinh giao dịch nhận
-            kho đầu tiên để đảm bảo toàn vẹn dữ liệu sổ cái.
+            {uiText(
+              "Ghi chú: Theo bất biến D01, Mã SKU, ĐVT cơ sở, Phân loại hóa chất và Cơ chế hoàn trả bị khóa bất biến sau khi phát sinh giao dịch nhận kho đầu tiên để đảm bảo toàn vẹn dữ liệu sổ cái.",
+            )}
           </div>
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -980,14 +1036,14 @@ function EditItemDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
             </button>
           </div>
         </form>
@@ -1006,6 +1062,8 @@ function CategoryManagerDialog({
   isAdmin: boolean;
   onClose: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [cats, setCats] = useState<InventoryCategory[]>([]);
   const [catTotal, setCatTotal] = useState(0);
   const [catPage, setCatPage] = useState(1);
@@ -1153,13 +1211,13 @@ function CategoryManagerDialog({
             id="category-manager-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Quản lý nhóm vật tư / Categories
+            {uiText("Quản lý nhóm vật tư / Categories")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -1171,14 +1229,14 @@ function CategoryManagerDialog({
             className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-3"
           >
             <span className="text-xs font-bold text-slate-800 block">
-              Thêm nhóm mới / Add Category
+              {uiText("Thêm nhóm mới / Add Category")}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <input
                 id="create-category-code"
-                aria-label="Mã nhóm / Category code"
+                aria-label={uiText("Mã nhóm / Category code")}
                 type="text"
-                placeholder="Mã nhóm (VD: HOA_CHAT)"
+                placeholder={uiText("Mã nhóm (VD: HOA_CHAT)")}
                 className="text-xs font-mono uppercase border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
                 value={newCode}
                 onChange={(e) => setNewCode(e.target.value)}
@@ -1186,9 +1244,9 @@ function CategoryManagerDialog({
               />
               <input
                 id="create-category-name"
-                aria-label="Tên nhóm / Category name"
+                aria-label={uiText("Tên nhóm / Category name")}
                 type="text"
-                placeholder="Tên nhóm (VD: Hóa chất & Thuốc thử)"
+                placeholder={uiText("Tên nhóm (VD: Hóa chất & Thuốc thử)")}
                 className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500 sm:col-span-2"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -1201,7 +1259,7 @@ function CategoryManagerDialog({
                 className="button button-primary text-xs"
                 disabled={isPending}
               >
-                {isPending ? "Đang thêm..." : "+ Thêm nhóm"}
+                {isPending ? uiText("Đang thêm...") : uiText("+ Thêm nhóm")}
               </button>
             </div>
           </form>
@@ -1221,9 +1279,9 @@ function CategoryManagerDialog({
               />
               <input
                 id="search-category"
-                aria-label="Tìm kiếm nhóm vật tư"
+                aria-label={uiText("Tìm kiếm nhóm vật tư")}
                 type="text"
-                placeholder="Tìm mã hoặc tên nhóm…"
+                placeholder={uiText("Tìm mã hoặc tên nhóm…")}
                 className="w-full text-xs pl-8 pr-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
                 value={catSearch}
                 onChange={(e) => setCatSearch(e.target.value)}
@@ -1233,13 +1291,13 @@ function CategoryManagerDialog({
               type="submit"
               className="button button-secondary text-xs px-3 py-1.5"
             >
-              Tìm kiếm
+              {uiText("Tìm kiếm")}
             </button>
           </form>
 
           {error ? (
             <div className="p-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -1247,11 +1305,11 @@ function CategoryManagerDialog({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 uppercase text-[11px]">
-                <th className="py-2 px-3">Mã</th>
-                <th className="py-2 px-3">Tên nhóm</th>
-                <th className="py-2 px-3">Trạng thái</th>
-                <th className="py-2 px-3 text-center">Rev</th>
-                <th className="py-2 px-3 text-right">Thao tác</th>
+                <th className="py-2 px-3">{uiText("Mã")}</th>
+                <th className="py-2 px-3">{uiText("Tên nhóm")}</th>
+                <th className="py-2 px-3">{uiText("Trạng thái")}</th>
+                <th className="py-2 px-3 text-center">{uiText("Rev")}</th>
+                <th className="py-2 px-3 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -1268,7 +1326,9 @@ function CategoryManagerDialog({
                           className="text-xs border border-blue-400 rounded px-2 py-1 w-full"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          aria-label={`Tên nhóm mới cho mã ${c.code}`}
+                          aria-label={uiText("Tên nhóm mới cho mã {0}", [
+                            c.code,
+                          ])}
                           autoFocus
                         />
                         <button
@@ -1277,7 +1337,7 @@ function CategoryManagerDialog({
                           onClick={() => handleUpdateCategory(c)}
                           disabled={isPending}
                         >
-                          Lưu
+                          {uiText("Lưu")}
                         </button>
                         <button
                           type="button"
@@ -1288,7 +1348,7 @@ function CategoryManagerDialog({
                           }}
                           disabled={isPending}
                         >
-                          Hủy
+                          {uiText("Hủy")}
                         </button>
                       </div>
                     ) : (
@@ -1299,7 +1359,8 @@ function CategoryManagerDialog({
                     <ActiveBadge active={c.active} />
                   </td>
                   <td className="py-2 px-3 text-center font-mono text-[11px] text-slate-400">
-                    r{String(c.revision)}
+                    {uiText("r")}
+                    {String(c.revision)}
                   </td>
                   <td className="py-2 px-3 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5">
@@ -1313,9 +1374,9 @@ function CategoryManagerDialog({
                             setError(null);
                           }}
                           disabled={isPending}
-                          aria-label={`Sửa tên nhóm ${c.code}`}
+                          aria-label={uiText("Sửa tên nhóm {0}", [c.code])}
                         >
-                          Sửa
+                          {uiText("Sửa")}
                         </button>
                       ) : null}
                       {isAdmin ? (
@@ -1336,11 +1397,13 @@ function CategoryManagerDialog({
                           disabled={isPending}
                           aria-label={
                             c.active
-                              ? `Vô hiệu hóa nhóm ${c.code}`
-                              : `Kích hoạt lại nhóm ${c.code}`
+                              ? uiText("Vô hiệu hóa nhóm {0}", [c.code])
+                              : uiText("Kích hoạt lại nhóm {0}", [c.code])
                           }
                         >
-                          {c.active ? "Vô hiệu hóa" : "Kích hoạt"}
+                          {c.active
+                            ? uiText("Vô hiệu hóa")
+                            : uiText("Kích hoạt")}
                         </button>
                       ) : null}
                     </div>
@@ -1351,7 +1414,9 @@ function CategoryManagerDialog({
           </table>
           <div className="flex items-center justify-between pt-2">
             <span className="text-[11px] text-slate-500">
-              Tổng cộng: {catTotal} nhóm
+              {uiText("Tổng cộng: ")}
+              {catTotal}
+              {uiText(" nhóm")}
             </span>
             <PaginationControls
               currentPage={catPage}
@@ -1368,7 +1433,7 @@ function CategoryManagerDialog({
             className="button button-secondary text-xs"
             onClick={onClose}
           >
-            Đóng / Close
+            {uiText("Đóng / Close")}
           </button>
         </div>
       </div>
@@ -1378,20 +1443,24 @@ function CategoryManagerDialog({
           open={Boolean(targetCatForState)}
           title={
             targetCatForState.targetActive
-              ? "Kích hoạt lại nhóm vật tư / Reactivate Category"
-              : "Vô hiệu hóa nhóm vật tư / Inactivate Category"
+              ? uiText("Kích hoạt lại nhóm vật tư / Reactivate Category")
+              : uiText("Vô hiệu hóa nhóm vật tư / Inactivate Category")
           }
           description={
             targetCatForState.targetActive
-              ? "Nhóm vật tư sẽ được kích hoạt lại và có thể chọn cho vật tư mới."
-              : "Nhóm vật tư này sẽ bị vô hiệu hóa và không thể chọn cho vật tư mới. Các vật tư hiện có thuộc nhóm này vẫn được bảo lưu đầy đủ."
+              ? uiText(
+                  "Nhóm vật tư sẽ được kích hoạt lại và có thể chọn cho vật tư mới.",
+                )
+              : uiText(
+                  "Nhóm vật tư này sẽ bị vô hiệu hóa và không thể chọn cho vật tư mới. Các vật tư hiện có thuộc nhóm này vẫn được bảo lưu đầy đủ.",
+                )
           }
           targetName={`${targetCatForState.cat.code} - ${targetCatForState.cat.name}`}
           currentRevision={targetCatForState.cat.revision}
           actionLabel={
             targetCatForState.targetActive
-              ? "Kích hoạt lại / Reactivate"
-              : "Vô hiệu hóa / Inactivate"
+              ? uiText("Kích hoạt lại / Reactivate")
+              : uiText("Vô hiệu hóa / Inactivate")
           }
           actionVariant={targetCatForState.targetActive ? "primary" : "danger"}
           isPending={isPending}
@@ -1413,6 +1482,8 @@ function UomManagerDialog({
   isAdmin: boolean;
   onClose: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [uomList, setUomList] = useState<InventoryUom[]>([]);
   const [uomTotal, setUomTotal] = useState(0);
   const [uomPage, setUomPage] = useState(1);
@@ -1571,13 +1642,13 @@ function UomManagerDialog({
             id="uom-manager-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Đơn vị tính / Units of Measure (UOM)
+            {uiText("Đơn vị tính / Units of Measure (UOM)")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -1589,14 +1660,14 @@ function UomManagerDialog({
               className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-3"
             >
               <span className="text-xs font-bold text-slate-800 block">
-                Thêm ĐVT mới (Admin Only)
+                {uiText("Thêm ĐVT mới (Admin Only)")}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <input
                   id="create-uom-code"
-                  aria-label="Mã ĐVT / UOM Code"
+                  aria-label={uiText("Mã ĐVT / UOM Code")}
                   type="text"
-                  placeholder="Mã (VD: mL, g, box)"
+                  placeholder={uiText("Mã (VD: mL, g, box)")}
                   className="text-xs font-mono border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
@@ -1604,9 +1675,9 @@ function UomManagerDialog({
                 />
                 <input
                   id="create-uom-name"
-                  aria-label="Tên ĐVT / UOM Name"
+                  aria-label={uiText("Tên ĐVT / UOM Name")}
                   type="text"
-                  placeholder="Tên (VD: Mililit, Hộp)"
+                  placeholder={uiText("Tên (VD: Mililit, Hộp)")}
                   className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -1614,7 +1685,7 @@ function UomManagerDialog({
                 />
                 <select
                   id="create-uom-dimension"
-                  aria-label="Thứ nguyên ĐVT / Dimension"
+                  aria-label={uiText("Thứ nguyên ĐVT / Dimension")}
                   className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500 bg-white"
                   value={dimension}
                   onChange={(e) => {
@@ -1624,18 +1695,22 @@ function UomManagerDialog({
                       setAllowedScale(0);
                   }}
                 >
-                  <option value="count">Đếm / Count (scale 0)</option>
-                  <option value="volume">Thể tích / Volume</option>
-                  <option value="mass">Khối lượng / Mass</option>
-                  <option value="package">Đóng gói / Package</option>
+                  <option value="count">
+                    {uiText("Đếm / Count (scale 0)")}
+                  </option>
+                  <option value="volume">{uiText("Thể tích / Volume")}</option>
+                  <option value="mass">{uiText("Khối lượng / Mass")}</option>
+                  <option value="package">
+                    {uiText("Đóng gói / Package")}
+                  </option>
                 </select>
                 <input
                   id="create-uom-scale"
-                  aria-label="Độ chính xác thập phân / Allowed scale"
+                  aria-label={uiText("Độ chính xác thập phân / Allowed scale")}
                   type="number"
                   min={0}
                   max={6}
-                  placeholder="Độ chính xác (0-6)"
+                  placeholder={uiText("Độ chính xác (0-6)")}
                   className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
                   value={allowedScale}
                   disabled={dimension === "count" || dimension === "package"}
@@ -1649,14 +1724,15 @@ function UomManagerDialog({
                   className="button button-primary text-xs"
                   disabled={isPending}
                 >
-                  {isPending ? "Đang thêm..." : "+ Thêm ĐVT"}
+                  {isPending ? uiText("Đang thêm...") : uiText("+ Thêm ĐVT")}
                 </button>
               </div>
             </form>
           ) : (
             <div className="p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs">
-              Cấu hình và thêm mới Đơn vị tính là chức năng dành riêng cho Quản
-              trị viên (Admin).
+              {uiText(
+                "Cấu hình và thêm mới Đơn vị tính là chức năng dành riêng cho Quản trị viên (Admin).",
+              )}
             </div>
           )}
           {/* Search UOMs */}
@@ -1675,9 +1751,9 @@ function UomManagerDialog({
               />
               <input
                 id="search-uom"
-                aria-label="Tìm kiếm đơn vị tính"
+                aria-label={uiText("Tìm kiếm đơn vị tính")}
                 type="text"
-                placeholder="Tìm mã hoặc tên ĐVT…"
+                placeholder={uiText("Tìm mã hoặc tên ĐVT…")}
                 className="w-full text-xs pl-8 pr-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
                 value={uomSearch}
                 onChange={(e) => setUomSearch(e.target.value)}
@@ -1687,26 +1763,30 @@ function UomManagerDialog({
               type="submit"
               className="button button-secondary text-xs px-3 py-1.5"
             >
-              Tìm kiếm
+              {uiText("Tìm kiếm")}
             </button>
           </form>
 
           {error ? (
             <div className="p-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 uppercase text-[11px]">
-                <th className="py-2 px-3">Mã ĐVT</th>
-                <th className="py-2 px-3">Tên</th>
-                <th className="py-2 px-3">Thứ nguyên / Dimension</th>
-                <th className="py-2 px-3 text-center">Thập phân (Scale)</th>
-                <th className="py-2 px-3">Trạng thái</th>
-                <th className="py-2 px-3 text-center">Rev</th>
-                <th className="py-2 px-3 text-right">Thao tác</th>
+                <th className="py-2 px-3">{uiText("Mã ĐVT")}</th>
+                <th className="py-2 px-3">{uiText("Tên")}</th>
+                <th className="py-2 px-3">
+                  {uiText("Thứ nguyên / Dimension")}
+                </th>
+                <th className="py-2 px-3 text-center">
+                  {uiText("Thập phân (Scale)")}
+                </th>
+                <th className="py-2 px-3">{uiText("Trạng thái")}</th>
+                <th className="py-2 px-3 text-center">{uiText("Rev")}</th>
+                <th className="py-2 px-3 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -1723,7 +1803,9 @@ function UomManagerDialog({
                           className="text-xs border border-blue-400 rounded px-2 py-1 w-full"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          aria-label={`Tên ĐVT mới cho mã ${u.code}`}
+                          aria-label={uiText("Tên ĐVT mới cho mã {0}", [
+                            u.code,
+                          ])}
                           autoFocus
                         />
                         <button
@@ -1732,7 +1814,7 @@ function UomManagerDialog({
                           onClick={() => handleUpdateUom(u)}
                           disabled={isPending}
                         >
-                          Lưu
+                          {uiText("Lưu")}
                         </button>
                         <button
                           type="button"
@@ -1743,7 +1825,7 @@ function UomManagerDialog({
                           }}
                           disabled={isPending}
                         >
-                          Hủy
+                          {uiText("Hủy")}
                         </button>
                       </div>
                     ) : (
@@ -1760,7 +1842,8 @@ function UomManagerDialog({
                     <ActiveBadge active={u.active} />
                   </td>
                   <td className="py-2 px-3 text-center font-mono text-[11px] text-slate-400">
-                    r{String(u.revision)}
+                    {uiText("r")}
+                    {String(u.revision)}
                   </td>
                   <td className="py-2 px-3 text-right whitespace-nowrap">
                     {isAdmin ? (
@@ -1775,9 +1858,9 @@ function UomManagerDialog({
                               setError(null);
                             }}
                             disabled={isPending}
-                            aria-label={`Sửa tên ĐVT ${u.code}`}
+                            aria-label={uiText("Sửa tên ĐVT {0}", [u.code])}
                           >
-                            Sửa
+                            {uiText("Sửa")}
                           </button>
                         ) : null}
                         <button
@@ -1797,11 +1880,13 @@ function UomManagerDialog({
                           disabled={isPending}
                           aria-label={
                             u.active
-                              ? `Vô hiệu hóa ĐVT ${u.code}`
-                              : `Kích hoạt lại ĐVT ${u.code}`
+                              ? uiText("Vô hiệu hóa ĐVT {0}", [u.code])
+                              : uiText("Kích hoạt lại ĐVT {0}", [u.code])
                           }
                         >
-                          {u.active ? "Vô hiệu hóa" : "Kích hoạt"}
+                          {u.active
+                            ? uiText("Vô hiệu hóa")
+                            : uiText("Kích hoạt")}
                         </button>
                       </div>
                     ) : (
@@ -1814,7 +1899,9 @@ function UomManagerDialog({
           </table>
           <div className="flex items-center justify-between pt-2">
             <span className="text-[11px] text-slate-500">
-              Tổng cộng: {uomTotal} đơn vị tính
+              {uiText("Tổng cộng: ")}
+              {uomTotal}
+              {uiText(" đơn vị tính")}
             </span>
             <PaginationControls
               currentPage={uomPage}
@@ -1831,7 +1918,7 @@ function UomManagerDialog({
             className="button button-secondary text-xs"
             onClick={onClose}
           >
-            Đóng / Close
+            {uiText("Đóng / Close")}
           </button>
         </div>
       </div>
@@ -1841,20 +1928,24 @@ function UomManagerDialog({
           open={Boolean(targetUomForState)}
           title={
             targetUomForState.targetActive
-              ? "Kích hoạt lại đơn vị tính / Reactivate UOM"
-              : "Vô hiệu hóa đơn vị tính / Inactivate UOM"
+              ? uiText("Kích hoạt lại đơn vị tính / Reactivate UOM")
+              : uiText("Vô hiệu hóa đơn vị tính / Inactivate UOM")
           }
           description={
             targetUomForState.targetActive
-              ? "Đơn vị tính sẽ được kích hoạt lại và có thể chọn cho vật tư mới."
-              : "Đơn vị tính này sẽ bị vô hiệu hóa và không thể chọn cho vật tư mới. Dữ liệu lịch sử và tồn kho hiện hành vẫn được bảo lưu đầy đủ."
+              ? uiText(
+                  "Đơn vị tính sẽ được kích hoạt lại và có thể chọn cho vật tư mới.",
+                )
+              : uiText(
+                  "Đơn vị tính này sẽ bị vô hiệu hóa và không thể chọn cho vật tư mới. Dữ liệu lịch sử và tồn kho hiện hành vẫn được bảo lưu đầy đủ.",
+                )
           }
           targetName={`${targetUomForState.uom.code} - ${targetUomForState.uom.name}`}
           currentRevision={targetUomForState.uom.revision}
           actionLabel={
             targetUomForState.targetActive
-              ? "Kích hoạt lại / Reactivate"
-              : "Vô hiệu hóa / Inactivate"
+              ? uiText("Kích hoạt lại / Reactivate")
+              : uiText("Vô hiệu hóa / Inactivate")
           }
           actionVariant={targetUomForState.targetActive ? "primary" : "danger"}
           isPending={isPending}

@@ -4,6 +4,13 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
+import {
+  createP1LocalClient,
+  sqlLiteral,
+} from "./helpers/inventory-p1-runtime.mjs";
+
+// These privileged LOCAL fixture mutations exercise invariant triggers. The
+// public authenticated DML boundary is asserted separately at the end.
 
 function getLocalEnv() {
   const envPath = path.resolve(".env.local");
@@ -121,7 +128,7 @@ test("D1: Direct table INSERT mismatch -> schedule HK2 overrides caller HK4", as
     );
 
     // Direct table INSERT using authenticated lecturer client, passing semester: 'HK4'
-    const { data: req, error: insertErr } = await lecturer.supabase
+    const { data: req, error: insertErr } = await service
       .from("equipment_requests")
       .insert({
         class_schedule_id: scheduleId,
@@ -178,7 +185,7 @@ test("D2: Direct table INSERT on NULL schedule semester -> FAIL CLOSED", async (
       ),
     );
 
-    const { error: insertErr } = await lecturer.supabase
+    const { error: insertErr } = await service
       .from("equipment_requests")
       .insert({
         class_schedule_id: scheduleId,
@@ -251,14 +258,12 @@ test("D3: Direct table UPDATE semester tamper -> schedule HK2 authority maintain
     requestId = req.id;
 
     // Authenticated direct UPDATE attempting to tamper semester to HK4
-    const { data: updated, error: updateErr } = await lecturer.supabase
-      .from("equipment_requests")
-      .update({ semester: "HK4" })
-      .eq("id", req.id)
-      .select()
-      .single();
-
-    assert.ok(!updateErr, `Update failed: ${updateErr?.message}`);
+    const updateOutput = await createP1LocalClient().sql(
+      `begin; select set_config('request.jwt.claims',${sqlLiteral(JSON.stringify({ sub: lecturer.user.id, role: "authenticated" }))},true); update public.equipment_requests set semester='HK4' where id=${sqlLiteral(req.id)}::uuid returning to_jsonb(equipment_requests); commit;`,
+    );
+    const updated = JSON.parse(
+      updateOutput.split(/\r?\n/).findLast((line) => line.startsWith("{")),
+    );
     // Must remain HK2!
     assert.equal(
       updated.semester,
@@ -318,20 +323,28 @@ test("D4: Historical request on NULL schedule -> same-schedule edit preserves HK
     requestId = req.id;
 
     // Simulate historical schedule where schedule semester became NULL
-    await service
+    await createP1LocalClient().sql(
+      `begin; set local session_replication_role=replica; update public.class_schedules set semester=null where id=${sqlLiteral(scheduleId)}::uuid; set local session_replication_role=origin; commit;`,
+    );
+    const historicalSchedule = await service
       .from("class_schedules")
-      .update({ semester: null })
-      .eq("id", scheduleId);
+      .select("semester")
+      .eq("id", scheduleId)
+      .single();
+    assert.ifError(historicalSchedule.error);
+    assert.equal(
+      historicalSchedule.data.semester,
+      null,
+      "Historical fixture must actually have a NULL semester before testing the trigger",
+    );
 
     // Direct edit updating note while remaining on same schedule
-    const { data: updated, error: updateErr } = await lecturer.supabase
-      .from("equipment_requests")
-      .update({ note: "Updated historical note" })
-      .eq("id", req.id)
-      .select()
-      .single();
-
-    assert.ok(!updateErr, `Update failed: ${updateErr?.message}`);
+    const updateOutput = await createP1LocalClient().sql(
+      `begin; select set_config('request.jwt.claims',${sqlLiteral(JSON.stringify({ sub: lecturer.user.id, role: "authenticated" }))},true); update public.equipment_requests set note='Updated historical note' where id=${sqlLiteral(req.id)}::uuid returning to_jsonb(equipment_requests); commit;`,
+    );
+    const updated = JSON.parse(
+      updateOutput.split(/\r?\n/).findLast((line) => line.startsWith("{")),
+    );
     assert.equal(
       updated.semester,
       "HK1",
@@ -400,7 +413,7 @@ test("D5: immutable source rejects a NULL-semester destination before semester v
     requestId = req.id;
 
     // Direct UPDATE moving request to schedule B
-    const { error: updateErr } = await lecturer.supabase
+    const { error: updateErr } = await service
       .from("equipment_requests")
       .update({
         class_schedule_id: scheduleIdB,
@@ -477,7 +490,7 @@ test("D6: immutable source rejects a canonical destination", async () => {
     requestId = req.id;
 
     // Direct UPDATE moving request to schedule B, caller attempts semester HK1
-    const { data: updated, error: updateErr } = await lecturer.supabase
+    const { data: updated, error: updateErr } = await service
       .from("equipment_requests")
       .update({
         class_schedule_id: scheduleIdB,
@@ -504,7 +517,7 @@ test("D6: immutable source rejects a canonical destination", async () => {
   }
 });
 
-test("D7: Status transition and confirmation flows remain intact", async () => {
+test("D7: Skills preparation requires S4 and preserves canonical semester on rejection", async () => {
   const service = serviceClient();
   const admin = await signIn("admin@campus.local", "LocalAdmin123!");
   const lecturer = await signIn("giangvien@campus.local", "LocalLecturer123!");
@@ -557,13 +570,41 @@ test("D7: Status transition and confirmation flows remain intact", async () => {
       },
     );
 
-    assert.ok(!rpcErr, `Confirmation RPC failed: ${rpcErr?.message}`);
-    assert.equal(confirmed.status, "preparing");
-    assert.equal(confirmed.semester, "HK2");
+    assert.equal(confirmed, null);
+    assert.match(rpcErr.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
+    const current = await service
+      .from("equipment_requests")
+      .select("status,semester")
+      .eq("id", req.id)
+      .single();
+    assert.ifError(current.error);
+    assert.equal(current.data.status, "new");
+    assert.equal(current.data.semester, "HK2");
   } finally {
     if (requestId) {
       await service.from("equipment_requests").delete().eq("id", requestId);
     }
     await service.from("class_schedules").delete().eq("id", scheduleId);
   }
+});
+
+test("Skills public request DML stays denied while privileged trigger invariants are exercised", async () => {
+  const lecturer = await signIn("giangvien@campus.local", "LocalLecturer123!");
+  assert.equal(
+    (
+      await lecturer.supabase
+        .from("equipment_requests")
+        .insert({ id: crypto.randomUUID() })
+    ).error?.code,
+    "42501",
+  );
+  assert.equal(
+    (
+      await lecturer.supabase
+        .from("equipment_requests")
+        .update({ semester: "HK4" })
+        .eq("id", crypto.randomUUID())
+    ).error?.code,
+    "42501",
+  );
 });

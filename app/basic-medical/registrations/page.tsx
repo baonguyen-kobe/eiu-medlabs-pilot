@@ -19,6 +19,8 @@ import {
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
 import { redirect } from "next/navigation";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 type SearchParams = {
   q?: string;
@@ -167,15 +169,26 @@ export default async function BasicMedicalRegistrationsPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Phiếu Y cơ sở"
-      description="Theo dõi xác nhận từng buổi học và tình trạng thiết bị trong phòng."
+      title={<LocalizedText text={"Phiếu Y cơ sở"} />}
+      description={
+        <LocalizedText
+          text={
+            "Theo dõi xác nhận từng buổi học và tình trạng thiết bị trong phòng."
+          }
+        />
+      }
     >
       {query.notice ? (
         <p className="action-feedback success">{query.notice}</p>
       ) : null}
       {query.error || loadError ? (
         <p className="action-feedback error" role="alert">
-          {query.error ?? `Không thể tải dữ liệu: ${loadError?.message}`}
+          {query.error ?? (
+            <LocalizedText
+              text="Không thể tải dữ liệu: {0}"
+              values={[loadError?.message]}
+            />
+          )}
         </p>
       ) : null}
 
@@ -185,7 +198,9 @@ export default async function BasicMedicalRegistrationsPage({
       >
         <label className="data-search">
           <Search size={18} aria-hidden="true" />
-          <input
+          <LocalizedElement
+            as="input"
+            textAttributes={["placeholder"]}
             name="q"
             type="search"
             defaultValue={search}
@@ -193,17 +208,31 @@ export default async function BasicMedicalRegistrationsPage({
           />
         </label>
         <label className="class-range-mode">
-          <span className="sr-only">Trạng thái</span>
+          <span className="sr-only">
+            <LocalizedText text={"Trạng thái"} />
+          </span>
           <select name="status" defaultValue={status}>
-            <option value="incomplete">Chưa hoàn thành</option>
-            <option value="completed">Hoàn thành</option>
-            <option value="cancelled">Đã hủy</option>
-            <option value="all">Tất cả</option>
+            <option value="incomplete">
+              <LocalizedText text={"Chưa hoàn thành"} />
+            </option>
+            <option value="completed">
+              <LocalizedText text={"Hoàn thành"} />
+            </option>
+            <option value="cancelled">
+              <LocalizedText text={"Đã hủy"} />
+            </option>
+            <option value="all">
+              <LocalizedText text={"Tất cả"} />
+            </option>
           </select>
         </label>
         <label className="equipment-date-filter">
-          <span>Từ ngày</span>
-          <input
+          <span>
+            <LocalizedText text={"Từ ngày"} />
+          </span>
+          <LocalizedElement
+            as="input"
+            textAttributes={["aria-label"]}
             aria-label="Từ ngày"
             name="from"
             type="date"
@@ -211,8 +240,12 @@ export default async function BasicMedicalRegistrationsPage({
           />
         </label>
         <label className="equipment-date-filter">
-          <span>Đến ngày</span>
-          <input
+          <span>
+            <LocalizedText text={"Đến ngày"} />
+          </span>
+          <LocalizedElement
+            as="input"
+            textAttributes={["aria-label"]}
             aria-label="Đến ngày"
             name="to"
             type="date"
@@ -220,15 +253,18 @@ export default async function BasicMedicalRegistrationsPage({
           />
         </label>
         <button type="submit" className="button button-primary">
-          Lọc
+          <LocalizedText text={"Lọc"} />
         </button>
         <a
           className="button button-secondary"
           href="/basic-medical/registrations"
         >
-          Xóa bộ lọc
+          <LocalizedText text={"Xóa bộ lọc"} />
         </a>
-        <span className="equipment-filter-count">{count ?? 0} phiếu</span>
+        <span className="equipment-filter-count">
+          {count ?? 0}
+          <LocalizedText text={" phiếu"} />
+        </span>
       </form>
 
       <BasicMedicalRegistrationList

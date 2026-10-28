@@ -4,6 +4,7 @@ import { EquipmentFulfillmentWorkspace } from "@/components/equipment-fulfillmen
 import { fulfillmentSchema } from "@/lib/equipment-fulfillment";
 import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
 import { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function FulfillmentPage({
   params,
@@ -30,8 +31,14 @@ export default async function FulfillmentPage({
       canImportSchedules={viewer.canImportSchedules}
       canManagePersonnel={viewer.canManagePersonnel}
       canManageEmailNotifications={viewer.canManageEmailNotifications}
-      title="Bàn giao và thu hồi"
-      description="Thực giao/thực nhận ghi kho ngay. Chữ ký xác nhận riêng, không ghi kho lần hai."
+      title={<LocalizedText text={"Bàn giao và thu hồi"} />}
+      description={
+        <LocalizedText
+          text={
+            "Thực giao/thực nhận ghi kho ngay. Chữ ký xác nhận riêng, không ghi kho lần hai."
+          }
+        />
+      }
     >
       <EquipmentFulfillmentWorkspace initial={fulfillmentSchema.parse(data)} />
     </WorkspaceShell>

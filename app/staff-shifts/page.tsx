@@ -17,6 +17,7 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 import { businessToday } from "@/lib/business-time";
 import { getViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type ShiftView = "week" | "month";
 type ShiftTab = "roster" | "register";
@@ -128,14 +129,18 @@ export default async function StaffShiftsPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Lịch trực"
-      description="Xem và quản lý lịch trực phòng thực hành Kỹ năng Điều dưỡng."
+      title={<LocalizedText text={"Lịch trực"} />}
+      description={
+        <LocalizedText
+          text={"Xem và quản lý lịch trực phòng thực hành Kỹ năng Điều dưỡng."}
+        />
+      }
     >
       <StaffShiftRoster
         shifts={(shifts ?? []).map((shift) => ({
           ...shift,
           shift_slot: shift.shift_slot as "MORNING" | "AFTERNOON",
-          staffName: peopleById.get(shift.staff_id) ?? "Nhân sự",
+          staffName: peopleById.get(shift.staff_id) ?? "",
         }))}
         assignees={assignees}
         userId={userId}

@@ -9,6 +9,8 @@ import { formatInventoryDateTime } from "@/lib/inventory/dates";
 import { formatDisplayQuantity } from "@/lib/inventory/decimal";
 import { PaginationControls } from "@/components/pagination-controls";
 import type { InventoryStockEvidence } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const EVIDENCE_PAGE_SIZE = 10;
 
@@ -31,6 +33,8 @@ function StockEvidenceModalContent({
   itemName?: string;
   onClose: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [evidenceList, setEvidenceList] = useState<InventoryStockEvidence[]>(
     [],
   );
@@ -120,15 +124,18 @@ function StockEvidenceModalContent({
                 id="stock-evidence-title"
                 className="text-base font-bold text-slate-900"
               >
-                Nhật ký Bằng chứng Bất biến / Stock Evidence History
+                {uiText("Nhật ký Bằng chứng Bất biến / Stock Evidence History")}
               </h3>
               {itemCode || itemName ? (
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  {itemCode} - {itemName} | Lô: {originId.slice(0, 8)}...
+                  {itemCode} - {itemName}
+                  {uiText(" | Lô: ")}
+                  {originId.slice(0, 8)}...
                 </p>
               ) : (
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  Lô nguồn: {originId}
+                  {uiText("Lô nguồn: ")}
+                  {originId}
                 </p>
               )}
             </div>
@@ -136,7 +143,7 @@ function StockEvidenceModalContent({
           <button
             ref={closeBtnRef}
             type="button"
-            aria-label="Đóng"
+            aria-label={uiText("Đóng")}
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg"
           >
@@ -149,28 +156,30 @@ function StockEvidenceModalContent({
           {isLoading ? (
             <div className="text-center py-10 text-xs text-purple-600 font-medium animate-pulse flex items-center justify-center gap-2">
               <History size={16} className="animate-spin" />
-              <span>Đang tải lịch sử bằng chứng...</span>
+              <span>{uiText("Đang tải lịch sử bằng chứng...")}</span>
             </div>
           ) : error ? (
             <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : evidenceList.length === 0 ? (
             <div className="text-center py-12 text-xs text-slate-400">
-              Chưa có bản ghi bằng chứng kiểm kê hay thẩm định nào cho lô này.
+              {uiText(
+                "Chưa có bản ghi bằng chứng kiểm kê hay thẩm định nào cho lô này.",
+              )}
             </div>
           ) : (
             evidenceList.map((item) => {
               const meta = item.metadata || {};
               const actionLabel =
                 item.action === "STOCKTAKE_COUNT_ADJUST"
-                  ? "Đối chiếu kiểm kê / COUNT"
+                  ? uiText("Đối chiếu kiểm kê / COUNT")
                   : item.action === "SURPLUS_RECORDED"
-                    ? "Ghi nhận hàng thừa / SURPLUS"
+                    ? uiText("Ghi nhận hàng thừa / SURPLUS")
                     : item.action === "SURPLUS_VERIFIED_RELEASED"
-                      ? "Thẩm định giải tỏa / RELEASE"
+                      ? uiText("Thẩm định giải tỏa / RELEASE")
                       : item.action === "EVIDENCE_APPENDED"
-                        ? "Bổ sung bằng chứng / APPEND"
+                        ? uiText("Bổ sung bằng chứng / APPEND")
                         : item.action;
 
               const badgeColor =
@@ -196,7 +205,9 @@ function StockEvidenceModalContent({
                       </span>
                       <span
                         className="font-semibold text-slate-800 font-mono"
-                        title={`Mã người thực hiện: ${item.actor_id}`}
+                        title={uiText("Mã người thực hiện: {0}", [
+                          item.actor_id,
+                        ])}
                       >
                         {item.actor_name || item.actor_id}
                       </span>
@@ -216,7 +227,7 @@ function StockEvidenceModalContent({
                       {meta.stocktake_reference ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Đợt kiểm kê:
+                            {uiText("Đợt kiểm kê:")}
                           </span>
                           <span className="font-mono font-semibold text-slate-700">
                             {String(meta.stocktake_reference)}
@@ -226,7 +237,7 @@ function StockEvidenceModalContent({
                       {meta.count_timestamp ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Thời điểm kiểm đếm:
+                            {uiText("Thời điểm kiểm đếm:")}
                           </span>
                           <span className="font-mono text-slate-700">
                             {formatInventoryDateTime(
@@ -238,7 +249,7 @@ function StockEvidenceModalContent({
                       {meta.location_id || meta.location_code ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Vị trí kho:
+                            {uiText("Vị trí kho:")}
                           </span>
                           <span className="font-mono text-slate-700">
                             {String(meta.location_code || meta.location_id)}
@@ -248,19 +259,19 @@ function StockEvidenceModalContent({
                       {meta.condition ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Tình trạng:
+                            {uiText("Tình trạng:")}
                           </span>
                           <span className="font-semibold text-slate-700">
                             {meta.condition === "good"
-                              ? "Hàng tốt / Good"
-                              : "Hàng hỏng / Damaged"}
+                              ? uiText("Hàng tốt / Good")
+                              : uiText("Hàng hỏng / Damaged")}
                           </span>
                         </div>
                       ) : null}
                       {meta.expected_quantity !== undefined ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Tồn sổ sách:
+                            {uiText("Tồn sổ sách:")}
                           </span>
                           <span className="font-mono font-semibold text-slate-700">
                             {formatDisplayQuantity(
@@ -272,7 +283,7 @@ function StockEvidenceModalContent({
                       {meta.counted_quantity !== undefined ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Thực tế đếm:
+                            {uiText("Thực tế đếm:")}
                           </span>
                           <span className="font-mono font-semibold text-slate-700">
                             {formatDisplayQuantity(
@@ -284,7 +295,7 @@ function StockEvidenceModalContent({
                       {meta.delta !== undefined ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Chênh lệch:
+                            {uiText("Chênh lệch:")}
                           </span>
                           <span className="font-mono font-bold text-slate-900">
                             {formatDisplayQuantity(String(meta.delta))}
@@ -295,10 +306,12 @@ function StockEvidenceModalContent({
                       meta.expected_stock_revision !== undefined ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Phiên bản đối chiếu:
+                            {uiText("Phiên bản đối chiếu:")}
                           </span>
                           <span className="font-mono text-slate-700">
-                            v{String(meta.expected_version ?? "—")} | r
+                            {uiText("v")}
+                            {String(meta.expected_version ?? "—")}
+                            {uiText(" | r")}
                             {String(meta.expected_stock_revision ?? "—")}
                           </span>
                         </div>
@@ -306,7 +319,7 @@ function StockEvidenceModalContent({
                       {meta.transaction_id ? (
                         <div>
                           <span className="text-slate-400 block">
-                            Giao dịch liên kết:
+                            {uiText("Giao dịch liên kết:")}
                           </span>
                           <Link
                             href={`/inventory/transactions/${meta.transaction_id}`}
@@ -318,7 +331,9 @@ function StockEvidenceModalContent({
                       ) : null}
                       {meta.reason ? (
                         <div className="col-span-2 sm:col-span-4">
-                          <span className="text-slate-400 block">Lý do:</span>
+                          <span className="text-slate-400 block">
+                            {uiText("Lý do:")}
+                          </span>
                           <span className="text-slate-700 italic">
                             {String(meta.reason)}
                           </span>
@@ -336,8 +351,10 @@ function StockEvidenceModalContent({
         {totalItems > EVIDENCE_PAGE_SIZE && (
           <div className="p-3 border-t border-slate-100 flex items-center justify-between shrink-0">
             <span className="text-xs text-slate-500">
-              Trang {page} / {Math.ceil(totalItems / EVIDENCE_PAGE_SIZE)} (
-              {totalItems} bằng chứng)
+              {uiText("Trang ")}
+              {page} / {Math.ceil(totalItems / EVIDENCE_PAGE_SIZE)} (
+              {totalItems}
+              {uiText(" bằng chứng)")}
             </span>
             <PaginationControls
               currentPage={page}
@@ -355,7 +372,7 @@ function StockEvidenceModalContent({
             onClick={onClose}
             className="button button-secondary text-xs"
           >
-            Đóng / Close
+            {uiText("Đóng / Close")}
           </button>
         </div>
       </div>

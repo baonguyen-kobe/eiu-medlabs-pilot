@@ -10,7 +10,17 @@ Rules:
 - Every `BLOCKED` row states its blocker.
 - `DONE` requires applicable verification evidence.
 
+## 2026-10-28 pilot review continuity
+
+This registry was inherited from the August UI foundation and is not a claim that the October pilot has the same implementation state. The current explicit task was an advisory deep workflow/Inventory/infrastructure/design review, not automatic AUTH-01 implementation. Review baseline: pilot `main@c42abf669222b81fadd2595d64de19c4a135ac2d`; local branch `codex/pilot-deep-review-20261028`.
+
+External handoff: `D:/Orca/MedLabs-Deep-Review-2026-10-28/00-README.md`, with a separate design backlog. Local authenticated Inventory overview was rendered using synthetic seed data; this does not complete BASE-01's representative route/viewport matrix. No UI task status is advanced by this review. Restore/reconcile the missing `D:/Orca/medlabs-OPs` authority pack and accepted upstream UI families before planning implementation.
+
+Follow-up user direction: finish the workflow plan before implementation, prioritizing quantity management, reusable multi-return, and sudden equipment-request changes. External `05-WORKFLOW-PRODUCT-PLAN.md` and DES-17–20 supplement the advisory review; no existing task is marked DONE or new product contract silently accepted.
+
 ## Primary task registry
+
+Inventory follow-up batch `INV-OPS-V1`: VERIFY under explicit user authorization, 2026-10-28. Implementation is uncommitted on the pilot branch. Scope/checklist: `openspec/changes/inventory-operational-v1/`. Evidence: `D:/Orca/MedLabs-Deep-Review-2026-10-28/06-IMPLEMENTATION-HANDOFF.md` (build, audit, 140-migration replay, 36 pgTAP files / 943 tests, final Node checks and bounded browser observations). Owner visual/operational acceptance is pending. This does not advance historical UI task statuses or authorize production.
 
 | ID          | Task                                                                    | Phase | Priority | Status  | Dependencies                                  | Scope                                                     | Verification/Evidence                                                                                                              |
 | ----------- | ----------------------------------------------------------------------- | ----- | -------- | ------- | --------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -85,3 +95,11 @@ Tracker audit IDs mapped: 21
 Unmapped audit IDs: none
 New planning IDs: TRACK-01, BASE-01, DEC-01, PILOT-01, QA-01
 ```
+
+## 2026-10-28 owner language correction
+
+| ID       | Status | Scope and evidence                                                                                                                               | Remaining gate                                                                                                         |
+| -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| APP-I18N | VERIFY | Whole application VI/EN, Vietnamese default; cookie/SSR/provider, static UI labels/messages/ARIA; tests and language review in external07 report | Technical/rendered verification completed; owner visual review pending; pilot source publication explicitly authorized |
+
+The parent plan and DES backlog remain partial/VERIFY as enumerated in the external07 status report. Do not mark inherited design items DONE because text translation exists.

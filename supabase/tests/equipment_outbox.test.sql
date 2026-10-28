@@ -242,6 +242,8 @@ select lives_ok(
           'skill_name', 'Kỹ năng tiêm',
           'catalog_item_id', '50000000-0000-0000-0000-000000000001'::uuid,
           'quantity', 3,
+          'id', (select id from public.equipment_request_items where request_id=(select id from public.equipment_requests where class_schedule_id='90000000-0000-0000-0000-000000000001'::uuid) and removed_at is null limit 1),
+          'expected_revision', (select preparation_revision from public.equipment_requests where class_schedule_id='90000000-0000-0000-0000-000000000001'::uuid),
           'note', 'Cho 3 nhóm'
         )
       )
@@ -302,7 +304,7 @@ select throws_ok(
       'Lỗi'
     );
   $$,
-  '22023', null,
+  'P0001', 'INVALID_QUANTITY',
   'Test 10. Invalid item quantity fails transaction'
 );
 

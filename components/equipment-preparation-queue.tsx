@@ -12,6 +12,8 @@ import {
   type PreparationQueueFilters,
 } from "@/lib/equipment-preparation-operations";
 import styles from "./equipment-preparation.module.css";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const dateTime = new Intl.DateTimeFormat("vi-VN", {
   dateStyle: "short",
@@ -35,6 +37,8 @@ export function EquipmentPreparationQueue({
 }: {
   initial: PreparationQueue;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [queue, setQueue] = useState(initial);
   const [filters, setFilters] = useState(initialFilters);
   const [search, setSearch] = useState("");
@@ -105,10 +109,11 @@ export function EquipmentPreparationQueue({
   return (
     <div className={`${styles.root} space-y-6`}>
       <p>
-        Ưu tiên mặc định: quá hạn chuẩn bị → giờ nhận sớm nhất → giờ học sớm
-        nhất. Quá hạn chuẩn bị là phiếu Mới đã vào khoảng cảnh báo{" "}
-        {queue.settings.warning_lead_minutes} phút trước giờ nhận. Mở phiếu
-        không tự nhận việc.
+        {uiText(
+          "Ưu tiên mặc định: quá hạn chuẩn bị → giờ nhận sớm nhất → giờ học sớm nhất. Quá hạn chuẩn bị là phiếu Mới đã vào khoảng cảnh báo",
+        )}{" "}
+        {queue.settings.warning_lead_minutes}
+        {uiText(" phút trước giờ nhận. Mở phiếu không tự nhận việc.")}
       </p>
       <form
         className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2 lg:grid-cols-4"
@@ -124,7 +129,7 @@ export function EquipmentPreparationQueue({
         }}
       >
         <label className="space-y-1">
-          Tìm môn, lớp hoặc mã phiếu
+          {uiText("Tìm môn, lớp hoặc mã phiếu")}
           <input
             maxLength={120}
             value={search}
@@ -132,30 +137,30 @@ export function EquipmentPreparationQueue({
           />
         </label>
         <label className="space-y-1">
-          Trạng thái
+          {uiText("Trạng thái")}
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value)}
           >
-            <option value="new">Mới</option>
-            <option value="preparing">Đã chuẩn bị</option>
-            <option value="all">Tất cả đang xử lý</option>
+            <option value="new">{uiText("Mới")}</option>
+            <option value="preparing">{uiText("Đã chuẩn bị")}</option>
+            <option value="all">{uiText("Tất cả đang xử lý")}</option>
           </select>
         </label>
         <label className="space-y-1">
-          Sắp xếp
+          {uiText("Sắp xếp")}
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value)}
           >
-            <option value="priority">Ưu tiên chuẩn bị</option>
-            <option value="pickup">Giờ nhận</option>
-            <option value="class">Giờ học</option>
+            <option value="priority">{uiText("Ưu tiên chuẩn bị")}</option>
+            <option value="pickup">{uiText("Giờ nhận")}</option>
+            <option value="class">{uiText("Giờ học")}</option>
           </select>
         </label>
         <div className="flex items-end gap-2">
           <button type="submit" className="button" disabled={busy}>
-            Áp dụng
+            {uiText("Áp dụng")}
           </button>
           <button
             type="button"
@@ -163,25 +168,26 @@ export function EquipmentPreparationQueue({
             disabled={busy}
             onClick={() => void load(filters)}
           >
-            Tải lại
+            {uiText("Tải lại")}
           </button>
         </div>
       </form>
       <p role="status" aria-live="polite">
-        {message}
+        <LocalizedText text={message ?? ""} />
       </p>
       <section
-        aria-label="Hàng đợi chuẩn bị"
+        aria-label={uiText("Hàng đợi chuẩn bị")}
         aria-busy={busy}
         className="space-y-3"
       >
         <p>
-          {queue.total} phiếu · Trang {queue.page}/
-          {Math.max(1, Math.ceil(queue.total / queue.page_size))}
+          {queue.total}
+          {uiText(" phiếu · Trang ")}
+          {queue.page}/{Math.max(1, Math.ceil(queue.total / queue.page_size))}
         </p>
         {queue.rows.length === 0 ? (
           <p className="rounded-xl border p-4">
-            Không có phiếu trong phạm vi và bộ lọc hiện tại.
+            {uiText("Không có phiếu trong phạm vi và bộ lọc hiện tại.")}
           </p>
         ) : (
           queue.rows.map((row) => (
@@ -199,46 +205,52 @@ export function EquipmentPreparationQueue({
                   </Link>
                 </h2>
                 <span>
-                  {row.status === "new" ? "Mới" : "Đã chuẩn bị"}
-                  {row.overdue ? " · Quá hạn chuẩn bị" : ""}
+                  {row.status === "new" ? uiText("Mới") : uiText("Đã chuẩn bị")}
+                  {row.overdue ? uiText(" · Quá hạn chuẩn bị") : ""}
                 </span>
               </div>
               <p>
-                Lớp {row.class_code ?? "—"} · Nhận{" "}
-                {dateTime.format(new Date(row.receive_at))} · Học{" "}
-                {dateTime.format(new Date(row.class_at))}
+                {uiText("Lớp ")}
+                {row.class_code ?? "—"}
+                {uiText(" · Nhận")} {dateTime.format(new Date(row.receive_at))}
+                {uiText(" · Học")} {dateTime.format(new Date(row.class_at))}
               </p>
               <p>
                 {row.preparation_state
-                  ? preparationLabels[row.preparation_state]
-                  : "Chưa bắt đầu"}{" "}
-                · Người chuẩn bị chính:{" "}
-                {row.primary_preparer_name ?? "Chưa ghi nhận"}
+                  ? uiText(preparationLabels[row.preparation_state])
+                  : uiText("Chưa bắt đầu")}{" "}
+                {uiText("· Người chuẩn bị chính:")}{" "}
+                {row.primary_preparer_name ?? uiText("Chưa ghi nhận")}
               </p>
               <p>
                 {row.health.length > 0
-                  ? "Cần phân bổ lại: nguồn cam kết thiếu hoặc không đủ điều kiện."
+                  ? uiText(
+                      "Cần phân bổ lại: nguồn cam kết thiếu hoặc không đủ điều kiện.",
+                    )
                   : row.preparation_state === "prepared"
-                    ? "Nguồn cam kết đủ điều kiện tại thời điểm tải."
-                    : "Chưa xác nhận sẵn sàng."}
+                    ? uiText("Nguồn cam kết đủ điều kiện tại thời điểm tải.")
+                    : uiText("Chưa xác nhận sẵn sàng.")}
               </p>
               <Link
                 className="button button-secondary"
                 href={`/equipment/preparation/${row.id}`}
               >
-                Mở chi tiết chuẩn bị
+                {uiText("Mở chi tiết chuẩn bị")}
               </Link>
             </article>
           ))
         )}
-        <nav aria-label="Phân trang hàng đợi" className="flex flex-wrap gap-2">
+        <nav
+          aria-label={uiText("Phân trang hàng đợi")}
+          className="flex flex-wrap gap-2"
+        >
           <button
             type="button"
             className="button button-secondary"
             disabled={busy || queue.page <= 1}
             onClick={() => void load({ ...filters, page: queue.page - 1 })}
           >
-            Trang trước
+            {uiText("Trang trước")}
           </button>
           <button
             type="button"
@@ -250,17 +262,19 @@ export function EquipmentPreparationQueue({
             }
             onClick={() => void load({ ...filters, page: queue.page + 1 })}
           >
-            Trang sau
+            {uiText("Trang sau")}
           </button>
         </nav>
       </section>
       {queue.admin ? (
         <section className="rounded-xl border p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Cấu hình chuẩn bị — Admin</h2>
+          <h2 className="text-lg font-semibold">
+            {uiText("Cấu hình chuẩn bị — Admin")}
+          </h2>
           <p>
-            Áp dụng chung cho Skills Lab. Cảnh báo gửi đến Admin/nhân viên Labs
-            trong phạm vi, không gửi khi tự lưu tiến độ. Không thay đổi điều
-            kiện đăng ký trước 24 giờ và không tự giải phóng cam kết tồn kho.
+            {uiText(
+              "Áp dụng chung cho Skills Lab. Cảnh báo gửi đến Admin/nhân viên Labs trong phạm vi, không gửi khi tự lưu tiến độ. Không thay đổi điều kiện đăng ký trước 24 giờ và không tự giải phóng cam kết tồn kho.",
+            )}
           </p>
           <form
             className="space-y-3"
@@ -271,7 +285,7 @@ export function EquipmentPreparationQueue({
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <label>
-                Cảnh báo trước giờ nhận (phút, 1–10.080)
+                {uiText("Cảnh báo trước giờ nhận (phút, 1–10.080)")}
                 <input
                   type="number"
                   required
@@ -283,7 +297,7 @@ export function EquipmentPreparationQueue({
                 />
               </label>
               <label>
-                Hết hạn khóa khi không hoạt động (phút, 1–120)
+                {uiText("Hết hạn khóa khi không hoạt động (phút, 1–120)")}
                 <input
                   type="number"
                   required
@@ -296,13 +310,16 @@ export function EquipmentPreparationQueue({
               </label>
             </div>
             <p>
-              Cấu hình hiện hành: cảnh báo {queue.settings.warning_lead_minutes}{" "}
-              phút; khóa {queue.settings.inactivity_minutes} phút · phiên bản{" "}
-              {queue.settings.revision}. Khi có xung đột, tải lại, so sánh giá
-              trị hiện hành với nội dung đang nhập rồi lưu lại.
+              {uiText("Cấu hình hiện hành: cảnh báo ")}
+              {queue.settings.warning_lead_minutes} {uiText("phút; khóa ")}
+              {queue.settings.inactivity_minutes}
+              {uiText(" phút · phiên bản")} {queue.settings.revision}
+              {uiText(
+                ". Khi có xung đột, tải lại, so sánh giá trị hiện hành với nội dung đang nhập rồi lưu lại.",
+              )}
             </p>
             <label>
-              Lý do thay đổi
+              {uiText("Lý do thay đổi")}
               <textarea
                 required
                 maxLength={1000}
@@ -315,7 +332,7 @@ export function EquipmentPreparationQueue({
               className="button"
               disabled={busy || !reason.trim()}
             >
-              Lưu cấu hình
+              {uiText("Lưu cấu hình")}
             </button>
           </form>
         </section>

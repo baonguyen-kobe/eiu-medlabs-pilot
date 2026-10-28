@@ -46,7 +46,7 @@ test("staff shifts uses the shared seven-column month calendar structure", () =>
 
 test("staff shifts week roster uses the shared period calendar structure", () => {
   const weekCalendarSource = source.slice(
-    source.indexOf('aria-label="Lịch trực theo tuần'),
+    source.indexOf('"Lịch trực theo tuần'),
     source.indexOf("{/* TAB 2:"),
   );
 
@@ -58,13 +58,13 @@ test("staff shifts week roster uses the shared period calendar structure", () =>
   );
   assert.match(
     weekCalendarSource,
-    /aria-label="Lịch trực theo tuần[^\n]*"[\s\S]*className="period-calendar period-calendar-week staff-shift-period-calendar"[\s\S]*role="region"/,
+    /"Lịch trực theo tuần[^\n]*"[\s\S]*className="period-calendar period-calendar-week staff-shift-period-calendar"[\s\S]*role="region"/,
   );
   assert.match(weekCalendarSource, /className="period-grid"/);
   assert.match(weekCalendarSource, /className={`period-day-heading/);
   assert.match(weekCalendarSource, /period-label period-label-shift/);
   assert.match(weekCalendarSource, /period-cell period-cell-shift/);
-  assert.match(weekCalendarSource, /period-corner">BUỔI/);
+  assert.match(weekCalendarSource, /period-corner">\{uiText\("BUỔI"\)\}/);
   const periodDefinition = source.slice(
     source.indexOf("const staffShiftPeriods = ["),
     source.indexOf("function getDayOfWeekLabel"),
@@ -83,7 +83,7 @@ test("staff shifts week roster uses the shared period calendar structure", () =>
   );
   assert.match(
     shiftEventSource,
-    /<time>[\s\S]*<\/time>[\s\S]*<strong>\{shift\.staffName\}<\/strong>[\s\S]*<small>\{slot === "MORNING" \? "Ca sáng" : "Ca chiều"\}<\/small>/,
+    /<time>[\s\S]*<\/time>[\s\S]*<strong>\{shift\.staffName \|\| uiText\("Nhân sự"\)\}\s*<\/strong>[\s\S]*<small>\s*\{slot === "MORNING" \? uiText\("Ca sáng"\) : uiText\("Ca chiều"\)\}\s*<\/small>/,
   );
   assert.match(shiftEventSource, /staff-shift-event-actions/);
   assert.match(
@@ -107,7 +107,10 @@ test("staff shift registration exposes only constrained shift slots and times", 
 test("staff shifts roster uses the shared date navigation pattern", () => {
   assert.match(toolbarSource, /className="date-nav"/);
   assert.match(toolbarSource, /className="today-button"/);
-  assert.match(toolbarSource, /"Tháng này" : "Tuần này"/);
+  assert.match(
+    toolbarSource,
+    /uiText\("Tháng này"\)\s*:\s*uiText\("Tuần này"\)/,
+  );
   assert.match(
     toolbarSource,
     /className=\{view === "week" \? "selected" : ""\}/,

@@ -11,6 +11,7 @@ import {
 } from "./asset-form-fields";
 import type { AssetOperationalStatus } from "@/lib/inventory/asset-types";
 import type { ExpiryPrecision } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 interface FormState {
   catalog_item_id: string;
@@ -55,6 +56,8 @@ const initialFormState: FormState = {
 };
 
 export function AssetReceiveForm() {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [form, setForm] = useState<FormState>(initialFormState);
   const [retryKey, setRetryKey] = useState(() => crypto.randomUUID());
@@ -127,17 +130,22 @@ export function AssetReceiveForm() {
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-4xl mx-auto space-y-6">
       <div className="border-b pb-4 border-slate-200">
         <h2 className="text-lg font-bold text-slate-900">
-          Tiếp nhận Thiết bị Cá thể / Receive Physical Asset
+          {uiText("Tiếp nhận Thiết bị Cá thể / Receive Physical Asset")}
         </h2>
         <p className="text-xs text-slate-500 mt-1">
-          Ghi nhận chính xác một thực thể vật lý vào hệ thống. Mã tài sản{" "}
-          <code>EIU-AST-XXXXXXXX</code> sẽ được máy chủ khởi tạo bất biến.
+          {uiText(
+            "Ghi nhận chính xác một thực thể vật lý vào hệ thống. Mã tài sản",
+          )}{" "}
+          <code>{uiText("EIU-AST-XXXXXXXX")}</code>
+          {uiText(" sẽ được máy chủ khởi tạo bất biến.")}
         </p>
       </div>
 
       {serverError && (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
-          <div className="font-semibold">Lỗi tiếp nhận tài sản:</div>
+          <div className="font-semibold">
+            {uiText("Lỗi tiếp nhận tài sản:")}
+          </div>
           <div>{serverError}</div>
         </div>
       )}
@@ -145,14 +153,14 @@ export function AssetReceiveForm() {
       {successResult ? (
         <div className="p-6 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-center space-y-4">
           <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-            [Đã tiếp nhận]
+            {uiText("[Đã tiếp nhận]")}
           </div>
           <div>
             <h3 className="text-base font-bold">
-              Tiếp nhận tài sản thành công!
+              {uiText("Tiếp nhận tài sản thành công!")}
             </h3>
             <p className="text-xs text-emerald-700 mt-1">
-              Hệ thống đã khởi tạo mã định danh duy nhất:
+              {uiText("Hệ thống đã khởi tạo mã định danh duy nhất:")}
             </p>
             <div className="inline-block mt-2 px-4 py-1.5 bg-white border border-emerald-400 rounded-md font-mono text-lg font-bold tracking-widest text-emerald-800 shadow-xs">
               {successResult.asset_code}
@@ -163,21 +171,21 @@ export function AssetReceiveForm() {
               href={`/inventory/assets/${successResult.id}`}
               className="button button-primary text-xs px-4 py-2"
             >
-              Xem chi tiết & In tem QR →
+              {uiText("Xem chi tiết & In tem QR →")}
             </Link>
             <button
               type="button"
               onClick={handleResetForNext}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Tiếp nhận thiết bị kế tiếp
+              {uiText("Tiếp nhận thiết bị kế tiếp")}
             </button>
             <button
               type="button"
               onClick={() => router.push("/inventory/assets")}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Về danh sách tài sản
+              {uiText("Về danh sách tài sản")}
             </button>
           </div>
         </div>
@@ -186,7 +194,7 @@ export function AssetReceiveForm() {
           {/* Section 1: Catalog & Source Line */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              1. Thông tin Danh mục & Hồ sơ nguồn (Item & Source)
+              {uiText("1. Thông tin Danh mục & Hồ sơ nguồn (Item & Source)")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -194,7 +202,9 @@ export function AssetReceiveForm() {
                   id="receive-item-lookup"
                   resource="items"
                   value={form.catalog_item_id}
-                  label="Vật tư danh mục (Theo dõi cá thể / Serialized) *"
+                  label={uiText(
+                    "Vật tư danh mục (Theo dõi cá thể / Serialized) *",
+                  )}
                   selectedLabel={form.catalog_item_name}
                   onSelect={(item: Record<string, unknown>) => {
                     const code = String(item.code || "");
@@ -213,7 +223,7 @@ export function AssetReceiveForm() {
                   id="receive-source-line-lookup"
                   resource="source_lines"
                   value={form.source_line_id}
-                  label="Dòng hồ sơ nguồn (Source Line) *"
+                  label={uiText("Dòng hồ sơ nguồn (Source Line) *")}
                   selectedLabel={form.source_line_label}
                   onSelect={(line: Record<string, unknown>) => {
                     setForm((prev) => ({
@@ -231,7 +241,7 @@ export function AssetReceiveForm() {
           {/* Section 2: Intake Reference & Location */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              2. Chứng từ tiếp nhận & Vị trí kho (Intake & Location)
+              {uiText("2. Chứng từ tiếp nhận & Vị trí kho (Intake & Location)")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -239,7 +249,7 @@ export function AssetReceiveForm() {
                   htmlFor="intake-reference-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Số chứng từ nhận (Intake Reference) *
+                  {uiText("Số chứng từ nhận (Intake Reference) *")}
                 </label>
                 <input
                   id="intake-reference-input"
@@ -252,7 +262,7 @@ export function AssetReceiveForm() {
                       intake_reference: e.target.value,
                     }))
                   }
-                  placeholder="VD: PO-2026-001 hoặc HD-9988"
+                  placeholder={uiText("VD: PO-2026-001 hoặc HD-9988")}
                   className="input-field text-xs w-full"
                 />
               </div>
@@ -262,7 +272,7 @@ export function AssetReceiveForm() {
                   htmlFor="row-key-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Định danh dòng chứng từ (Row Key) *
+                  {uiText("Định danh dòng chứng từ (Row Key) *")}
                 </label>
                 <input
                   id="row-key-input"
@@ -272,7 +282,7 @@ export function AssetReceiveForm() {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, row_key: e.target.value }))
                   }
-                  placeholder="VD: ITEM-1-UNIT-01"
+                  placeholder={uiText("VD: ITEM-1-UNIT-01")}
                   className="input-field text-xs w-full"
                 />
               </div>
@@ -282,7 +292,7 @@ export function AssetReceiveForm() {
                   id="receive-location-lookup"
                   resource="locations"
                   value={form.location_id}
-                  label="Vị trí lưu trữ ban đầu *"
+                  label={uiText("Vị trí lưu trữ ban đầu *")}
                   selectedLabel={form.location_name}
                   onSelect={(loc: Record<string, unknown>) => {
                     const code = String(loc.code || "");
@@ -332,7 +342,7 @@ export function AssetReceiveForm() {
           {/* Section 4: Expiry */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              4. Hạn sử dụng (Expiry)
+              {uiText("4. Hạn sử dụng (Expiry)")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -340,7 +350,7 @@ export function AssetReceiveForm() {
                   htmlFor="expiry-precision-select"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Độ chính xác hạn dùng
+                  {uiText("Độ chính xác hạn dùng")}
                 </label>
                 <select
                   id="expiry-precision-select"
@@ -354,10 +364,14 @@ export function AssetReceiveForm() {
                   className="input-field text-xs w-full"
                 >
                   <option value="not_required">
-                    Không yêu cầu hạn dùng / Not Required
+                    {uiText("Không yêu cầu hạn dùng / Not Required")}
                   </option>
-                  <option value="day">Theo ngày (YYYY-MM-DD)</option>
-                  <option value="month">Theo tháng (YYYY-MM)</option>
+                  <option value="day">
+                    {uiText("Theo ngày (YYYY-MM-DD)")}
+                  </option>
+                  <option value="month">
+                    {uiText("Theo tháng (YYYY-MM)")}
+                  </option>
                 </select>
               </div>
 
@@ -367,7 +381,7 @@ export function AssetReceiveForm() {
                     htmlFor="expiry-input"
                     className="block text-xs font-medium text-slate-700 mb-1"
                   >
-                    Ngày/Tháng hết hạn *
+                    {uiText("Ngày/Tháng hết hạn *")}
                   </label>
                   <input
                     id="expiry-input"
@@ -415,14 +429,16 @@ export function AssetReceiveForm() {
               onClick={() => router.push("/inventory/assets")}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="button button-primary text-xs px-5 py-2 font-semibold"
             >
-              {isPending ? "Đang tiếp nhận..." : "Xác nhận Tiếp nhận Thiết bị"}
+              {isPending
+                ? uiText("Đang tiếp nhận...")
+                : uiText("Xác nhận Tiếp nhận Thiết bị")}
             </button>
           </div>
         </form>

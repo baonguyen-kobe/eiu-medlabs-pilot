@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function ConfirmSubmitButton({
   children,
@@ -18,6 +19,8 @@ export function ConfirmSubmitButton({
   value?: string;
   disabled?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -44,9 +47,9 @@ export function ConfirmSubmitButton({
       </button>
       <ConfirmDialog
         open={open}
-        title="Xác nhận thao tác"
+        title={uiText("Xác nhận thao tác")}
         description={message}
-        confirmLabel="Xác nhận"
+        confirmLabel={uiText("Xác nhận")}
         onConfirm={confirmSubmit}
         onCancel={() => setOpen(false)}
       />

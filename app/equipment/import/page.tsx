@@ -1,11 +1,16 @@
+import { getInterfaceText } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Download } from "@/components/icons";
 import { EquipmentImportWizard } from "@/components/equipment-import-wizard";
 import { WorkspaceShell } from "@/components/workspace-shell";
 import { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
-export const metadata = { title: "Import Phiếu thiết bị" };
+export async function generateMetadata() {
+  const text = await getInterfaceText();
+  return { title: text("Import Phiếu thiết bị") };
+}
 
 export default async function EquipmentImportPage() {
   const {
@@ -30,8 +35,14 @@ export default async function EquipmentImportPage() {
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Import Phiếu thiết bị"
-      description="Tải template chuẩn, kiểm tra từng dòng và đưa các phiếu thiết bị cũ lên hệ thống."
+      title={<LocalizedText text={"Import Phiếu thiết bị"} />}
+      description={
+        <LocalizedText
+          text={
+            "Tải template chuẩn, kiểm tra từng dòng và đưa các phiếu thiết bị cũ lên hệ thống."
+          }
+        />
+      }
       actions={
         <>
           <Link
@@ -40,7 +51,8 @@ export default async function EquipmentImportPage() {
             href="/api/equipment-import-template/csv"
             prefetch={false}
           >
-            <Download size={16} /> Template CSV
+            <Download size={16} />
+            <LocalizedText text={" Template CSV"} />
           </Link>
           <Link
             className="button button-primary"
@@ -48,7 +60,8 @@ export default async function EquipmentImportPage() {
             href="/api/equipment-import-template/xlsx"
             prefetch={false}
           >
-            <Download size={16} /> Template XLSX
+            <Download size={16} />
+            <LocalizedText text={" Template XLSX"} />
           </Link>
         </>
       }

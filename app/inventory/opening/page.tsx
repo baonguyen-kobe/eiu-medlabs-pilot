@@ -1,8 +1,9 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { OpeningForm } from "@/components/inventory/opening-form";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { AlertTriangle } from "@/components/icons";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function OpeningPage() {
   const viewer = await requireInventoryViewer();
@@ -12,8 +13,18 @@ export default async function OpeningPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"
-          description="Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
+          title={
+            <LocalizedText
+              text={"Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"}
+            />
+          }
+          description={
+            <LocalizedText
+              text={
+                "Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
+              }
+            />
+          }
         />
         <div
           role="alert"
@@ -27,17 +38,18 @@ export default async function OpeningPage() {
             />
             <div className="space-y-1">
               <h3 className="text-sm font-bold text-amber-900 dark:text-amber-100">
-                Quyền truy cập bị từ chối / Access Denied (Admin Only)
+                <LocalizedText
+                  text={
+                    "Quyền truy cập bị từ chối / Access Denied (Admin Only)"
+                  }
+                />
               </h3>
               <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-                Nghiệp vụ khởi tạo số dư đầu kỳ (Opening Balance) chỉ dành riêng
-                cho tài khoản có vai trò Quản trị viên (Admin). Bạn hiện đang
-                đăng nhập với quyền Nhân viên (Staff).
-              </p>
-              <p className="text-[11px] text-amber-700/80 dark:text-amber-400">
-                Opening balance confirmation is restricted to Administrator role
-                under S1 authority. Staff accounts cannot initialize or confirm
-                opening counts.
+                <LocalizedText
+                  text={
+                    "Nghiệp vụ khởi tạo số dư đầu kỳ (Opening Balance) chỉ dành riêng cho tài khoản có vai trò Quản trị viên (Admin). Bạn hiện đang đăng nhập với quyền Nhân viên (Staff)."
+                  }
+                />
               </p>
             </div>
           </div>
@@ -49,8 +61,18 @@ export default async function OpeningPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"
-        description="Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
+        title={
+          <LocalizedText
+            text={"Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
+            }
+          />
+        }
       />
 
       <OpeningForm />

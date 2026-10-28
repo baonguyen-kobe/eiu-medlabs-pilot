@@ -19,7 +19,20 @@ import {
   type FulfillmentOperation,
 } from "@/lib/equipment-fulfillment";
 import type { Json } from "@/lib/database.types";
+import { equipmentRequestStatuses } from "@/lib/equipment-requests";
+import {
+  addExact,
+  compareExact,
+  isPositive,
+  subtractExact,
+  validateDecimalString,
+} from "@/lib/inventory/decimal";
+import { FulfillmentAddedLine } from "./fulfillment-added-line";
+import { FulfillmentEventEvidence } from "./fulfillment-event-evidence";
+import { FulfillmentReturnPreview } from "./fulfillment-return-preview";
 import styles from "./equipment-preparation.module.css";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Entry = Record<string, Json>;
 const dateTime = new Intl.DateTimeFormat("vi-VN", {
@@ -33,9 +46,16 @@ export function EquipmentFulfillmentWorkspace({
 }: {
   initial: Fulfillment;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [workspace, setWorkspace] = useState(initial);
+  const [carrierName, setCarrierName] = useState("");
   const [operation, setOperation] = useState<FulfillmentOperation>(
-    initial.status === "preparing" ? "handover" : "initial_return",
+    initial.status === "preparing"
+      ? "handover"
+      : ["returned", "completed"].includes(initial.status)
+        ? "recover"
+        : "initial_return",
   );
   const [correction, setCorrection] = useState("");
   const [reason, setReason] = useState("");
@@ -164,10 +184,13 @@ export function EquipmentFulfillmentWorkspace({
       }
       setWorkspace(result.data);
       setPage(1);
+      if (command.operation === "handover") setOperation("initial_return");
+      if (command.operation === "initial_return") setOperation("recover");
       pending.current = null;
       setUncertain(false);
       setRows([]);
       setReason("");
+      setCarrierName("");
       setEvidence("");
       setConfirmed(false);
       setSigningId("");
@@ -233,7 +256,10 @@ export function EquipmentFulfillmentWorkspace({
   }
 
   function addRow() {
-    if (!/^\d+(\.\d{1,6})?$/.test(quantity)) {
+    if (
+      !/^\d+(\.\d{1,6})?$/.test(quantity) ||
+      !validateDecimalString(quantity).valid
+    ) {
       setMessage("Nhập số lượng chính xác, tối đa 6 chữ số thập phân.");
       return;
     }
@@ -257,6 +283,40 @@ export function EquipmentFulfillmentWorkspace({
         setMessage("Chọn phần thực giao cần xử lý.");
         return;
       }
+      if (receiving) {
+        if (!isPositive(quantity)) {
+          setMessage(
+            "Số nhận của lần này phải lớn hơn 0. Lượt đầu chưa nhận đồ có thể để danh sách rỗng.",
+          );
+          return;
+        }
+        if (
+          rows.some(
+            (row) =>
+              row.issue_slice_id === sliceId && row.condition === condition,
+          )
+        ) {
+          setMessage(
+            "Dòng và tình trạng này đã có trong lượt nhận. Bỏ dòng cũ trước khi nhập lại.",
+          );
+          return;
+        }
+        const queued = rows
+          .filter((row) => row.issue_slice_id === sliceId)
+          .reduce((sum, row) => addExact(sum, String(row.quantity)), quantity);
+        if (
+          compareExact(
+            queued,
+            subtractExact(selectedIssue.issued, selectedIssue.returned),
+          ) > 0 &&
+          operation !== "correct"
+        ) {
+          setMessage(
+            "Số nhận trong lượt vượt phần thực giao chưa nhận lại. Kiểm tra đúng phiếu và dụng cụ.",
+          );
+          return;
+        }
+      }
       setRows((current) => [
         ...current,
         {
@@ -278,6 +338,10 @@ export function EquipmentFulfillmentWorkspace({
     }
     void submit(operation, {
       reason,
+      ...(receiving && operation !== "correct" && carrierName.trim()
+        ? { carrier_name: carrierName.trim() }
+        : {}),
+      ...(operation === "recover" ? { return_entry_mode: "incremental" } : {}),
       ...(operation === "correct" ? { event_id: correction } : {}),
       ...(administrative
         ? { issue_slice_id: sliceId, quantity, classification, evidence }
@@ -289,68 +353,125 @@ export function EquipmentFulfillmentWorkspace({
   return (
     <div className={styles.root}>
       <p>
-        <Link href="/equipment/requests">Danh sách phiếu</Link> ·{" "}
+        <Link href="/equipment/operations">{uiText("Công việc kho")}</Link> ·{" "}
+        <Link href="/equipment/requests">{uiText("Danh sách phiếu")}</Link> ·{" "}
         <Link href={`/equipment/preparation/${workspace.request_id}`}>
-          Chuẩn bị
+          {uiText("Chuẩn bị")}
         </Link>
       </p>
+      {workspace.manager ? (
+        <a
+          className="button button-secondary"
+          href={`/api/equipment-requests/${workspace.request_id}/handover`}
+        >
+          {uiText("Xuất bằng chứng giao nhận PDF")}
+        </a>
+      ) : null}
       <p>
-        Trạng thái: <strong>{workspace.status}</strong> · Phiên bản{" "}
-        {workspace.revision}. Chữ ký không tạo thêm xuất/nhập kho.
+        {uiText("Trạng thái: ")}
+        <strong>
+          {uiText(
+            equipmentRequestStatuses.find(
+              ({ value }) => value === workspace.status,
+            )?.label ?? workspace.status,
+          )}
+        </strong>
+        {uiText(" · Phiên bản")} {workspace.revision}
+        {uiText(". Chữ ký không tạo thêm xuất/nhập kho.")}
       </p>
       <button
         className="button button-secondary"
         disabled={busy}
         onClick={() => void refresh()}
       >
-        Tải phiên bản mới
+        {uiText("Tải phiên bản mới")}
       </button>
-      <p role="status">{message}</p>
+      <p role="status">
+        <LocalizedText text={message ?? ""} />
+      </p>
       <section>
-        <h2>Đăng ký và kế hoạch</h2>
+        <h2>{uiText("Đăng ký và kế hoạch")}</h2>
+        {workspace.status === "preparing" ? (
+          <p>
+            {uiText(
+              "Khi thực giao lần đầu, toàn bộ phần giữ của kế hoạch sẽ được nhả. Phần chưa giao không còn được dành riêng; giao bổ sung phải kiểm tra lại nguồn.",
+            )}
+          </p>
+        ) : null}
         {workspace.lines.map((line) => (
           <p key={line.id}>
-            {line.name}: đăng ký {line.registered_quantity}, planned{" "}
-            {line.planned_quantity} {line.unit}
+            {line.name}
+            {uiText(": đăng ký gốc ")}
+            {line.registered_quantity}
+            {uiText(", kế hoạch")} {line.planned_quantity} {line.unit}
+            {line.baseline_source === "added"
+              ? uiText(" · Phát sinh {0} {1}; chưa tự giữ hoặc xuất kho", [
+                  line.requested_quantity ?? "0",
+                  line.unit,
+                ])
+              : ""}
           </p>
         ))}
       </section>
+      {workspace.manager && workspace.status === "handed_over" ? (
+        <details>
+          <summary>
+            {uiText("Thêm loại dụng cụ mới phát sinh sau giao")}
+          </summary>
+          <FulfillmentAddedLine
+            key={workspace.lines.length}
+            workspace={workspace}
+            disabled={locked}
+            onSubmit={(body) => submit("add_supplemental_line", body)}
+          />
+        </details>
+      ) : null}
       {uncertain ? (
         <button
           className="button"
           disabled={busy}
           onClick={() => void retryPending()}
         >
-          Đối soát thao tác chưa rõ kết quả
+          {uiText("Đối soát thao tác chưa rõ kết quả")}
         </button>
       ) : null}
       <section>
-        <h2>Thực giao, thực trả và nghĩa vụ</h2>
+        <h2>{uiText("Thực giao, thực trả và nghĩa vụ")}</h2>
         {workspace.issues.map((issue) => (
           <article key={issue.id}>
             <strong>
               {issue.item_name} {issue.asset_code ?? ""}
             </strong>
             <p>
-              Thực giao {issue.issued} · Thực trả {issue.returned} · Đã resolve{" "}
-              {issue.resolved} · Còn phải trả {issue.due} · Hold đối soát{" "}
-              {issue.held}
+              {uiText("Thực giao ")}
+              {issue.issued}
+              {uiText(" · Thực trả ")}
+              {issue.returned}
+              {uiText(" · Đã resolve")} {issue.resolved}
+              {uiText(" · Còn phải trả ")}
+              {issue.due}
+              {uiText(" · Hold đối soát")} {issue.held}
+              {uiText(" · Đơn vị kho: ")}
+              {issue.base_uom_code}
             </p>
             <p>
               {issue.return_required
-                ? "Có nghĩa vụ hoàn trả"
-                : "Không phải trả vật tư; vẫn phải ký xác nhận trả lần đầu"}{" "}
-              · Mã phần thực giao: {issue.id}
+                ? uiText("Có nghĩa vụ hoàn trả")
+                : uiText(
+                    "Không phải trả vật tư; vẫn phải ký xác nhận trả lần đầu",
+                  )}{" "}
+              {uiText("· Mã phần thực giao: ")}
+              {issue.id}
             </p>
           </article>
         ))}
       </section>
       {workspace.manager ? (
         <section>
-          <h2>Ghi nhận sự kiện</h2>
+          <h2>{uiText("Ghi nhận sự kiện")}</h2>
           <fieldset disabled={locked}>
             <label>
-              Thao tác
+              {uiText("Thao tác")}
               <select
                 value={operation}
                 onChange={(event) => {
@@ -368,19 +489,31 @@ export function EquipmentFulfillmentWorkspace({
                   .filter(
                     ([key]) =>
                       key !== "sign" &&
+                      key !== "add_supplemental_line" &&
+                      (key === "correct" ||
+                        (workspace.status === "preparing"
+                          ? key === "handover"
+                          : workspace.status === "handed_over"
+                            ? ["supplement", "initial_return"].includes(key)
+                            : [
+                                "recover",
+                                "resolve",
+                                "consequence",
+                                "reconcile",
+                              ].includes(key))) &&
                       (workspace.admin ||
                         !["consequence", "reconcile"].includes(key)),
                   )
                   .map(([key, label]) => (
                     <option key={key} value={key}>
-                      {label}
+                      {uiText(label)}
                     </option>
                   ))}
               </select>
             </label>
             {operation === "correct" ? (
               <label>
-                Sự kiện cần đính chính (trang lịch sử hiện tại)
+                {uiText("Sự kiện cần đính chính (trang lịch sử hiện tại)")}
                 <select
                   value={correction}
                   onChange={(event) => {
@@ -388,7 +521,7 @@ export function EquipmentFulfillmentWorkspace({
                     setRows([]);
                   }}
                 >
-                  <option value="">Chọn sự kiện</option>
+                  <option value="">{uiText("Chọn sự kiện")}</option>
                   {workspace.events
                     .filter((event) => !event.superseded)
                     .map((event) => (
@@ -401,15 +534,21 @@ export function EquipmentFulfillmentWorkspace({
             ) : null}
             <p>
               {operation === "correct"
-                ? "Nhập toàn bộ nội dung thay thế đúng. Bản cũ và chữ ký cũ luôn được giữ; bản thay thế cần ký riêng nếu thuộc lần giao/trả phải ký."
+                ? uiText(
+                    "Nhập toàn bộ nội dung thay thế đúng. Bản cũ và chữ ký cũ luôn được giữ; bản thay thế cần ký riêng nếu thuộc lần giao/trả phải ký.",
+                  )
                 : effectiveOperation === "recover"
-                  ? "Nhập TỔNG đã thực nhận của phần giao theo từng tình trạng; máy chủ chỉ ghi phần tăng. Trả muộn tự offset resolution liên quan."
-                  : "Chỉ xác nhận hàng đã thực giao/thực nhận. Không dùng thay cho kế hoạch."}
+                  ? uiText(
+                      "Nhập số thực nhận của LẦN NÀY theo từng tình trạng. Hệ thống cộng vào lịch sử; trả muộn tự đối trừ phần đã xử lý không thu hồi.",
+                    )
+                  : uiText(
+                      "Chỉ xác nhận hàng đã thực giao/thực nhận. Không dùng thay cho kế hoạch.",
+                    )}
             </p>
             {issuing ? (
               <>
                 <label>
-                  Dòng yêu cầu
+                  {uiText("Dòng yêu cầu")}
                   <select
                     value={lineId}
                     onChange={(event) => {
@@ -429,10 +568,10 @@ export function EquipmentFulfillmentWorkspace({
                   className="button button-secondary"
                   onClick={() => void loadSources()}
                 >
-                  Tải nguồn giao
+                  {uiText("Tải nguồn giao")}
                 </button>
                 <label>
-                  Nguồn và mapping
+                  {uiText("Nguồn và mapping")}
                   <select
                     value={sourceIndex}
                     onChange={(event) => {
@@ -441,15 +580,17 @@ export function EquipmentFulfillmentWorkspace({
                       setAssetIds([]);
                     }}
                   >
-                    <option value={-1}>Chọn nguồn</option>
+                    <option value={-1}>{uiText("Chọn nguồn")}</option>
                     {sources.map((source, index) => (
                       <option
                         key={`${source.mapping_id}:${source.location_id}`}
                         value={index}
                       >
-                        {source.item_name} — {source.location_name} — khả dụng{" "}
-                        {source.available_quantity} {source.base_uom_code}; quy
-                        đổi {source.conversion_factor}
+                        {source.item_name} — {source.location_name}
+                        {uiText(" — khả dụng")} {source.available_quantity}{" "}
+                        {source.base_uom_code}
+                        {uiText("; quy đổi ")}
+                        {source.conversion_factor}
                       </option>
                     ))}
                   </select>
@@ -459,14 +600,14 @@ export function EquipmentFulfillmentWorkspace({
                   disabled={sourcePage <= 1}
                   onClick={() => void loadSources(sourcePage - 1)}
                 >
-                  Nguồn trước
+                  {uiText("Nguồn trước")}
                 </button>{" "}
                 <button
                   className="button button-secondary"
                   disabled={sources.length < 100}
                   onClick={() => void loadSources(sourcePage + 1)}
                 >
-                  Nguồn tiếp
+                  {uiText("Nguồn tiếp")}
                 </button>
                 {selectedSource?.tracking_strategy === "serialized" ? (
                   <>
@@ -474,7 +615,7 @@ export function EquipmentFulfillmentWorkspace({
                       className="button button-secondary"
                       onClick={() => void loadAssets()}
                     >
-                      Chọn tài sản chính xác
+                      {uiText("Chọn tài sản chính xác")}
                     </button>
                     {assets.map((asset) => (
                       <label key={asset.id}>
@@ -493,7 +634,9 @@ export function EquipmentFulfillmentWorkspace({
                         {asset.asset_code}{" "}
                         {asset.unreserved
                           ? ""
-                          : "(đang có reservation; máy chủ kiểm tra chủ phiếu)"}
+                          : uiText(
+                              "(đang có reservation; máy chủ kiểm tra chủ phiếu)",
+                            )}
                       </label>
                     ))}
                     <button
@@ -501,32 +644,40 @@ export function EquipmentFulfillmentWorkspace({
                       disabled={assetPage <= 1}
                       onClick={() => void loadAssets(assetPage - 1)}
                     >
-                      Tài sản trước
+                      {uiText("Tài sản trước")}
                     </button>{" "}
                     <button
                       className="button button-secondary"
                       disabled={assetPage * 100 >= assetTotal}
                       onClick={() => void loadAssets(assetPage + 1)}
                     >
-                      Tài sản tiếp
+                      {uiText("Tài sản tiếp")}
                     </button>
-                    <p>Đã chọn {assetIds.length} tài sản.</p>
+                    <p>
+                      {uiText("Đã chọn ")}
+                      {assetIds.length}
+                      {uiText(" tài sản.")}
+                    </p>
                   </>
                 ) : null}
               </>
             ) : (
               <>
                 <label>
-                  Phần thực giao
+                  {uiText("Phần thực giao")}
                   <select
                     value={selectedIssue?.id ?? ""}
                     onChange={(event) => setSliceId(event.target.value)}
                   >
-                    <option value="">Chọn phần thực giao</option>
+                    <option value="">{uiText("Chọn phần thực giao")}</option>
                     {selectableIssues.map((issue) => (
                       <option key={issue.id} value={issue.id}>
-                        {issue.item_name} {issue.asset_code ?? issue.id} — còn{" "}
-                        {issue.due}, resolve {issue.resolved}, hold {issue.held}
+                        {issue.item_name} {issue.asset_code ?? issue.id}
+                        {uiText(" — còn")} {issue.due}
+                        {uiText(", resolve ")}
+                        {issue.resolved}
+                        {uiText(", hold ")}
+                        {issue.held}
                       </option>
                     ))}
                   </select>
@@ -534,7 +685,7 @@ export function EquipmentFulfillmentWorkspace({
                 {receiving ? (
                   <>
                     <label>
-                      Nơi thực nhận
+                      {uiText("Nơi thực nhận")}
                       <select
                         value={locationId}
                         onChange={(event) => setLocationId(event.target.value)}
@@ -542,32 +693,34 @@ export function EquipmentFulfillmentWorkspace({
                         {workspace.locations.map((location) => (
                           <option key={location.id} value={location.id}>
                             {location.name}
-                            {location.active ? "" : " (ngừng hoạt động)"}
+                            {location.active
+                              ? ""
+                              : uiText(" (ngừng hoạt động)")}
                           </option>
                         ))}
                       </select>
                     </label>
                     <label>
-                      Tình trạng
+                      {uiText("Tình trạng")}
                       <select
                         value={condition}
                         onChange={(event) => setCondition(event.target.value)}
                       >
-                        <option value="good">Tốt</option>
-                        <option value="damaged">Hư hỏng</option>
+                        <option value="good">{uiText("Tốt")}</option>
+                        <option value="damaged">{uiText("Hư hỏng")}</option>
                       </select>
                     </label>
                   </>
                 ) : (
                   <label>
-                    Phân loại
+                    {uiText("Phân loại")}
                     <select
                       value={classification}
                       onChange={(event) =>
                         setClassification(event.target.value)
                       }
                     >
-                      <option value="">Chọn phân loại</option>
+                      <option value="">{uiText("Chọn phân loại")}</option>
                       {(effectiveOperation === "consequence"
                         ? ["settled", "retired", "disposed"]
                         : effectiveOperation === "reconcile"
@@ -584,9 +737,9 @@ export function EquipmentFulfillmentWorkspace({
               </>
             )}
             <label>
-              {effectiveOperation === "recover" && operation !== "correct"
-                ? "Tổng đã thực nhận theo tình trạng (base unit)"
-                : "Số lượng thực tế (base unit)"}
+              {receiving && operation !== "correct"
+                ? uiText("Số thực nhận lần này (đơn vị kho)")
+                : uiText("Số lượng thực tế (base unit)")}
               <input
                 inputMode="decimal"
                 value={quantity}
@@ -596,11 +749,18 @@ export function EquipmentFulfillmentWorkspace({
             {!administrative ? (
               <>
                 <button className="button button-secondary" onClick={addRow}>
-                  Thêm dòng sự kiện
+                  {uiText("Thêm dòng sự kiện")}
                 </button>
                 {rows.map((row, index) => (
                   <p key={index}>
-                    {JSON.stringify(row)}{" "}
+                    {issuing
+                      ? uiText("{0}: thực giao {1}", [
+                          workspace.lines.find(
+                            (line) => line.id === row.line_id,
+                          )?.name ?? uiText("Dụng cụ"),
+                          row.quantity,
+                        ])
+                      : `${workspace.issues.find((issue) => issue.id === row.issue_slice_id)?.item_name ?? uiText("Dụng cụ")}: ${receiving ? uiText("nhận lần này") : uiText("xử lý")} ${row.quantity} · ${row.condition === "good" ? uiText("tốt") : row.condition === "damaged" ? uiText("hỏng") : (row.classification ?? "")}`}{" "}
                     <button
                       className="button button-secondary"
                       onClick={() =>
@@ -609,76 +769,99 @@ export function EquipmentFulfillmentWorkspace({
                         )
                       }
                     >
-                      Bỏ dòng {index + 1}
+                      {uiText("Bỏ dòng ")}
+                      {index + 1}
                     </button>
                   </p>
                 ))}
                 {effectiveOperation === "initial_return" ? (
                   <p>
-                    Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần
-                    trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt
-                    buộc.
+                    {uiText(
+                      "Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
+                    )}
                   </p>
                 ) : null}
               </>
             ) : (
               <label>
-                Bằng chứng đối soát
+                {uiText("Bằng chứng đối soát")}
                 <textarea
                   value={evidence}
                   onChange={(event) => setEvidence(event.target.value)}
                 />
               </label>
             )}
+            {receiving && operation !== "correct" ? (
+              <FulfillmentReturnPreview workspace={workspace} rows={rows} />
+            ) : null}
             <label>
-              Lý do
+              {uiText("Lý do")}
               <textarea
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
               />
             </label>
+            {receiving && operation !== "correct" ? (
+              <label>
+                {uiText(
+                  "Người mang trả (người đăng ký hoặc trợ giảng; không thay quyền ký)",
+                )}
+                <input
+                  maxLength={200}
+                  value={carrierName}
+                  onChange={(event) => setCarrierName(event.target.value)}
+                />
+              </label>
+            ) : null}
             <label>
               <input
                 type="checkbox"
                 checked={confirmed}
                 onChange={(event) => setConfirmed(event.target.checked)}
               />
-              Tôi xác nhận đây là sự kiện thực tế / quyết định có căn cứ, không
-              phải dự kiến.
+              {uiText(
+                "Tôi xác nhận đây là sự kiện thực tế / quyết định có căn cứ, không phải dự kiến.",
+              )}
             </label>
             <button
               className="button"
               disabled={!confirmed || !reason.trim()}
               onClick={post}
             >
-              Ghi nhận {fulfillmentLabels[operation]}
+              {uiText("Ghi nhận ")}
+              {uiText(fulfillmentLabels[operation])}
             </button>
           </fieldset>
         </section>
       ) : null}
       <section>
-        <h2>Lịch sử bất biến và chữ ký</h2>
+        <h2>{uiText("Lịch sử bất biến và chữ ký")}</h2>
         {workspace.events.map((event) => (
           <article key={event.id}>
             <h3>
               #{event.revision}{" "}
-              {fulfillmentLabels[event.operation as FulfillmentOperation] ??
-                event.operation}
+              {uiText(
+                fulfillmentLabels[event.operation as FulfillmentOperation] ??
+                  event.operation,
+              )}
             </h3>
             <p>
               {dateTime.format(new Date(event.occurred_at))} — {event.reason}
             </p>
             <p>
               {event.superseded
-                ? "Đã có bản đính chính; giữ nguyên bằng chứng này."
+                ? uiText("Đã có bản đính chính; giữ nguyên bằng chứng này.")
                 : event.signature_required
                   ? event.signature
-                    ? `Đã ký ${dateTime.format(new Date(event.signature.signed_at))}`
-                    : "Đang chờ chữ ký"
-                  : "Không cần ký lại"}
+                    ? uiText("Đã ký {0}", [
+                        dateTime.format(new Date(event.signature.signed_at)),
+                      ])
+                    : uiText("Đang chờ chữ ký")
+                  : uiText("Không cần ký lại")}
             </p>
+            <FulfillmentEventEvidence event={event} />
             <details>
-              <summary>Nội dung sự kiện và hiệu lực</summary>
+              <summary>{uiText("Chi tiết kỹ thuật snapshot")}</summary>
               <pre style={{ whiteSpace: "pre-wrap" }}>
                 {JSON.stringify(event.snapshot, null, 2)}
               </pre>
@@ -696,7 +879,8 @@ export function EquipmentFulfillmentWorkspace({
                   hasInk.current = false;
                 }}
               >
-                Ký sự kiện #{event.revision}
+                {uiText("Ký sự kiện #")}
+                {event.revision}
               </button>
             ) : null}
           </article>
@@ -706,29 +890,37 @@ export function EquipmentFulfillmentWorkspace({
           disabled={busy || page <= 1}
           onClick={() => void refresh(page - 1)}
         >
-          Lịch sử trước
+          {uiText("Lịch sử trước")}
         </button>{" "}
         <button
           className="button button-secondary"
           disabled={busy || page * 50 >= workspace.event_count}
           onClick={() => void refresh(page + 1)}
         >
-          Lịch sử tiếp
+          {uiText("Lịch sử tiếp")}
         </button>
       </section>
       {signEvent ? (
         <section>
-          <h2>Ký đúng sự kiện #{signEvent.revision}</h2>
+          <h2>
+            {uiText("Ký đúng sự kiện #")}
+            {signEvent.revision}
+          </h2>
           <p>
-            {signEvent.reason}. Chữ ký xác nhận nội dung snapshot bên trên,
-            không ghi kho thêm.
+            {signEvent.reason}
+            {uiText(
+              ". Chữ ký xác nhận nội dung snapshot bên trên, không ghi kho thêm.",
+            )}
           </p>
+          <FulfillmentEventEvidence event={signEvent} />
           <canvas
             key={signingId}
             ref={canvasRef}
             width={600}
             height={180}
-            aria-label="Vùng vẽ chữ ký; có thể tải ảnh PNG thay thế bên dưới"
+            aria-label={uiText(
+              "Vùng vẽ chữ ký; có thể tải ảnh PNG thay thế bên dưới",
+            )}
             style={{
               border: "1px solid var(--ink-600)",
               width: "100%",
@@ -772,7 +964,7 @@ export function EquipmentFulfillmentWorkspace({
             }}
           />
           <label>
-            Hoặc tải ảnh chữ ký PNG
+            {uiText("Hoặc tải ảnh chữ ký PNG")}
             <input
               type="file"
               accept="image/png"
@@ -799,7 +991,7 @@ export function EquipmentFulfillmentWorkspace({
               setSignature("");
             }}
           >
-            Ký lại
+            {uiText("Ký lại")}
           </button>{" "}
           <button
             className="button"
@@ -812,14 +1004,15 @@ export function EquipmentFulfillmentWorkspace({
               })
             }
           >
-            Xác nhận chữ ký sự kiện #{signEvent.revision}
+            {uiText("Xác nhận chữ ký sự kiện #")}
+            {signEvent.revision}
           </button>{" "}
           <button
             className="button button-secondary"
             disabled={locked}
             onClick={() => setSigningId("")}
           >
-            Đóng ký
+            {uiText("Đóng ký")}
           </button>
         </section>
       ) : null}

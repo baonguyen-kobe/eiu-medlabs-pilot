@@ -40,6 +40,8 @@ import {
 import { equipmentRequestTargetPage } from "@/lib/equipment-calendar-request";
 import { TABLE_PAGE_SIZE, totalPagesFor } from "@/lib/pagination";
 import type { AppRole } from "@/lib/viewer";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const EARLY_HANDOVER_ADMIN_EMAILS = new Set([
   "admin@campus.local",
@@ -83,7 +85,7 @@ function StatusBadge({ status }: { status: EquipmentRequestStatus }) {
   const meta = equipmentStatusMeta(status);
   return (
     <span className={`request-status request-status-${meta.color}`}>
-      {meta.label}
+      <LocalizedText text={meta.label} />
     </span>
   );
 }
@@ -131,6 +133,8 @@ function EquipmentItemsModal({
   canAddItems: boolean;
   onClose: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [localItems, setLocalItems] = useState(request.equipment_request_items);
   const canAddItemsForRequest =
     canAddItems && request.request_domain === "nursing_skills";
@@ -322,7 +326,7 @@ function EquipmentItemsModal({
       <button
         type="button"
         className="equipment-modal-backdrop"
-        aria-label="Đóng danh sách trang thiết bị"
+        aria-label={uiText("Đóng danh sách trang thiết bị")}
         onClick={onClose}
       />
       <section
@@ -333,7 +337,7 @@ function EquipmentItemsModal({
       >
         <header className="equipment-modal-header">
           <div>
-            <span>Danh sách trang thiết bị</span>
+            <span>{uiText("Danh sách trang thiết bị")}</span>
             <h2 id="equipment-modal-title">
               {request.class_schedules?.course_code_snapshot} ·{" "}
               {request.class_schedules?.course_name_snapshot}
@@ -347,10 +351,10 @@ function EquipmentItemsModal({
           <button
             type="button"
             className="equipment-modal-close"
-            aria-label="Đóng danh sách trang thiết bị"
+            aria-label={uiText("Đóng danh sách trang thiết bị")}
             onClick={onClose}
           >
-            ×
+            {uiText("×")}
           </button>
         </header>
 
@@ -360,12 +364,12 @@ function EquipmentItemsModal({
               className={notice.ok ? "form-success" : "form-error"}
               role="status"
             >
-              {notice.message}
+              <LocalizedText text={notice.message ?? ""} />
             </p>
           ) : null}
           {request.note ? (
             <div className="equipment-general-note">
-              <strong>Ghi chú chung</strong>
+              <strong>{uiText("Ghi chú chung")}</strong>
               <p>{request.note}</p>
             </div>
           ) : null}
@@ -375,23 +379,26 @@ function EquipmentItemsModal({
               <article className="equipment-modal-skill" key={skillName}>
                 <h3>
                   {request.request_domain === "basic_medical"
-                    ? `Bài TN-TH #${skillIndex + 1}: ${skillName}`
-                    : `Kỹ năng/Bài thực hành #${skillIndex + 1}: ${skillName}`}
+                    ? uiText("Bài TN-TH #{0}: {1}", [skillIndex + 1, skillName])
+                    : uiText("Kỹ năng/Bài thực hành #{0}: {1}", [
+                        skillIndex + 1,
+                        skillName,
+                      ])}
                 </h3>
                 <div className="responsive-table">
                   <table className="data-table equipment-detail-table">
                     <thead>
                       <tr>
-                        <th>STT</th>
-                        <th>Tên thiết bị và vật tư</th>
-                        <th>Tên thương mại</th>
-                        <th>Loại</th>
-                        <th>Nước SX</th>
-                        <th>Hãng</th>
-                        <th>Model</th>
-                        <th>ĐVT</th>
-                        <th>Số lượng</th>
-                        <th>Ghi chú</th>
+                        <th>{uiText("STT")}</th>
+                        <th>{uiText("Tên thiết bị và vật tư")}</th>
+                        <th>{uiText("Tên thương mại")}</th>
+                        <th>{uiText("Loại")}</th>
+                        <th>{uiText("Nước SX")}</th>
+                        <th>{uiText("Hãng")}</th>
+                        <th>{uiText("Model")}</th>
+                        <th>{uiText("ĐVT")}</th>
+                        <th>{uiText("Số lượng")}</th>
+                        <th>{uiText("Ghi chú")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -401,7 +408,7 @@ function EquipmentItemsModal({
                           <td>
                             <strong>
                               {catalogForRequest(request, item)?.item_name ||
-                                "Danh mục thiết bị không còn khả dụng"}
+                                uiText("Danh mục thiết bị không còn khả dụng")}
                             </strong>
                           </td>
                           <td>
@@ -452,8 +459,13 @@ function EquipmentItemsModal({
                                       )
                                     }
                                     required
-                                    ariaLabel={`Tên thiết bị bổ sung dòng ${draftIndex + 1} cho ${skillName}`}
-                                    placeholder="Gõ hoặc chọn tên thiết bị…"
+                                    ariaLabel={uiText(
+                                      "Tên thiết bị bổ sung dòng {0} cho {1}",
+                                      [draftIndex + 1, skillName],
+                                    )}
+                                    placeholder={uiText(
+                                      "Gõ hoặc chọn tên thiết bị…",
+                                    )}
                                   />
                                 </td>
                                 <td>
@@ -470,8 +482,13 @@ function EquipmentItemsModal({
                                       )
                                     }
                                     required
-                                    ariaLabel={`Tên thương mại bổ sung dòng ${draftIndex + 1} cho ${skillName}`}
-                                    placeholder="Gõ hoặc chọn tên thương mại…"
+                                    ariaLabel={uiText(
+                                      "Tên thương mại bổ sung dòng {0} cho {1}",
+                                      [draftIndex + 1, skillName],
+                                    )}
+                                    placeholder={uiText(
+                                      "Gõ hoặc chọn tên thương mại…",
+                                    )}
                                   />
                                 </td>
                                 <td>
@@ -488,7 +505,10 @@ function EquipmentItemsModal({
                                 <td>{selectedDraftCatalog?.unit || "—"}</td>
                                 <td>
                                   <input
-                                    aria-label={`Số lượng bổ sung dòng ${draftIndex + 1} cho ${skillName}`}
+                                    aria-label={uiText(
+                                      "Số lượng bổ sung dòng {0} cho {1}",
+                                      [draftIndex + 1, skillName],
+                                    )}
                                     type="number"
                                     min="1"
                                     value={draft.quantity}
@@ -501,14 +521,17 @@ function EquipmentItemsModal({
                                 </td>
                                 <td>
                                   <input
-                                    aria-label={`Ghi chú thiết bị bổ sung dòng ${draftIndex + 1} cho ${skillName}`}
+                                    aria-label={uiText(
+                                      "Ghi chú thiết bị bổ sung dòng {0} cho {1}",
+                                      [draftIndex + 1, skillName],
+                                    )}
                                     value={draft.note}
                                     onChange={(event) =>
                                       updateDraft(skillName, draft.key, {
                                         note: event.target.value,
                                       })
                                     }
-                                    placeholder="Nếu có"
+                                    placeholder={uiText("Nếu có")}
                                   />
                                 </td>
                               </tr>
@@ -526,7 +549,7 @@ function EquipmentItemsModal({
                       disabled={isAdding}
                       onClick={() => addDraft(skillName)}
                     >
-                      + Thêm dòng
+                      {uiText("+ Thêm dòng")}
                     </button>
                     {drafts.length ? (
                       <div className="equipment-modal-add-save-actions">
@@ -536,7 +559,7 @@ function EquipmentItemsModal({
                           disabled={isAdding}
                           onClick={() => clearDrafts(skillName)}
                         >
-                          Hủy
+                          {uiText("Hủy")}
                         </button>
                         <button
                           type="button"
@@ -553,8 +576,8 @@ function EquipmentItemsModal({
                           onClick={() => saveAddedItems(skillName)}
                         >
                           {isAdding
-                            ? "Đang lưu…"
-                            : `Lưu ${drafts.length} dòng thiết bị`}
+                            ? uiText("Đang lưu…")
+                            : uiText("Lưu {0} dòng thiết bị", [drafts.length])}
                         </button>
                       </div>
                     ) : null}
@@ -564,7 +587,9 @@ function EquipmentItemsModal({
             );
           })}
           {!groupedItems.length ? (
-            <p className="panel-empty">Phiếu chưa có dòng thiết bị.</p>
+            <p className="panel-empty">
+              {uiText("Phiếu chưa có dòng thiết bị.")}
+            </p>
           ) : null}
         </div>
       </section>
@@ -586,6 +611,8 @@ function SignatureModal({
   onClose: () => void;
   onConfirm: (signature: string) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const [hasInk, setHasInk] = useState(false);
@@ -641,7 +668,7 @@ function SignatureModal({
       <button
         type="button"
         className="equipment-modal-backdrop"
-        aria-label="Đóng cửa sổ ký xác nhận"
+        aria-label={uiText("Đóng cửa sổ ký xác nhận")}
         onClick={() => !pending && onClose()}
       />
       <section
@@ -652,14 +679,15 @@ function SignatureModal({
       >
         <header className="equipment-modal-header">
           <div>
-            <span>Chữ ký xác nhận điện tử</span>
+            <span>{uiText("Chữ ký xác nhận điện tử")}</span>
             <h2 id="signature-modal-title">
               {isHandover
-                ? "Xác nhận đã nhận dụng cụ"
-                : "Xác nhận đã trả dụng cụ"}
+                ? uiText("Xác nhận đã nhận dụng cụ")
+                : uiText("Xác nhận đã trả dụng cụ")}
             </h2>
             <p>
-              Phiếu {formatEquipmentRequestCode(request.created_at)} ·{" "}
+              {uiText("Phiếu ")}
+              {formatEquipmentRequestCode(request.created_at)} ·{" "}
               {request.profiles?.full_name}
             </p>
           </div>
@@ -669,19 +697,19 @@ function SignatureModal({
             disabled={pending}
             onClick={onClose}
           >
-            ×
+            {uiText("×")}
           </button>
         </header>
         <div className="signature-modal-body">
           <p>
-            Ký trong khung bên dưới để xác nhận{" "}
-            {isHandover ? "đã nhận" : "đã bàn giao trả"} đầy đủ dụng cụ của
-            phiếu này.
+            {uiText("Ký trong khung bên dưới để xác nhận")}{" "}
+            {isHandover ? uiText("đã nhận") : uiText("đã bàn giao trả")}
+            {uiText(" đầy đủ dụng cụ của phiếu này.")}
           </p>
           <canvas
             ref={canvasRef}
             className="signature-canvas"
-            aria-label="Khung vẽ chữ ký"
+            aria-label={uiText("Khung vẽ chữ ký")}
             onPointerDown={(event) => {
               event.preventDefault();
               drawingRef.current = true;
@@ -715,7 +743,7 @@ function SignatureModal({
               disabled={pending || !hasInk}
               onClick={clearSignature}
             >
-              Ký lại
+              {uiText("Ký lại")}
             </button>
             <button
               type="button"
@@ -726,7 +754,7 @@ function SignatureModal({
                 if (signature) onConfirm(signature);
               }}
             >
-              {pending ? "Đang lưu…" : "Ký và xác nhận"}
+              {pending ? uiText("Đang lưu…") : uiText("Ký và xác nhận")}
             </button>
           </div>
         </div>
@@ -759,6 +787,8 @@ export function EquipmentRequestList({
   manageableDomains?: EquipmentRequestDomain[];
   initialRequestId?: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const items = requests as EquipmentRequestListItem[];
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     () =>
@@ -1051,13 +1081,13 @@ export function EquipmentRequestList({
               setQuery(event.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Tìm mã phiếu, môn học, phòng, giảng viên…"
+            placeholder={uiText("Tìm mã phiếu, môn học, phòng, giảng viên…")}
             autoComplete="off"
             spellCheck={false}
           />
         </label>
         <label className="class-range-mode">
-          <span className="sr-only">Phạm vi</span>
+          <span className="sr-only">{uiText("Phạm vi")}</span>
           <select
             value={domainFilter}
             onChange={(event) => {
@@ -1065,13 +1095,15 @@ export function EquipmentRequestList({
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả phạm vi</option>
-            <option value="nursing_skills">Kỹ năng Điều dưỡng</option>
-            <option value="basic_medical">Y cơ sở</option>
+            <option value="">{uiText("Tất cả phạm vi")}</option>
+            <option value="nursing_skills">
+              {uiText("Kỹ năng Điều dưỡng")}
+            </option>
+            <option value="basic_medical">{uiText("Y cơ sở")}</option>
           </select>
         </label>
         <label className="class-range-mode">
-          <span className="sr-only">Trạng thái</span>
+          <span className="sr-only">{uiText("Trạng thái")}</span>
           <select
             value={statusFilter}
             onChange={(event) => {
@@ -1079,18 +1111,18 @@ export function EquipmentRequestList({
               setCurrentPage(1);
             }}
           >
-            <option value="">Tất cả trạng thái</option>
+            <option value="">{uiText("Tất cả trạng thái")}</option>
             {equipmentRequestStatuses.map((status) => (
               <option key={status.value} value={status.value}>
-                {status.label}
+                {uiText(status.label)}
               </option>
             ))}
           </select>
         </label>
         <label className="equipment-date-filter">
-          <span>Từ ngày</span>
+          <span>{uiText("Từ ngày")}</span>
           <input
-            aria-label="Từ ngày"
+            aria-label={uiText("Từ ngày")}
             type="date"
             value={dateFrom}
             onChange={(event) => {
@@ -1100,9 +1132,9 @@ export function EquipmentRequestList({
           />
         </label>
         <label className="equipment-date-filter">
-          <span>Đến ngày</span>
+          <span>{uiText("Đến ngày")}</span>
           <input
-            aria-label="Đến ngày"
+            aria-label={uiText("Đến ngày")}
             type="date"
             value={dateTo}
             onChange={(event) => {
@@ -1123,11 +1155,12 @@ export function EquipmentRequestList({
             setCurrentPage(1);
           }}
         >
-          Xóa bộ lọc
+          {uiText("Xóa bộ lọc")}
         </button>
         <span className="inline-toolbar-count-slot equipment-filter-count-slot">
           <span className="equipment-filter-count">
-            {filteredItems.length}/{visibleItems.length} phiếu
+            {filteredItems.length}/{visibleItems.length}
+            {uiText(" phiếu")}
           </span>
         </span>
       </div>
@@ -1137,7 +1170,7 @@ export function EquipmentRequestList({
           className={statusNotice.ok ? "form-success" : "form-error"}
           role="status"
         >
-          {statusNotice.message}
+          <LocalizedText text={statusNotice.message ?? ""} />
         </p>
       ) : null}
 
@@ -1145,7 +1178,9 @@ export function EquipmentRequestList({
         <div
           className="responsive-table"
           role="region"
-          aria-label="Danh sách phiếu thiết bị; vuốt ngang để xem đầy đủ"
+          aria-label={uiText(
+            "Danh sách phiếu thiết bị; vuốt ngang để xem đầy đủ",
+          )}
           tabIndex={0}
         >
           <table className="data-table equipment-request-table">
@@ -1161,17 +1196,19 @@ export function EquipmentRequestList({
             </colgroup>
             <thead>
               <tr>
-                <th>Phạm vi</th>
-                <th>Môn học</th>
-                <th>Ngày</th>
-                <th>Thời gian</th>
-                <th>Phòng/Lab</th>
-                <th>Thiết bị</th>
+                <th>{uiText("Phạm vi")}</th>
+                <th>{uiText("Môn học")}</th>
+                <th>{uiText("Ngày")}</th>
+                <th>{uiText("Thời gian")}</th>
+                <th>{uiText("Phòng/Lab")}</th>
+                <th>{uiText("Thiết bị")}</th>
                 <th>
-                  <span className="equipment-status-heading">Trạng thái</span>
+                  <span className="equipment-status-heading">
+                    {uiText("Trạng thái")}
+                  </span>
                 </th>
                 <th>
-                  <span className="sr-only">Chi tiết</span>
+                  <span className="sr-only">{uiText("Chi tiết")}</span>
                 </th>
               </tr>
             </thead>
@@ -1199,8 +1236,8 @@ export function EquipmentRequestList({
                 manageableDomains.includes(request.request_domain);
               const recipientRoleLabel =
                 request.request_domain === "basic_medical"
-                  ? "Người đăng ký/GV giảng dạy-hướng dẫn"
-                  : "Người đăng ký/GV phụ trách";
+                  ? uiText("Người đăng ký/GV giảng dạy-hướng dẫn")
+                  : uiText("Người đăng ký/GV phụ trách");
               const handoverSigned = Boolean(
                 confirmation?.handover_recipient_signed_at,
               );
@@ -1239,7 +1276,7 @@ export function EquipmentRequestList({
                   >
                     <td className="equipment-request-domain-cell">
                       <span className="equipment-request-domain">
-                        {domainLabel(request)}
+                        {uiText(domainLabel(request))}
                       </span>
                     </td>
                     <td>
@@ -1275,12 +1312,12 @@ export function EquipmentRequestList({
                       <div className="equipment-request-status-stack">
                         {!isCancelled && lateApprovalStatus === "pending" ? (
                           <span className="request-late-approval request-late-approval-pending">
-                            Chờ duyệt đăng ký trễ
+                            {uiText("Chờ duyệt đăng ký trễ")}
                           </span>
                         ) : !isCancelled &&
                           lateApprovalStatus === "rejected" ? (
                           <span className="request-late-approval request-late-approval-rejected">
-                            Đã từ chối đăng ký trễ
+                            {uiText("Đã từ chối đăng ký trễ")}
                           </span>
                         ) : inventoryManaged ? (
                           <>
@@ -1292,8 +1329,8 @@ export function EquipmentRequestList({
                                 onClick={(event) => event.stopPropagation()}
                               >
                                 {canManageRequest
-                                  ? "Bàn giao / thu hồi"
-                                  : "Xem và ký xác nhận"}
+                                  ? uiText("Bàn giao / thu hồi")
+                                  : uiText("Xem và ký xác nhận")}
                               </Link>
                             ) : null}
                           </>
@@ -1313,13 +1350,13 @@ export function EquipmentRequestList({
                                 });
                               }}
                             >
-                              Ký xác nhận Đã trả
+                              {uiText("Ký xác nhận Đã trả")}
                             </button>
                           ) : (
                             <>
                               <StatusBadge status="returned" />
                               <small className="equipment-confirmation-waiting">
-                                Chờ ký xác nhận Đã trả
+                                {uiText("Chờ ký xác nhận Đã trả")}
                               </small>
                             </>
                           )
@@ -1337,13 +1374,13 @@ export function EquipmentRequestList({
                                 });
                               }}
                             >
-                              Ký xác nhận Đã giao
+                              {uiText("Ký xác nhận Đã giao")}
                             </button>
                           ) : (
                             <>
                               <StatusBadge status="handed_over" />
                               <small className="equipment-confirmation-waiting">
-                                Chờ ký xác nhận Đã giao
+                                {uiText("Chờ ký xác nhận Đã giao")}
                               </small>
                             </>
                           )
@@ -1351,7 +1388,7 @@ export function EquipmentRequestList({
                           <>
                             <StatusBadge status="returned" />
                             <small className="equipment-confirmation-waiting">
-                              Chờ kho xác nhận
+                              {uiText("Chờ kho xác nhận")}
                             </small>
                           </>
                         ) : warehouseHasHandedOver && handoverSigned ? (
@@ -1372,11 +1409,11 @@ export function EquipmentRequestList({
                                   });
                                 }}
                               >
-                                Ký xác nhận Đã trả
+                                {uiText("Ký xác nhận Đã trả")}
                               </button>
                             ) : (
                               <small className="equipment-confirmation-waiting">
-                                Chờ ký xác nhận Đã trả
+                                {uiText("Chờ ký xác nhận Đã trả")}
                               </small>
                             )}
                           </>
@@ -1385,7 +1422,7 @@ export function EquipmentRequestList({
                         )}
                         {lateApprovalStatus === "approved" ? (
                           <small className="request-late-approval-approved">
-                            Đã duyệt đăng ký trễ
+                            {uiText("Đã duyệt đăng ký trễ")}
                           </small>
                         ) : null}
                       </div>
@@ -1395,7 +1432,9 @@ export function EquipmentRequestList({
                         type="button"
                         className="equipment-request-chevron"
                         aria-label={
-                          expanded ? "Thu gọn phiếu" : "Mở chi tiết phiếu"
+                          expanded
+                            ? uiText("Thu gọn phiếu")
+                            : uiText("Mở chi tiết phiếu")
                         }
                         onClick={(event) => {
                           event.stopPropagation();
@@ -1417,9 +1456,11 @@ export function EquipmentRequestList({
                               lateApprovalStatus === "pending" ? (
                                 <div className="equipment-late-review-panel">
                                   <div>
-                                    <strong>Chờ duyệt đăng ký trễ</strong>
+                                    <strong>
+                                      {uiText("Chờ duyệt đăng ký trễ")}
+                                    </strong>
                                     <p>
-                                      <b>Lý do đăng ký trễ:</b>{" "}
+                                      <b>{uiText("Lý do đăng ký trễ:")}</b>{" "}
                                       {lateRegistrationReason}
                                     </p>
                                   </div>
@@ -1437,7 +1478,7 @@ export function EquipmentRequestList({
                                         )
                                       }
                                     >
-                                      Duyệt đăng ký trễ
+                                      {uiText("Duyệt đăng ký trễ")}
                                     </button>
                                     <button
                                       type="button"
@@ -1452,12 +1493,12 @@ export function EquipmentRequestList({
                                         )
                                       }
                                     >
-                                      Từ chối đăng ký trễ
+                                      {uiText("Từ chối đăng ký trễ")}
                                     </button>
                                   </div>
                                 </div>
                               ) : null}
-                              <strong>Trạng thái phiếu</strong>
+                              <strong>{uiText("Trạng thái phiếu")}</strong>
                               <div className="equipment-status-toolbar">
                                 <div
                                   className="equipment-status-actions"
@@ -1470,7 +1511,9 @@ export function EquipmentRequestList({
                                       className="button button-primary"
                                       href={`/equipment/fulfillment/${request.id}`}
                                     >
-                                      Bàn giao, thu hồi và ký xác nhận
+                                      {uiText(
+                                        "Bàn giao, thu hồi và ký xác nhận",
+                                      )}
                                     </Link>
                                   ) : (
                                     equipmentRequestWorkflowStatuses.map(
@@ -1503,10 +1546,10 @@ export function EquipmentRequestList({
                                           }
                                         >
                                           {option.value === "handed_over"
-                                            ? "Đã giao"
+                                            ? uiText("Đã giao")
                                             : option.value === "returned"
-                                              ? "Đã trả"
-                                              : option.label}
+                                              ? uiText("Đã trả")
+                                              : uiText(option.label)}
                                         </button>
                                       ),
                                     )
@@ -1518,7 +1561,7 @@ export function EquipmentRequestList({
                                   onClick={(event) => event.stopPropagation()}
                                 >
                                   <Download size={17} aria-hidden="true" />
-                                  Xuất phiếu PDF
+                                  {uiText("Xuất phiếu PDF")}
                                 </a>
                                 {!isCancelled ? (
                                   <button
@@ -1532,42 +1575,42 @@ export function EquipmentRequestList({
                                   >
                                     <Trash2 size={17} aria-hidden="true" />
                                     {request.request_domain === "basic_medical"
-                                      ? "Hủy phiếu"
-                                      : "Xóa phiếu"}
+                                      ? uiText("Hủy phiếu")
+                                      : uiText("Xóa phiếu")}
                                   </button>
                                 ) : null}
                               </div>
                               {inventoryManaged ? (
                                 <p>
-                                  Thực giao/thực nhận được ghi kho ngay. Xem số
-                                  lượng và ký xác nhận theo từng lần trong không
-                                  gian bàn giao/thu hồi.
+                                  {uiText(
+                                    "Thực giao/thực nhận được ghi kho ngay. Xem số lượng và ký xác nhận theo từng lần trong không gian bàn giao/thu hồi.",
+                                  )}
                                 </p>
                               ) : (
                                 <div className="equipment-confirmation-progress">
                                   <span>
-                                    Giao — Kho:{" "}
+                                    {uiText("Giao — Kho:")}{" "}
                                     {confirmation?.handover_staff_confirmed_at
-                                      ? "Đã xác nhận"
-                                      : "Chưa"}
+                                      ? uiText("Đã xác nhận")
+                                      : uiText("Chưa")}
                                   </span>
                                   <span>
                                     {recipientRoleLabel}:{" "}
                                     {confirmation?.handover_recipient_signed_at
-                                      ? "Đã ký"
-                                      : "Chưa"}
+                                      ? uiText("Đã ký")
+                                      : uiText("Chưa")}
                                   </span>
                                   <span>
-                                    Trả — Kho:{" "}
+                                    {uiText("Trả — Kho:")}{" "}
                                     {confirmation?.return_staff_confirmed_at
-                                      ? "Đã xác nhận"
-                                      : "Chưa"}
+                                      ? uiText("Đã xác nhận")
+                                      : uiText("Chưa")}
                                   </span>
                                   <span>
                                     {recipientRoleLabel}:{" "}
                                     {confirmation?.return_recipient_signed_at
-                                      ? "Đã ký"
-                                      : "Chưa"}
+                                      ? uiText("Đã ký")
+                                      : uiText("Chưa")}
                                   </span>
                                 </div>
                               )}
@@ -1581,106 +1624,114 @@ export function EquipmentRequestList({
                           canSignForRequest ? (
                             <div className="equipment-status-section equipment-status-section-top">
                               <strong>
-                                Ký xác nhận từng lần bàn giao/thu hồi
+                                {uiText(
+                                  "Ký xác nhận từng lần bàn giao/thu hồi",
+                                )}
                               </strong>
                               <p>
-                                Xem số lượng thực giao/thực nhận trước khi ký
-                                xác nhận. Chữ ký gắn với từng lần, không xác
-                                nhận chung cho cả phiếu.
+                                {uiText(
+                                  "Xem số lượng thực giao/thực nhận trước khi ký xác nhận. Chữ ký gắn với từng lần, không xác nhận chung cho cả phiếu.",
+                                )}
                               </p>
                               <Link
                                 className="button button-primary"
                                 href={`/equipment/fulfillment/${request.id}`}
                               >
-                                Xem và ký xác nhận bàn giao/thu hồi
+                                {uiText("Xem và ký xác nhận bàn giao/thu hồi")}
                               </Link>
                             </div>
                           ) : null}
                           <dl className="detail-list equipment-request-detail-grid">
                             <div className="equipment-request-code-detail">
-                              <dt>Mã phiếu</dt>
+                              <dt>{uiText("Mã phiếu")}</dt>
                               <dd className="mono">
                                 {formatEquipmentRequestCode(request.created_at)}
                               </dd>
                             </div>
                             <div className="equipment-note-detail-row">
-                              <dt>Ghi chú chung</dt>
-                              <dd>{request.note || "Không có ghi chú"}</dd>
+                              <dt>{uiText("Ghi chú chung")}</dt>
+                              <dd>
+                                {request.note || uiText("Không có ghi chú")}
+                              </dd>
                             </div>
                             {lateApprovalStatus !== "not_required" ? (
                               <div className="equipment-note-detail-row">
-                                <dt>Đăng ký trễ</dt>
+                                <dt>{uiText("Đăng ký trễ")}</dt>
                                 <dd>
                                   <strong>
                                     {lateApprovalStatus === "pending"
-                                      ? "Chờ duyệt đăng ký trễ"
+                                      ? uiText("Chờ duyệt đăng ký trễ")
                                       : lateApprovalStatus === "approved"
-                                        ? "Đã duyệt đăng ký trễ"
-                                        : "Đã từ chối đăng ký trễ"}
+                                        ? uiText("Đã duyệt đăng ký trễ")
+                                        : uiText("Đã từ chối đăng ký trễ")}
                                   </strong>
                                   {lateRegistrationReason
                                     ? ` — ${lateRegistrationReason}`
                                     : ""}
                                   {confirmation?.late_review_note
-                                    ? ` — Ghi chú: ${confirmation.late_review_note}`
+                                    ? uiText(" — Ghi chú: {0}", [
+                                        confirmation.late_review_note,
+                                      ])
                                     : request.late_review_note
-                                      ? ` — Ghi chú: ${request.late_review_note}`
+                                      ? uiText(" — Ghi chú: {0}", [
+                                          request.late_review_note,
+                                        ])
                                       : ""}
                                 </dd>
                               </div>
                             ) : null}
                             <div>
-                              <dt>Người đăng ký</dt>
+                              <dt>{uiText("Người đăng ký")}</dt>
                               <dd>{request.profiles?.full_name}</dd>
                             </div>
                             <div>
-                              <dt>Email</dt>
+                              <dt>{uiText("Email")}</dt>
                               <dd>{request.email_snapshot}</dd>
                             </div>
                             <div>
-                              <dt>Số điện thoại</dt>
+                              <dt>{uiText("Số điện thoại")}</dt>
                               <dd>{request.phone_snapshot}</dd>
                             </div>
                             <div>
                               <dt>
                                 {request.request_domain === "basic_medical"
-                                  ? "Giảng viên giảng dạy/hướng dẫn"
-                                  : "Giảng viên phụ trách"}
+                                  ? uiText("Giảng viên giảng dạy/hướng dẫn")
+                                  : uiText("Giảng viên phụ trách")}
                               </dt>
                               <dd>{request.responsible?.full_name}</dd>
                             </div>
                             <div>
-                              <dt>Số sinh viên</dt>
+                              <dt>{uiText("Số sinh viên")}</dt>
                               <dd>{schedule?.student_count}</dd>
                             </div>
                             <div>
-                              <dt>Phòng/Lab</dt>
+                              <dt>{uiText("Phòng/Lab")}</dt>
                               <dd>
                                 {room?.room_code}.{room?.building_code}
                                 {room?.room_name ? ` — ${room.room_name}` : ""}
                               </dd>
                             </div>
                             <div>
-                              <dt>Thời gian nhận</dt>
+                              <dt>{uiText("Thời gian nhận")}</dt>
                               <dd>{formatDateTime(request.receive_at)}</dd>
                             </div>
                             <div>
-                              <dt>Thời gian trả</dt>
+                              <dt>{uiText("Thời gian trả")}</dt>
                               <dd>{formatDateTime(request.return_at)}</dd>
                             </div>
                             <div>
-                              <dt>Ngày tạo phiếu</dt>
+                              <dt>{uiText("Ngày tạo phiếu")}</dt>
                               <dd>{formatDateTime(request.created_at)}</dd>
                             </div>
                             <div className="equipment-list-detail-row">
-                              <dt>Danh sách trang thiết bị</dt>
+                              <dt>{uiText("Danh sách trang thiết bị")}</dt>
                               <dd>
                                 <button
                                   type="button"
                                   className="button button-secondary"
                                   onClick={() => setModalRequest(request)}
                                 >
-                                  Xem toàn bộ danh sách (
+                                  {uiText("Xem toàn bộ danh sách (")}
                                   {request.equipment_request_items.length})
                                 </button>
                               </dd>
@@ -1698,7 +1749,7 @@ export function EquipmentRequestList({
         {!filteredItems.length ? (
           <p className="panel-empty">
             {visibleItems.length
-              ? "Không có phiếu phù hợp bộ lọc."
+              ? uiText("Không có phiếu phù hợp bộ lọc.")
               : emptyMessage}
           </p>
         ) : null}
@@ -1742,20 +1793,26 @@ export function EquipmentRequestList({
         open={Boolean(requestToDelete)}
         title={
           requestToDelete?.request_domain === "basic_medical"
-            ? "Hủy phiếu thiết bị?"
-            : "Xóa phiếu thiết bị?"
+            ? uiText("Hủy phiếu thiết bị?")
+            : uiText("Xóa phiếu thiết bị?")
         }
         description={
           requestToDelete
             ? requestToDelete.request_domain === "basic_medical"
-              ? `Phiếu ${formatEquipmentRequestCode(requestToDelete.created_at)} sẽ chuyển sang trạng thái Đã hủy. Lịch sử phiếu vẫn được giữ và buổi học Y cơ sở gốc không bị xóa bởi thao tác này.`
-              : `Phiếu ${formatEquipmentRequestCode(requestToDelete.created_at)} và toàn bộ danh sách thiết bị trong phiếu sẽ bị xóa. Lớp Skills lab gốc vẫn được giữ lại.`
+              ? uiText(
+                  "Phiếu {0} sẽ chuyển sang trạng thái Đã hủy. Lịch sử phiếu vẫn được giữ và buổi học Y cơ sở gốc không bị xóa bởi thao tác này.",
+                  [formatEquipmentRequestCode(requestToDelete.created_at)],
+                )
+              : uiText(
+                  "Phiếu {0} và toàn bộ danh sách thiết bị trong phiếu sẽ bị xóa. Lớp Skills lab gốc vẫn được giữ lại.",
+                  [formatEquipmentRequestCode(requestToDelete.created_at)],
+                )
             : ""
         }
         confirmLabel={
           requestToDelete?.request_domain === "basic_medical"
-            ? "Hủy phiếu"
-            : "Xóa phiếu"
+            ? uiText("Hủy phiếu")
+            : uiText("Xóa phiếu")
         }
         pending={isPending && updatingId === requestToDelete?.id}
         onConfirm={confirmDeleteRequest}

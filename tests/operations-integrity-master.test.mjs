@@ -114,7 +114,7 @@ test("integrity UI paths use canonical operations and app dialogs", async () => 
   assert.match(inventory, /InventoryAdjustmentDialog/);
   assert.match(
     basicMedicalCatalog,
-    /Ngừng sử dụng \$\{selected\.size\} thiết bị\?/,
+    /uiText\("Ngừng sử dụng \{0\} thiết bị\?", \[selected\.size\]\)/,
   );
   assert.match(basicMedicalCatalog, /<ConfirmDialog/);
   assert.match(basicMedicalCatalogPage, /Tên thương mại \*/);
@@ -242,11 +242,14 @@ test("catalog reconciliation is previewed and atomically applied in both domains
   assert.match(basicActions, /catalog_reconciliation_preview_failed/);
   assert.match(skillsActions, /requestedMode !== "new"/);
   assert.match(basicActions, /mode !== "new"/);
-  assert.match(importUi, /<UploadCloud size=\{17\} \/> Import tất cả/);
+  assert.match(
+    importUi,
+    /<UploadCloud size=\{17\} \/>\s*\{uiText\(" Import tất cả"\)\}/,
+  );
   assert.match(importUi, /const result = await preview\(parsed\)/);
   assert.match(importUi, /setPlan\(result\.preview\)/);
   assert.match(importUi, /safePreviewError\(result\.reason\)/);
-  assert.match(importUi, /confirmLabel="Import tất cả"/);
+  assert.match(importUi, /confirmLabel=\{uiText\("Import tất cả"\)\}/);
   assert.doesNotMatch(importUi, /Chọn file đối soát|Preview đối soát/);
   assert.match(importUi, /window\.location\.reload\(\)/);
   for (const localMessage of [

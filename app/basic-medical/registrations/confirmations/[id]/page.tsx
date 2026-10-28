@@ -5,6 +5,8 @@ import { isBasicMedicalConfirmationEvidenceEnabled } from "@/lib/basic-medical-c
 import type { BasicMedicalConfirmationEvidence } from "@/lib/basic-medical-equipment";
 import { getViewer } from "@/lib/viewer";
 import { canViewBasicMedicalRegistrations } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: "Asia/Ho_Chi_Minh",
@@ -70,29 +72,39 @@ export default async function BasicMedicalConfirmationEvidencePage({
       canImportSchedules={viewer.canImportSchedules}
       canManagePersonnel={viewer.canManagePersonnel}
       canManageEmailNotifications={viewer.canManageEmailNotifications}
-      title="BẰNG CHỨNG XÁC NHẬN Y CƠ SỞ"
-      description="Tài liệu lịch sử chỉ sử dụng dữ liệu đã chụp tại thời điểm ký."
+      title={<LocalizedText text={"BẰNG CHỨNG XÁC NHẬN Y CƠ SỞ"} />}
+      description={
+        <LocalizedText
+          text={
+            "Tài liệu lịch sử chỉ sử dụng dữ liệu đã chụp tại thời điểm ký."
+          }
+        />
+      }
     >
       <div className="toolbar">
         <Link
           className="button button-secondary"
           href="/basic-medical/registrations"
         >
-          ← Trở lại danh sách phiếu
+          <LocalizedText text={"← Trở lại danh sách phiếu"} />
         </Link>
         <a
           className="button button-primary"
           href={`/api/basic-medical/registrations/confirmations/${id}/pdf`}
         >
-          Xuất PDF
+          <LocalizedText text={"Xuất PDF"} />
         </a>
       </div>
 
       {invalidated ? (
         <div className="action-feedback error" role="status">
-          <strong>Xác nhận đã vô hiệu</strong>
+          <strong>
+            <LocalizedText text={"Xác nhận đã vô hiệu"} />
+          </strong>
           <br />
-          {evidence.invalidated_reason || "Không có lý do được ghi nhận."}
+          {evidence.invalidated_reason || (
+            <LocalizedText text={"Không có lý do được ghi nhận."} />
+          )}
           {evidence.invalidated_by_name_snapshot
             ? ` · ${evidence.invalidated_by_name_snapshot}`
             : null}
@@ -101,28 +113,39 @@ export default async function BasicMedicalConfirmationEvidencePage({
             : null}
         </div>
       ) : (
-        <p className="action-feedback success">Xác nhận đang có hiệu lực.</p>
+        <p className="action-feedback success">
+          <LocalizedText text={"Xác nhận đang có hiệu lực."} />
+        </p>
       )}
 
       {!evidence.display_snapshots_available ? (
         <p className="action-feedback warning" role="status">
-          Đây là bản ghi cũ: không có snapshot tên hiển thị. Thông tin kỹ thuật
-          bên dưới được giữ nguyên để đối chiếu.
+          <LocalizedText
+            text={
+              "Đây là bản ghi cũ: không có snapshot tên hiển thị. Thông tin kỹ thuật bên dưới được giữ nguyên để đối chiếu."
+            }
+          />
         </p>
       ) : null}
 
       <section className="data-panel equipment-request-list-panel">
-        <h2>1. Thông tin buổi học</h2>
+        <h2>
+          <LocalizedText text={"1. Thông tin buổi học"} />
+        </h2>
         <div className="equipment-request-detail-grid">
           <div>
-            <span>Môn học</span>
+            <span>
+              <LocalizedText text={"Môn học"} />
+            </span>
             <strong>
               {displaySnapshot(evidence.course_code_snapshot)} ·{" "}
               {displaySnapshot(evidence.course_name_snapshot)}
             </strong>
           </div>
           <div>
-            <span>Lịch học</span>
+            <span>
+              <LocalizedText text={"Lịch học"} />
+            </span>
             <strong>
               {formatDate(evidence.schedule_date_snapshot)} ·{" "}
               {formatTime(evidence.start_time_snapshot)}–
@@ -130,53 +153,86 @@ export default async function BasicMedicalConfirmationEvidencePage({
             </strong>
           </div>
           <div>
-            <span>Phòng học</span>
+            <span>
+              <LocalizedText text={"Phòng học"} />
+            </span>
             <strong>{roomDisplay(evidence)}</strong>
           </div>
           <div>
-            <span>Giảng viên giảng dạy</span>
+            <span>
+              <LocalizedText text={"Giảng viên giảng dạy"} />
+            </span>
             <strong>
               {displaySnapshot(evidence.teaching_lecturer_name_snapshot)}
             </strong>
           </div>
         </div>
 
-        <h2>2. Thông tin xác nhận</h2>
+        <h2>
+          <LocalizedText text={"2. Thông tin xác nhận"} />
+        </h2>
         <div className="equipment-request-detail-grid">
           <div>
-            <span>Người xác nhận</span>
+            <span>
+              <LocalizedText text={"Người xác nhận"} />
+            </span>
             <strong>{displaySnapshot(evidence.signer_name_snapshot)}</strong>
           </div>
           <div>
-            <span>Thời điểm ký</span>
+            <span>
+              <LocalizedText text={"Thời điểm ký"} />
+            </span>
             <strong>
               {dateTimeFormatter.format(new Date(evidence.signed_at))}
             </strong>
           </div>
           <div>
-            <span>Trạng thái</span>
-            <strong>{invalidated ? "Đã vô hiệu" : "Đang có hiệu lực"}</strong>
+            <span>
+              <LocalizedText text={"Trạng thái"} />
+            </span>
+            <strong>
+              {invalidated ? (
+                <LocalizedText text={"Đã vô hiệu"} />
+              ) : (
+                <LocalizedText text={"Đang có hiệu lực"} />
+              )}
+            </strong>
           </div>
         </div>
 
-        <h2>3. Chữ ký điện tử</h2>
-        {/* eslint-disable-next-line @next/next/no-img-element -- authorized data URL is not an optimizable asset */}
-        <img
+        <h2>
+          <LocalizedText text={"3. Chữ ký điện tử"} />
+        </h2>
+        <LocalizedElement
+          as="img"
+          textAttributes={["alt"]}
           alt="Chữ ký điện tử đã lưu tại thời điểm xác nhận"
           className="basic-medical-signature-image"
           src={evidence.signature_data}
         />
 
-        <h2>4. Tình trạng thiết bị</h2>
+        <h2>
+          <LocalizedText text={"4. Tình trạng thiết bị"} />
+        </h2>
         <div className="responsive-table">
           <table className="data-table basic-medical-condition-table">
             <thead>
               <tr>
-                <th>Thiết bị</th>
-                <th>ĐVT</th>
-                <th>Trước (Tốt/Hư/Tổng)</th>
-                <th>Hư mới</th>
-                <th>Sau (Tốt/Hư/Tổng)</th>
+                <th>
+                  <LocalizedText text={"Thiết bị"} />
+                </th>
+                <th>
+                  <LocalizedText text={"ĐVT"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Trước (Tốt/Hư/Tổng)"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Hư mới"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Sau (Tốt/Hư/Tổng)"} />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -203,7 +259,9 @@ export default async function BasicMedicalConfirmationEvidencePage({
               ) : (
                 <tr>
                   <td colSpan={5}>
-                    Không có dòng điều kiện thiết bị được lưu.
+                    <LocalizedText
+                      text={"Không có dòng điều kiện thiết bị được lưu."}
+                    />
                   </td>
                 </tr>
               )}
@@ -212,19 +270,33 @@ export default async function BasicMedicalConfirmationEvidencePage({
         </div>
 
         <details className="equipment-request-detail-grid">
-          <summary>5. Thông tin kỹ thuật</summary>
+          <summary>
+            <LocalizedText text={"5. Thông tin kỹ thuật"} />
+          </summary>
           <dl>
-            <dt>Confirmation ID</dt>
+            <dt>
+              <LocalizedText text={"Confirmation ID"} />
+            </dt>
             <dd className="mono">{evidence.confirmation_id}</dd>
-            <dt>Registration ID</dt>
+            <dt>
+              <LocalizedText text={"Registration ID"} />
+            </dt>
             <dd className="mono">{evidence.registration_id_snapshot}</dd>
-            <dt>Schedule ID</dt>
+            <dt>
+              <LocalizedText text={"Schedule ID"} />
+            </dt>
             <dd className="mono">{evidence.class_schedule_id_snapshot}</dd>
-            <dt>Room ID</dt>
+            <dt>
+              <LocalizedText text={"Room ID"} />
+            </dt>
             <dd className="mono">{evidence.room_id_snapshot}</dd>
-            <dt>Lecturer ID</dt>
+            <dt>
+              <LocalizedText text={"Lecturer ID"} />
+            </dt>
             <dd className="mono">{evidence.teaching_lecturer_id_snapshot}</dd>
-            <dt>Signer ID</dt>
+            <dt>
+              <LocalizedText text={"Signer ID"} />
+            </dt>
             <dd className="mono">{evidence.signer_id}</dd>
           </dl>
         </details>

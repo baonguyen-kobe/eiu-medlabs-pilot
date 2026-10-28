@@ -52,13 +52,15 @@ create trigger equipment_requests_s4_registration after insert on public.equipme
 
 create or replace function private.s4_sync_lines(p_request uuid,p_items jsonb,p_basic_skill text default null)
 returns void language plpgsql security definer set search_path='' as $$
-declare r public.equipment_requests; j jsonb; item_id uuid; seen uuid[]:='{}'; old_line public.equipment_request_items;
+declare r public.equipment_requests; j jsonb; item_id uuid; seen uuid[]:='{}'; old_line public.equipment_request_items; previous_context text;
 begin
  select * into r from public.equipment_requests where id=p_request for update;
  if not private.is_active_user() or not (r.registrant_id=auth.uid() or private.can_manage_equipment_request(r.id)) then raise exception 'AUTH_DENIED' using errcode='42501'; end if;
  if jsonb_typeof(p_items)<>'array' or jsonb_array_length(p_items) not between 1 and 500 then raise exception 'EQUIPMENT_REQUEST_ITEMS_REQUIRED' using errcode='22023'; end if;
  if exists(select 1 from jsonb_array_elements(p_items) entry where (entry->>'expected_revision')::bigint is distinct from r.preparation_revision) then raise exception 'STALE_REVISION' using errcode='23505'; end if;
  if r.status not in ('new','preparing') or (r.request_domain='nursing_skills' and r.status<>'new') then raise exception 'S4_USE_QUANTITY_ADJUSTMENT' using errcode='42501'; end if;
+ previous_context:=current_setting('app.s4_command',true);
+ perform set_config('app.s4_command','true',true);
  perform set_config('app.s4_registration','',true);
  -- Remove excluded identities before inserting replacements, so the old
  -- commercial-name guard cannot mistake a tombstone for an active duplicate.
@@ -78,6 +80,7 @@ begin
   end if;
   seen:=array_append(seen,item_id);
  end loop;
+ perform set_config('app.s4_command',coalesce(previous_context,''),true);
 end; $$;
 revoke all on function private.s4_guard_line(),private.s4_begin_registration(),private.s4_sync_lines(uuid,jsonb,text) from public,anon,authenticated;
 

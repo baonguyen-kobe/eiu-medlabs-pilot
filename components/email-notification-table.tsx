@@ -7,6 +7,7 @@ import {
 } from "@/app/email-notifications/actions";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Trash2 } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 type EmailNotificationRow = {
   id: string;
@@ -41,6 +42,8 @@ export function EmailNotificationTable({
   canRetry: boolean;
   deliveryMode: "off" | "test" | "live";
 }) {
+  const { text: uiText } = useLanguage();
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const allIds = useMemo(
     () => notifications.map((notification) => notification.id),
@@ -72,21 +75,27 @@ export function EmailNotificationTable({
           {[...selectedIds].map((id) => (
             <input key={id} type="hidden" name="notification_ids" value={id} />
           ))}
-          <span>Đã chọn {selectedIds.size} email</span>
+          <span>
+            {uiText("Đã chọn ")}
+            {selectedIds.size}
+            {uiText(" email")}
+          </span>
           <ConfirmSubmitButton
             className="button button-danger"
             disabled={!selectedIds.size}
-            message={`Xóa vĩnh viễn ${selectedIds.size} email thông báo đã chọn?`}
+            message={uiText("Xóa vĩnh viễn {0} email thông báo đã chọn?", [
+              selectedIds.size,
+            ])}
           >
             <Trash2 size={16} />
-            Xóa đã chọn
+            {uiText("Xóa đã chọn")}
           </ConfirmSubmitButton>
         </form>
       ) : null}
       <div
         className="responsive-table"
         role="region"
-        aria-label="Nhật ký email thông báo"
+        aria-label={uiText("Nhật ký email thông báo")}
         tabIndex={0}
       >
         <table className="data-table catalog-data-table email-notification-table">
@@ -106,20 +115,20 @@ export function EmailNotificationTable({
                 <th className="email-notification-select-column">
                   <input
                     type="checkbox"
-                    aria-label="Chọn tất cả email trên trang"
+                    aria-label={uiText("Chọn tất cả email trên trang")}
                     checked={allSelected}
                     onChange={(event) => toggleAll(event.target.checked)}
                   />
                 </th>
               ) : null}
-              <th>Thời gian</th>
-              <th>Người nhận</th>
-              <th>Nội dung</th>
-              <th>Trạng thái</th>
-              <th>Lần gửi</th>
-              <th>Lỗi gần nhất</th>
+              <th>{uiText("Thời gian")}</th>
+              <th>{uiText("Người nhận")}</th>
+              <th>{uiText("Nội dung")}</th>
+              <th>{uiText("Trạng thái")}</th>
+              <th>{uiText("Lần gửi")}</th>
+              <th>{uiText("Lỗi gần nhất")}</th>
               <th>
-                <span className="sr-only">Thao tác</span>
+                <span className="sr-only">{uiText("Thao tác")}</span>
               </th>
             </tr>
           </thead>
@@ -130,7 +139,7 @@ export function EmailNotificationTable({
                   <td className="email-notification-select-column">
                     <input
                       type="checkbox"
-                      aria-label={`Chọn email ${item.subject}`}
+                      aria-label={uiText("Chọn email {0}", [item.subject])}
                       checked={selectedIds.has(item.id)}
                       onChange={(event) =>
                         toggleOne(item.id, event.target.checked)
@@ -153,10 +162,10 @@ export function EmailNotificationTable({
                 <td>
                   <span className="status-pill">
                     {item.status === "simulated" && item.sent_at
-                      ? "Đã gửi kiểm thử"
+                      ? uiText("Đã gửi kiểm thử")
                       : item.status === "simulated"
-                        ? "Kiểm thử – chưa gửi"
-                        : (statusLabels[item.status] ?? item.status)}
+                        ? uiText("Kiểm thử – chưa gửi")
+                        : uiText(statusLabels[item.status] ?? item.status)}
                   </span>
                 </td>
                 <td>{item.attempts}</td>
@@ -173,7 +182,7 @@ export function EmailNotificationTable({
                         className="button button-primary row-action-button"
                         type="submit"
                       >
-                        Gửi lại
+                        {uiText("Gửi lại")}
                       </button>
                     </form>
                   ) : null}

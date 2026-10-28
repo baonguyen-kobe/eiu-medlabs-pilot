@@ -5,11 +5,12 @@ import {
   OverviewView,
   type OverviewMetrics,
 } from "@/components/inventory/overview-view";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type {
   InventoryStockBalance,
   InventorySummary,
 } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function InventoryOverviewPage() {
   const viewer = await requireInventoryViewer();
@@ -68,8 +69,16 @@ export default async function InventoryOverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tổng quan Kho & Số dư / Inventory Overview"
-        description="Tra cứu nhanh tình trạng kho, các cảnh báo hạn dùng và truy cập nhanh các nghiệp vụ nhận kho S1"
+        title={
+          <LocalizedText text={"Tổng quan Kho & Số dư / Inventory Overview"} />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Tra cứu nhanh tình trạng kho, các cảnh báo hạn dùng và truy cập nhanh các nghiệp vụ nhận kho S1"
+            }
+          />
+        }
       />
 
       <OverviewView metrics={metrics} isAdmin={viewer.isAdmin} />

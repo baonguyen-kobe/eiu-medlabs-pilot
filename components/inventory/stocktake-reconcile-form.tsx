@@ -9,6 +9,7 @@ import React, {
   useTransition,
 } from "react";
 import Link from "next/link";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   AlertTriangle,
   Check,
@@ -45,6 +46,8 @@ import type {
   ReconcileStocktakePayload,
   StockCondition,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const STOCK_PAGE_SIZE = 20;
 
@@ -53,7 +56,20 @@ export function StocktakeReconcileForm({
 }: {
   preselectedLocationId?: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [locationId, setLocationId] = useState(preselectedLocationId);
+  const [countDirty, setCountDirty] = useState(false);
+  const [nextLocation, setNextLocation] = useState<string | null>(null);
+  useEffect(() => {
+    if (!countDirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [countDirty]);
 
   // Stable business reference (independent of retry UUID)
   const [stocktakeReference, setStocktakeReference] = useState(() => {
@@ -193,6 +209,15 @@ export function StocktakeReconcileForm({
   );
 
   function handleLocationChange(newLocId: string) {
+    if (newLocId === locationId) return;
+    if (countDirty) {
+      setNextLocation(newLocId);
+      return;
+    }
+    changeLocation(newLocId);
+  }
+  function changeLocation(newLocId: string) {
+    setCountDirty(false);
     setLocationId(newLocId);
     setCountedMap({});
     setSurplusLines([]);
@@ -282,6 +307,7 @@ export function StocktakeReconcileForm({
     condition: StockCondition,
     value: string,
   ) {
+    setCountDirty(true);
     const key = `${originId}:${condition}`;
     setCountedMap((prev) => {
       const existing = prev[key];
@@ -297,6 +323,7 @@ export function StocktakeReconcileForm({
   }
 
   function handleToggleInclude(originId: string, condition: StockCondition) {
+    setCountDirty(true);
     const key = `${originId}:${condition}`;
     setCountedMap((prev) => {
       const existing = prev[key];
@@ -311,6 +338,7 @@ export function StocktakeReconcileForm({
     });
   }
   function handleRecount(originId: string, condition: StockCondition) {
+    setCountDirty(true);
     const key = `${originId}:${condition}`;
     setCountedMap((prev) => {
       const existing = prev[key];
@@ -330,6 +358,7 @@ export function StocktakeReconcileForm({
   }
 
   function handleAddSurplusLine() {
+    setCountDirty(true);
     setSurplusLines((prev) => [
       ...prev,
       {
@@ -561,6 +590,7 @@ export function StocktakeReconcileForm({
       );
 
       if (res.ok && res.data) {
+        setCountDirty(false);
         lastPayloadRef.current = null;
         retryKeyRef.current = null;
         setNotice({
@@ -589,6 +619,20 @@ export function StocktakeReconcileForm({
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog
+        open={nextLocation !== null}
+        title={uiText("Đổi kho và bỏ số đếm chưa lưu?")}
+        description={uiText(
+          "Số đếm và hàng thừa đang nhập thuộc kho hiện tại. Tiếp tục sẽ bỏ dữ liệu chưa ghi sổ; ở lại để kiểm tra hoặc lưu trước.",
+        )}
+        confirmLabel={uiText("Bỏ dữ liệu và đổi kho")}
+        cancelLabel={uiText("Ở lại kiểm kê")}
+        onCancel={() => setNextLocation(null)}
+        onConfirm={() => {
+          if (nextLocation !== null) changeLocation(nextLocation);
+          setNextLocation(null);
+        }}
+      />
       {/* Notice alert */}
       {notice ? (
         <div
@@ -608,14 +652,18 @@ export function StocktakeReconcileForm({
             />
           )}
           <div className="space-y-1">
-            <p className="font-semibold text-sm">{notice.message}</p>
+            <p className="font-semibold text-sm">
+              <LocalizedText text={notice.message ?? ""} />
+            </p>
             {notice.transactionId ? (
               <p className="text-xs">
                 <Link
                   href={`/inventory/transactions/${notice.transactionId}`}
                   className="font-medium underline hover:text-emerald-800"
                 >
-                  Xem chi tiết giao dịch kiểm kê #{notice.transactionId} &rarr;
+                  {uiText("Xem chi tiết giao dịch kiểm kê #")}
+                  {notice.transactionId}
+                  {uiText(" &rarr;")}
                 </Link>
               </p>
             ) : null}
@@ -639,15 +687,15 @@ export function StocktakeReconcileForm({
           <div className="flex items-center gap-2 font-bold text-sm">
             <AlertTriangle className="text-amber-600" size={18} />
             <span>
-              PHÁT HIỆN SỐ LIỆU ĐÃ BỊ THAY ĐỔI TRONG KHI KIỂM ĐẾM (Stale Count /
-              ABA Detected)
+              {uiText(
+                "PHÁT HIỆN SỐ LIỆU ĐÃ BỊ THAY ĐỔI TRONG KHI KIỂM ĐẾM (Stale Count / ABA Detected)",
+              )}
             </span>
           </div>
           <p className="text-xs leading-relaxed text-slate-700">
-            Số dư hệ thống hoặc phiên bản chuyển động kho (stock revision) tại
-            kho này đã phát sinh giao dịch mới trong thời gian bạn nhập liệu.
-            Vui lòng bấm nút bên dưới để tải lại dữ liệu số dư hiện thời và đối
-            chiếu lại trước khi thực hiện ghi sổ.
+            {uiText(
+              "Số dư hệ thống hoặc phiên bản chuyển động kho (stock revision) tại kho này đã phát sinh giao dịch mới trong thời gian bạn nhập liệu. Vui lòng bấm nút bên dưới để tải lại dữ liệu số dư hiện thời và đối chiếu lại trước khi thực hiện ghi sổ.",
+            )}
           </p>
           <button
             type="button"
@@ -657,7 +705,7 @@ export function StocktakeReconcileForm({
             className="button button-primary bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold py-1.5 px-3 flex items-center gap-1.5"
           >
             <History size={14} />
-            <span>Tải lại số dư hiện tại &amp; Đối chiếu lại</span>
+            <span>{uiText("Tải lại số dư hiện tại & Đối chiếu lại")}</span>
           </button>
         </div>
       ) : null}
@@ -667,7 +715,9 @@ export function StocktakeReconcileForm({
           role="alert"
           className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center justify-between"
         >
-          <span>{validationError}</span>
+          <span>
+            <LocalizedText text={validationError ?? ""} />
+          </span>
           <button
             type="button"
             onClick={() => setValidationError(null)}
@@ -683,22 +733,32 @@ export function StocktakeReconcileForm({
         <div className="font-bold flex items-center gap-1.5">
           <CircleAlert size={16} className="text-blue-600 shrink-0" />
           <span>
-            Quy tắc nghiệp vụ: Phân biệt Điều chỉnh Kiểm kê (S2) vs Sửa chứng từ
-            gốc (S1)
+            {uiText(
+              "Quy tắc nghiệp vụ: Phân biệt Điều chỉnh Kiểm kê (S2) vs Sửa chứng từ gốc (S1)",
+            )}
           </span>
         </div>
         <p className="text-slate-700 leading-relaxed">
-          • <strong>Điều chỉnh kiểm kê (S2 - reconcile_stocktake):</strong> Ghi
-          nhận sai lệch thực tế tại vị trí kho hiện tại mà{" "}
-          <em>KHÔNG sửa đổi chứng từ nhập ban đầu</em>. Máy chủ tự động tính
-          toán chênh lệch (Delta = Thực tế - Sổ sách) và ghi nhận giao dịch kiểm
-          kê bất biến. Cả các dòng kiểm đếm khớp số liệu (Delta = 0) cũng được
-          lưu trữ thành bằng chứng kiểm kê định kỳ.
+          •{" "}
+          <strong>
+            {uiText("Điều chỉnh kiểm kê (S2 - reconcile_stocktake):")}
+          </strong>
+          {uiText(" Ghi nhận sai lệch thực tế tại vị trí kho hiện tại mà")}{" "}
+          <em>{uiText("KHÔNG sửa đổi chứng từ nhập ban đầu")}</em>
+          {uiText(
+            ". Máy chủ tự động tính toán chênh lệch (Delta = Thực tế - Sổ sách) và ghi nhận giao dịch kiểm kê bất biến. Cả các dòng kiểm đếm khớp số liệu (Delta = 0) cũng được lưu trữ thành bằng chứng kiểm kê định kỳ.",
+          )}
           <br />•{" "}
-          <strong>Hàng thừa không chứng từ gốc (Owner Surplus B):</strong> Được
-          cấp mã nguồn gốc <code>STOCKTAKE_SURPLUS</code>, vào tồn kho thực tế
-          (on-hand) ngay lập tức nhưng <strong>BỊ TẠM GIỮ (HOLD)</strong> cho
-          đến khi Quản trị viên (Admin) thẩm định {"&"} giải tỏa.
+          <strong>
+            {uiText("Hàng thừa không chứng từ gốc (Owner Surplus B):")}
+          </strong>
+          {uiText(" Được cấp mã nguồn gốc ")}
+          <code>{uiText("STOCKTAKE_SURPLUS")}</code>
+          {uiText(", vào tồn kho thực tế (on-hand) ngay lập tức nhưng ")}
+          <strong>{uiText("BỊ TẠM GIỮ (HOLD)")}</strong>
+          {uiText(" cho đến khi Quản trị viên (Admin) thẩm định ")}
+          {"&"}
+          {uiText(" giải tỏa.")}
         </p>
       </div>
 
@@ -707,7 +767,9 @@ export function StocktakeReconcileForm({
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <ClipboardList className="text-purple-600" size={18} />
           <span>
-            Thông tin Phiên Kiểm kê Thực tế / Physical Stocktake Session
+            {uiText(
+              "Thông tin Phiên Kiểm kê Thực tế / Physical Stocktake Session",
+            )}
           </span>
         </h2>
 
@@ -718,14 +780,14 @@ export function StocktakeReconcileForm({
               htmlFor="stocktake-ref"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Mã đợt kiểm kê (Reference) *
+              {uiText("Mã đợt kiểm kê (Reference) *")}
             </label>
             <input
               id="stocktake-ref"
               type="text"
               value={stocktakeReference}
               onChange={(e) => setStocktakeReference(e.target.value)}
-              placeholder="VD: STK-20261003-001..."
+              placeholder={uiText("VD: STK-20261003-001...")}
               className="w-full text-xs font-mono py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white uppercase font-bold"
               required
             />
@@ -737,9 +799,9 @@ export function StocktakeReconcileForm({
               resource="locations"
               filters={{ active: true }}
               value={locationId}
-              label="Vị trí kho kiểm kê *"
+              label={uiText("Vị trí kho kiểm kê *")}
               id="stocktake-location"
-              placeholder="Chọn kho kiểm kê..."
+              placeholder={uiText("Chọn kho kiểm kê...")}
               onSelect={(loc) => handleLocationChange(loc.id)}
             />
           </div>
@@ -750,7 +812,7 @@ export function StocktakeReconcileForm({
               htmlFor="stocktake-timestamp"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Thời điểm kiểm đếm *
+              {uiText("Thời điểm kiểm đếm *")}
             </label>
             <input
               id="stocktake-timestamp"
@@ -767,14 +829,16 @@ export function StocktakeReconcileForm({
               htmlFor="stocktake-reason"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Lý do kiểm kê *
+              {uiText("Lý do kiểm kê *")}
             </label>
             <input
               id="stocktake-reason"
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="VD: Kiểm kê định kỳ quý 4, kiểm kê bất xuất..."
+              placeholder={uiText(
+                "VD: Kiểm kê định kỳ quý 4, kiểm kê bất xuất...",
+              )}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
             />
           </div>
@@ -785,14 +849,14 @@ export function StocktakeReconcileForm({
               htmlFor="stocktake-evidence"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Chứng từ / Biên bản kiểm kê *
+              {uiText("Chứng từ / Biên bản kiểm kê *")}
             </label>
             <input
               id="stocktake-evidence"
               type="text"
               value={evidenceNote}
               onChange={(e) => setEvidenceNote(e.target.value)}
-              placeholder="VD: Biên bản kiểm kê số 09/BB-KK/2026..."
+              placeholder={uiText("VD: Biên bản kiểm kê số 09/BB-KK/2026...")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
             />
           </div>
@@ -804,14 +868,16 @@ export function StocktakeReconcileForm({
             htmlFor="stocktake-scope"
             className="block text-xs font-semibold text-slate-700 mb-1"
           >
-            Phạm vi kiểm kê / Ghi chú bổ sung
+            {uiText("Phạm vi kiểm kê / Ghi chú bổ sung")}
           </label>
           <input
             id="stocktake-scope"
             type="text"
             value={scopeDescription}
             onChange={(e) => setScopeDescription(e.target.value)}
-            placeholder="VD: Toàn bộ tủ hóa chất A1-A3, các kệ lưu mẫu phòng thí nghiệm..."
+            placeholder={uiText(
+              "VD: Toàn bộ tủ hóa chất A1-A3, các kệ lưu mẫu phòng thí nghiệm...",
+            )}
             className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
           />
         </div>
@@ -847,9 +913,15 @@ export function StocktakeReconcileForm({
       {/* Final submit summary bar */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
         <span className="text-xs text-slate-600">
-          Tổng cộng đã chọn ghi sổ: <strong>{activeCountCount}</strong> dòng
-          kiểm đếm ({zeroDeltaCount} khớp số liệu, {changedCountCount} có chênh
-          lệch), <strong>{surplusCount}</strong> dòng hàng thừa mới
+          {uiText("Tổng cộng đã chọn ghi sổ: ")}
+          <strong>{activeCountCount}</strong>
+          {uiText(" dòng kiểm đếm (")}
+          {zeroDeltaCount}
+          {uiText(" khớp số liệu, ")}
+          {changedCountCount}
+          {uiText(" có chênh lệch), ")}
+          <strong>{surplusCount}</strong>
+          {uiText(" dòng hàng thừa mới")}
         </span>
         <button
           type="button"
@@ -859,7 +931,9 @@ export function StocktakeReconcileForm({
             !canSubmit || isPending ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {isPending ? "Đang ghi sổ..." : "Xác nhận & Ghi sổ Kiểm kê →"}
+          {isPending
+            ? uiText("Đang ghi sổ...")
+            : uiText("Xác nhận & Ghi sổ Kiểm kê →")}
         </button>
       </div>
 
@@ -869,49 +943,61 @@ export function StocktakeReconcileForm({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ClipboardList className="text-purple-600" size={18} />
-              <span>Xác nhận ghi sổ kiểm kê [{stocktakeReference}]</span>
+              <span>
+                {uiText("Xác nhận ghi sổ kiểm kê [")}
+                {stocktakeReference}]
+              </span>
             </h3>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Bạn có chắc chắn muốn ghi sổ phiên kiểm kê này không? Hệ thống sẽ
-              ghi nhận biến động chênh lệch thực tế vào Sổ cái và tạo các lô
-              hàng thừa ở trạng thái <strong>TẠM GIỮ (HOLD)</strong>.
+              {uiText(
+                "Bạn có chắc chắn muốn ghi sổ phiên kiểm kê này không? Hệ thống sẽ ghi nhận biến động chênh lệch thực tế vào Sổ cái và tạo các lô hàng thừa ở trạng thái ",
+              )}
+              <strong>{uiText("TẠM GIỮ (HOLD)")}</strong>.
             </p>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-slate-500">Mã đợt kiểm kê:</span>
+                <span className="text-slate-500">
+                  {uiText("Mã đợt kiểm kê:")}
+                </span>
                 <span className="font-mono font-bold text-purple-700">
                   {stocktakeReference}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Kho kiểm kê:</span>
+                <span className="text-slate-500">{uiText("Kho kiểm kê:")}</span>
                 <span className="font-semibold text-slate-800">
                   {locationId}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Chứng từ kiểm kê:</span>
+                <span className="text-slate-500">
+                  {uiText("Chứng từ kiểm kê:")}
+                </span>
                 <span className="font-semibold text-slate-800">
                   {evidenceNote}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">
-                  Số dòng kiểm đếm ghi nhận:
+                  {uiText("Số dòng kiểm đếm ghi nhận:")}
                 </span>
                 <span className="font-semibold text-slate-800">
-                  {activeCountCount} dòng ({zeroDeltaCount} khớp,{" "}
-                  {changedCountCount} có chênh lệch)
+                  {activeCountCount}
+                  {uiText(" dòng (")}
+                  {zeroDeltaCount}
+                  {uiText(" khớp,")} {changedCountCount}
+                  {uiText(" có chênh lệch)")}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">
-                  Số dòng hàng thừa (SURPLUS):
+                  {uiText("Số dòng hàng thừa (SURPLUS):")}
                 </span>
                 <span className="font-semibold text-purple-700 font-bold">
-                  {surplusCount} dòng
+                  {surplusCount}
+                  {uiText(" dòng")}
                 </span>
               </div>
             </div>
@@ -922,14 +1008,14 @@ export function StocktakeReconcileForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                Hủy bỏ / Cancel
+                {uiText("Hủy bỏ / Cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-4 rounded-lg"
               >
-                Ghi sổ kiểm kê / Confirm Stocktake
+                {uiText("Ghi sổ kiểm kê / Confirm Stocktake")}
               </button>
             </div>
           </div>

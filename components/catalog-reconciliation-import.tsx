@@ -3,6 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { UploadCloud } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Row = {
   item_name: string;
@@ -69,6 +71,8 @@ export function CatalogReconciliationImport({
     fingerprint: string,
   ) => Promise<{ ok: boolean; message: string }>;
 }) {
+  const { text: uiText } = useLanguage();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -168,7 +172,8 @@ export function CatalogReconciliationImport({
           }
         }}
       >
-        <UploadCloud size={17} /> Import tất cả
+        <UploadCloud size={17} />
+        {uiText(" Import tất cả")}
         <input
           ref={fileInputRef}
           aria-hidden="true"
@@ -182,15 +187,21 @@ export function CatalogReconciliationImport({
           }}
         />
       </label>
-      {notice ? <span className="field-note">{notice}</span> : null}
+      {notice ? (
+        <span className="field-note">
+          <LocalizedText text={notice ?? ""} />
+        </span>
+      ) : null}
       <ConfirmDialog
         open={Boolean(rows && fileName)}
-        title="Import tất cả"
+        title={uiText("Import tất cả")}
         description={
-          fileName && rows ? `${fileName} · ${rows.length} dòng dữ liệu` : ""
+          fileName && rows
+            ? uiText("{0} · {1} dòng dữ liệu", [fileName, rows.length])
+            : ""
         }
-        cancelLabel="Hủy"
-        confirmLabel="Import tất cả"
+        cancelLabel={uiText("Hủy")}
+        confirmLabel={uiText("Import tất cả")}
         tone="primary"
         pending={pending}
         confirmDisabled={!plan}
@@ -226,24 +237,24 @@ export function CatalogReconciliationImport({
             </p>
           ) : null}
           <p className="field-note">
-            Đây là dữ liệu trong file bạn chuẩn bị import.
+            {uiText("Đây là dữ liệu trong file bạn chuẩn bị import.")}
           </p>
           <div
             className="preview-table-wrap"
             role="region"
-            aria-label="Dữ liệu file import"
+            aria-label={uiText("Dữ liệu file import")}
             tabIndex={0}
           >
             <table className="preview-table">
               <thead>
                 <tr>
-                  <th>Tên thiết bị và vật tư</th>
-                  <th>Tên thương mại</th>
-                  <th>Loại</th>
-                  <th>Nước SX</th>
-                  <th>Hãng</th>
-                  <th>Model</th>
-                  <th>ĐVT</th>
+                  <th>{uiText("Tên thiết bị và vật tư")}</th>
+                  <th>{uiText("Tên thương mại")}</th>
+                  <th>{uiText("Loại")}</th>
+                  <th>{uiText("Nước SX")}</th>
+                  <th>{uiText("Hãng")}</th>
+                  <th>{uiText("Model")}</th>
+                  <th>{uiText("ĐVT")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -269,10 +280,11 @@ export function CatalogReconciliationImport({
           {rows && rows.length > previewPageSize ? (
             <nav
               className="pagination-controls"
-              aria-label="Phân trang dữ liệu file"
+              aria-label={uiText("Phân trang dữ liệu file")}
             >
               <span className="field-note">
-                Dòng {previewPage * previewPageSize + 1}–
+                {uiText("Dòng ")}
+                {previewPage * previewPageSize + 1}–
                 {Math.min((previewPage + 1) * previewPageSize, rows.length)} /{" "}
                 {rows.length}
               </span>
@@ -282,7 +294,7 @@ export function CatalogReconciliationImport({
                 disabled={previewPage === 0}
                 onClick={() => setPreviewPage((current) => current - 1)}
               >
-                Trước
+                {uiText("Trước")}
               </button>
               <button
                 className="button button-secondary"
@@ -290,7 +302,7 @@ export function CatalogReconciliationImport({
                 disabled={(previewPage + 1) * previewPageSize >= rows.length}
                 onClick={() => setPreviewPage((current) => current + 1)}
               >
-                Sau
+                {uiText("Sau")}
               </button>
             </nav>
           ) : null}

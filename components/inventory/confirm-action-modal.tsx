@@ -3,6 +3,8 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export function ConfirmActionModal({
   open,
@@ -27,6 +29,8 @@ export function ConfirmActionModal({
   onConfirm: (reason: string) => Promise<void>;
   onClose: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -145,7 +149,7 @@ export function ConfirmActionModal({
               id={titleId}
               className="text-base font-bold text-slate-900 dark:text-slate-100"
             >
-              {title}
+              {uiText(title)}
             </h3>
           </div>
           <button
@@ -153,7 +157,7 @@ export function ConfirmActionModal({
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
             onClick={onClose}
             disabled={isPending}
-            aria-label="Đóng hộp thoại"
+            aria-label={uiText("Đóng hộp thoại")}
           >
             <X size={18} />
           </button>
@@ -164,13 +168,13 @@ export function ConfirmActionModal({
             id={descId}
             className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
           >
-            {description}
+            {uiText(description)}
           </p>
 
           <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs dark:bg-slate-800/50 dark:border-slate-800">
             <div className="flex justify-between">
               <span className="text-slate-500 dark:text-slate-400 font-medium">
-                Đối tượng / Target:
+                {uiText("Đối tượng / Target:")}
               </span>
               <span className="font-semibold text-slate-800 dark:text-slate-200">
                 {targetName}
@@ -178,10 +182,11 @@ export function ConfirmActionModal({
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500 dark:text-slate-400 font-medium">
-                Phiên bản hiện tại / Current revision:
+                {uiText("Phiên bản hiện tại / Current revision:")}
               </span>
               <span className="font-mono text-slate-700 dark:text-slate-300 font-semibold">
-                r{String(currentRevision)}
+                {uiText("r")}
+                {String(currentRevision)}
               </span>
             </div>
           </div>
@@ -191,7 +196,8 @@ export function ConfirmActionModal({
               htmlFor="confirm-modal-reason"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
             >
-              Lý do thực hiện <span className="text-red-500">*</span>
+              {uiText("Lý do thực hiện ")}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               ref={textareaRef}
@@ -200,7 +206,9 @@ export function ConfirmActionModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={isPending}
-              placeholder="Ghi rõ căn cứ / lý do thực hiện thao tác này…"
+              placeholder={uiText(
+                "Ghi rõ căn cứ / lý do thực hiện thao tác này…",
+              )}
               aria-required="true"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? errorId : undefined}
@@ -215,7 +223,7 @@ export function ConfirmActionModal({
               aria-live="polite"
               className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-lg border border-red-200 dark:border-red-900/40 font-medium"
             >
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -226,14 +234,14 @@ export function ConfirmActionModal({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ / Cancel
+              {uiText("Hủy bỏ / Cancel")}
             </button>
             <button
               type="submit"
               className={btnClass}
               disabled={isPending || !reason.trim()}
             >
-              {isPending ? "Đang xử lý…" : actionLabel}
+              {isPending ? uiText("Đang xử lý…") : uiText(actionLabel)}
             </button>
           </div>
         </form>

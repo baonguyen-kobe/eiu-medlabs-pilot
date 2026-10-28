@@ -7,6 +7,7 @@ import { getEmailTestRecipient } from "@/lib/email-notifications";
 import { normalizePage, paginationRange } from "@/lib/pagination";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function EmailNotificationsPage({
   searchParams,
@@ -51,41 +52,85 @@ export default async function EmailNotificationsPage({
       canImportSchedules={viewer.canImportSchedules}
       canManagePersonnel={viewer.canManagePersonnel}
       canManageEmailNotifications={viewer.canManageEmailNotifications}
-      title="Email thông báo"
+      title={<LocalizedText text={"Email thông báo"} />}
       description={
-        deliveryMode === "off"
-          ? "Hệ thống đang tắt gửi email. Thông báo mới chỉ được ghi nhận và không gọi Apps Script."
-          : deliveryMode === "test"
-            ? isAdmin
-              ? `Chế độ kiểm thử; email thực tế chỉ gửi đến ${testRecipient}.`
-              : "Chế độ kiểm thử đang hoạt động; người nhận gốc không nhận email."
-            : "Lịch sử email thông báo. Email thất bại chỉ được gửi lại khi Admin hoặc Chuyên viên bấm Gửi lại."
+        deliveryMode === "off" ? (
+          <LocalizedText
+            text={
+              "Hệ thống đang tắt gửi email. Thông báo mới chỉ được ghi nhận và không gọi Apps Script."
+            }
+          />
+        ) : deliveryMode === "test" ? (
+          isAdmin ? (
+            <LocalizedText
+              text="Chế độ kiểm thử; email thực tế chỉ gửi đến {0}."
+              values={[testRecipient]}
+            />
+          ) : (
+            <LocalizedText
+              text={
+                "Chế độ kiểm thử đang hoạt động; người nhận gốc không nhận email."
+              }
+            />
+          )
+        ) : (
+          <LocalizedText
+            text={
+              "Lịch sử email thông báo. Email thất bại chỉ được gửi lại khi Admin hoặc Chuyên viên bấm Gửi lại."
+            }
+          />
+        )
       }
     >
       {query.notice ? (
-        <p className="action-feedback success">{query.notice}</p>
+        <p className="action-feedback success">
+          <LocalizedText text={query.notice} />
+        </p>
       ) : null}
       {query.error ? (
-        <p className="action-feedback error">{query.error}</p>
+        <p className="action-feedback error">
+          <LocalizedText text={query.error} />
+        </p>
       ) : null}
       <section className="data-panel email-delivery-mode-panel">
         <div>
           <strong>
-            Chế độ hiện tại:{" "}
-            {deliveryMode === "off"
-              ? "Tắt gửi"
-              : deliveryMode === "test"
-                ? "Kiểm thử"
-                : "Gửi thật"}
+            <LocalizedText text={"Chế độ hiện tại:"} />{" "}
+            {deliveryMode === "off" ? (
+              <LocalizedText text={"Tắt gửi"} />
+            ) : deliveryMode === "test" ? (
+              <LocalizedText text={"Kiểm thử"} />
+            ) : (
+              <LocalizedText text={"Gửi thật"} />
+            )}
           </strong>
           <p>
-            {deliveryMode === "off"
-              ? "Không gửi email đến người nhận gốc hoặc email kiểm thử. Email bị bỏ qua sẽ không được gửi dồn khi bật lại."
-              : deliveryMode === "test"
-                ? isAdmin
-                  ? `Người nhận gốc không nhận email. Toàn bộ bản kiểm thử chỉ gửi đến ${testRecipient} để Admin kiểm tra nội dung.`
-                  : "Người nhận gốc không nhận email trong chế độ kiểm thử."
-                : "Thông báo mới được gửi thật qua Apps Script đến người nhận."}
+            {deliveryMode === "off" ? (
+              <LocalizedText
+                text={
+                  "Không gửi email đến người nhận gốc hoặc email kiểm thử. Email bị bỏ qua sẽ không được gửi dồn khi bật lại."
+                }
+              />
+            ) : deliveryMode === "test" ? (
+              isAdmin ? (
+                <LocalizedText
+                  text="Người nhận gốc không nhận email. Toàn bộ bản kiểm thử chỉ gửi đến {0} để Admin kiểm tra nội dung."
+                  values={[testRecipient]}
+                />
+              ) : (
+                <LocalizedText
+                  text={
+                    "Người nhận gốc không nhận email trong chế độ kiểm thử."
+                  }
+                />
+              )
+            ) : (
+              <LocalizedText
+                text={
+                  "Thông báo mới được gửi thật qua Apps Script đến người nhận."
+                }
+              />
+            )}
           </p>
         </div>
         {isAdmin ? (
@@ -104,7 +149,7 @@ export default async function EmailNotificationsPage({
                   type="submit"
                   disabled={deliveryMode === mode}
                 >
-                  {label}
+                  <LocalizedText text={label} />
                 </button>
               </form>
             ))}
@@ -119,7 +164,9 @@ export default async function EmailNotificationsPage({
           deliveryMode={deliveryMode}
         />
         {!notifications?.length ? (
-          <p className="panel-empty">Chưa có email thông báo.</p>
+          <p className="panel-empty">
+            <LocalizedText text={"Chưa có email thông báo."} />
+          </p>
         ) : null}
         <PaginationLinks
           currentPage={currentPage}

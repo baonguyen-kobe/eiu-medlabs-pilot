@@ -5,6 +5,7 @@ import {
   totalPagesFor,
   visiblePageNumbers,
 } from "@/lib/pagination";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function PaginationControls({
   currentPage,
@@ -17,6 +18,8 @@ export function PaginationControls({
   onPageChange: (page: number) => void;
   pageSize?: number;
 }) {
+  const { text: uiText } = useLanguage();
+
   const totalPages = totalPagesFor(totalItems, pageSize);
   const page = Math.min(Math.max(currentPage, 1), totalPages);
   if (totalPages <= 1) return null;
@@ -26,10 +29,10 @@ export function PaginationControls({
   };
 
   return (
-    <nav className="table-pagination" aria-label="Phân trang">
+    <nav className="table-pagination" aria-label={uiText("Phân trang")}>
       <button
         type="button"
-        aria-label="Trang đầu"
+        aria-label={uiText("Trang đầu")}
         disabled={page === 1}
         onClick={() => goTo(1)}
       >
@@ -37,7 +40,7 @@ export function PaginationControls({
       </button>
       <button
         type="button"
-        aria-label="Trang trước"
+        aria-label={uiText("Trang trước")}
         disabled={page === 1}
         onClick={() => goTo(page - 1)}
       >
@@ -56,7 +59,7 @@ export function PaginationControls({
       ))}
       <button
         type="button"
-        aria-label="Trang tiếp theo"
+        aria-label={uiText("Trang tiếp theo")}
         disabled={page === totalPages}
         onClick={() => goTo(page + 1)}
       >
@@ -64,7 +67,7 @@ export function PaginationControls({
       </button>
       <button
         type="button"
-        aria-label="Trang cuối"
+        aria-label={uiText("Trang cuối")}
         disabled={page === totalPages}
         onClick={() => goTo(totalPages)}
       >

@@ -54,7 +54,7 @@ export async function changePreparation(
   const { data: claims } = await db.auth.getClaims();
   if (!claims?.claims?.sub)
     return { ok: false, error: "Phiên đăng nhập đã hết hạn." };
-  const { error } =
+  const { error, status } =
     operation === "physical_transfer"
       ? await db.rpc("equipment_preparation_transfer", {
           p_request_id: requestId,
@@ -67,7 +67,13 @@ export async function changePreparation(
           p_payload: payload,
           p_retry_key: retryKey,
         });
-  if (error) return { ok: false, error: preparationError(error.message) };
+  if (error)
+    return {
+      ok: false,
+      uncertain:
+        status === 0 || status >= 500 || !/^[0-9A-Z]{5}$/.test(error.code),
+      error: preparationError(error.message),
+    };
   const { data, error: readError } = await db.rpc(
     "equipment_preparation_read",
     { p_request_id: requestId },
@@ -75,9 +81,12 @@ export async function changePreparation(
   if (readError)
     return {
       ok: false,
+      committed: true,
       error: `Thao tác đã ghi nhận; không tải được phiên bản mới: ${preparationError(readError.message)}`,
     };
   if (!["save", "heartbeat", "release_lock"].includes(operation)) {
+    revalidatePath("/equipment/operations");
+    revalidatePath("/equipment/preparation");
     revalidatePath("/equipment/requests");
     revalidatePath("/equipment/mine");
     revalidatePath("/inventory/stock");
@@ -91,6 +100,7 @@ export async function changePreparation(
   if (!parsed.success)
     return {
       ok: false,
+      committed: true,
       error:
         "Dữ liệu phiên bản mới không khớp hợp đồng. Thao tác đã ghi nhận; hãy tải lại trước khi tiếp tục.",
     };

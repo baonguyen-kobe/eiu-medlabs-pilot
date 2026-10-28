@@ -302,7 +302,10 @@ test("Basic Medical registration and sessions share one master grid", async () =
     css,
     /\.basic-medical-session-table th:last-child\s*\{[\s\S]*text-align: left/,
   );
-  assert.match(registrationList, /<th>Trạng thái \/ Thao tác<\/th>/);
+  assert.match(
+    registrationList,
+    /<th>\{uiText\("Trạng thái \/ Thao tác"\)\}<\/th>/,
+  );
 });
 
 test("Email notification table preserves a single-line delivery status", async () => {
@@ -400,7 +403,7 @@ test("UI V2 personnel structure follows the approved table and drawer order", as
     "Trạng thái",
     "Thao tác",
   ]) {
-    assert.match(personnel, new RegExp(`<th>${heading}</th>`));
+    assert.ok(personnel.includes(`<th>{uiText("${heading}")}</th>`));
   }
   assert.match(personnel, /personnel-password-section/);
   assert.doesNotMatch(personnel, /window\.confirm/);
@@ -472,7 +475,10 @@ test("final Master correction keeps table ownership, counters, and stable catalo
   assert.match(master, /BUG-UI-TABLE-RIGHT-EDGE-001/);
   assert.match(catalog, /catalog-master-action-group/);
   assert.match(catalog, /selected\.length !== 1/);
-  assert.match(catalog, /editing\.length \? "Lưu chỉnh sửa" : "Sửa"/);
+  assert.match(
+    catalog,
+    /editing\.length \? uiText\("Lưu chỉnh sửa"\) : uiText\("Sửa"\)/,
+  );
   assert.match(personnel, /const hasChanges = dirty;/);
   assert.doesNotMatch(personnel, /emailCapabilityDirty/);
   assert.doesNotMatch(personnel, /function effectiveEmailCapability/);

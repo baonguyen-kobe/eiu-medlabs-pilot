@@ -2,8 +2,9 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { CatalogView } from "@/components/inventory/catalog-view";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type { InventoryCatalogItem } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface CatalogPageProps {
   searchParams: Promise<{
@@ -46,8 +47,16 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Danh mục Vật tư & Nhóm / Catalog Items"
-        description="Quản lý danh mục vật tư độc lập, phân loại hóa chất bắt buộc HSD và cấu hình đơn vị tính"
+        title={
+          <LocalizedText text={"Danh mục Vật tư & Nhóm / Catalog Items"} />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Quản lý danh mục vật tư độc lập, phân loại hóa chất bắt buộc HSD và cấu hình đơn vị tính"
+            }
+          />
+        }
       />
 
       <CatalogView

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 type LifecycleAuditEntry = {
   created_at: string;
@@ -45,6 +46,8 @@ export function EquipmentRequestLifecycleHistory({
 }: {
   requestId: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [entries, setEntries] = useState<LifecycleAuditEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -67,20 +70,27 @@ export function EquipmentRequestLifecycleHistory({
   }, [requestId]);
 
   return (
-    <section className="equipment-lifecycle-history" aria-label="Lịch sử xử lý">
-      <h3>Lịch sử xử lý</h3>
-      {!loaded ? <p>Đang tải lịch sử…</p> : null}
-      {loaded && !entries.length ? <p>Chưa có thao tác xử lý.</p> : null}
+    <section
+      className="equipment-lifecycle-history"
+      aria-label={uiText("Lịch sử xử lý")}
+    >
+      <h3>{uiText("Lịch sử xử lý")}</h3>
+      {!loaded ? <p>{uiText("Đang tải lịch sử…")}</p> : null}
+      {loaded && !entries.length ? (
+        <p>{uiText("Chưa có thao tác xử lý.")}</p>
+      ) : null}
       {entries.length ? (
         <ol>
           {entries.map((entry, index) => {
             const transition =
               entry.old_status && entry.new_status
-                ? `${statusLabels[entry.old_status] ?? entry.old_status} → ${statusLabels[entry.new_status] ?? entry.new_status}`
+                ? `${uiText(statusLabels[entry.old_status] ?? entry.old_status)} → ${uiText(statusLabels[entry.new_status] ?? entry.new_status)}`
                 : null;
             return (
               <li key={`${entry.created_at}-${entry.action}-${index}`}>
-                <strong>{actionLabels[entry.action] ?? entry.action}</strong>
+                <strong>
+                  {uiText(actionLabels[entry.action] ?? entry.action)}
+                </strong>
                 {transition ? <span>{transition}</span> : null}
                 <small>
                   {displayTime(entry.created_at)}

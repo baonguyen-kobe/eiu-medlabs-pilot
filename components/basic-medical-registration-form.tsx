@@ -18,6 +18,9 @@ import {
   BASIC_MEDICAL_START_TIMES,
   isValidBasicMedicalSessionTime,
 } from "@/lib/business-time";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
+
 type Option = { id: string; label: string };
 type Session = {
   key: number;
@@ -72,6 +75,8 @@ export function BasicMedicalRegistrationForm({
   today: string;
   initialData?: BasicMedicalRegistrationInitialData;
 }) {
+  const { text: uiText } = useLanguage();
+
   const submitAction =
     initialData?.mode === "edit"
       ? updateBasicMedicalRegistration
@@ -129,17 +134,19 @@ export function BasicMedicalRegistrationForm({
             ...lecturer,
             label:
               lecturer.id === registrantId && lecturer.id === responsible
-                ? `${lecturer.label} (Giảng viên đăng ký, phụ trách)`
+                ? uiText("{0} (Giảng viên đăng ký, phụ trách)", [
+                    lecturer.label,
+                  ])
                 : lecturer.id === registrantId
-                  ? `${lecturer.label} (Giảng viên đăng ký)`
+                  ? uiText("{0} (Giảng viên đăng ký)", [lecturer.label])
                   : lecturer.id === responsible
-                    ? `${lecturer.label} (Giảng viên phụ trách)`
+                    ? uiText("{0} (Giảng viên phụ trách)", [lecturer.label])
                     : lecturer.label,
           }))
           .map((option) => [option.id, option]),
       ).values(),
     ],
-    [lecturers, registrantId, responsible],
+    [lecturers, registrantId, responsible, uiText],
   );
   function resize(next: number) {
     setCount(next);
@@ -231,8 +238,8 @@ export function BasicMedicalRegistrationForm({
         >
           <strong>
             {initialData.mode === "copy"
-              ? "Đang sao chép phiếu"
-              : "Đang điều chỉnh phiếu"}{" "}
+              ? uiText("Đang sao chép phiếu")
+              : uiText("Đang điều chỉnh phiếu")}{" "}
             #{initialData.sourceRegistrationCode}
           </strong>
         </div>
@@ -247,11 +254,11 @@ export function BasicMedicalRegistrationForm({
           <p
             className={state.ok && !clientError ? "form-success" : "form-error"}
           >
-            {clientError || state.message}
+            <LocalizedText text={(clientError || state.message) ?? ""} />
           </p>
           {state.ok && !clientError ? (
             <Link className="button button-primary" href="/basic-medical/new">
-              Tạo mới
+              {uiText("Tạo mới")}
             </Link>
           ) : null}
         </div>
@@ -260,12 +267,12 @@ export function BasicMedicalRegistrationForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">01</span>
-            <h2>Thông tin môn học</h2>
+            <h2>{uiText("Thông tin môn học")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Ngày bắt đầu *
+            {uiText("Ngày bắt đầu *")}
             <input
               name="start_date"
               type="date"
@@ -280,7 +287,7 @@ export function BasicMedicalRegistrationForm({
             />
           </label>
           <label>
-            Ngày kết thúc *
+            {uiText("Ngày kết thúc *")}
             <input
               name="end_date"
               type="date"
@@ -291,7 +298,7 @@ export function BasicMedicalRegistrationForm({
             />
           </label>
           <label>
-            Học kỳ *
+            {uiText("Học kỳ *")}
             <select
               name="semester"
               value={semester}
@@ -299,15 +306,18 @@ export function BasicMedicalRegistrationForm({
               required
             >
               <option value="" disabled>
-                Chọn học kỳ
+                {uiText("Chọn học kỳ")}
               </option>
               {[1, 2, 3, 4].map((n) => (
-                <option key={n}>HK{n}</option>
+                <option key={n} value={`HK${n}`}>
+                  {uiText("HK")}
+                  {n}
+                </option>
               ))}
             </select>
           </label>
           <label>
-            Năm học *
+            {uiText("Năm học *")}
             <input
               name="academic_year"
               value={academicYear}
@@ -318,7 +328,7 @@ export function BasicMedicalRegistrationForm({
             />
           </label>
           <label>
-            Mã và tên môn học *
+            {uiText("Mã và tên môn học *")}
             <select
               name="course_id"
               value={courseId}
@@ -326,7 +336,7 @@ export function BasicMedicalRegistrationForm({
               required
             >
               <option value="" disabled>
-                Chọn môn học
+                {uiText("Chọn môn học")}
               </option>
               {courses.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -336,7 +346,7 @@ export function BasicMedicalRegistrationForm({
             </select>
           </label>
           <label>
-            Phòng/Lab *
+            {uiText("Phòng/Lab *")}
             <select
               name="room_id"
               value={roomId}
@@ -344,7 +354,7 @@ export function BasicMedicalRegistrationForm({
               required
             >
               <option value="" disabled>
-                Chọn phòng
+                {uiText("Chọn phòng")}
               </option>
               {rooms.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -354,7 +364,7 @@ export function BasicMedicalRegistrationForm({
             </select>
           </label>
           <label>
-            Số lượng SV *
+            {uiText("Số lượng SV *")}
             <input
               name="student_count"
               type="number"
@@ -371,16 +381,16 @@ export function BasicMedicalRegistrationForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">02</span>
-            <h2>Thông tin người đăng ký</h2>
+            <h2>{uiText("Thông tin người đăng ký")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Giảng viên đăng ký
+            {uiText("Giảng viên đăng ký")}
             <input value={registrantName} readOnly />
           </label>
           <label>
-            Email
+            {uiText("Email")}
             <input value={registrantEmail} readOnly />
           </label>
         </div>
@@ -389,19 +399,19 @@ export function BasicMedicalRegistrationForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">03</span>
-            <h2>Thông tin giảng viên phụ trách</h2>
+            <h2>{uiText("Thông tin giảng viên phụ trách")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Giảng viên phụ trách *
+            {uiText("Giảng viên phụ trách *")}
             <select
               name="responsible_lecturer_id"
               value={responsible}
               onChange={(e) => setResponsible(e.target.value)}
               required
             >
-              <option value="">Chọn giảng viên</option>
+              <option value="">{uiText("Chọn giảng viên")}</option>
               {lecturers.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
@@ -412,8 +422,9 @@ export function BasicMedicalRegistrationForm({
         </div>
         {!lecturers.length ? (
           <p className="form-error" role="alert">
-            Chưa có nhân sự đang hoạt động với chức danh Giảng viên thuộc loại
-            phòng Y cơ sở. Vui lòng cập nhật trong mục Nhân sự.
+            {uiText(
+              "Chưa có nhân sự đang hoạt động với chức danh Giảng viên thuộc loại phòng Y cơ sở. Vui lòng cập nhật trong mục Nhân sự.",
+            )}
           </p>
         ) : null}
       </section>
@@ -421,15 +432,16 @@ export function BasicMedicalRegistrationForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">04</span>
-            <h2>Thông tin đăng ký</h2>
+            <h2>{uiText("Thông tin đăng ký")}</h2>
           </div>
           <p>
-            Giảng viên giảng dạy/hướng dẫn của từng buổi được chọn từ nhân sự có
-            chức danh Giảng viên thuộc Y cơ sở.
+            {uiText(
+              "Giảng viên giảng dạy/hướng dẫn của từng buổi được chọn từ nhân sự có chức danh Giảng viên thuộc Y cơ sở.",
+            )}
           </p>
         </div>
         <label>
-          Số buổi TN-TH *
+          {uiText("Số buổi TN-TH *")}
           <input
             type="number"
             min="1"
@@ -447,11 +459,11 @@ export function BasicMedicalRegistrationForm({
             <thead>
               <tr>
                 <th>#</th>
-                <th>Ngày học *</th>
-                <th>Giờ bắt đầu *</th>
-                <th>Giờ kết thúc *</th>
-                <th>Tên bài TN-TH *</th>
-                <th>GV giảng dạy/hướng dẫn *</th>
+                <th>{uiText("Ngày học *")}</th>
+                <th>{uiText("Giờ bắt đầu *")}</th>
+                <th>{uiText("Giờ kết thúc *")}</th>
+                <th>{uiText("Tên bài TN-TH *")}</th>
+                <th>{uiText("GV giảng dạy/hướng dẫn *")}</th>
               </tr>
             </thead>
             <tbody>
@@ -460,7 +472,7 @@ export function BasicMedicalRegistrationForm({
                   <td>{i + 1}</td>
                   <td>
                     <input
-                      aria-label={`Buổi ${i + 1} - Ngày học`}
+                      aria-label={uiText("Buổi {0} - Ngày học", [i + 1])}
                       type="date"
                       value={s.date}
                       min={startDate || undefined}
@@ -471,7 +483,7 @@ export function BasicMedicalRegistrationForm({
                   </td>
                   <td>
                     <TimePicker
-                      ariaLabel={`Buổi ${i + 1} - Giờ bắt đầu`}
+                      ariaLabel={uiText("Buổi {0} - Giờ bắt đầu", [i + 1])}
                       value={s.startTime}
                       onChange={(val) => update(s.key, { startTime: val })}
                       allowedValues={BASIC_MEDICAL_START_TIMES}
@@ -482,7 +494,7 @@ export function BasicMedicalRegistrationForm({
                   </td>
                   <td>
                     <TimePicker
-                      ariaLabel={`Buổi ${i + 1} - Giờ kết thúc`}
+                      ariaLabel={uiText("Buổi {0} - Giờ kết thúc", [i + 1])}
                       value={s.endTime}
                       onChange={(val) => update(s.key, { endTime: val })}
                       allowedValues={BASIC_MEDICAL_END_TIMES}
@@ -493,7 +505,7 @@ export function BasicMedicalRegistrationForm({
                   </td>
                   <td>
                     <input
-                      aria-label={`Buổi ${i + 1} - Tên bài TN-TH`}
+                      aria-label={uiText("Buổi {0} - Tên bài TN-TH", [i + 1])}
                       value={s.lessonTitle}
                       onChange={(e) =>
                         update(s.key, { lessonTitle: e.target.value })
@@ -503,14 +515,17 @@ export function BasicMedicalRegistrationForm({
                   </td>
                   <td>
                     <select
-                      aria-label={`Buổi ${i + 1} - Giảng viên giảng dạy/hướng dẫn`}
+                      aria-label={uiText(
+                        "Buổi {0} - Giảng viên giảng dạy/hướng dẫn",
+                        [i + 1],
+                      )}
                       value={s.teachingLecturerId}
                       onChange={(e) =>
                         update(s.key, { teachingLecturerId: e.target.value })
                       }
                       required
                     >
-                      <option value="">Chọn giảng viên</option>
+                      <option value="">{uiText("Chọn giảng viên")}</option>
                       {allowed.map((o) => (
                         <option key={o.id} value={o.id}>
                           {o.label}
@@ -526,7 +541,7 @@ export function BasicMedicalRegistrationForm({
       </section>
       <section>
         <label>
-          Ghi chú
+          {uiText("Ghi chú")}
           <textarea
             name="note"
             rows={3}
@@ -540,7 +555,7 @@ export function BasicMedicalRegistrationForm({
           href="/basic-medical/schedules"
           className="button button-secondary"
         >
-          Hủy
+          {uiText("Hủy")}
         </Link>
         <button
           type="submit"
@@ -548,10 +563,10 @@ export function BasicMedicalRegistrationForm({
           disabled={pending}
         >
           {pending
-            ? "Đang lưu…"
+            ? uiText("Đang lưu…")
             : initialData?.mode === "edit"
-              ? "Lưu điều chỉnh"
-              : "Gửi đăng ký"}
+              ? uiText("Lưu điều chỉnh")
+              : uiText("Gửi đăng ký")}
         </button>
       </footer>
     </form>

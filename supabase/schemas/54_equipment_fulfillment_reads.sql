@@ -8,9 +8,16 @@ begin
  if p_page is null or p_page<1 or p_page>100000 then raise exception 'INVALID_PAGE'; end if;
  manager:=private.can_access_inventory() and private.can_manage_equipment_request(r.id);
  select jsonb_build_object('request_id',r.id,'revision',r.fulfillment_revision,'status',r.status,'manager',manager,'admin',manager and private.is_inventory_admin(),'signer',auth.uid() in (r.registrant_id,r.responsible_lecturer_id),
- 'lines',coalesce((select jsonb_agg(jsonb_build_object('id',l.id,'catalog_item_id',l.catalog_item_id,'name',c.commercial_name,'registered_quantity',l.registered_quantity,'planned_quantity',l.planned_quantity,'unit',c.unit) order by l.id) from public.equipment_request_items l join public.equipment_catalog c on c.id=l.catalog_item_id where l.request_id=r.id and l.removed_at is null),'[]'::jsonb),
- 'issues',coalesce((select jsonb_agg(to_jsonb(x) order by x.id) from(select s.*,o.*,a.asset_code,i.name item_name from public.equipment_issue_slices s join public.equipment_fulfillment_events e on e.id=s.event_id join public.inventory_catalog_items i on i.id=s.inventory_item_id left join public.equipment_assets a on a.id=s.asset_id cross join lateral private.s5_obligation(s.id) o where e.request_id=r.id)x),'[]'::jsonb),
+ 'lines',coalesce((select jsonb_agg(jsonb_build_object('id',l.id,'catalog_item_id',l.catalog_item_id,'name',c.commercial_name,'registered_quantity',l.registered_quantity,'planned_quantity',l.planned_quantity,'requested_quantity',l.quantity,'baseline_source',l.baseline_source,'unit',c.unit) order by l.id) from public.equipment_request_items l join public.equipment_catalog c on c.id=l.catalog_item_id where l.request_id=r.id and l.removed_at is null),'[]'::jsonb),
+ 'issues',coalesce((select jsonb_agg(to_jsonb(x) order by x.id) from(select s.*,o.*,a.asset_code,i.name item_name,i.base_uom_code from public.equipment_issue_slices s join public.equipment_fulfillment_events e on e.id=s.event_id join public.inventory_catalog_items i on i.id=s.inventory_item_id left join public.equipment_assets a on a.id=s.asset_id cross join lateral private.s5_obligation(s.id) o where e.request_id=r.id)x),'[]'::jsonb),
  'events',coalesce((select jsonb_agg(to_jsonb(x) order by x.revision desc) from(select e.*,private.s5_snapshot(e.id) snapshot,encode(extensions.digest(convert_to(private.s5_snapshot(e.id)::text,'UTF8'),'sha256'),'hex') snapshot_hash,
+ (select coalesce(jsonb_agg(to_jsonb(display_row) order by display_row.id),'[]'::jsonb) from (
+  select sl.id,'issue'::text kind,i.name item_name,i.base_uom_code unit,sl.quantity::text quantity,'good'::text condition,a.asset_code,sl.id issue_slice_id
+  from public.equipment_issue_slices sl join public.inventory_catalog_items i on i.id=sl.inventory_item_id left join public.equipment_assets a on a.id=sl.asset_id where sl.event_id=e.id
+  union all
+  select f.id,f.kind,i.name,i.base_uom_code,f.quantity::text,f.condition,a.asset_code,sl.id
+  from public.equipment_fulfillment_effects f join public.equipment_issue_slices sl on sl.id=f.issue_slice_id join public.inventory_catalog_items i on i.id=sl.inventory_item_id left join public.equipment_assets a on a.id=sl.asset_id where f.event_id=e.id
+ ) display_row) display_lines,
  (select jsonb_build_object('actor_id',sig.actor_id,'signed_at',sig.signed_at,'snapshot_hash',sig.snapshot_hash) from public.equipment_fulfillment_signatures sig where sig.event_id=e.id) signature,
  exists(select 1 from public.equipment_fulfillment_events newer where newer.corrects_event_id=e.id) superseded
  from public.equipment_fulfillment_events e where e.request_id=r.id order by e.revision desc limit 50 offset (p_page-1)*50)x),'[]'::jsonb),

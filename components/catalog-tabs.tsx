@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { LocalizedElement } from "@/components/i18n/localized-element";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const items = [
   ["/admin/courses", "Môn học"],
@@ -8,7 +10,12 @@ const items = [
 
 export function CatalogTabs({ active }: { active?: string }) {
   return (
-    <nav className="catalog-tabs" aria-label="Danh mục quản trị">
+    <LocalizedElement
+      as="nav"
+      textAttributes={["aria-label"]}
+      className="catalog-tabs"
+      aria-label="Danh mục quản trị"
+    >
       {items.map(([href, label]) => (
         <Link
           aria-current={active === href ? "page" : undefined}
@@ -16,9 +23,9 @@ export function CatalogTabs({ active }: { active?: string }) {
           href={href}
           key={href}
         >
-          {label}
+          <LocalizedText text={label} />
         </Link>
       ))}
-    </nav>
+    </LocalizedElement>
   );
 }

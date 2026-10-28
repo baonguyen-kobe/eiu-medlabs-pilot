@@ -159,11 +159,14 @@ select lives_ok(
   'Skills create accepts the same commercial name in different activities'
 );
 select lives_ok(
-  $$ update public.equipment_request_items set quantity = 2 where request_id = (select skills_request_id from commercial_name_guard_ctx) and catalog_item_id = (select skills_catalog_x_id from commercial_name_guard_ctx) $$,
+  $$ select public.update_equipment_request_content(
+    r.id,r.class_schedule_id,r.semester,r.responsible_lecturer_id,r.receive_at,r.return_at,r.note,r.late_registration_reason,
+    (select jsonb_agg(jsonb_build_object('id',i.id,'catalog_item_id',i.catalog_item_id,'skill_name',i.skill_name,'quantity',case when i.catalog_item_id=ctx.skills_catalog_x_id then 2 else i.quantity end,'note',i.note,'expected_revision',r.preparation_revision)) from public.equipment_request_items i where i.request_id=r.id and i.removed_at is null))
+    from public.equipment_requests r join commercial_name_guard_ctx ctx on r.id=ctx.skills_request_id $$,
   'Skills self-row update is not treated as a duplicate'
 );
 select throws_ok(
-  $$ select public.update_equipment_request_content((select skills_request_id from commercial_name_guard_ctx), (select skills_schedule_b_id from commercial_name_guard_ctx), 'HK1', (select lecturer_1_id from commercial_name_guard_ctx), ((current_date + 21)::text || ' 09:00 Asia/Ho_Chi_Minh')::timestamptz, ((current_date + 21)::text || ' 11:00 Asia/Ho_Chi_Minh')::timestamptz, null, null, jsonb_build_array(jsonb_build_object('skill_name', 'Activity A', 'catalog_item_id', (select skills_catalog_x_id from commercial_name_guard_ctx), 'quantity', 1), jsonb_build_object('skill_name', 'Activity A', 'catalog_item_id', (select skills_catalog_x_id from commercial_name_guard_ctx), 'quantity', 2))) $$,
+  $$ select public.update_equipment_request_content((select skills_request_id from commercial_name_guard_ctx), (select skills_schedule_b_id from commercial_name_guard_ctx), 'HK1', (select lecturer_1_id from commercial_name_guard_ctx), ((current_date + 21)::text || ' 09:00 Asia/Ho_Chi_Minh')::timestamptz, ((current_date + 21)::text || ' 11:00 Asia/Ho_Chi_Minh')::timestamptz, null, null, jsonb_build_array(jsonb_build_object('id',(select id from public.equipment_request_items where request_id=(select skills_request_id from commercial_name_guard_ctx) and catalog_item_id=(select skills_catalog_x_id from commercial_name_guard_ctx) and removed_at is null),'expected_revision',(select preparation_revision from public.equipment_requests where id=(select skills_request_id from commercial_name_guard_ctx)),'skill_name', 'Activity A', 'catalog_item_id', (select skills_catalog_x_id from commercial_name_guard_ctx), 'quantity', 1), jsonb_build_object('expected_revision',(select preparation_revision from public.equipment_requests where id=(select skills_request_id from commercial_name_guard_ctx)),'skill_name', 'Activity A', 'catalog_item_id', (select skills_catalog_x_id from commercial_name_guard_ctx), 'quantity', 2))) $$,
   '22023', 'EQUIPMENT_REQUEST_DUPLICATE_COMMERCIAL_NAME_IN_ACTIVITY', 'Skills edit rejects a second duplicate row'
 );
 select throws_ok(
@@ -193,7 +196,7 @@ select lives_ok(
   'Basic Medical self-row update is not treated as a duplicate'
 );
 select throws_ok(
-  $$ select public.update_basic_medical_equipment_request_content((select basic_request_id from commercial_name_guard_ctx), ((current_date + 25)::text || ' 09:00 Asia/Ho_Chi_Minh')::timestamptz, ((current_date + 25)::text || ' 11:00 Asia/Ho_Chi_Minh')::timestamptz, null, null, jsonb_build_array(jsonb_build_object('catalog_item_id', (select basic_catalog_x_id from commercial_name_guard_ctx), 'quantity', 1), jsonb_build_object('catalog_item_id', (select basic_catalog_x_id from commercial_name_guard_ctx), 'quantity', 2))) $$,
+  $$ select public.update_basic_medical_equipment_request_content((select basic_request_id from commercial_name_guard_ctx), ((current_date + 25)::text || ' 09:00 Asia/Ho_Chi_Minh')::timestamptz, ((current_date + 25)::text || ' 11:00 Asia/Ho_Chi_Minh')::timestamptz, null, null, jsonb_build_array(jsonb_build_object('id',(select id from public.equipment_request_items where request_id=(select basic_request_id from commercial_name_guard_ctx) and basic_medical_catalog_item_id=(select basic_catalog_x_id from commercial_name_guard_ctx) and removed_at is null),'expected_revision',(select preparation_revision from public.equipment_requests where id=(select basic_request_id from commercial_name_guard_ctx)),'catalog_item_id', (select basic_catalog_x_id from commercial_name_guard_ctx), 'quantity', 1), jsonb_build_object('expected_revision',(select preparation_revision from public.equipment_requests where id=(select basic_request_id from commercial_name_guard_ctx)),'catalog_item_id', (select basic_catalog_x_id from commercial_name_guard_ctx), 'quantity', 2))) $$,
   '22023', 'EQUIPMENT_REQUEST_DUPLICATE_COMMERCIAL_NAME_IN_ACTIVITY', 'Basic Medical edit rejects a second duplicate row'
 );
 

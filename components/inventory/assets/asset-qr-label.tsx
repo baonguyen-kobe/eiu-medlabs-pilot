@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { EquipmentAsset } from "@/lib/inventory/asset-types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetQrLabelProps {
   asset: EquipmentAsset;
@@ -9,6 +10,8 @@ export interface AssetQrLabelProps {
 }
 
 export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
+  const { text: uiText } = useLanguage();
+
   const handlePrint = () => {
     window.print();
   };
@@ -29,24 +32,24 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-          Nhãn mã phản hồi nhanh / QR Asset Label
+          {uiText("Nhãn mã phản hồi nhanh / QR Asset Label")}
         </h3>
         <div className="flex items-center gap-2 print:hidden">
           <button
             type="button"
             onClick={handleDownloadSvg}
             className="button button-secondary text-xs px-2.5 py-1"
-            title="Tải tệp SVG về máy"
+            title={uiText("Tải tệp SVG về máy")}
           >
-            Tải SVG
+            {uiText("Tải SVG")}
           </button>
           <button
             type="button"
             onClick={handlePrint}
             className="button button-primary text-xs px-2.5 py-1"
-            title="In nhãn tài sản này"
+            title={uiText("In nhãn tài sản này")}
           >
-            In nhãn (Print)
+            {uiText("In nhãn (Print)")}
           </button>
         </div>
       </div>
@@ -57,13 +60,13 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
         <div
           className="w-36 h-36 bg-white p-2 rounded border border-slate-200 shadow-xs shrink-0 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
           dangerouslySetInnerHTML={{ __html: qrSvg }}
-          aria-label={`QR Code cho mã tài sản ${asset.asset_code}`}
+          aria-label={uiText("QR Code cho mã tài sản {0}", [asset.asset_code])}
         />
 
         {/* Textual Identity Facts */}
         <div className="space-y-1.5 text-center min-w-0 w-full">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
-            EIU MEDLABS • ASSET TAG
+            {uiText("EIU MEDLABS • ASSET TAG")}
           </div>
           <div className="text-base font-mono font-bold text-slate-900 break-words">
             {asset.asset_code}
@@ -73,17 +76,18 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
           </div>
           {asset.manufacturer_serial ? (
             <div className="text-[11px] text-slate-500 font-mono">
-              S/N: {asset.manufacturer_serial}
+              {uiText("S/N: ")}
+              {asset.manufacturer_serial}
               {asset.manufacturer ? ` • ${asset.manufacturer}` : ""}
               {asset.model ? ` (${asset.model})` : ""}
             </div>
           ) : (
             <div className="text-[11px] text-slate-400 italic">
-              Không có số sê-ri nhà sản xuất
+              {uiText("Không có số sê-ri nhà sản xuất")}
             </div>
           )}
           <div className="text-[11px] text-slate-500">
-            Vị trí:{" "}
+            {uiText("Vị trí:")}{" "}
             <span className="font-medium text-slate-700">
               {asset.location_code}
             </span>{" "}
@@ -93,8 +97,9 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
       </div>
 
       <div className="text-[11px] text-slate-500 italic print:hidden">
-        * Tiêu chuẩn mã QR mã hóa duy nhất chuỗi <code>{asset.asset_code}</code>{" "}
-        theo đặc tả S3. Nhãn không chứa bí mật hay liên kết nội bộ.
+        {uiText("* Tiêu chuẩn mã QR mã hóa duy nhất chuỗi ")}
+        <code>{asset.asset_code}</code>{" "}
+        {uiText("theo đặc tả S3. Nhãn không chứa bí mật hay liên kết nội bộ.")}
       </div>
       <style>{`
         @media print {

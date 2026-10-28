@@ -11,6 +11,7 @@ import {
 } from "./asset-form-fields";
 import type { AssetOperationalStatus } from "@/lib/inventory/asset-types";
 import type { ExpiryPrecision } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 interface FormState {
   catalog_item_id: string;
@@ -55,6 +56,8 @@ const initialFormState: FormState = {
 };
 
 export function AssetOpeningForm() {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [form, setForm] = useState<FormState>(initialFormState);
   const [retryKey, setRetryKey] = useState(() => crypto.randomUUID());
@@ -127,22 +130,26 @@ export function AssetOpeningForm() {
       <div className="border-b pb-4 border-slate-200">
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-            Dành riêng Quản trị viên (Admin)
+            {uiText("Dành riêng Quản trị viên (Admin)")}
           </span>
         </div>
         <h2 className="text-lg font-bold text-slate-900 mt-1">
-          Ghi nhận Tồn đầu kỳ Thiết bị Cá thể / Opening Balance Asset
+          {uiText(
+            "Ghi nhận Tồn đầu kỳ Thiết bị Cá thể / Opening Balance Asset",
+          )}
         </h2>
         <p className="text-xs text-slate-500 mt-1">
-          Khởi tạo tài sản hiện hữu từ biên bản kiểm kê đầu kỳ. Thao tác này ghi
-          nhận thực thể độc lập với số dư sổ cái và không tạo đơn mua hàng ngầm
-          định.
+          {uiText(
+            "Khởi tạo tài sản hiện hữu từ biên bản kiểm kê đầu kỳ. Thao tác này ghi nhận thực thể độc lập với số dư sổ cái và không tạo đơn mua hàng ngầm định.",
+          )}
         </p>
       </div>
 
       {serverError && (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
-          <div className="font-semibold">Lỗi ghi nhận tồn đầu kỳ:</div>
+          <div className="font-semibold">
+            {uiText("Lỗi ghi nhận tồn đầu kỳ:")}
+          </div>
           <div>{serverError}</div>
         </div>
       )}
@@ -150,14 +157,14 @@ export function AssetOpeningForm() {
       {successResult ? (
         <div className="p-6 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-center space-y-4">
           <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-            [Đã ghi nhận]
+            {uiText("[Đã ghi nhận]")}
           </div>
           <div>
             <h3 className="text-base font-bold">
-              Ghi nhận tài sản đầu kỳ thành công!
+              {uiText("Ghi nhận tài sản đầu kỳ thành công!")}
             </h3>
             <p className="text-xs text-emerald-700 mt-1">
-              Mã tài sản chuẩn máy chủ cấp phát:
+              {uiText("Mã tài sản chuẩn máy chủ cấp phát:")}
             </p>
             <div className="inline-block mt-2 px-4 py-1.5 bg-white border border-emerald-400 rounded-md font-mono text-lg font-bold tracking-widest text-emerald-800 shadow-xs">
               {successResult.asset_code}
@@ -168,21 +175,21 @@ export function AssetOpeningForm() {
               href={`/inventory/assets/${successResult.id}`}
               className="button button-primary text-xs px-4 py-2"
             >
-              Xem chi tiết & In tem QR →
+              {uiText("Xem chi tiết & In tem QR →")}
             </Link>
             <button
               type="button"
               onClick={handleResetForNext}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Ghi nhận thiết bị đầu kỳ kế tiếp
+              {uiText("Ghi nhận thiết bị đầu kỳ kế tiếp")}
             </button>
             <button
               type="button"
               onClick={() => router.push("/inventory/assets")}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Về danh sách tài sản
+              {uiText("Về danh sách tài sản")}
             </button>
           </div>
         </div>
@@ -191,7 +198,7 @@ export function AssetOpeningForm() {
           {/* Section 1: Catalog & Optional Source Line */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              1. Thông tin Danh mục & Dòng nguồn (Tùy chọn)
+              {uiText("1. Thông tin Danh mục & Dòng nguồn (Tùy chọn)")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -199,7 +206,9 @@ export function AssetOpeningForm() {
                   id="open-item-lookup"
                   resource="items"
                   value={form.catalog_item_id}
-                  label="Vật tư danh mục (Theo dõi cá thể / Serialized) *"
+                  label={uiText(
+                    "Vật tư danh mục (Theo dõi cá thể / Serialized) *",
+                  )}
                   selectedLabel={form.catalog_item_name}
                   onSelect={(item: Record<string, unknown>) => {
                     const code = String(item.code || "");
@@ -218,7 +227,9 @@ export function AssetOpeningForm() {
                   id="open-source-line-lookup"
                   resource="source_lines"
                   value={form.source_line_id}
-                  label="Dòng hồ sơ nguồn (Tùy chọn đối với tồn đầu kỳ)"
+                  label={uiText(
+                    "Dòng hồ sơ nguồn (Tùy chọn đối với tồn đầu kỳ)",
+                  )}
                   selectedLabel={form.source_line_label}
                   onSelect={(line: Record<string, unknown>) => {
                     setForm((prev) => ({
@@ -235,7 +246,7 @@ export function AssetOpeningForm() {
           {/* Section 2: Opening Manifest & Location */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              2. Biên bản kiểm kê & Vị trí kho (Manifest & Location)
+              {uiText("2. Biên bản kiểm kê & Vị trí kho (Manifest & Location)")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -243,7 +254,7 @@ export function AssetOpeningForm() {
                   htmlFor="open-manifest-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Mã biên bản kiểm kê đầu kỳ (Opening Manifest) *
+                  {uiText("Mã biên bản kiểm kê đầu kỳ (Opening Manifest) *")}
                 </label>
                 <input
                   id="open-manifest-input"
@@ -256,7 +267,7 @@ export function AssetOpeningForm() {
                       intake_reference: e.target.value,
                     }))
                   }
-                  placeholder="VD: BBKK-DAUKY-2026"
+                  placeholder={uiText("VD: BBKK-DAUKY-2026")}
                   className="input-field text-xs w-full"
                 />
               </div>
@@ -266,7 +277,7 @@ export function AssetOpeningForm() {
                   htmlFor="open-row-key-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Mã dòng biên bản (Row Key) *
+                  {uiText("Mã dòng biên bản (Row Key) *")}
                 </label>
                 <input
                   id="open-row-key-input"
@@ -276,7 +287,7 @@ export function AssetOpeningForm() {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, row_key: e.target.value }))
                   }
-                  placeholder="VD: SHEET1-ROW-05"
+                  placeholder={uiText("VD: SHEET1-ROW-05")}
                   className="input-field text-xs w-full"
                 />
               </div>
@@ -286,7 +297,7 @@ export function AssetOpeningForm() {
                   id="open-location-lookup"
                   resource="locations"
                   value={form.location_id}
-                  label="Vị trí kho hiện tại *"
+                  label={uiText("Vị trí kho hiện tại *")}
                   selectedLabel={form.location_name}
                   onSelect={(loc: Record<string, unknown>) => {
                     const code = String(loc.code || "");
@@ -336,7 +347,7 @@ export function AssetOpeningForm() {
           {/* Section 4: Expiry Precision with Unknown Allowed */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              4. Hạn sử dụng (Expiry Precision)
+              {uiText("4. Hạn sử dụng (Expiry Precision)")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -344,7 +355,7 @@ export function AssetOpeningForm() {
                   htmlFor="open-expiry-precision-select"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  Độ chính xác hạn dùng
+                  {uiText("Độ chính xác hạn dùng")}
                 </label>
                 <select
                   id="open-expiry-precision-select"
@@ -358,12 +369,16 @@ export function AssetOpeningForm() {
                   className="input-field text-xs w-full"
                 >
                   <option value="not_required">
-                    Không yêu cầu hạn dùng / Not Required
+                    {uiText("Không yêu cầu hạn dùng / Not Required")}
                   </option>
-                  <option value="day">Theo ngày (YYYY-MM-DD)</option>
-                  <option value="month">Theo tháng (YYYY-MM)</option>
+                  <option value="day">
+                    {uiText("Theo ngày (YYYY-MM-DD)")}
+                  </option>
+                  <option value="month">
+                    {uiText("Theo tháng (YYYY-MM)")}
+                  </option>
                   <option value="unknown">
-                    Chưa rõ (Unknown - Cần xác minh sau)
+                    {uiText("Chưa rõ (Unknown - Cần xác minh sau)")}
                   </option>
                 </select>
               </div>
@@ -375,7 +390,7 @@ export function AssetOpeningForm() {
                     htmlFor="open-expiry-input"
                     className="block text-xs font-medium text-slate-700 mb-1"
                   >
-                    Ngày/Tháng hết hạn *
+                    {uiText("Ngày/Tháng hết hạn *")}
                   </label>
                   <input
                     id="open-expiry-input"
@@ -400,11 +415,13 @@ export function AssetOpeningForm() {
             </div>
             {form.expiry_precision === "unknown" && (
               <div className="p-3 bg-amber-50 rounded border border-amber-200 text-amber-800 text-xs">
-                Lưu ý: Tài sản ghi nhận hạn dùng{" "}
-                <strong>Chưa rõ (Unknown)</strong> sẽ ở trạng thái{" "}
-                <strong>Không đủ điều kiện (Ineligible)</strong> cho đến khi
-                Quản trị viên thực hiện đính chính xác minh hạn sử dụng kèm bằng
-                chứng.
+                {uiText("Lưu ý: Tài sản ghi nhận hạn dùng")}{" "}
+                <strong>{uiText("Chưa rõ (Unknown)")}</strong>
+                {uiText(" sẽ ở trạng thái")}{" "}
+                <strong>{uiText("Không đủ điều kiện (Ineligible)")}</strong>
+                {uiText(
+                  " cho đến khi Quản trị viên thực hiện đính chính xác minh hạn sử dụng kèm bằng chứng.",
+                )}
               </div>
             )}
           </div>
@@ -432,14 +449,16 @@ export function AssetOpeningForm() {
               onClick={() => router.push("/inventory/assets")}
               className="button button-secondary text-xs px-4 py-2"
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="button button-primary text-xs px-5 py-2 font-semibold"
             >
-              {isPending ? "Đang ghi nhận..." : "Xác nhận Ghi nhận Tồn đầu kỳ"}
+              {isPending
+                ? uiText("Đang ghi nhận...")
+                : uiText("Xác nhận Ghi nhận Tồn đầu kỳ")}
             </button>
           </div>
         </form>

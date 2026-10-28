@@ -22,6 +22,8 @@ import {
   type TransferSource,
 } from "@/lib/equipment-preparation-transfers";
 import type { Json } from "@/lib/database.types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type TransferAttempt = { payload: Record<string, Json>; key: string };
 type Props = {
@@ -39,6 +41,8 @@ export function EquipmentPreparationTransfers({
   onWorkspace,
   onBusyChange,
 }: Props) {
+  const { text: uiText } = useLanguage();
+
   const [sources, setSources] = useState<TransferSource[]>([]);
   const [locations, setLocations] = useState<TransferLocation[]>([]);
   const [assets, setAssets] = useState<TransferAsset[]>([]);
@@ -59,12 +63,18 @@ export function EquipmentPreparationTransfers({
   const [reason, setReason] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusyState] = useState(false);
+  const uncertainRef = useRef(false);
   function setBusy(value: boolean) {
     setBusyState(value);
-    onBusyChange(value);
+    onBusyChange(value || uncertainRef.current);
+  }
+  function unknownOutcome(value: boolean) {
+    uncertainRef.current = value;
+    setUncertain(value);
   }
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState<TransferAttempt | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const running = useRef(false);
   const requestId = workspace.request.id;
   const reversing = workspace.preparation?.state === "reversing";
@@ -142,9 +152,15 @@ export function EquipmentPreparationTransfers({
       );
       if (!result.ok) {
         setMessage(result.error);
+        unknownOutcome(
+          uncertainRef.current ||
+            result.committed === true ||
+            result.uncertain === true,
+        );
         return;
       }
       setPending(null);
+      unknownOutcome(false);
       setConfirmed(false);
       setQuantity("");
       setAssetId("");
@@ -158,6 +174,7 @@ export function EquipmentPreparationTransfers({
         "Đã ghi nhận chuyển kho vật lý. Tải lại nguồn hoặc nghĩa vụ hoàn trả trước lần chuyển tiếp theo. Cam kết không được giải phóng bởi thao tác này.",
       );
     } catch {
+      unknownOutcome(true);
       setMessage(
         "Kết nối gián đoạn. Dùng Thử lại cùng thao tác để tránh ghi trùng; không thực hiện lại việc chuyển vật lý.",
       );
@@ -251,16 +268,19 @@ export function EquipmentPreparationTransfers({
           disabled={busy || pages[resource] <= 1}
           onClick={() => void load(resource, pages[resource] - 1)}
         >
-          Trang trước
+          {uiText("Trang trước")}
         </button>
-        <span>Trang {pages[resource]}</span>
+        <span>
+          {uiText("Trang ")}
+          {pages[resource]}
+        </span>
         <button
           type="button"
           className="button button-secondary"
           disabled={busy || count < 100}
           onClick={() => void load(resource, pages[resource] + 1)}
         >
-          Trang sau
+          {uiText("Trang sau")}
         </button>
       </div>
     );
@@ -270,17 +290,17 @@ export function EquipmentPreparationTransfers({
   return (
     <section
       className="space-y-4 rounded-xl border p-4"
-      aria-label="Chuyển kho vật lý liên quan phiếu"
+      aria-label={uiText("Chuyển kho vật lý liên quan phiếu")}
     >
       <h2 className="text-lg font-semibold">
         {reversing
-          ? "Chuyển trả vật lý về đúng nguồn gốc"
-          : "Chuyển kho vật lý để chuẩn bị"}
+          ? uiText("Chuyển trả vật lý về đúng nguồn gốc")
+          : uiText("Chuyển kho vật lý để chuẩn bị")}
       </h2>
       <p className="text-sm text-muted-foreground">
-        Chỉ ghi nhận sau khi hàng đã thực sự di chuyển. Chuyển kho không phải
-        giữ tồn, giao nhận hay giải phóng cam kết. Hàng theo số lượng được máy
-        chủ chọn FEFO; không chọn lô thủ công.
+        {uiText(
+          "Chỉ ghi nhận sau khi hàng đã thực sự di chuyển. Chuyển kho không phải giữ tồn, giao nhận hay giải phóng cam kết. Hàng theo số lượng được máy chủ chọn FEFO; không chọn lô thủ công.",
+        )}
       </p>
       <button
         type="button"
@@ -288,18 +308,19 @@ export function EquipmentPreparationTransfers({
         disabled={busy}
         onClick={() => void refresh()}
       >
-        Tải phiên bản mới, giữ nội dung
+        {uiText("Tải phiên bản mới, giữ nội dung")}
       </button>
       {message && (
         <p role="status" className="text-sm">
-          {message}
+          <LocalizedText text={message ?? ""} />
         </p>
       )}
       {pending && (
         <div className="space-y-2 rounded-lg border p-3">
           <p>
-            Thao tác chưa được xác nhận thành công. Thử lại dùng nguyên dữ liệu
-            và mã chống trùng; không chuyển hàng thêm lần nữa.
+            {uiText(
+              "Thao tác chưa được xác nhận thành công. Thử lại dùng nguyên dữ liệu và mã chống trùng; không chuyển hàng thêm lần nữa.",
+            )}
           </p>
           <button
             type="button"
@@ -307,12 +328,12 @@ export function EquipmentPreparationTransfers({
             disabled={busy || disabled}
             onClick={() => void submit(pending)}
           >
-            Thử lại cùng thao tác
+            {uiText("Thử lại cùng thao tác")}
           </button>
           <button
             type="button"
             className="button button-secondary"
-            disabled={busy}
+            disabled={busy || uncertain}
             onClick={() => {
               setPending(null);
               setConfirmed(false);
@@ -321,8 +342,15 @@ export function EquipmentPreparationTransfers({
               );
             }}
           >
-            Bỏ lần thử để rà soát lại
+            {uiText("Bỏ lần thử để rà soát lại")}
           </button>
+          {uncertain ? (
+            <p>
+              {uiText(
+                "Có thể đã ghi nhận chuyển kho. Chỉ thử lại đúng thao tác để đối soát; không bỏ mã hoặc chuyển hàng thêm.",
+              )}
+            </p>
+          ) : null}
         </div>
       )}
       <form
@@ -343,10 +371,10 @@ export function EquipmentPreparationTransfers({
                 className="button button-secondary"
                 onClick={() => void load("debts", 1)}
               >
-                Tải nghĩa vụ hoàn trả còn lại
+                {uiText("Tải nghĩa vụ hoàn trả còn lại")}
               </button>
               <label className="block space-y-1">
-                <span>Chuyển gốc cần hoàn trả</span>
+                <span>{uiText("Chuyển gốc cần hoàn trả")}</span>
                 <select
                   className="input w-full"
                   required
@@ -357,14 +385,14 @@ export function EquipmentPreparationTransfers({
                     setQuantity("");
                   }}
                 >
-                  <option value="">Chọn chuyển gốc</option>
+                  <option value="">{uiText("Chọn chuyển gốc")}</option>
                   {debts.map((row) => (
                     <option key={row.id} value={row.id}>
                       {row.item_name}
                       {row.asset_code ? ` · ${row.asset_code}` : ""} ·{" "}
-                      {row.source_name} → {row.destination_name} · còn{" "}
-                      {row.outstanding_quantity} {row.base_uom_code} · #
-                      {row.id.slice(0, 8)}
+                      {row.source_name} → {row.destination_name}
+                      {uiText(" · còn")} {row.outstanding_quantity}{" "}
+                      {row.base_uom_code} · #{row.id.slice(0, 8)}
                     </option>
                   ))}
                 </select>
@@ -372,11 +400,24 @@ export function EquipmentPreparationTransfers({
               {pagination("debts", debts.length)}
               {debt && (
                 <p className="text-sm">
-                  Đúng nguồn: {debt.source_name} → {debt.destination_name}. Còn
-                  phải trả: {debt.outstanding_quantity} {debt.base_uom_code}.{" "}
+                  {uiText("Đúng nguồn: ")}
+                  {debt.source_name} → {debt.destination_name}
+                  {uiText(". Còn phải trả: ")}
+                  {debt.outstanding_quantity} {debt.base_uom_code}.{" "}
                   {debt.asset_id
-                    ? `Tình trạng hiện tại: ${debt.operational_status}; ${debt.asset_location_id === debt.source_location_id ? "đang ở nguồn hoàn trả" : "đã đổi vị trí — không thể xác nhận"}. Không đổi tình trạng tài sản.`
-                    : `Tồn vật lý tại nguồn: tốt ${debt.good_quantity}; hỏng ${debt.damaged_quantity}. Máy chủ kiểm tra lại tồn và cam kết khi ghi nhận.`}
+                    ? uiText(
+                        "Tình trạng hiện tại: {0}; {1}. Không đổi tình trạng tài sản.",
+                        [
+                          debt.operational_status,
+                          debt.asset_location_id === debt.source_location_id
+                            ? uiText("đang ở nguồn hoàn trả")
+                            : uiText("đã đổi vị trí — không thể xác nhận"),
+                        ],
+                      )
+                    : uiText(
+                        "Tồn vật lý tại nguồn: tốt {0}; hỏng {1}. Máy chủ kiểm tra lại tồn và cam kết khi ghi nhận.",
+                        [debt.good_quantity, debt.damaged_quantity],
+                      )}
                 </p>
               )}
             </div>
@@ -387,10 +428,10 @@ export function EquipmentPreparationTransfers({
                 className="button button-secondary"
                 onClick={() => void load("sources", 1)}
               >
-                Tải thiết bị và nguồn được ánh xạ
+                {uiText("Tải thiết bị và nguồn được ánh xạ")}
               </button>
               <label className="block space-y-1">
-                <span>Thiết bị và vị trí nguồn</span>
+                <span>{uiText("Thiết bị và vị trí nguồn")}</span>
                 <select
                   className="input w-full"
                   required
@@ -402,7 +443,7 @@ export function EquipmentPreparationTransfers({
                     setConfirmed(false);
                   }}
                 >
-                  <option value="">Chọn thiết bị / nguồn</option>
+                  <option value="">{uiText("Chọn thiết bị / nguồn")}</option>
                   {sources.map((row) => (
                     <option
                       key={`${row.inventory_item_id}:${row.location_id}`}
@@ -410,8 +451,11 @@ export function EquipmentPreparationTransfers({
                     >
                       {row.item_code} · {row.item_name} · {row.location_name}
                       {row.available_quantity !== null
-                        ? ` · khả dụng ${row.available_quantity} ${row.base_uom_code}`
-                        : " · theo tài sản"}
+                        ? uiText(" · khả dụng {0} {1}", [
+                            row.available_quantity,
+                            row.base_uom_code,
+                          ])
+                        : uiText(" · theo tài sản")}
                     </option>
                   ))}
                 </select>
@@ -422,10 +466,10 @@ export function EquipmentPreparationTransfers({
                 className="button button-secondary"
                 onClick={() => void load("locations", 1)}
               >
-                Tải vị trí đích
+                {uiText("Tải vị trí đích")}
               </button>
               <label className="block space-y-1">
-                <span>Vị trí đích</span>
+                <span>{uiText("Vị trí đích")}</span>
                 <select
                   className="input w-full"
                   required
@@ -435,7 +479,7 @@ export function EquipmentPreparationTransfers({
                     setConfirmed(false);
                   }}
                 >
-                  <option value="">Chọn vị trí đích</option>
+                  <option value="">{uiText("Chọn vị trí đích")}</option>
                   {locations
                     .filter((row) => row.id !== source?.location_id)
                     .map((row) => (
@@ -450,7 +494,9 @@ export function EquipmentPreparationTransfers({
                 <div className="space-y-2">
                   <label className="block space-y-1">
                     <span>
-                      Mã tài sản chính xác (nhập/quét để lọc, hoặc để trống)
+                      {uiText(
+                        "Mã tài sản chính xác (nhập/quét để lọc, hoặc để trống)",
+                      )}
                     </span>
                     <input
                       className="input w-full"
@@ -463,10 +509,10 @@ export function EquipmentPreparationTransfers({
                     className="button button-secondary"
                     onClick={() => void load("assets", 1)}
                   >
-                    Tìm tài sản tại nguồn
+                    {uiText("Tìm tài sản tại nguồn")}
                   </button>
                   <label className="block space-y-1">
-                    <span>Tài sản thực tế đã chuyển</span>
+                    <span>{uiText("Tài sản thực tế đã chuyển")}</span>
                     <select
                       className="input w-full"
                       required
@@ -476,11 +522,12 @@ export function EquipmentPreparationTransfers({
                         setConfirmed(false);
                       }}
                     >
-                      <option value="">Chọn đúng tài sản</option>
+                      <option value="">{uiText("Chọn đúng tài sản")}</option>
                       {assets.map((row) => (
                         <option key={row.id} value={row.id}>
                           {row.asset_code} ·{" "}
-                          {row.manufacturer_serial ?? "Không có số sê-ri"}
+                          {row.manufacturer_serial ??
+                            uiText("Không có số sê-ri")}
                         </option>
                       ))}
                     </select>
@@ -493,7 +540,7 @@ export function EquipmentPreparationTransfers({
           {!serialized && (
             <label className="block space-y-1">
               <span>
-                Số lượng thực tế đã chuyển (
+                {uiText("Số lượng thực tế đã chuyển (")}
                 {reversing ? debt?.base_uom_code : source?.base_uom_code})
               </span>
               <input
@@ -511,7 +558,9 @@ export function EquipmentPreparationTransfers({
           )}
           {reversing && !serialized && (
             <label className="block space-y-1">
-              <span>Tình trạng vật lý đang có tại nguồn hoàn trả</span>
+              <span>
+                {uiText("Tình trạng vật lý đang có tại nguồn hoàn trả")}
+              </span>
               <select
                 className="input w-full"
                 value={condition}
@@ -520,15 +569,15 @@ export function EquipmentPreparationTransfers({
                   setConfirmed(false);
                 }}
               >
-                <option value="good">Tốt</option>
+                <option value="good">{uiText("Tốt")}</option>
                 <option value="damaged">
-                  Hỏng (đã được ghi nhận ở tồn vật lý)
+                  {uiText("Hỏng (đã được ghi nhận ở tồn vật lý)")}
                 </option>
               </select>
             </label>
           )}
           <label className="block space-y-1">
-            <span>Lý do / bằng chứng chuyển thực tế</span>
+            <span>{uiText("Lý do / bằng chứng chuyển thực tế")}</span>
             <textarea
               className="input w-full"
               required
@@ -547,9 +596,9 @@ export function EquipmentPreparationTransfers({
               onChange={(event) => setConfirmed(event.target.checked)}
             />
             <span>
-              Tôi xác nhận đúng hàng / tài sản và số lượng đã thực sự chuyển
-              giữa hai vị trí nêu trên. Đây không phải thao tác thay đổi tồn
-              trên giấy.
+              {uiText(
+                "Tôi xác nhận đúng hàng / tài sản và số lượng đã thực sự chuyển giữa hai vị trí nêu trên. Đây không phải thao tác thay đổi tồn trên giấy.",
+              )}
             </span>
           </label>
           <button
@@ -564,7 +613,9 @@ export function EquipmentPreparationTransfers({
                 : !source || !destinationId || (serialized && !asset))
             }
           >
-            Ghi nhận {reversing ? "hoàn trả" : "chuyển kho"} vật lý
+            {uiText("Ghi nhận ")}
+            {reversing ? uiText("hoàn trả") : uiText("chuyển kho")}
+            {uiText(" vật lý")}
           </button>
         </fieldset>
       </form>

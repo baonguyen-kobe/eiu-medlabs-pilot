@@ -1,12 +1,16 @@
 "use client";
 
 import { UploadCloud } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function PersonnelImportButtons() {
+  const { text: uiText } = useLanguage();
+
   return (
     <>
       <button className="button equipment-import-new" name="mode" value="new">
-        <UploadCloud size={17} /> Import mới
+        <UploadCloud size={17} />
+        {uiText(" Import mới")}
       </button>
       <button
         className="button equipment-import-all"
@@ -22,7 +26,8 @@ export function PersonnelImportButtons() {
           }
         }}
       >
-        <UploadCloud size={17} /> Import tất cả
+        <UploadCloud size={17} />
+        {uiText(" Import tất cả")}
       </button>
     </>
   );

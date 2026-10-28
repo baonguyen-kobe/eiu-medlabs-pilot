@@ -133,6 +133,19 @@ select pg_temp.auth_assert(public.inventory_pilot_read(${sqlLiteral(manifest.sco
 select pg_temp.auth_new_request(${sqlLiteral(phase)});
 ${actorSql(staff[0])}
 select pg_temp.auth_prepare(${sqlLiteral(phase)});
+reset role;
+select pg_temp.auth_put('amendment-before',pg_temp.auth_fingerprint());
+${actorSql(staff[0])}
+select pg_temp.auth_expect(format('select public.equipment_fulfillment_command(%L,%L::uuid,%L::jsonb,%L::uuid)',
+ 'add_supplemental_line',pg_temp.auth_get('request-carrier')#>>'{}',
+ jsonb_build_object('expected_revision',public.equipment_fulfillment_read((pg_temp.auth_get('request-carrier')#>>'{}')::uuid)->'revision',
+  'line_id',gen_random_uuid(),'reference_line_id',public.equipment_fulfillment_read((pg_temp.auth_get('request-carrier')#>>'{}')::uuid)#>>'{lines,0,id}',
+  'mapping_id',(select id from public.equipment_inventory_mappings where inventory_item_id=${sqlLiteral(reusable)}::uuid and catalog_item_id=(pg_temp.auth_get('demand')#>>'{}')::uuid limit 1),
+  'location_id',pg_temp.auth_get('outside-location')#>>'{}','requested_quantity','1','reason','Synthetic mixed-scope amendment denial'),gen_random_uuid()),
+ 'amendment cannot cross ${phase} scope through mapping');
+reset role;
+select pg_temp.auth_assert(pg_temp.auth_fingerprint()=pg_temp.auth_get('amendment-before'),'denied amendment has no facts/revision/stock side effects ${phase}');
+${actorSql(staff[0])}
 do $$ declare r uuid:=(pg_temp.auth_get('request-${phase}')#>>'{}')::uuid; w jsonb; begin
  w:=public.equipment_preparation_read(r);
  perform public.equipment_preparation_command('begin_reversal',r,jsonb_build_object('expected_revision',w#>'{request,revision}','reason','Unrelated synthetic cancellation'),gen_random_uuid());

@@ -16,6 +16,7 @@ import type {
   AssetOperationalStatus,
   EquipmentAsset,
 } from "@/lib/inventory/asset-types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetListViewProps {
   assets: EquipmentAsset[];
@@ -39,6 +40,8 @@ export function AssetListView({
   isAdmin,
   filters,
 }: AssetListViewProps) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -94,7 +97,7 @@ export function AssetListView({
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Tác vụ Thiết bị Cá thể / Asset Actions:
+            {uiText("Tác vụ Thiết bị Cá thể / Asset Actions:")}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -104,7 +107,11 @@ export function AssetListView({
             className="button button-secondary text-xs"
           >
             <Search size={14} />
-            <span>{showQrLookup ? "Ẩn Tra cứu QR" : "Quét / Tra cứu QR"}</span>
+            <span>
+              {showQrLookup
+                ? uiText("Ẩn Tra cứu QR")
+                : uiText("Quét / Tra cứu QR")}
+            </span>
           </button>
 
           <Link
@@ -112,7 +119,7 @@ export function AssetListView({
             className="button button-primary text-xs"
           >
             <Plus size={14} />
-            <span>Tiếp nhận Thiết bị / Receive Asset</span>
+            <span>{uiText("Tiếp nhận Thiết bị / Receive Asset")}</span>
           </Link>
 
           {isAdmin && (
@@ -120,7 +127,7 @@ export function AssetListView({
               href="/inventory/assets/opening"
               className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50"
             >
-              <span>Tồn đầu kỳ (Admin)</span>
+              <span>{uiText("Tồn đầu kỳ (Admin)")}</span>
             </Link>
           )}
         </div>
@@ -128,7 +135,7 @@ export function AssetListView({
 
       {/* Expandable QR Lookup Section */}
       {showQrLookup && (
-        <section aria-label="Tra cứu mã QR">
+        <section aria-label={uiText("Tra cứu mã QR")}>
           <AssetQrLookup />
         </section>
       )}
@@ -144,7 +151,7 @@ export function AssetListView({
               htmlFor="asset-search-query"
               className="block font-medium text-slate-700 mb-1"
             >
-              Tìm kiếm (Mã tài sản, sê-ri, SKU, model...)
+              {uiText("Tìm kiếm (Mã tài sản, sê-ri, SKU, model...)")}
             </label>
             <div className="relative">
               <input
@@ -152,7 +159,7 @@ export function AssetListView({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="VD: EIU-AST-..., SN-1234, CX23..."
+                placeholder={uiText("VD: EIU-AST-..., SN-1234, CX23...")}
                 className="input-field text-xs pl-8 w-full"
               />
               <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
@@ -166,7 +173,7 @@ export function AssetListView({
               htmlFor="asset-lifecycle-filter"
               className="block font-medium text-slate-700 mb-1"
             >
-              Vòng đời
+              {uiText("Vòng đời")}
             </label>
             <select
               id="asset-lifecycle-filter"
@@ -174,12 +181,20 @@ export function AssetListView({
               onChange={(e) => setLifecycleFilter(e.target.value)}
               className="input-field text-xs w-full"
             >
-              <option value="all">Tất cả vòng đời</option>
-              <option value="in_service">Đang vận hành (In Service)</option>
-              <option value="registered">Mới tiếp nhận (Registered)</option>
-              <option value="inactive">Tạm ngưng (Inactive)</option>
-              <option value="retired">Ngừng sử dụng (Retired)</option>
-              <option value="disposed">Đã thanh lý (Disposed)</option>
+              <option value="all">{uiText("Tất cả vòng đời")}</option>
+              <option value="in_service">
+                {uiText("Đang vận hành (In Service)")}
+              </option>
+              <option value="registered">
+                {uiText("Mới tiếp nhận (Registered)")}
+              </option>
+              <option value="inactive">{uiText("Tạm ngưng (Inactive)")}</option>
+              <option value="retired">
+                {uiText("Ngừng sử dụng (Retired)")}
+              </option>
+              <option value="disposed">
+                {uiText("Đã thanh lý (Disposed)")}
+              </option>
             </select>
           </div>
 
@@ -188,7 +203,7 @@ export function AssetListView({
               htmlFor="asset-operational-filter"
               className="block font-medium text-slate-700 mb-1"
             >
-              Vận hành
+              {uiText("Vận hành")}
             </label>
             <select
               id="asset-operational-filter"
@@ -196,12 +211,16 @@ export function AssetListView({
               onChange={(e) => setOperationalFilter(e.target.value)}
               className="input-field text-xs w-full"
             >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="ready">Sẵn sàng (Ready)</option>
-              <option value="in_use">Đang sử dụng (In Use)</option>
-              <option value="under_maintenance">Bảo trì (Maintenance)</option>
-              <option value="damaged">Hư hỏng (Damaged)</option>
-              <option value="prohibited">Cấm lưu hành (Prohibited)</option>
+              <option value="all">{uiText("Tất cả trạng thái")}</option>
+              <option value="ready">{uiText("Sẵn sàng (Ready)")}</option>
+              <option value="in_use">{uiText("Đang sử dụng (In Use)")}</option>
+              <option value="under_maintenance">
+                {uiText("Bảo trì (Maintenance)")}
+              </option>
+              <option value="damaged">{uiText("Hư hỏng (Damaged)")}</option>
+              <option value="prohibited">
+                {uiText("Cấm lưu hành (Prohibited)")}
+              </option>
             </select>
           </div>
 
@@ -210,13 +229,13 @@ export function AssetListView({
               type="submit"
               className="button button-primary text-xs px-3.5 py-1.5"
             >
-              Lọc kết quả
+              {uiText("Lọc kết quả")}
             </button>
             <button
               type="button"
               onClick={handleResetFilters}
               className="button button-secondary text-xs px-3 py-1.5"
-              title="Xóa bộ lọc"
+              title={uiText("Xóa bộ lọc")}
             >
               <X size={14} />
             </button>
@@ -224,7 +243,9 @@ export function AssetListView({
 
           {filters.source_line_id && (
             <div className="w-full mt-2 pt-2 border-t border-slate-200 flex items-center gap-2 text-xs">
-              <span className="text-slate-500">Đang lọc theo dòng nguồn:</span>
+              <span className="text-slate-500">
+                {uiText("Đang lọc theo dòng nguồn:")}
+              </span>
               <span className="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
                 {filters.source_line_id}
               </span>
@@ -233,7 +254,7 @@ export function AssetListView({
                 onClick={handleResetFilters}
                 className="text-xs text-rose-600 hover:underline ml-2"
               >
-                (Xóa lọc dòng nguồn)
+                {uiText("(Xóa lọc dòng nguồn)")}
               </button>
             </div>
           )}
@@ -246,14 +267,18 @@ export function AssetListView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Mã tài sản (Code)</th>
-                <th className="py-3 px-4">Vật tư danh mục</th>
-                <th className="py-3 px-4">Số sê-ri / Hãng & Model</th>
-                <th className="py-3 px-4">Vị trí lưu trữ</th>
-                <th className="py-3 px-4">Vòng đời</th>
-                <th className="py-3 px-4">Vận hành</th>
-                <th className="py-3 px-4">Đủ ĐK / Khả dụng cho yêu cầu mới</th>
-                <th className="py-3 px-4 text-right">Thao tác</th>
+                <th className="py-3 px-4">{uiText("Mã tài sản (Code)")}</th>
+                <th className="py-3 px-4">{uiText("Vật tư danh mục")}</th>
+                <th className="py-3 px-4">
+                  {uiText("Số sê-ri / Hãng & Model")}
+                </th>
+                <th className="py-3 px-4">{uiText("Vị trí lưu trữ")}</th>
+                <th className="py-3 px-4">{uiText("Vòng đời")}</th>
+                <th className="py-3 px-4">{uiText("Vận hành")}</th>
+                <th className="py-3 px-4">
+                  {uiText("Đủ ĐK / Khả dụng cho yêu cầu mới")}
+                </th>
+                <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -263,7 +288,9 @@ export function AssetListView({
                     colSpan={8}
                     className="py-12 text-center text-slate-500 text-xs"
                   >
-                    Không tìm thấy thiết bị nào khớp với tiêu chí tìm kiếm.
+                    {uiText(
+                      "Không tìm thấy thiết bị nào khớp với tiêu chí tìm kiếm.",
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -286,7 +313,8 @@ export function AssetListView({
                         {asset.item_name}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono">
-                        SKU: {asset.item_code}
+                        {uiText("SKU: ")}
+                        {asset.item_code}
                       </div>
                     </td>
 
@@ -297,7 +325,7 @@ export function AssetListView({
                         </div>
                       ) : (
                         <span className="text-slate-400 italic">
-                          Không có S/N
+                          {uiText("Không có S/N")}
                         </span>
                       )}
                       {(asset.manufacturer || asset.model) && (
@@ -340,7 +368,7 @@ export function AssetListView({
                         href={`/inventory/assets/${asset.id}`}
                         className="button button-secondary text-[11px] px-2.5 py-1 font-medium"
                       >
-                        Chi tiết →
+                        {uiText("Chi tiết →")}
                       </Link>
                     </td>
                   </tr>

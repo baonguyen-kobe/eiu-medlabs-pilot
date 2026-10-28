@@ -8,6 +8,7 @@ import type {
   EquipmentAssetEvent,
 } from "@/lib/inventory/asset-types";
 import type { ExpiryPrecision } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetCorrectionFormProps {
   asset: EquipmentAsset;
@@ -22,6 +23,8 @@ export function AssetCorrectionForm({
   isAdmin,
   onSuccess,
 }: AssetCorrectionFormProps) {
+  const { text: uiText } = useLanguage();
+
   const requiresAdmin =
     asset.intake_kind === "open" || asset.expiry_precision !== "not_required";
   const canPerform = isAdmin || !requiresAdmin;
@@ -135,26 +138,28 @@ export function AssetCorrectionForm({
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div className="border-b pb-3 border-slate-200">
         <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-          Đính chính Dữ kiện Thực tế / Fact & Expiry Correction
+          {uiText("Đính chính Dữ kiện Thực tế / Fact & Expiry Correction")}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">
-          Đính chính thông tin hãng, model, sê-ri hoặc xác minh hạn sử dụng có
-          bằng chứng. Thao tác này tham chiếu sự kiện cũ và ghi nhận lịch sử
-          mới, bảo toàn lịch sử gốc.
+          {uiText(
+            "Đính chính thông tin hãng, model, sê-ri hoặc xác minh hạn sử dụng có bằng chứng. Thao tác này tham chiếu sự kiện cũ và ghi nhận lịch sử mới, bảo toàn lịch sử gốc.",
+          )}
         </p>
       </div>
 
       {!canPerform && (
         <div className="p-3.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-800 text-xs">
-          [Quyền hạn] Tài sản này thuộc hồ sơ Tồn đầu kỳ hoặc yêu cầu hạn dùng
-          bắt buộc. Chỉ có <strong>Quản trị viên (Admin)</strong> mới có quyền
-          thực hiện đính chính dữ kiện pháp lý này.
+          {uiText(
+            "[Quyền hạn] Tài sản này thuộc hồ sơ Tồn đầu kỳ hoặc yêu cầu hạn dùng bắt buộc. Chỉ có ",
+          )}
+          <strong>{uiText("Quản trị viên (Admin)")}</strong>
+          {uiText(" mới có quyền thực hiện đính chính dữ kiện pháp lý này.")}
         </div>
       )}
 
       {serverError && (
         <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-2">
-          <div className="font-semibold">Lỗi đính chính:</div>
+          <div className="font-semibold">{uiText("Lỗi đính chính:")}</div>
           <div>{serverError}</div>
           {isStaleRevision && (
             <div className="pt-2 border-t border-rose-200/60">
@@ -163,7 +168,8 @@ export function AssetCorrectionForm({
                 onClick={handleReviewLatest}
                 className="button button-secondary text-xs px-3 py-1 bg-white border-rose-300 text-rose-900 font-medium"
               >
-                Tải lại snapshot mới nhất (Review Latest Rev #{asset.revision})
+                {uiText("Tải lại snapshot mới nhất (Review Latest Rev #")}
+                {asset.revision})
               </button>
             </div>
           )}
@@ -172,7 +178,9 @@ export function AssetCorrectionForm({
 
       {isSuccess && (
         <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
-          [Thành công] Sự kiện đính chính thông tin đã được ghi nhận vào sổ cái!
+          {uiText(
+            "[Thành công] Sự kiện đính chính thông tin đã được ghi nhận vào sổ cái!",
+          )}
         </div>
       )}
 
@@ -182,7 +190,7 @@ export function AssetCorrectionForm({
             htmlFor="correct-target-event"
             className="block font-medium text-slate-700 mb-1"
           >
-            Sự kiện gốc cần đính chính (Target Event) *
+            {uiText("Sự kiện gốc cần đính chính (Target Event) *")}
           </label>
           <select
             id="correct-target-event"
@@ -193,11 +201,12 @@ export function AssetCorrectionForm({
             className="input-field text-xs w-full"
           >
             {events.length === 0 ? (
-              <option value="">Không có sự kiện lịch sử</option>
+              <option value="">{uiText("Không có sự kiện lịch sử")}</option>
             ) : (
               events.map((evt) => (
                 <option key={evt.id} value={evt.id}>
-                  Rev #{evt.revision} • {evt.operation} (
+                  {uiText("Rev #")}
+                  {evt.revision} • {evt.operation} (
                   {evt.posted_at?.slice(0, 10)}) - {evt.reason}
                 </option>
               ))
@@ -211,7 +220,7 @@ export function AssetCorrectionForm({
               htmlFor="correct-serial-input"
               className="block font-medium text-slate-700 mb-1"
             >
-              Số sê-ri nhà sản xuất (S/N)
+              {uiText("Số sê-ri nhà sản xuất (S/N)")}
             </label>
             <input
               id="correct-serial-input"
@@ -219,7 +228,7 @@ export function AssetCorrectionForm({
               value={manufacturerSerial}
               onChange={(e) => setManufacturerSerial(e.target.value)}
               disabled={!canPerform}
-              placeholder="Để trống nếu không có"
+              placeholder={uiText("Để trống nếu không có")}
               className="input-field font-mono text-xs w-full"
             />
           </div>
@@ -229,7 +238,7 @@ export function AssetCorrectionForm({
               htmlFor="correct-mfg-input"
               className="block font-medium text-slate-700 mb-1"
             >
-              Hãng sản xuất
+              {uiText("Hãng sản xuất")}
             </label>
             <input
               id="correct-mfg-input"
@@ -246,7 +255,7 @@ export function AssetCorrectionForm({
               htmlFor="correct-model-input"
               className="block font-medium text-slate-700 mb-1"
             >
-              Model
+              {uiText("Model")}
             </label>
             <input
               id="correct-model-input"
@@ -265,7 +274,7 @@ export function AssetCorrectionForm({
               htmlFor="correct-expiry-precision"
               className="block font-medium text-slate-700 mb-1"
             >
-              Độ chính xác hạn dùng
+              {uiText("Độ chính xác hạn dùng")}
             </label>
             <select
               id="correct-expiry-precision"
@@ -277,11 +286,11 @@ export function AssetCorrectionForm({
               className="input-field text-xs w-full"
             >
               <option value="not_required">
-                Không yêu cầu hạn dùng / Not Required
+                {uiText("Không yêu cầu hạn dùng / Not Required")}
               </option>
-              <option value="day">Theo ngày (YYYY-MM-DD)</option>
-              <option value="month">Theo tháng (YYYY-MM)</option>
-              <option value="unknown">Chưa rõ (Unknown)</option>
+              <option value="day">{uiText("Theo ngày (YYYY-MM-DD)")}</option>
+              <option value="month">{uiText("Theo tháng (YYYY-MM)")}</option>
+              <option value="unknown">{uiText("Chưa rõ (Unknown)")}</option>
             </select>
           </div>
 
@@ -291,7 +300,7 @@ export function AssetCorrectionForm({
                 htmlFor="correct-expiry-input"
                 className="block font-medium text-slate-700 mb-1"
               >
-                Ngày/Tháng hết hạn chính xác *
+                {uiText("Ngày/Tháng hết hạn chính xác *")}
               </label>
               <input
                 id="correct-expiry-input"
@@ -316,7 +325,7 @@ export function AssetCorrectionForm({
             htmlFor="correct-reason"
             className="block font-medium text-slate-700 mb-1"
           >
-            Lý do đính chính *
+            {uiText("Lý do đính chính *")}
           </label>
           <input
             id="correct-reason"
@@ -325,7 +334,9 @@ export function AssetCorrectionForm({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             disabled={!canPerform}
-            placeholder="VD: Đính chính số sê-ri đúng từ tem kim loại gắn trên thân máy"
+            placeholder={uiText(
+              "VD: Đính chính số sê-ri đúng từ tem kim loại gắn trên thân máy",
+            )}
             className="input-field text-xs w-full"
           />
         </div>
@@ -335,7 +346,7 @@ export function AssetCorrectionForm({
             htmlFor="correct-evidence"
             className="block font-medium text-slate-700 mb-1"
           >
-            Bằng chứng xác minh đính chính *
+            {uiText("Bằng chứng xác minh đính chính *")}
           </label>
           <textarea
             id="correct-evidence"
@@ -344,7 +355,9 @@ export function AssetCorrectionForm({
             value={evidenceNote}
             onChange={(e) => setEvidenceNote(e.target.value)}
             disabled={!canPerform}
-            placeholder="VD: Ảnh chụp tem máy và biên bản kiểm tra lại hiện trạng thiết bị số 05/BB-KT"
+            placeholder={uiText(
+              "VD: Ảnh chụp tem máy và biên bản kiểm tra lại hiện trạng thiết bị số 05/BB-KT",
+            )}
             className="input-field text-xs w-full"
           />
         </div>
@@ -354,7 +367,7 @@ export function AssetCorrectionForm({
             htmlFor="correct-occurred-at"
             className="block font-medium text-slate-700 mb-1"
           >
-            Thời điểm phát hiện / Đính chính thực tế (Tùy chọn)
+            {uiText("Thời điểm phát hiện / Đính chính thực tế (Tùy chọn)")}
           </label>
           <input
             id="correct-occurred-at"
@@ -368,11 +381,12 @@ export function AssetCorrectionForm({
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-200">
           <div className="text-[11px] text-slate-500">
-            Phiên bản biểu mẫu:{" "}
+            {uiText("Phiên bản biểu mẫu:")}{" "}
             <span className="font-mono font-semibold">#{expectedRevision}</span>
             {expectedRevision !== asset.revision && (
               <span className="text-amber-700 font-medium ml-2">
-                (Server đã có Rev #{asset.revision})
+                {uiText("(Server đã có Rev #")}
+                {asset.revision})
               </span>
             )}
           </div>
@@ -381,7 +395,9 @@ export function AssetCorrectionForm({
             disabled={isPending || !canPerform}
             className="button button-primary text-xs px-4 py-2 font-semibold"
           >
-            {isPending ? "Đang xử lý..." : "Xác nhận Đính chính"}
+            {isPending
+              ? uiText("Đang xử lý...")
+              : uiText("Xác nhận Đính chính")}
           </button>
         </div>
       </form>

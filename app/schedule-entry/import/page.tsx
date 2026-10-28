@@ -1,3 +1,4 @@
+import { getInterfaceText } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { Download } from "@/components/icons";
 import Link from "next/link";
@@ -8,8 +9,12 @@ import {
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
-export const metadata = { title: "Import lịch Skills lab" };
+export async function generateMetadata() {
+  const text = await getInterfaceText();
+  return { title: text("Import lịch Skills lab") };
+}
 
 export default async function ImportPage() {
   const {
@@ -42,8 +47,12 @@ export default async function ImportPage() {
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Import lịch Skills lab"
-      description="Tải template chuẩn, kiểm tra từng dòng và tạo lịch hợp lệ."
+      title={<LocalizedText text={"Import lịch Skills lab"} />}
+      description={
+        <LocalizedText
+          text={"Tải template chuẩn, kiểm tra từng dòng và tạo lịch hợp lệ."}
+        />
+      }
       actions={
         <>
           <Link
@@ -52,7 +61,8 @@ export default async function ImportPage() {
             href="/api/import-template/csv?scope=skills_lab"
             prefetch={false}
           >
-            <Download size={16} /> Template CSV
+            <Download size={16} />
+            <LocalizedText text={" Template CSV"} />
           </Link>
           <Link
             className="button button-primary"
@@ -60,7 +70,8 @@ export default async function ImportPage() {
             href="/api/import-template/xlsx?scope=skills_lab"
             prefetch={false}
           >
-            <Download size={16} /> Template XLSX
+            <Download size={16} />
+            <LocalizedText text={" Template XLSX"} />
           </Link>
         </>
       }

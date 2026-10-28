@@ -8,6 +8,8 @@ import type {
   InventoryCatalogItem,
   StockCondition,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export interface SurplusLineItem {
   id: string;
@@ -42,19 +44,24 @@ export function StocktakeSurplusSection({
   onRemoveSurplusLine,
   onUpdateSurplusLine,
 }: StocktakeSurplusSectionProps) {
+  const { text: uiText } = useLanguage();
+
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span>
-              2. Hàng thừa Kiểm kê Không rõ nguồn gốc / Unprovenanced Surplus (
+              {uiText(
+                "2. Hàng thừa Kiểm kê Không rõ nguồn gốc / Unprovenanced Surplus (",
+              )}
               {surplusLines.length})
             </span>
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Vật tư phát hiện thực tế tại kho nhưng không liên kết được với chứng
-            từ nhập nào trước đây.
+            {uiText(
+              "Vật tư phát hiện thực tế tại kho nhưng không liên kết được với chứng từ nhập nào trước đây.",
+            )}
           </p>
         </div>
         <button
@@ -63,13 +70,15 @@ export function StocktakeSurplusSection({
           className="button button-secondary text-xs flex items-center gap-1.5"
         >
           <Plus size={14} />
-          <span>+ Thêm dòng hàng thừa (SURPLUS)</span>
+          <span>{uiText("+ Thêm dòng hàng thừa (SURPLUS)")}</span>
         </button>
       </div>
 
       {surplusLines.length === 0 ? (
         <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
-          Không có hàng thừa không rõ nguồn gốc trong đợt kiểm kê này.
+          {uiText(
+            "Không có hàng thừa không rõ nguồn gốc trong đợt kiểm kê này.",
+          )}
         </div>
       ) : (
         <div className="space-y-4">
@@ -84,15 +93,18 @@ export function StocktakeSurplusSection({
                     {idx + 1}
                   </span>
                   <span>
-                    Dòng hàng thừa kiểm kê (STOCKTAKE_SURPLUS) — Sẽ vào TỒN THỰC
-                    TẾ {"&"} TẠM GIỮ (HOLD)
+                    {uiText(
+                      "Dòng hàng thừa kiểm kê (STOCKTAKE_SURPLUS) — Sẽ vào TỒN THỰC TẾ ",
+                    )}
+                    {"&"}
+                    {uiText(" TẠM GIỮ (HOLD)")}
                   </span>
                 </span>
                 <button
                   type="button"
                   onClick={() => onRemoveSurplusLine(line.id)}
                   className="text-slate-400 hover:text-rose-600 p-1"
-                  title="Xóa dòng"
+                  title={uiText("Xóa dòng")}
                 >
                   <Trash2 size={15} />
                 </button>
@@ -105,9 +117,9 @@ export function StocktakeSurplusSection({
                     resource="items"
                     filters={{ active: true }}
                     value={line.catalogItemId}
-                    label="Vật tư danh mục *"
+                    label={uiText("Vật tư danh mục *")}
                     id={`surplus-item-${line.id}`}
-                    placeholder="Tìm mã hoặc tên vật tư..."
+                    placeholder={uiText("Tìm mã hoặc tên vật tư...")}
                     onSelect={(item) =>
                       onUpdateSurplusLine(line.id, {
                         catalogItemId: item.id,
@@ -125,7 +137,7 @@ export function StocktakeSurplusSection({
                     htmlFor={`surplus-cond-${line.id}`}
                     className="block text-xs font-semibold text-slate-700 mb-1"
                   >
-                    Tình trạng *
+                    {uiText("Tình trạng *")}
                   </label>
                   <select
                     id={`surplus-cond-${line.id}`}
@@ -137,8 +149,10 @@ export function StocktakeSurplusSection({
                     }
                     className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="good">Hàng tốt / Good</option>
-                    <option value="damaged">Hàng hỏng / Damaged</option>
+                    <option value="good">{uiText("Hàng tốt / Good")}</option>
+                    <option value="damaged">
+                      {uiText("Hàng hỏng / Damaged")}
+                    </option>
                   </select>
                 </div>
 
@@ -148,7 +162,7 @@ export function StocktakeSurplusSection({
                     htmlFor={`surplus-qty-${line.id}`}
                     className="block text-xs font-semibold text-slate-700 mb-1"
                   >
-                    Số lượng thực tế *
+                    {uiText("Số lượng thực tế *")}
                   </label>
                   <div className="flex items-center gap-1.5">
                     <input
@@ -163,7 +177,7 @@ export function StocktakeSurplusSection({
                       className="w-full font-mono text-xs py-2 px-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 text-right"
                     />
                     <span className="text-slate-500 text-xs font-medium">
-                      {line.baseUomCode || "ĐVT"}
+                      {line.baseUomCode || uiText("ĐVT")}
                     </span>
                   </div>
                 </div>
@@ -174,7 +188,7 @@ export function StocktakeSurplusSection({
                     htmlFor={`surplus-exp-prec-${line.id}`}
                     className="block text-xs font-semibold text-slate-700 mb-1"
                   >
-                    Độ chính xác HSD
+                    {uiText("Độ chính xác HSD")}
                   </label>
                   <select
                     id={`surplus-exp-prec-${line.id}`}
@@ -186,10 +200,18 @@ export function StocktakeSurplusSection({
                     }
                     className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="not_required">Không yêu cầu HSD</option>
-                    <option value="unknown">Chưa rõ HSD (Tạm giữ)</option>
-                    <option value="day">Theo ngày cụ thể (YYYY-MM-DD)</option>
-                    <option value="month">Theo tháng (YYYY-MM)</option>
+                    <option value="not_required">
+                      {uiText("Không yêu cầu HSD")}
+                    </option>
+                    <option value="unknown">
+                      {uiText("Chưa rõ HSD (Tạm giữ)")}
+                    </option>
+                    <option value="day">
+                      {uiText("Theo ngày cụ thể (YYYY-MM-DD)")}
+                    </option>
+                    <option value="month">
+                      {uiText("Theo tháng (YYYY-MM)")}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -203,7 +225,7 @@ export function StocktakeSurplusSection({
                       htmlFor={`surplus-exp-val-${line.id}`}
                       className="block text-xs font-semibold text-slate-700 mb-1"
                     >
-                      Hạn sử dụng (
+                      {uiText("Hạn sử dụng (")}
                       {line.expiryPrecision === "day"
                         ? "YYYY-MM-DD"
                         : "YYYY-MM"}
@@ -236,7 +258,7 @@ export function StocktakeSurplusSection({
                     htmlFor={`surplus-note-${line.id}`}
                     className="block text-xs font-semibold text-slate-700 mb-1"
                   >
-                    Ghi chú nguồn gốc / Bằng chứng phát hiện
+                    {uiText("Ghi chú nguồn gốc / Bằng chứng phát hiện")}
                   </label>
                   <input
                     id={`surplus-note-${line.id}`}
@@ -247,14 +269,18 @@ export function StocktakeSurplusSection({
                         evidenceNote: e.target.value,
                       })
                     }
-                    placeholder="VD: Tìm thấy ở kệ sau tủ số 2, nguyên tem nhà sản xuất..."
+                    placeholder={uiText(
+                      "VD: Tìm thấy ở kệ sau tủ số 2, nguyên tem nhà sản xuất...",
+                    )}
                     className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
 
               {error ? (
-                <p className="text-[11px] text-rose-600 font-medium">{error}</p>
+                <p className="text-[11px] text-rose-600 font-medium">
+                  <LocalizedText text={error ?? ""} />
+                </p>
               ) : null}
             </div>
           ))}

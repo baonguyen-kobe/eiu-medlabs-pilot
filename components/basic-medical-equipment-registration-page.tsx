@@ -25,6 +25,8 @@ import {
   type EquipmentRequestListItem,
 } from "@/lib/equipment-requests";
 import type { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 type Viewer = Awaited<ReturnType<typeof getViewer>>;
 type RequestMode = "edit" | "copy";
@@ -154,37 +156,41 @@ function BasicMedicalRequestModePicker({
   editOptions: EquipmentRequestListItem[];
 }) {
   return (
-    <section
+    <LocalizedElement
+      as="section"
+      textAttributes={["aria-label"]}
       className="equipment-registration-tools"
       aria-label="Sao chép hoặc điều chỉnh phiếu"
     >
       <div className="equipment-registration-tools-heading">
-        <strong>Thao tác với phiếu đã đăng ký</strong>
+        <strong>
+          <LocalizedText text={"Thao tác với phiếu đã đăng ký"} />
+        </strong>
         {mode ? (
           <a
             className="button button-secondary"
             href="/basic-medical/equipment-requests"
           >
-            Đăng ký mới
+            <LocalizedText text={"Đăng ký mới"} />
           </a>
         ) : null}
       </div>
       <div className="equipment-registration-mode-grid">
         <details className="equipment-registration-mode" open={mode === "edit"}>
           <summary className="button equipment-mode-button equipment-mode-edit">
-            Điều chỉnh phiếu
+            <LocalizedText text={"Điều chỉnh phiếu"} />
           </summary>
           <form action="/basic-medical/equipment-requests" method="get">
             <input type="hidden" name="mode" value="edit" />
             <label>
-              Chọn phiếu cần điều chỉnh
+              <LocalizedText text={"Chọn phiếu cần điều chỉnh"} />
               <select
                 name="request"
                 required
                 defaultValue={mode === "edit" ? activeRequestKey : ""}
               >
                 <option value="" disabled>
-                  Chọn phiếu của bạn
+                  <LocalizedText text={"Chọn phiếu của bạn"} />
                 </option>
                 {editOptions.map((request) => (
                   <option key={request.id} value={request.id}>
@@ -197,19 +203,21 @@ function BasicMedicalRequestModePicker({
               className="button button-primary"
               disabled={!editOptions.length}
             >
-              Tải phiếu để điều chỉnh
+              <LocalizedText text={"Tải phiếu để điều chỉnh"} />
             </button>
           </form>
         </details>
         <details className="equipment-registration-mode" open={mode === "copy"}>
           <summary className="button equipment-mode-button equipment-mode-copy">
-            Sao chép phiếu
+            <LocalizedText text={"Sao chép phiếu"} />
           </summary>
           <form action="/basic-medical/equipment-requests" method="get">
             <input type="hidden" name="mode" value="copy" />
             <label>
-              Mã phiếu nguồn
-              <input
+              <LocalizedText text={"Mã phiếu nguồn"} />
+              <LocalizedElement
+                as="input"
+                textAttributes={["placeholder"]}
                 name="request"
                 required
                 defaultValue={mode === "copy" ? activeRequestKey : ""}
@@ -219,12 +227,12 @@ function BasicMedicalRequestModePicker({
               />
             </label>
             <button className="button button-primary">
-              Tải dữ liệu để sao chép
+              <LocalizedText text={"Tải dữ liệu để sao chép"} />
             </button>
           </form>
         </details>
       </div>
-    </section>
+    </LocalizedElement>
   );
 }
 
@@ -462,8 +470,12 @@ export async function BasicMedicalEquipmentRegistrationPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Đăng ký thiết bị"
-      description="Phiếu trang thiết bị thực hành cho buổi học Y cơ sở."
+      title={<LocalizedText text={"Đăng ký thiết bị"} />}
+      description={
+        <LocalizedText
+          text={"Phiếu trang thiết bị thực hành cho buổi học Y cơ sở."}
+        />
+      }
     >
       <BasicMedicalRequestModePicker
         mode={mode}
@@ -472,7 +484,8 @@ export async function BasicMedicalEquipmentRegistrationPage({
       />
       {loadError ? (
         <p className="form-error" role="alert">
-          Không thể tải dữ liệu đăng ký thiết bị: {loadError.message}
+          <LocalizedText text={"Không thể tải dữ liệu đăng ký thiết bị: "} />
+          <LocalizedText text={loadError.message ?? ""} />
         </p>
       ) : null}
       {modeError ? (
@@ -484,7 +497,11 @@ export async function BasicMedicalEquipmentRegistrationPage({
         <>
           {invalidSession || sessionId ? (
             <p className="form-error" role="alert">
-              Không tìm thấy buổi học Y cơ sở phù hợp để đăng ký thiết bị.
+              <LocalizedText
+                text={
+                  "Không tìm thấy buổi học Y cơ sở phù hợp để đăng ký thiết bị."
+                }
+              />
             </p>
           ) : null}
           <BasicMedicalEquipmentSessionSelector
@@ -511,9 +528,16 @@ export async function BasicMedicalEquipmentRegistrationPage({
         <>
           <section className="data-panel">
             <strong>
-              {selectedRequest.status === "cancelled"
-                ? "Phiếu thiết bị đã hủy"
-                : `Phiếu thiết bị ${equipmentStatusMeta(selectedRequest.status).label}`}
+              {selectedRequest.status === "cancelled" ? (
+                <LocalizedText text={"Phiếu thiết bị đã hủy"} />
+              ) : (
+                <>
+                  <LocalizedText text="Phiếu thiết bị" />{" "}
+                  <LocalizedText
+                    text={equipmentStatusMeta(selectedRequest.status).label}
+                  />
+                </>
+              )}
             </strong>
           </section>
           <BasicMedicalEquipmentRequestDetail
@@ -536,9 +560,19 @@ export async function BasicMedicalEquipmentRegistrationPage({
       ) : (
         <>
           <p className="form-error" role="alert">
-            {selectedHasRootAssignment
-              ? "Buổi học đang phân công Root Admin làm giảng viên. Vui lòng điều chỉnh giảng viên giảng dạy/hướng dẫn trước khi đăng ký thiết bị."
-              : "Buổi học Y cơ sở đã hủy hoặc không còn hợp lệ để đăng ký thiết bị."}
+            {selectedHasRootAssignment ? (
+              <LocalizedText
+                text={
+                  "Buổi học đang phân công Root Admin làm giảng viên. Vui lòng điều chỉnh giảng viên giảng dạy/hướng dẫn trước khi đăng ký thiết bị."
+                }
+              />
+            ) : (
+              <LocalizedText
+                text={
+                  "Buổi học Y cơ sở đã hủy hoặc không còn hợp lệ để đăng ký thiết bị."
+                }
+              />
+            )}
           </p>
           <BasicMedicalEquipmentSessionSelector
             sessions={availableSessionOptions}

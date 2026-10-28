@@ -36,6 +36,7 @@ import {
   MORNING_SHIFT_ALLOWED_TIMES,
 } from "@/lib/time-picker-utils";
 import { useScheduleRealtime } from "@/lib/use-schedule-realtime";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export type ShiftSlot = "MORNING" | "AFTERNOON";
 
@@ -153,6 +154,8 @@ function RowAssigneePicker({
   onChange: (ids: string[]) => void;
   onApplyToAll?: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -211,7 +214,7 @@ function RowAssigneePicker({
         <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-lg border border-neutral-200 shadow-lg p-2.5 z-40 space-y-2">
           <input
             type="text"
-            placeholder="Tìm nhân sự..."
+            placeholder={uiText("Tìm nhân sự...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input text-xs px-2 py-1 w-full"
@@ -224,14 +227,14 @@ function RowAssigneePicker({
               onClick={() => onChange(assignees.map((a) => a.id))}
               className="text-primary-700 hover:underline font-medium"
             >
-              Chọn tất cả
+              {uiText("Chọn tất cả")}
             </button>
             <button
               type="button"
               onClick={() => onChange([])}
               className="text-neutral-500 hover:underline"
             >
-              Bỏ chọn
+              {uiText("Bỏ chọn")}
             </button>
             {onApplyToAll && (
               <button
@@ -241,9 +244,11 @@ function RowAssigneePicker({
                   setOpen(false);
                 }}
                 className="text-sky-700 hover:underline font-medium"
-                title="Áp dụng danh sách người trực này cho tất cả các dòng"
+                title={uiText(
+                  "Áp dụng danh sách người trực này cho tất cả các dòng",
+                )}
               >
-                Áp dụng cho tất cả
+                {uiText("Áp dụng cho tất cả")}
               </button>
             )}
           </div>
@@ -274,7 +279,7 @@ function RowAssigneePicker({
             })}
             {filtered.length === 0 && (
               <div className="text-[11px] text-neutral-400 py-2 text-center">
-                Không tìm thấy nhân sự
+                {uiText("Không tìm thấy nhân sự")}
               </div>
             )}
           </div>
@@ -291,6 +296,8 @@ function RegistrationTimeControls({
   row: RegistrationTimes & { slotOption: SlotOption };
   onChange: (field: keyof RegistrationTimes, value: string) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const renderLine = (
     label: string | null,
     startField: keyof RegistrationTimes,
@@ -298,12 +305,14 @@ function RegistrationTimeControls({
     allowedValues: readonly string[],
   ) => (
     <div className={`staff-shift-time-line ${label ? "" : "is-single"}`}>
-      {label ? <span>{label}</span> : null}
+      {label ? <span>{uiText(label)}</span> : null}
       <TimePicker
         value={row[startField]}
         onChange={(value) => onChange(startField, value)}
         allowedValues={allowedValues}
-        ariaLabel={`Giờ bắt đầu ca ${label?.toLowerCase() ?? "trực"}`}
+        ariaLabel={uiText("Giờ bắt đầu ca {0}", [
+          label?.toLowerCase() ?? uiText("trực"),
+        ])}
         className="staff-shift-time-picker"
       />
       <span aria-hidden="true">–</span>
@@ -311,7 +320,9 @@ function RegistrationTimeControls({
         value={row[endField]}
         onChange={(value) => onChange(endField, value)}
         allowedValues={allowedValues}
-        ariaLabel={`Giờ kết thúc ca ${label?.toLowerCase() ?? "trực"}`}
+        ariaLabel={uiText("Giờ kết thúc ca {0}", [
+          label?.toLowerCase() ?? uiText("trực"),
+        ])}
         className="staff-shift-time-picker"
       />
     </div>
@@ -321,13 +332,13 @@ function RegistrationTimeControls({
     return (
       <div className="staff-shift-time-stack">
         {renderLine(
-          "Sáng",
+          uiText("Sáng"),
           "morningStartTime",
           "morningEndTime",
           MORNING_SHIFT_ALLOWED_TIMES,
         )}
         {renderLine(
-          "Chiều",
+          uiText("Chiều"),
           "afternoonStartTime",
           "afternoonEndTime",
           AFTERNOON_SHIFT_ALLOWED_TIMES,
@@ -382,6 +393,8 @@ export function StaffShiftRoster({
   canSelfRegister: boolean;
   canManageShiftHistory: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   useScheduleRealtime();
@@ -872,8 +885,10 @@ export function StaffShiftRoster({
                 <time>
                   {shift.start_time.slice(0, 5)}–{shift.end_time.slice(0, 5)}
                 </time>
-                <strong>{shift.staffName}</strong>
-                <small>{slot === "MORNING" ? "Ca sáng" : "Ca chiều"}</small>
+                <strong>{shift.staffName || uiText("Nhân sự")}</strong>
+                <small>
+                  {slot === "MORNING" ? uiText("Ca sáng") : uiText("Ca chiều")}
+                </small>
               </div>
               {(isAdmin || isMe) && (
                 <div className="staff-shift-event-actions">
@@ -889,7 +904,9 @@ export function StaffShiftRoster({
                         historicalReason: "",
                       })
                     }
-                    aria-label={`Chỉnh sửa giờ trực của ${shift.staffName}`}
+                    aria-label={uiText("Chỉnh sửa giờ trực của {0}", [
+                      shift.staffName || uiText("Nhân sự"),
+                    ])}
                   >
                     <Clock3 size={13} />
                   </button>
@@ -902,7 +919,9 @@ export function StaffShiftRoster({
                         historicalReason: "",
                       })
                     }
-                    aria-label={`Hủy lịch trực của ${shift.staffName}`}
+                    aria-label={uiText("Hủy lịch trực của {0}", [
+                      shift.staffName || uiText("Nhân sự"),
+                    ])}
                   >
                     <Trash2 size={13} />
                   </button>
@@ -928,7 +947,7 @@ export function StaffShiftRoster({
               })
             }
           >
-            <Plus size={13} /> {isAdmin ? "Thêm" : "Đăng ký"}
+            <Plus size={13} /> {isAdmin ? uiText("Thêm") : uiText("Đăng ký")}
           </button>
         )}
       </div>
@@ -948,7 +967,7 @@ export function StaffShiftRoster({
               : "border-transparent text-neutral-600 hover:text-neutral-900 hover:border-neutral-300"
           }`}
         >
-          Lịch trực
+          {uiText("Lịch trực")}
         </Link>
         <Link
           href={`/staff-shifts?tab=register&view=${view}&date=${anchorDate}`}
@@ -959,7 +978,7 @@ export function StaffShiftRoster({
               : "border-transparent text-neutral-600 hover:text-neutral-900 hover:border-neutral-300"
           }`}
         >
-          Đăng ký lịch trực
+          {uiText("Đăng ký lịch trực")}
         </Link>
       </div>
 
@@ -980,13 +999,13 @@ export function StaffShiftRoster({
             ) : (
               <CircleAlert className="text-rose-600 flex-shrink-0" size={18} />
             )}
-            <span>{actionMessage.message}</span>
+            <span>{uiText(actionMessage.message)}</span>
           </div>
           <button
             type="button"
             onClick={() => setActionMessage(null)}
             className="text-neutral-400 hover:text-neutral-700 p-1"
-            aria-label="Đóng thông báo"
+            aria-label={uiText("Đóng thông báo")}
           >
             <X size={16} />
           </button>
@@ -1002,7 +1021,7 @@ export function StaffShiftRoster({
                 <div className="date-nav">
                   <Link
                     href={`/staff-shifts?tab=roster&view=${view}&date=${previousDate}`}
-                    aria-label="Kỳ trước"
+                    aria-label={uiText("Kỳ trước")}
                   >
                     <ChevronLeft size={17} />
                   </Link>
@@ -1010,17 +1029,19 @@ export function StaffShiftRoster({
                     href={`/staff-shifts?tab=roster&view=${view}&date=${todayStr}`}
                     className="today-button"
                   >
-                    {view === "month" ? "Tháng này" : "Tuần này"}
+                    {view === "month"
+                      ? uiText("Tháng này")
+                      : uiText("Tuần này")}
                   </Link>
                   <Link
                     href={`/staff-shifts?tab=roster&view=${view}&date=${nextDate}`}
-                    aria-label="Kỳ sau"
+                    aria-label={uiText("Kỳ sau")}
                   >
                     <ChevronRight size={17} />
                   </Link>
                 </div>
                 <div>
-                  <h3>{periodLabel}</h3>
+                  <h3>{uiText(periodLabel)}</h3>
                 </div>
               </div>
 
@@ -1031,14 +1052,14 @@ export function StaffShiftRoster({
                     className={view === "week" ? "selected" : ""}
                     aria-current={view === "week" ? "page" : undefined}
                   >
-                    Tuần
+                    {uiText("Tuần")}
                   </Link>
                   <Link
                     href={`/staff-shifts?tab=roster&view=month&date=${anchorDate}`}
                     className={view === "month" ? "selected" : ""}
                     aria-current={view === "month" ? "page" : undefined}
                   >
-                    Tháng
+                    {uiText("Tháng")}
                   </Link>
                 </div>
               </div>
@@ -1046,7 +1067,9 @@ export function StaffShiftRoster({
             {/* Calendar Grid */}
             {view === "month" ? (
               <div
-                aria-label="Lịch trực theo tháng; vuốt ngang để xem thêm ngày"
+                aria-label={uiText(
+                  "Lịch trực theo tháng; vuốt ngang để xem thêm ngày",
+                )}
                 className="period-calendar period-calendar-month staff-shift-month-calendar"
                 role="region"
                 tabIndex={0}
@@ -1061,7 +1084,7 @@ export function StaffShiftRoster({
                         } as React.CSSProperties
                       }
                     >
-                      <div className="period-corner">BUỔI</div>
+                      <div className="period-corner">{uiText("BUỔI")}</div>
                       {week.map((date) => {
                         const isToday = date === todayStr;
                         const isSunday =
@@ -1073,7 +1096,7 @@ export function StaffShiftRoster({
                             className={`period-day-heading ${isToday ? "is-today" : ""} ${isSunday ? "is-sunday" : ""} ${isOutsideMonth ? "is-outside-month" : ""}`}
                             key={date}
                           >
-                            <span>{getDayOfWeekLabel(date)}</span>
+                            <span>{uiText(getDayOfWeekLabel(date))}</span>
                             <strong>{date.slice(-2)}</strong>
                           </header>
                         );
@@ -1081,8 +1104,8 @@ export function StaffShiftRoster({
                       {staffShiftPeriods.map(([slot, label]) => (
                         <Fragment key={slot}>
                           <div className="period-label period-label-shift staff-shift-period-label">
-                            <span>Lịch trực</span>
-                            <strong>{label}</strong>
+                            <span>{uiText("Lịch trực")}</span>
+                            <strong>{uiText(label)}</strong>
                           </div>
                           {week.map((date) => (
                             <div
@@ -1100,7 +1123,9 @@ export function StaffShiftRoster({
               </div>
             ) : (
               <div
-                aria-label="Lịch trực theo tuần; vuốt ngang để xem thêm ngày"
+                aria-label={uiText(
+                  "Lịch trực theo tuần; vuốt ngang để xem thêm ngày",
+                )}
                 className="period-calendar period-calendar-week staff-shift-period-calendar"
                 role="region"
                 tabIndex={0}
@@ -1114,7 +1139,7 @@ export function StaffShiftRoster({
                       } as React.CSSProperties
                     }
                   >
-                    <div className="period-corner">BUỔI</div>
+                    <div className="period-corner">{uiText("BUỔI")}</div>
                     {days.map((date) => {
                       const isToday = date === todayStr;
                       const isSunday =
@@ -1124,7 +1149,7 @@ export function StaffShiftRoster({
                           className={`period-day-heading ${isToday ? "is-today" : ""} ${isSunday ? "is-sunday" : ""}`}
                           key={date}
                         >
-                          <span>{getDayOfWeekLabel(date)}</span>
+                          <span>{uiText(getDayOfWeekLabel(date))}</span>
                           <strong>{date.slice(-2)}</strong>
                         </header>
                       );
@@ -1132,8 +1157,8 @@ export function StaffShiftRoster({
                     {staffShiftPeriods.map(([slot, label]) => (
                       <Fragment key={slot}>
                         <div className="period-label period-label-shift staff-shift-period-label">
-                          <span>Lịch trực</span>
-                          <strong>{label}</strong>
+                          <span>{uiText("Lịch trực")}</span>
+                          <strong>{uiText(label)}</strong>
                         </div>
                         {days.map((date) => {
                           const isToday = date === todayStr;
@@ -1164,12 +1189,12 @@ export function StaffShiftRoster({
           <div className="staff-shift-registration-card bg-white p-6 rounded-xl border border-neutral-200 shadow-xs space-y-6">
             <div>
               <h2 className="text-base font-bold text-neutral-900">
-                Đăng ký ca trực mới
+                {uiText("Đăng ký ca trực mới")}
               </h2>
               <p className="text-xs text-neutral-500 mt-0.5">
-                Điền thông tin trực theo dòng. Có thể nhấn &quot;Đăng ký
-                ca&quot; tại từng dòng hoặc &quot;Đăng ký các dòng đã điền&quot;
-                để lưu toàn bộ.
+                {uiText(
+                  'Điền thông tin trực theo dòng. Có thể nhấn "Đăng ký ca" tại từng dòng hoặc "Đăng ký các dòng đã điền" để lưu toàn bộ.',
+                )}
               </p>
             </div>
 
@@ -1184,7 +1209,7 @@ export function StaffShiftRoster({
                     : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
-                Theo tuần (Thứ 2 – Chủ nhật)
+                {uiText("Theo tuần (Thứ 2 – Chủ nhật)")}
               </button>
               <button
                 type="button"
@@ -1195,7 +1220,7 @@ export function StaffShiftRoster({
                     : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
-                Tự chọn ngày trực
+                {uiText("Tự chọn ngày trực")}
               </button>
             </div>
 
@@ -1204,7 +1229,7 @@ export function StaffShiftRoster({
               <div className="border-t border-neutral-200 pt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-neutral-700">
-                    Chọn các ngày trong tuần:
+                    {uiText("Chọn các ngày trong tuần:")}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button
@@ -1219,14 +1244,15 @@ export function StaffShiftRoster({
                       }}
                       className="button button-secondary text-xs px-2 py-1 flex items-center gap-1"
                     >
-                      <ChevronLeft size={14} /> Tuần trước
+                      <ChevronLeft size={14} />
+                      {uiText(" Tuần trước")}
                     </button>
                     <button
                       type="button"
                       onClick={() => updateWeekAnchor(todayStr)}
                       className="button button-secondary text-xs px-2 py-1"
                     >
-                      Tuần này
+                      {uiText("Tuần này")}
                     </button>
                     <button
                       type="button"
@@ -1240,7 +1266,8 @@ export function StaffShiftRoster({
                       }}
                       className="button button-secondary text-xs px-2 py-1 flex items-center gap-1"
                     >
-                      Tuần sau <ChevronRight size={14} />
+                      {uiText("Tuần sau ")}
+                      <ChevronRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -1277,11 +1304,12 @@ export function StaffShiftRoster({
                                   : "text-neutral-600"
                               }`}
                             >
-                              {row.dayLabel}
+                              {uiText(row.dayLabel)}
                             </span>
                             {isPast && (
                               <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
-                                <LockKeyhole size={10} /> Quá khứ
+                                <LockKeyhole size={10} />
+                                {uiText(" Quá khứ")}
                               </span>
                             )}
                           </label>
@@ -1327,13 +1355,13 @@ export function StaffShiftRoster({
                                 className="input text-xs py-1 px-2 font-medium"
                               >
                                 <option value="MORNING">
-                                  Sáng (07:30 – 11:30)
+                                  {uiText("Sáng (07:30 – 11:30)")}
                                 </option>
                                 <option value="AFTERNOON">
-                                  Chiều (12:30 – 16:30)
+                                  {uiText("Chiều (12:30 – 16:30)")}
                                 </option>
                                 <option value="ALL_DAY">
-                                  Cả ngày (Sáng + Chiều)
+                                  {uiText("Cả ngày (Sáng + Chiều)")}
                                 </option>
                               </select>
 
@@ -1363,7 +1391,8 @@ export function StaffShiftRoster({
                                 disabled={pending}
                                 className="button button-secondary text-xs px-2.5 py-1 flex items-center gap-1 font-semibold text-primary-700 hover:bg-primary-50"
                               >
-                                <Plus size={13} /> Đăng ký ca
+                                <Plus size={13} />
+                                {uiText(" Đăng ký ca")}
                               </button>
                             </div>
                           )}
@@ -1380,7 +1409,7 @@ export function StaffShiftRoster({
               <div className="border-t border-neutral-200 pt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-neutral-700">
-                    Danh sách ngày trực:
+                    {uiText("Danh sách ngày trực:")}
                   </span>
                   <button
                     type="button"
@@ -1401,7 +1430,8 @@ export function StaffShiftRoster({
                     }
                     className="button button-secondary text-xs px-2.5 py-1.5 flex items-center gap-1"
                   >
-                    <Plus size={14} /> Thêm ngày trực
+                    <Plus size={14} />
+                    {uiText(" Thêm ngày trực")}
                   </button>
                 </div>
 
@@ -1428,7 +1458,8 @@ export function StaffShiftRoster({
                             />
                             {isPast && (
                               <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
-                                <LockKeyhole size={10} /> Quá khứ
+                                <LockKeyhole size={10} />
+                                {uiText(" Quá khứ")}
                               </span>
                             )}
                           </div>
@@ -1473,13 +1504,13 @@ export function StaffShiftRoster({
                               className="input text-xs py-1 px-2 font-medium"
                             >
                               <option value="MORNING">
-                                Sáng (07:30 – 11:30)
+                                {uiText("Sáng (07:30 – 11:30)")}
                               </option>
                               <option value="AFTERNOON">
-                                Chiều (12:30 – 16:30)
+                                {uiText("Chiều (12:30 – 16:30)")}
                               </option>
                               <option value="ALL_DAY">
-                                Cả ngày (Sáng + Chiều)
+                                {uiText("Cả ngày (Sáng + Chiều)")}
                               </option>
                             </select>
 
@@ -1511,7 +1542,8 @@ export function StaffShiftRoster({
                               disabled={pending}
                               className="button button-secondary text-xs px-2.5 py-1 flex items-center gap-1 font-semibold text-primary-700 hover:bg-primary-50"
                             >
-                              <Plus size={13} /> Đăng ký ca
+                              <Plus size={13} />
+                              {uiText(" Đăng ký ca")}
                             </button>
 
                             {/* Column 6: Xóa dòng tự chọn */}
@@ -1524,9 +1556,10 @@ export function StaffShiftRoster({
                                   )
                                 }
                                 className="button button-danger staff-shift-delete-button text-xs px-2.5 py-1 flex items-center gap-1"
-                                aria-label="Xóa dòng ngày trực này"
+                                aria-label={uiText("Xóa dòng ngày trực này")}
                               >
-                                <Trash2 size={14} /> Xóa
+                                <Trash2 size={14} />
+                                {uiText(" Xóa")}
                               </button>
                             )}
                           </div>
@@ -1547,14 +1580,17 @@ export function StaffShiftRoster({
                 <div className="flex items-center gap-2 text-amber-800 text-xs font-semibold">
                   <LockKeyhole size={14} />
                   <span>
-                    Yêu cầu lý do điều chỉnh lịch sử (vì có ngày trực trong quá
-                    khứ)
+                    {uiText(
+                      "Yêu cầu lý do điều chỉnh lịch sử (vì có ngày trực trong quá khứ)",
+                    )}
                   </span>
                 </div>
                 {canManageShiftHistory ? (
                   <textarea
                     rows={2}
-                    placeholder="Nhập lý do điều chỉnh lịch sử (bắt buộc)..."
+                    placeholder={uiText(
+                      "Nhập lý do điều chỉnh lịch sử (bắt buộc)...",
+                    )}
                     value={regHistoricalReason}
                     onChange={(e) => setRegHistoricalReason(e.target.value)}
                     className="input text-xs w-full"
@@ -1562,9 +1598,9 @@ export function StaffShiftRoster({
                   />
                 ) : (
                   <p className="text-xs text-rose-700 font-medium">
-                    Tài khoản của bạn chưa có quyền quản lý lịch sử ca trực. Vui
-                    lòng bỏ chọn các ngày trong quá khứ hoặc liên hệ quản trị
-                    viên.
+                    {uiText(
+                      "Tài khoản của bạn chưa có quyền quản lý lịch sử ca trực. Vui lòng bỏ chọn các ngày trong quá khứ hoặc liên hệ quản trị viên.",
+                    )}
                   </p>
                 )}
               </div>
@@ -1575,14 +1611,15 @@ export function StaffShiftRoster({
               <div className="text-xs text-neutral-500">
                 {regMode === "week" ? (
                   <span>
-                    Đã chọn{" "}
+                    {uiText("Đã chọn")}{" "}
                     <strong>{weekRows.filter((r) => r.included).length}</strong>{" "}
-                    ngày trong tuần
+                    {uiText("ngày trong tuần")}
                   </span>
                 ) : (
                   <span>
-                    Đang có <strong>{freeformRows.length}</strong> dòng ngày
-                    trực
+                    {uiText("Đang có ")}
+                    <strong>{freeformRows.length}</strong>
+                    {uiText(" dòng ngày trực")}
                   </span>
                 )}
               </div>
@@ -1592,7 +1629,9 @@ export function StaffShiftRoster({
                 disabled={pending}
                 className="button button-primary text-xs px-6 py-2.5 font-semibold"
               >
-                {pending ? "Đang xử lý..." : "Đăng ký các dòng đã điền"}
+                {pending
+                  ? uiText("Đang xử lý...")
+                  : uiText("Đăng ký các dòng đã điền")}
               </button>
             </div>
           </div>
@@ -1605,7 +1644,7 @@ export function StaffShiftRoster({
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/40 backdrop-blur-xs"
           role="dialog"
           aria-modal="true"
-          aria-label="Tạo lịch trực"
+          aria-label={uiText("Tạo lịch trực")}
           aria-labelledby="quick-register-modal-title"
         >
           <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-xl border border-neutral-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
@@ -1615,19 +1654,22 @@ export function StaffShiftRoster({
                   id="quick-register-modal-title"
                   className="text-sm font-bold text-neutral-900"
                 >
-                  Tạo lịch trực
+                  {uiText("Tạo lịch trực")}
                 </h3>
                 <p className="text-xs text-neutral-500">
-                  {getDayOfWeekLabel(quickRegisterModal.date)},{" "}
-                  {formatBusinessDate(quickRegisterModal.date)} – Buổi{" "}
-                  {quickRegisterModal.slot === "MORNING" ? "Sáng" : "Chiều"}
+                  {uiText(getDayOfWeekLabel(quickRegisterModal.date))},{" "}
+                  {formatBusinessDate(quickRegisterModal.date)}
+                  {uiText(" – Buổi")}{" "}
+                  {quickRegisterModal.slot === "MORNING"
+                    ? uiText("Sáng")
+                    : uiText("Chiều")}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setQuickRegisterModal(null)}
                 className="text-neutral-400 hover:text-neutral-700 p-1"
-                aria-label="Đóng cửa sổ"
+                aria-label={uiText("Đóng cửa sổ")}
               >
                 <X size={16} />
               </button>
@@ -1638,7 +1680,7 @@ export function StaffShiftRoster({
               {isAdmin ? (
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-neutral-700">
-                    Người trực:
+                    {uiText("Người trực:")}
                   </label>
                   <div className="max-h-36 overflow-y-auto border border-neutral-200 rounded-lg p-2 space-y-1 bg-neutral-50/50">
                     {assignees.map((person) => {
@@ -1691,14 +1733,15 @@ export function StaffShiftRoster({
                 </div>
               ) : (
                 <div className="text-xs text-neutral-600 bg-neutral-50 p-2.5 rounded-lg border border-neutral-200">
-                  Người trực: <strong>{userFullName}</strong>
+                  {uiText("Người trực: ")}
+                  <strong>{userFullName}</strong>
                 </div>
               )}
 
               {/* Time Pickers */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-neutral-700">
-                  Khung giờ trực:
+                  {uiText("Khung giờ trực:")}
                 </label>
                 <div className="flex items-center gap-2">
                   <TimePicker
@@ -1734,11 +1777,11 @@ export function StaffShiftRoster({
               {/* Note */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-neutral-700">
-                  Ghi chú (tùy chọn):
+                  {uiText("Ghi chú (tùy chọn):")}
                 </label>
                 <input
                   type="text"
-                  placeholder="Nhập ghi chú..."
+                  placeholder={uiText("Nhập ghi chú...")}
                   value={quickRegisterModal.note}
                   onChange={(e) =>
                     setQuickRegisterModal((prev) =>
@@ -1753,11 +1796,11 @@ export function StaffShiftRoster({
               {quickRegisterModal.date < todayStr && (
                 <div className="space-y-1.5 bg-amber-50 p-3 rounded-lg border border-amber-200">
                   <label className="block text-xs font-bold text-amber-800">
-                    Lý do điều chỉnh lịch sử (bắt buộc):
+                    {uiText("Lý do điều chỉnh lịch sử (bắt buộc):")}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Nhập lý do..."
+                    placeholder={uiText("Nhập lý do...")}
                     value={quickRegisterModal.historicalReason}
                     onChange={(e) =>
                       setQuickRegisterModal((prev) =>
@@ -1779,7 +1822,7 @@ export function StaffShiftRoster({
                 onClick={() => setQuickRegisterModal(null)}
                 className="button button-secondary text-xs px-3 py-1.5"
               >
-                Hủy
+                {uiText("Hủy")}
               </button>
               <button
                 type="button"
@@ -1787,7 +1830,7 @@ export function StaffShiftRoster({
                 disabled={pending}
                 className="button button-primary text-xs px-4 py-1.5"
               >
-                {pending ? "Đang lưu..." : "Xác nhận"}
+                {pending ? uiText("Đang lưu...") : uiText("Xác nhận")}
               </button>
             </div>
           </div>
@@ -1809,14 +1852,15 @@ export function StaffShiftRoster({
                   id="edit-shift-modal-title"
                   className="text-sm font-bold text-neutral-900"
                 >
-                  Chỉnh sửa giờ ca trực
+                  {uiText("Chỉnh sửa giờ ca trực")}
                 </h3>
                 <p className="text-xs text-neutral-500">
-                  {editShiftModal.shift.staffName} –{" "}
-                  {formatBusinessDate(editShiftModal.shift.shift_date)} (Buổi{" "}
+                  {editShiftModal.shift.staffName || uiText("Nhân sự")} –{" "}
+                  {formatBusinessDate(editShiftModal.shift.shift_date)}
+                  {uiText(" (Buổi")}{" "}
                   {editShiftModal.shift.shift_slot === "MORNING"
-                    ? "Sáng"
-                    : "Chiều"}
+                    ? uiText("Sáng")
+                    : uiText("Chiều")}
                   )
                 </p>
               </div>
@@ -1824,7 +1868,7 @@ export function StaffShiftRoster({
                 type="button"
                 onClick={() => setEditShiftModal(null)}
                 className="text-neutral-400 hover:text-neutral-700 p-1"
-                aria-label="Đóng cửa sổ"
+                aria-label={uiText("Đóng cửa sổ")}
               >
                 <X size={16} />
               </button>
@@ -1834,7 +1878,7 @@ export function StaffShiftRoster({
               {/* Time Pickers */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-neutral-700">
-                  Giờ trực (trong khung giờ buổi{" "}
+                  {uiText("Giờ trực (trong khung giờ buổi")}{" "}
                   {editShiftModal.shift.shift_slot === "MORNING"
                     ? "07:30–11:30"
                     : "12:30–16:30"}
@@ -1874,11 +1918,11 @@ export function StaffShiftRoster({
               {/* Note */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-neutral-700">
-                  Ghi chú:
+                  {uiText("Ghi chú:")}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ghi chú..."
+                  placeholder={uiText("Ghi chú...")}
                   value={editShiftModal.note}
                   onChange={(e) =>
                     setEditShiftModal((prev) =>
@@ -1893,11 +1937,11 @@ export function StaffShiftRoster({
               {editShiftModal.shift.shift_date < todayStr && (
                 <div className="space-y-1.5 bg-amber-50 p-3 rounded-lg border border-amber-200">
                   <label className="block text-xs font-bold text-amber-800">
-                    Lý do điều chỉnh lịch sử (bắt buộc):
+                    {uiText("Lý do điều chỉnh lịch sử (bắt buộc):")}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Nhập lý do..."
+                    placeholder={uiText("Nhập lý do...")}
                     value={editShiftModal.historicalReason}
                     onChange={(e) =>
                       setEditShiftModal((prev) =>
@@ -1919,7 +1963,7 @@ export function StaffShiftRoster({
                 onClick={() => setEditShiftModal(null)}
                 className="button button-secondary text-xs px-3 py-1.5"
               >
-                Hủy
+                {uiText("Hủy")}
               </button>
               <button
                 type="button"
@@ -1927,7 +1971,7 @@ export function StaffShiftRoster({
                 disabled={pending}
                 className="button button-primary text-xs px-4 py-1.5"
               >
-                {pending ? "Đang lưu..." : "Lưu thay đổi"}
+                {pending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
               </button>
             </div>
           </div>
@@ -1938,10 +1982,19 @@ export function StaffShiftRoster({
       {cancelShiftDialog?.open && (
         <ConfirmDialog
           open={cancelShiftDialog.open}
-          title="Hủy lịch trực?"
-          description={`Bạn có chắc chắn muốn hủy ca trực ngày ${formatBusinessDate(cancelShiftDialog.shift.shift_date)} (Buổi ${cancelShiftDialog.shift.shift_slot === "MORNING" ? "Sáng" : "Chiều"}) của ${cancelShiftDialog.shift.staffName}?`}
-          confirmLabel="Hủy ca trực"
-          cancelLabel="Quay lại"
+          title={uiText("Hủy lịch trực?")}
+          description={uiText(
+            "Bạn có chắc chắn muốn hủy ca trực ngày {0} (Buổi {1}) của {2}?",
+            [
+              formatBusinessDate(cancelShiftDialog.shift.shift_date),
+              cancelShiftDialog.shift.shift_slot === "MORNING"
+                ? uiText("Sáng")
+                : uiText("Chiều"),
+              cancelShiftDialog.shift.staffName || uiText("Nhân sự"),
+            ],
+          )}
+          confirmLabel={uiText("Hủy ca trực")}
+          cancelLabel={uiText("Quay lại")}
           tone="danger"
           pending={pending}
           onConfirm={handleCancelShiftSubmit}
@@ -1950,11 +2003,11 @@ export function StaffShiftRoster({
           {cancelShiftDialog.shift.shift_date < todayStr ? (
             <div className="mt-3 space-y-1.5 text-left">
               <label className="block text-xs font-bold text-neutral-800">
-                Lý do hủy ca trực lịch sử (bắt buộc):
+                {uiText("Lý do hủy ca trực lịch sử (bắt buộc):")}
               </label>
               <textarea
                 rows={2}
-                placeholder="Nhập lý do..."
+                placeholder={uiText("Nhập lý do...")}
                 value={cancelShiftDialog.historicalReason}
                 onChange={(e) =>
                   setCancelShiftDialog((prev) =>
@@ -1968,11 +2021,11 @@ export function StaffShiftRoster({
           ) : (
             <div className="mt-3 space-y-1.5 text-left">
               <label className="block text-xs font-medium text-neutral-600">
-                Lý do hủy (tùy chọn):
+                {uiText("Lý do hủy (tùy chọn):")}
               </label>
               <input
                 type="text"
-                placeholder="Nhập lý do hủy..."
+                placeholder={uiText("Nhập lý do hủy...")}
                 value={cancelShiftDialog.historicalReason}
                 onChange={(e) =>
                   setCancelShiftDialog((prev) =>

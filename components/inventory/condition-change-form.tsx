@@ -38,6 +38,8 @@ import type {
   InventoryOperationStock,
   InventoryStorageLocation,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const STOCK_PAGE_SIZE = 20;
 
@@ -63,6 +65,8 @@ export function ConditionChangeForm({
   preselectedLocationId?: string;
   preselectedOriginId?: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [locationId, setLocationId] = useState(preselectedLocationId);
   const [reason, setReason] = useState("");
   const [occurredAt, setOccurredAt] = useState(() => {
@@ -427,14 +431,17 @@ export function ConditionChangeForm({
             />
           )}
           <div className="space-y-1">
-            <p className="font-semibold text-sm">{notice.message}</p>
+            <p className="font-semibold text-sm">
+              <LocalizedText text={notice.message ?? ""} />
+            </p>
             {notice.transactionId ? (
               <p className="text-xs">
                 <Link
                   href={`/inventory/transactions/${notice.transactionId}`}
                   className="font-medium underline hover:text-emerald-800"
                 >
-                  Xem chi tiết giao dịch hạ phẩm cấp #{notice.transactionId} →
+                  {uiText("Xem chi tiết giao dịch hạ phẩm cấp #")}
+                  {notice.transactionId} →
                 </Link>
               </p>
             ) : null}
@@ -454,7 +461,9 @@ export function ConditionChangeForm({
           role="alert"
           className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center justify-between"
         >
-          <span>{validationError}</span>
+          <span>
+            <LocalizedText text={validationError ?? ""} />
+          </span>
           <button
             type="button"
             onClick={() => setValidationError(null)}
@@ -470,19 +479,26 @@ export function ConditionChangeForm({
         <div className="font-bold flex items-center gap-1.5 text-amber-950">
           <AlertTriangle size={16} className="text-amber-600 shrink-0" />
           <span>
-            Quy tắc nghiệp vụ: Chỉ cho phép Hạ phẩm cấp (Tốt → Hỏng) /
-            Deterioration Only
+            {uiText(
+              "Quy tắc nghiệp vụ: Chỉ cho phép Hạ phẩm cấp (Tốt → Hỏng) / Deterioration Only",
+            )}
           </span>
         </div>
         <p className="text-slate-700 leading-relaxed">
-          Nghiệp vụ này chuyển đổi số lượng vật tư thực tế từ{" "}
-          <strong>Hàng tốt (Good)</strong> sang{" "}
-          <strong>Hàng hỏng (Damaged)</strong> do sự cố, bể vỡ, hoặc giảm chất
-          lượng vật lý tại kho. Theo hợp đồng S2 và quy định V1.1,{" "}
+          {uiText("Nghiệp vụ này chuyển đổi số lượng vật tư thực tế từ")}{" "}
+          <strong>{uiText("Hàng tốt (Good)")}</strong>
+          {uiText(" sang")} <strong>{uiText("Hàng hỏng (Damaged)")}</strong>
+          {uiText(
+            " do sự cố, bể vỡ, hoặc giảm chất lượng vật lý tại kho. Theo hợp đồng S2 và quy định V1.1,",
+          )}{" "}
           <em>
-            nghiệp vụ phục hồi/sửa chữa (Hỏng → Tốt) bị loại trừ hoàn toàn
+            {uiText(
+              "nghiệp vụ phục hồi/sửa chữa (Hỏng → Tốt) bị loại trừ hoàn toàn",
+            )}
           </em>
-          . Tổng số lượng tồn vật lý tại vị trí kho được bảo toàn tuyệt đối.
+          {uiText(
+            ". Tổng số lượng tồn vật lý tại vị trí kho được bảo toàn tuyệt đối.",
+          )}
         </p>
       </div>
 
@@ -490,7 +506,9 @@ export function ConditionChangeForm({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <span>
-            Thông tin Ghi nhận Hạ phẩm cấp / Condition Deterioration Details
+            {uiText(
+              "Thông tin Ghi nhận Hạ phẩm cấp / Condition Deterioration Details",
+            )}
           </span>
         </h2>
 
@@ -501,9 +519,9 @@ export function ConditionChangeForm({
               resource="locations"
               filters={{ active: true }}
               value={locationId}
-              label="Vị trí kho thực hiện *"
+              label={uiText("Vị trí kho thực hiện *")}
               id="condition-location"
-              placeholder="Chọn kho lưu trữ..."
+              placeholder={uiText("Chọn kho lưu trữ...")}
               onSelect={(loc) => handleLocationChange(loc.id)}
             />
           </div>
@@ -514,7 +532,7 @@ export function ConditionChangeForm({
               htmlFor="condition-occurred-at"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Thời điểm ghi nhận *
+              {uiText("Thời điểm ghi nhận *")}
             </label>
             <input
               id="condition-occurred-at"
@@ -531,14 +549,16 @@ export function ConditionChangeForm({
               htmlFor="condition-reason"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Lý do báo hỏng / hạ phẩm cấp *
+              {uiText("Lý do báo hỏng / hạ phẩm cấp *")}
             </label>
             <input
               id="condition-reason"
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="VD: Bể vỡ chai thủy tinh trong lúc bảo quản, rò rỉ bao bì..."
+              placeholder={uiText(
+                "VD: Bể vỡ chai thủy tinh trong lúc bảo quản, rò rỉ bao bì...",
+              )}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white"
             />
           </div>
@@ -551,12 +571,13 @@ export function ConditionChangeForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Chọn lô hàng tốt tại kho / Available Good Stock ({totalStock}{" "}
-                lô)
+                {uiText("Chọn lô hàng tốt tại kho / Available Good Stock (")}
+                {totalStock} {uiText("lô)")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Chỉ hiển thị các lô vật tư đang ở trạng thái Tốt (Good) tại kho
-                đã chọn
+                {uiText(
+                  "Chỉ hiển thị các lô vật tư đang ở trạng thái Tốt (Good) tại kho đã chọn",
+                )}
               </p>
             </div>
 
@@ -574,7 +595,7 @@ export function ConditionChangeForm({
                   type="text"
                   value={stockSearch}
                   onChange={(e) => setStockSearch(e.target.value)}
-                  placeholder="Tìm theo SKU, tên vật tư..."
+                  placeholder={uiText("Tìm theo SKU, tên vật tư...")}
                   className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-56"
                 />
               </div>
@@ -582,19 +603,20 @@ export function ConditionChangeForm({
                 type="submit"
                 className="button button-secondary text-xs py-1.5 px-3"
               >
-                Tìm
+                {uiText("Tìm")}
               </button>
             </form>
           </div>
 
           {isLoadingStock ? (
             <div className="text-center py-8 text-xs text-amber-600 font-medium animate-pulse">
-              Đang tải danh sách hàng tốt...
+              {uiText("Đang tải danh sách hàng tốt...")}
             </div>
           ) : availableStock.length === 0 ? (
             <p className="text-xs text-slate-400 py-6 text-center">
-              Kho này hiện không có lô vật tư tình trạng Tốt nào phù hợp với bộ
-              lọc.
+              {uiText(
+                "Kho này hiện không có lô vật tư tình trạng Tốt nào phù hợp với bộ lọc.",
+              )}
             </p>
           ) : (
             <>
@@ -602,12 +624,22 @@ export function ConditionChangeForm({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                      <th className="py-2 px-3">Mã SKU {"&"} Tên vật tư</th>
-                      <th className="py-2 px-3">Tình trạng</th>
-                      <th className="py-2 px-3">Trạng thái giữ (Hold)</th>
-                      <th className="py-2 px-3 text-right">Tồn tốt hiện có</th>
-                      <th className="py-2 px-3">Hạn dùng</th>
-                      <th className="py-2 px-3 text-center">Thao tác</th>
+                      <th className="py-2 px-3">
+                        {uiText("Mã SKU ")}
+                        {"&"}
+                        {uiText(" Tên vật tư")}
+                      </th>
+                      <th className="py-2 px-3">{uiText("Tình trạng")}</th>
+                      <th className="py-2 px-3">
+                        {uiText("Trạng thái giữ (Hold)")}
+                      </th>
+                      <th className="py-2 px-3 text-right">
+                        {uiText("Tồn tốt hiện có")}
+                      </th>
+                      <th className="py-2 px-3">{uiText("Hạn dùng")}</th>
+                      <th className="py-2 px-3 text-center">
+                        {uiText("Thao tác")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -657,7 +689,9 @@ export function ConditionChangeForm({
                                   : "button-secondary"
                               }`}
                             >
-                              {isSelected ? "Đã chọn" : "+ Thêm vào phiếu"}
+                              {isSelected
+                                ? uiText("Đã chọn")
+                                : uiText("+ Thêm vào phiếu")}
                             </button>
                           </td>
                         </tr>
@@ -670,7 +704,11 @@ export function ConditionChangeForm({
               {/* Bounded pagination controls */}
               <div className="flex items-center justify-between pt-2">
                 <span className="text-xs text-slate-500">
-                  Hiển thị trang {stockPage} trên tổng số {totalStock} lô
+                  {uiText("Hiển thị trang ")}
+                  {stockPage}
+                  {uiText(" trên tổng số ")}
+                  {totalStock}
+                  {uiText(" lô")}
                 </span>
                 <PaginationControls
                   currentPage={stockPage}
@@ -689,11 +727,13 @@ export function ConditionChangeForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Danh sách vật tư báo hỏng / Items to Mark Damaged ({lines.length})
+              {uiText("Danh sách vật tư báo hỏng / Items to Mark Damaged (")}
+              {lines.length})
             </h3>
             <p className="text-xs text-slate-500">
-              Nhập số lượng hàng tốt chuyển sang hàng hỏng (Bảo toàn tổng tồn
-              kho vật lý)
+              {uiText(
+                "Nhập số lượng hàng tốt chuyển sang hàng hỏng (Bảo toàn tổng tồn kho vật lý)",
+              )}
             </p>
           </div>
         </div>
@@ -702,8 +742,9 @@ export function ConditionChangeForm({
           <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
             <PackageCheck className="mx-auto text-slate-300 mb-2" size={28} />
             <p className="text-xs text-slate-500">
-              Chưa có lô vật tư nào được chọn. Hãy chọn kho và thêm lô từ bảng
-              trên.
+              {uiText(
+                "Chưa có lô vật tư nào được chọn. Hãy chọn kho và thêm lô từ bảng trên.",
+              )}
             </p>
           </div>
         ) : (
@@ -711,13 +752,23 @@ export function ConditionChangeForm({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3">Lô {"&"} Vật tư</th>
-                  <th className="py-2.5 px-3 text-right">Tồn tốt ban đầu</th>
-                  <th className="py-2.5 px-3 text-right w-44">SL Báo hỏng *</th>
-                  <th className="py-2.5 px-3 text-right">
-                    Tồn tốt còn lại (Dự kiến)
+                  <th className="py-2.5 px-3">
+                    {uiText("Lô ")}
+                    {"&"}
+                    {uiText(" Vật tư")}
                   </th>
-                  <th className="py-2.5 px-3 text-center w-16">Xóa</th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Tồn tốt ban đầu")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right w-44">
+                    {uiText("SL Báo hỏng *")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Tồn tốt còn lại (Dự kiến)")}
+                  </th>
+                  <th className="py-2.5 px-3 text-center w-16">
+                    {uiText("Xóa")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -732,7 +783,9 @@ export function ConditionChangeForm({
                           {line.itemCode} - {line.itemName}
                         </div>
                         <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                          Lô: {line.originId.slice(0, 8)}... | Phiên bản kho: r
+                          {uiText("Lô: ")}
+                          {line.originId.slice(0, 8)}
+                          {uiText("... | Phiên bản kho: r")}
                           {line.stockRevision}
                         </div>
                       </td>
@@ -760,7 +813,7 @@ export function ConditionChangeForm({
                         </div>
                         {error ? (
                           <p className="text-[11px] text-rose-600 mt-1 text-right">
-                            {error}
+                            <LocalizedText text={error ?? ""} />
                           </p>
                         ) : null}
                       </td>
@@ -776,7 +829,7 @@ export function ConditionChangeForm({
                           type="button"
                           onClick={() => handleRemoveLine(idx)}
                           className="text-slate-400 hover:text-rose-600 p-1 rounded"
-                          title="Xóa dòng"
+                          title={uiText("Xóa dòng")}
                         >
                           <Trash2 size={15} />
                         </button>
@@ -791,7 +844,9 @@ export function ConditionChangeForm({
 
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Tổng cộng: <strong>{lines.length}</strong> dòng báo hỏng
+            {uiText("Tổng cộng: ")}
+            <strong>{lines.length}</strong>
+            {uiText(" dòng báo hỏng")}
           </span>
           <button
             type="button"
@@ -801,7 +856,9 @@ export function ConditionChangeForm({
               !canSubmit || isPending ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {isPending ? "Đang xử lý..." : "Xác nhận Hạ phẩm cấp (Báo hỏng) →"}
+            {isPending
+              ? uiText("Đang xử lý...")
+              : uiText("Xác nhận Hạ phẩm cấp (Báo hỏng) →")}
           </button>
         </div>
       </div>
@@ -812,29 +869,35 @@ export function ConditionChangeForm({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <AlertTriangle className="text-amber-600" size={18} />
-              <span>Xác nhận giao dịch hạ phẩm cấp (Báo hỏng)</span>
+              <span>{uiText("Xác nhận giao dịch hạ phẩm cấp (Báo hỏng)")}</span>
             </h3>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Bạn có chắc chắn muốn chuyển <strong>{lines.length}</strong> dòng
-              vật tư này từ <strong>Hàng tốt</strong> sang{" "}
-              <strong>Hàng hỏng</strong> không? Thao tác này sẽ ghi sổ bất biến
-              và giảm lượng tồn đủ điều kiện cấp phát (Eligible).
+              {uiText("Bạn có chắc chắn muốn chuyển ")}
+              <strong>{lines.length}</strong>
+              {uiText(" dòng vật tư này từ ")}
+              <strong>{uiText("Hàng tốt")}</strong>
+              {uiText(" sang")} <strong>{uiText("Hàng hỏng")}</strong>
+              {uiText(
+                " không? Thao tác này sẽ ghi sổ bất biến và giảm lượng tồn đủ điều kiện cấp phát (Eligible).",
+              )}
             </p>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-slate-500">Vị trí kho:</span>
+                <span className="text-slate-500">{uiText("Vị trí kho:")}</span>
                 <span className="font-semibold text-slate-800">
                   {locationId}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Lý do:</span>
+                <span className="text-slate-500">{uiText("Lý do:")}</span>
                 <span className="font-semibold text-slate-800">{reason}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Số dòng báo hỏng:</span>
+                <span className="text-slate-500">
+                  {uiText("Số dòng báo hỏng:")}
+                </span>
                 <span className="font-semibold text-slate-800">
                   {lines.length}
                 </span>
@@ -847,14 +910,14 @@ export function ConditionChangeForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                Hủy bỏ / Cancel
+                {uiText("Hủy bỏ / Cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold py-2 px-4 rounded-lg"
               >
-                Ghi sổ báo hỏng / Confirm Deterioration
+                {uiText("Ghi sổ báo hỏng / Confirm Deterioration")}
               </button>
             </div>
           </div>

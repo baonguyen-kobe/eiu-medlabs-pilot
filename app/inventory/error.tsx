@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { AlertTriangle } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export default function InventoryError({
   error,
@@ -10,6 +11,8 @@ export default function InventoryError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   useEffect(() => {
     // Log error for client telemetry / diagnostic tracking
     console.error("Inventory error boundary caught:", error);
@@ -23,20 +26,22 @@ export default function InventoryError({
         </div>
         <div>
           <h2 className="text-base font-bold text-slate-900">
-            Đã xảy ra lỗi tải dữ liệu Kho / Inventory System Error
+            {uiText("Đã xảy ra lỗi tải dữ liệu Kho / Inventory System Error")}
           </h2>
           <p className="text-xs text-slate-500">
-            Hệ thống không thể tải dữ liệu từ cơ sở dữ liệu. Vui lòng thử lại
-            hoặc liên hệ quản trị viên.
+            {uiText(
+              "Hệ thống không thể tải dữ liệu từ cơ sở dữ liệu. Vui lòng thử lại hoặc liên hệ quản trị viên.",
+            )}
           </p>
         </div>
       </div>
 
       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-700 overflow-x-auto">
-        {error.message || "Lỗi không xác định (Unknown error)"}
+        {error.message || uiText("Lỗi không xác định (Unknown error)")}
         {error.digest ? (
           <span className="block mt-1 text-[11px] text-slate-400">
-            Mã định danh lỗi: {error.digest}
+            {uiText("Mã định danh lỗi: ")}
+            {error.digest}
           </span>
         ) : null}
       </div>
@@ -47,7 +52,7 @@ export default function InventoryError({
           className="button button-primary text-xs"
           onClick={() => reset()}
         >
-          Thử lại / Try Again
+          {uiText("Thử lại / Try Again")}
         </button>
       </div>
     </div>

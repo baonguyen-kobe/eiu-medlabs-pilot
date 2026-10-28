@@ -11,7 +11,7 @@ function readWorkflow(name) {
   return readFileSync(
     new URL(`../.github/workflows/${name}`, import.meta.url),
     "utf8",
-  );
+  ).replace(/\r\n/g, "\n");
 }
 
 test("CI creates an isolated Supabase workdir without mutating local preview config", () => {
@@ -41,8 +41,8 @@ test("CI creates an isolated Supabase workdir without mutating local preview con
         new RegExp(`(?:port|shadow_port|inspector_port) = ${port}`),
       );
     }
-    assert.match(previewConfig, /project_id = "lich-truc-app"/);
-    assert.match(previewConfig, /port = 54321/);
+    assert.match(previewConfig, /project_id = "eiu-medlabs-pilot"/);
+    assert.match(previewConfig, /port = 58321/);
     assert.match(
       previewConfig,
       /\[auth\.rate_limit\][\s\S]*sign_in_sign_ups = 30/,

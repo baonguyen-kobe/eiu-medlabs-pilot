@@ -27,6 +27,8 @@ import type {
   InventoryCatalogItem,
   InventoryStorageLocation,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface OpeningLineState {
   lineKey: string;
@@ -48,6 +50,8 @@ export function OpeningForm({
   items?: InventoryCatalogItem[];
   locations?: InventoryStorageLocation[];
 } = {}) {
+  const { text: uiText } = useLanguage();
+
   const [cutoverKey, setCutoverKey] = useState("CUTOVER-2026-S1");
   const [scopeDescription, setScopeDescription] = useState(
     "Kiểm kê khởi tạo số dư đầu kỳ toàn bộ kho MedLabs",
@@ -370,7 +374,9 @@ export function OpeningForm({
             ) : (
               <AlertTriangle className="text-red-600 shrink-0" size={18} />
             )}
-            <span>{notice.message}</span>
+            <span>
+              <LocalizedText text={notice.message ?? ""} />
+            </span>
           </div>
 
           {notice.ok ? (
@@ -379,13 +385,14 @@ export function OpeningForm({
                 href="/inventory/stock"
                 className="button button-primary text-xs"
               >
-                <PackageCheck size={14} /> Kiểm tra Tồn kho &rarr;
+                <PackageCheck size={14} />
+                {uiText(" Kiểm tra Tồn kho &rarr;")}
               </Link>
               <Link
                 href="/inventory/transactions"
                 className="button button-secondary text-xs"
               >
-                Xem sổ cái &rarr;
+                {uiText("Xem sổ cái &rarr;")}
               </Link>
             </div>
           ) : (
@@ -393,7 +400,7 @@ export function OpeningForm({
               type="button"
               className="text-slate-400 hover:text-slate-600 p-1"
               onClick={() => setNotice(null)}
-              aria-label="Đóng thông báo"
+              aria-label={uiText("Đóng thông báo")}
             >
               <X size={16} />
             </button>
@@ -409,13 +416,15 @@ export function OpeningForm({
         >
           <div className="flex items-center gap-2">
             <AlertTriangle size={16} className="text-red-600 shrink-0" />
-            <span>{validationError}</span>
+            <span>
+              <LocalizedText text={validationError ?? ""} />
+            </span>
           </div>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 p-1"
             onClick={() => setValidationError(null)}
-            aria-label="Đóng lỗi"
+            aria-label={uiText("Đóng lỗi")}
           >
             <X size={14} />
           </button>
@@ -426,11 +435,12 @@ export function OpeningForm({
       <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-6 dark:bg-slate-900 dark:border-slate-800">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            Biên bản Chốt kiểm kê ban đầu / Opening Cutover
+            {uiText("Biên bản Chốt kiểm kê ban đầu / Opening Cutover")}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Dành riêng cho Quản trị viên (Admin). Xác lập số dư kiểm kê ban đầu
-            có giá trị pháp lý, không suy diễn lịch sử mua sắm.
+            {uiText(
+              "Dành riêng cho Quản trị viên (Admin). Xác lập số dư kiểm kê ban đầu có giá trị pháp lý, không suy diễn lịch sử mua sắm.",
+            )}
           </p>
         </div>
 
@@ -441,7 +451,8 @@ export function OpeningForm({
               htmlFor="opening-cutover-key"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
             >
-              Mã đợt chốt (Cutover Key) <span className="text-red-500">*</span>
+              {uiText("Mã đợt chốt (Cutover Key) ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="opening-cutover-key"
@@ -452,7 +463,7 @@ export function OpeningForm({
               required
             />
             <span className="text-[11px] text-slate-400 block mt-1">
-              Khóa duy nhất của đợt khởi tạo
+              {uiText("Khóa duy nhất của đợt khởi tạo")}
             </span>
           </div>
 
@@ -461,7 +472,8 @@ export function OpeningForm({
               htmlFor="opening-count-cutoff"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
             >
-              Thời điểm chốt kiểm kê <span className="text-red-500">*</span>
+              {uiText("Thời điểm chốt kiểm kê ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="opening-count-cutoff"
@@ -472,7 +484,7 @@ export function OpeningForm({
               required
             />
             <span className="text-[11px] text-slate-400 block mt-1">
-              Giờ và ngày chốt sổ (Asia/Ho_Chi_Minh)
+              {uiText("Giờ và ngày chốt sổ (Asia/Ho_Chi_Minh)")}
             </span>
           </div>
 
@@ -481,7 +493,8 @@ export function OpeningForm({
               htmlFor="opening-scope"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
             >
-              Phạm vi kiểm kê <span className="text-red-500">*</span>
+              {uiText("Phạm vi kiểm kê ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="opening-scope"
@@ -492,7 +505,7 @@ export function OpeningForm({
               required
             />
             <span className="text-[11px] text-slate-400 block mt-1">
-              Mô tả ngắn phạm vi kho/khu vực kiểm kê
+              {uiText("Mô tả ngắn phạm vi kho/khu vực kiểm kê")}
             </span>
           </div>
 
@@ -501,7 +514,7 @@ export function OpeningForm({
               htmlFor="opening-provenance-note"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
             >
-              Căn cứ pháp lý & Ghi chú xuất xứ{" "}
+              {uiText("Căn cứ pháp lý & Ghi chú xuất xứ")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -519,14 +532,16 @@ export function OpeningForm({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-              Danh sách các dòng kiểm đếm thực tế ({lines.length})
+              {uiText("Danh sách các dòng kiểm đếm thực tế (")}
+              {lines.length})
             </h3>
             <button
               type="button"
               className="button button-secondary text-xs"
               onClick={addLine}
             >
-              <Plus size={14} /> Thêm dòng kiểm kê / Add Line
+              <Plus size={14} />
+              {uiText(" Thêm dòng kiểm kê / Add Line")}
             </button>
           </div>
 
@@ -550,11 +565,13 @@ export function OpeningForm({
                         {idx + 1}
                       </span>
                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
-                        Dòng {line.lineKey}
+                        {uiText("Dòng ")}
+                        {line.lineKey}
                       </span>
                       {item ? (
                         <span className="text-xs text-slate-500 dark:text-slate-400">
-                          &bull; {item.name} ({item.code})
+                          {uiText("&bull; ")}
+                          {item.name} ({item.code})
                         </span>
                       ) : null}
                     </div>
@@ -563,8 +580,8 @@ export function OpeningForm({
                       <button
                         type="button"
                         className="text-slate-400 hover:text-red-600 p-1 rounded"
-                        title="Xóa dòng"
-                        aria-label={`Xóa dòng ${idx + 1}`}
+                        title={uiText("Xóa dòng")}
+                        aria-label={uiText("Xóa dòng {0}", [idx + 1])}
                         onClick={() => removeLine(idx)}
                       >
                         <Trash2 size={16} />
@@ -585,10 +602,10 @@ export function OpeningForm({
                         onSelect={(selectedItem) =>
                           handleSelectItem(idx, selectedItem)
                         }
-                        label="Vật tư kiểm kê"
+                        label={uiText("Vật tư kiểm kê")}
                         id={`opening-item-${idx}`}
                         required
-                        placeholder="Chọn vật tư kiểm kê…"
+                        placeholder={uiText("Chọn vật tư kiểm kê…")}
                       />
                     </div>
 
@@ -601,10 +618,10 @@ export function OpeningForm({
                         onSelect={(selectedLoc) =>
                           updateLine(idx, { locationId: selectedLoc.id })
                         }
-                        label="Vị trí lưu kho"
+                        label={uiText("Vị trí lưu kho")}
                         id={`opening-location-${idx}`}
                         required
-                        placeholder="Chọn vị trí kho…"
+                        placeholder={uiText("Chọn vị trí kho…")}
                       />
                     </div>
 
@@ -614,7 +631,7 @@ export function OpeningForm({
                         htmlFor={`opening-group-${idx}`}
                         className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
                       >
-                        Nhóm bằng chứng / Biên bản{" "}
+                        {uiText("Nhóm bằng chứng / Biên bản")}{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -625,7 +642,7 @@ export function OpeningForm({
                         onChange={(e) =>
                           updateLine(idx, { provenanceGroup: e.target.value })
                         }
-                        placeholder="VD: BB-KK-01"
+                        placeholder={uiText("VD: BB-KK-01")}
                         required
                       />
                     </div>
@@ -636,7 +653,8 @@ export function OpeningForm({
                         htmlFor={`opening-base-qty-${idx}`}
                         className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
                       >
-                        Tổng SL kiểm đếm ({item?.base_uom_code || "Cơ sở"}){" "}
+                        {uiText("Tổng SL kiểm đếm (")}
+                        {item?.base_uom_code || uiText("Cơ sở")}){" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -661,7 +679,7 @@ export function OpeningForm({
                         htmlFor={`opening-good-qty-${idx}`}
                         className="block text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 mb-1"
                       >
-                        SL Tốt / Đạt chuẩn{" "}
+                        {uiText("SL Tốt / Đạt chuẩn")}{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -683,7 +701,8 @@ export function OpeningForm({
                         htmlFor={`opening-damaged-qty-${idx}`}
                         className="block text-[11px] font-semibold text-amber-800 dark:text-amber-300 mb-1"
                       >
-                        SL Hỏng / Lỗi <span className="text-red-500">*</span>
+                        {uiText("SL Hỏng / Lỗi ")}
+                        <span className="text-red-500">*</span>
                       </label>
                       <input
                         id={`opening-damaged-qty-${idx}`}
@@ -704,7 +723,8 @@ export function OpeningForm({
                         htmlFor={`opening-expiry-precision-${idx}`}
                         className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
                       >
-                        Độ chính xác HSD <span className="text-red-500">*</span>
+                        {uiText("Độ chính xác HSD ")}
+                        <span className="text-red-500">*</span>
                       </label>
                       <select
                         id={`opening-expiry-precision-${idx}`}
@@ -717,14 +737,20 @@ export function OpeningForm({
                         }
                       >
                         {!item?.expiry_required ? (
-                          <option value="not_required">Không yêu cầu</option>
+                          <option value="not_required">
+                            {uiText("Không yêu cầu")}
+                          </option>
                         ) : null}
                         <option value="unknown">
-                          Chưa rõ (Unknown) &bull; Cần Admin xác minh sau
+                          {uiText(
+                            "Chưa rõ (Unknown) &bull; Cần Admin xác minh sau",
+                          )}
                         </option>
-                        <option value="day">Chính xác đến Ngày (Day)</option>
+                        <option value="day">
+                          {uiText("Chính xác đến Ngày (Day)")}
+                        </option>
                         <option value="month">
-                          Chính xác đến Tháng (Month)
+                          {uiText("Chính xác đến Tháng (Month)")}
                         </option>
                       </select>
                     </div>
@@ -736,10 +762,10 @@ export function OpeningForm({
                         className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
                       >
                         {line.expiryPrecision === "not_required"
-                          ? "Trạng thái HSD"
+                          ? uiText("Trạng thái HSD")
                           : line.expiryPrecision === "unknown"
-                            ? "Trạng thái HSD"
-                            : "Nhập ngày/tháng *"}
+                            ? uiText("Trạng thái HSD")
+                            : uiText("Nhập ngày/tháng *")}
                       </label>
                       {line.expiryPrecision === "not_required" ? (
                         <input
@@ -790,9 +816,13 @@ export function OpeningForm({
                       className="mt-3 p-2 text-xs rounded bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-900 dark:text-red-300"
                     >
                       {!calc?.hasItem
-                        ? "Vui lòng chọn vật tư kiểm kê / Item is required"
+                        ? uiText(
+                            "Vui lòng chọn vật tư kiểm kê / Item is required",
+                          )
                         : !calc?.hasLocation
-                          ? "Vui lòng chọn vị trí lưu kho / Location is required"
+                          ? uiText(
+                              "Vui lòng chọn vị trí lưu kho / Location is required",
+                            )
                           : !calc?.split.valid
                             ? calc?.split.error
                             : calc?.expiryCheck.error}
@@ -809,12 +839,15 @@ export function OpeningForm({
           <div className="text-xs text-slate-500 dark:text-slate-400">
             {allLinesValid && lines.length > 0 ? (
               <span className="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5">
-                <Check size={16} /> Toàn bộ các dòng kiểm kê đã hợp lệ
+                <Check size={16} />
+                {uiText(" Toàn bộ các dòng kiểm kê đã hợp lệ")}
               </span>
             ) : (
               <span className="text-amber-700 dark:text-amber-400 font-medium inline-flex items-center gap-1.5">
-                <AlertTriangle size={16} /> Vui lòng kiểm tra lại các trường vật
-                tư, vị trí, số lượng và HSD
+                <AlertTriangle size={16} />
+                {uiText(
+                  " Vui lòng kiểm tra lại các trường vật tư, vị trí, số lượng và HSD",
+                )}
               </span>
             )}
           </div>
@@ -827,8 +860,8 @@ export function OpeningForm({
             onClick={handleOpenReview}
           >
             {isPending
-              ? "Đang xử lý…"
-              : "Xác nhận & Xem trước / Review & Confirm"}
+              ? uiText("Đang xử lý…")
+              : uiText("Xác nhận & Xem trước / Review & Confirm")}
           </button>
         </div>
       </div>
@@ -850,13 +883,13 @@ export function OpeningForm({
                 id="confirm-opening-title"
                 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
               >
-                Xác nhận chốt tồn đầu kỳ / Confirm Opening Cutover
+                {uiText("Xác nhận chốt tồn đầu kỳ / Confirm Opening Cutover")}
               </h3>
               <button
                 type="button"
                 className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
                 onClick={() => setConfirmOpen(false)}
-                aria-label="Đóng / Close"
+                aria-label={uiText("Đóng / Close")}
                 disabled={isPending}
               >
                 <X size={18} />
@@ -867,7 +900,7 @@ export function OpeningForm({
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 grid grid-cols-2 gap-2 dark:bg-slate-800/50 dark:border-slate-800">
                 <div>
                   <span className="text-slate-400 block text-[11px]">
-                    Mã chốt:
+                    {uiText("Mã chốt:")}
                   </span>
                   <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                     {cutoverKey}
@@ -875,7 +908,7 @@ export function OpeningForm({
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[11px]">
-                    Thời điểm chốt:
+                    {uiText("Thời điểm chốt:")}
                   </span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
                     {countCutoff.replace("T", " ")}
@@ -887,16 +920,16 @@ export function OpeningForm({
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] dark:bg-slate-800/50 dark:border-slate-800 dark:text-slate-300">
-                      <th className="p-2">Dòng</th>
-                      <th className="p-2">Vật tư</th>
-                      <th className="p-2 text-right">SL Cơ sở</th>
+                      <th className="p-2">{uiText("Dòng")}</th>
+                      <th className="p-2">{uiText("Vật tư")}</th>
+                      <th className="p-2 text-right">{uiText("SL Cơ sở")}</th>
                       <th className="p-2 text-right text-emerald-700 dark:text-emerald-400">
-                        Tốt
+                        {uiText("Tốt")}
                       </th>
                       <th className="p-2 text-right text-amber-700 dark:text-amber-400">
-                        Hỏng
+                        {uiText("Hỏng")}
                       </th>
-                      <th className="p-2">Hạn sử dụng</th>
+                      <th className="p-2">{uiText("Hạn sử dụng")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
@@ -920,10 +953,10 @@ export function OpeningForm({
                           <td className="p-2 font-sans">
                             {l.expiryPrecision === "unknown" ? (
                               <span className="text-amber-800 dark:text-amber-300 font-semibold">
-                                Chưa rõ (Unknown)
+                                {uiText("Chưa rõ (Unknown)")}
                               </span>
                             ) : l.expiryPrecision === "not_required" ? (
-                              "Không yêu cầu"
+                              uiText("Không yêu cầu")
                             ) : (
                               l.expiryInput
                             )}
@@ -943,7 +976,7 @@ export function OpeningForm({
                 onClick={() => setConfirmOpen(false)}
                 disabled={isPending}
               >
-                Quay lại sửa
+                {uiText("Quay lại sửa")}
               </button>
               <button
                 type="button"
@@ -951,7 +984,9 @@ export function OpeningForm({
                 disabled={isPending}
                 onClick={handleFinalSubmit}
               >
-                {isPending ? "Đang xác nhận…" : "Xác nhận chốt số dư ngay"}
+                {isPending
+                  ? uiText("Đang xác nhận…")
+                  : uiText("Xác nhận chốt số dư ngay")}
               </button>
             </div>
           </div>

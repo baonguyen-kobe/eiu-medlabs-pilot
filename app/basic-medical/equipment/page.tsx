@@ -22,6 +22,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PaginationLinks } from "@/components/pagination-links";
 import { normalizePage, paginationRange } from "@/lib/pagination";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 type Tab = "inventory" | "rooms" | "damaged" | "logs";
 
@@ -118,18 +120,31 @@ export default async function BasicMedicalEquipmentPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Danh sách thiết bị Y cơ sở"
-      description="Quản lý thiết bị riêng theo từng phòng, tình trạng Tốt/Hư và lịch sử thay đổi."
+      title={<LocalizedText text={"Danh sách thiết bị Y cơ sở"} />}
+      description={
+        <LocalizedText
+          text={
+            "Quản lý thiết bị riêng theo từng phòng, tình trạng Tốt/Hư và lịch sử thay đổi."
+          }
+        />
+      }
     >
       {query.notice ? (
         <p className="action-feedback success">{query.notice}</p>
       ) : null}
       {query.error || loadError ? (
         <p className="action-feedback error" role="alert">
-          {query.error ?? `Không thể tải dữ liệu: ${loadError?.message}`}
+          {query.error ?? (
+            <LocalizedText
+              text="Không thể tải dữ liệu: {0}"
+              values={[loadError?.message]}
+            />
+          )}
         </p>
       ) : null}
-      <nav
+      <LocalizedElement
+        as="nav"
+        textAttributes={["aria-label"]}
         className="catalog-tabs basic-medical-equipment-tabs"
         aria-label="Thiết bị Y cơ sở"
       >
@@ -148,15 +163,19 @@ export default async function BasicMedicalEquipmentPage({
             href={`/basic-medical/equipment?tab=${tab}`}
             scroll={false}
           >
-            {label}
+            <LocalizedText text={label} />
           </Link>
         ))}
-      </nav>
+      </LocalizedElement>
       <form className="basic-medical-list-filters" method="get">
         <input type="hidden" name="tab" value={activeTab} />
         <label className="data-search">
-          <span className="sr-only">Tìm kiếm</span>
-          <input
+          <span className="sr-only">
+            <LocalizedText text={"Tìm kiếm"} />
+          </span>
+          <LocalizedElement
+            as="input"
+            textAttributes={["placeholder"]}
             name="q"
             type="search"
             defaultValue={search}
@@ -165,14 +184,22 @@ export default async function BasicMedicalEquipmentPage({
         </label>
         {activeTab === "inventory" ? (
           <select name="status" defaultValue={query.status ?? ""}>
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang sử dụng</option>
-            <option value="inactive">Ngừng sử dụng</option>
+            <option value="">
+              <LocalizedText text={"Tất cả trạng thái"} />
+            </option>
+            <option value="active">
+              <LocalizedText text={"Đang sử dụng"} />
+            </option>
+            <option value="inactive">
+              <LocalizedText text={"Ngừng sử dụng"} />
+            </option>
           </select>
         ) : null}
         {activeTab === "rooms" || activeTab === "damaged" ? (
           <select name="room" defaultValue={query.room ?? ""}>
-            <option value="">Tất cả phòng</option>
+            <option value="">
+              <LocalizedText text={"Tất cả phòng"} />
+            </option>
             {(roomResult.data ?? []).map((room) => (
               <option key={room.id} value={room.id}>
                 {room.room_code}.{room.building_code}
@@ -183,23 +210,37 @@ export default async function BasicMedicalEquipmentPage({
         {activeTab === "logs" ? (
           <>
             <select name="event" defaultValue={query.event ?? ""}>
-              <option value="">Tất cả thay đổi</option>
-              <option value="damage_report">Báo Hư</option>
-              <option value="condition_adjustment">Điều chỉnh Tốt/Hư</option>
-              <option value="stock_adjustment">Điều chỉnh tồn kho</option>
+              <option value="">
+                <LocalizedText text={"Tất cả thay đổi"} />
+              </option>
+              <option value="damage_report">
+                <LocalizedText text={"Báo Hư"} />
+              </option>
+              <option value="condition_adjustment">
+                <LocalizedText text={"Điều chỉnh Tốt/Hư"} />
+              </option>
+              <option value="stock_adjustment">
+                <LocalizedText text={"Điều chỉnh tồn kho"} />
+              </option>
             </select>
-            <input
+            <LocalizedElement
+              as="input"
+              textAttributes={["placeholder"]}
               name="actor"
               defaultValue={query.actor}
               placeholder="ID người thực hiện"
             />
-            <input
+            <LocalizedElement
+              as="input"
+              textAttributes={["aria-label"]}
               name="from"
               type="date"
               defaultValue={query.from}
               aria-label="Từ ngày"
             />
-            <input
+            <LocalizedElement
+              as="input"
+              textAttributes={["aria-label"]}
               name="to"
               type="date"
               defaultValue={query.to}
@@ -208,13 +249,13 @@ export default async function BasicMedicalEquipmentPage({
           </>
         ) : null}
         <button className="button button-primary" type="submit">
-          Lọc
+          <LocalizedText text={"Lọc"} />
         </button>
         <Link
           className="button button-secondary"
           href={`/basic-medical/equipment?tab=${activeTab}`}
         >
-          Xóa bộ lọc
+          <LocalizedText text={"Xóa bộ lọc"} />
         </Link>
       </form>
       {canManage && activeTab === "inventory" ? (
@@ -224,7 +265,9 @@ export default async function BasicMedicalEquipmentPage({
             className="data-panel catalog-inline-form equipment-catalog-create-form"
           >
             <div className="equipment-catalog-create-heading">
-              <strong>Thêm thiết bị thủ công</strong>
+              <strong>
+                <LocalizedText text={"Thêm thiết bị thủ công"} />
+              </strong>
             </div>
             <div className="form-grid equipment-catalog-create-grid">
               {[
@@ -237,7 +280,9 @@ export default async function BasicMedicalEquipmentPage({
                 ["unit", "ĐVT *"],
               ].map(([name, label]) => (
                 <label key={name}>
-                  <span>{label}</span>
+                  <span>
+                    <LocalizedText text={label} />
+                  </span>
                   <input
                     name={name}
                     required={
@@ -250,7 +295,7 @@ export default async function BasicMedicalEquipmentPage({
               ))}
             </div>
             <button type="submit" className="button button-primary">
-              Thêm vào danh mục
+              <LocalizedText text={"Thêm vào danh mục"} />
             </button>
           </form>
 
@@ -260,7 +305,8 @@ export default async function BasicMedicalEquipmentPage({
                 className="button equipment-template-download"
                 href="/api/basic-medical-equipment-template"
               >
-                <Download size={17} aria-hidden="true" /> Tải template
+                <Download size={17} aria-hidden="true" />
+                <LocalizedText text={" Tải template"} />
               </a>
               <CatalogImportNew action={importBasicMedicalEquipment} />
               <CatalogReconciliationImport
@@ -271,7 +317,8 @@ export default async function BasicMedicalEquipmentPage({
                 className="button equipment-export-all"
                 href="/api/basic-medical-equipment-export"
               >
-                <Download size={17} aria-hidden="true" /> Export tất cả
+                <Download size={17} aria-hidden="true" />
+                <LocalizedText text={" Export tất cả"} />
               </a>
             </div>
           </section>

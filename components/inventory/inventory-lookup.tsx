@@ -9,6 +9,8 @@ import type {
   InventoryReadFilters,
   InventoryResource,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export interface InventoryLookupProps<T = Record<string, unknown>> {
   resource: InventoryResource;
@@ -35,7 +37,10 @@ export interface RowDisplay {
 /**
  * Derives display label and secondary metadata for any inventory resource row.
  */
-export function deriveRowDisplay(row: Record<string, unknown>): RowDisplay {
+export function deriveRowDisplay(
+  row: Record<string, unknown>,
+  text: (copy: string) => string = (copy) => copy,
+): RowDisplay {
   if (!row) return { label: "", key: "" };
 
   const id = String(row.id ?? row.code ?? row.line_key ?? "");
@@ -45,8 +50,10 @@ export function deriveRowDisplay(row: Record<string, unknown>): RowDisplay {
     row.origin_id !== undefined &&
     (row.item_code !== undefined || row.item_name !== undefined)
   ) {
-    const condLabel = row.condition === "good" ? "Tốt/Good" : "Hỏng/Damaged";
-    const heldTag = row.is_held ? " [TẠM GIỮ / HELD]" : "";
+    const condLabel = text(
+      row.condition === "good" ? "Tốt/Good" : "Hỏng/Damaged",
+    );
+    const heldTag = row.is_held ? text(" [TẠM GIỮ / HELD]") : "";
     const qtyStr = row.quantity
       ? `${row.quantity} ${row.base_uom_code || ""}`.trim()
       : "";
@@ -55,7 +62,9 @@ export function deriveRowDisplay(row: Record<string, unknown>): RowDisplay {
     const sub = [
       qtyStr,
       locStr,
-      row.origin_id ? `Lô: ${String(row.origin_id).slice(0, 8)}...` : null,
+      row.origin_id
+        ? `${text("Lô:")} ${String(row.origin_id).slice(0, 8)}...`
+        : null,
     ]
       .filter(Boolean)
       .join(" • ");
@@ -99,7 +108,7 @@ export function deriveRowDisplay(row: Record<string, unknown>): RowDisplay {
     const nameStr = String(row.name);
     return {
       label: nameStr,
-      subLabel: row.code ? `Mã / Code: ${row.code}` : undefined,
+      subLabel: row.code ? `${text("Mã:")} ${row.code}` : undefined,
       key: String(row.id ?? row.code),
     };
   }
@@ -134,6 +143,8 @@ export function InventoryLookup<T = Record<string, unknown>>({
   className = "",
   hideLabel = false,
 }: InventoryLookupProps<T>) {
+  const { text: uiText } = useLanguage();
+
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
@@ -145,9 +156,9 @@ export function InventoryLookup<T = Record<string, unknown>>({
   const [error, setError] = useState<string | null>(null);
 
   // Cached display for selected value if selectedLabel was not passed
-  const [resolvedDisplay, setResolvedDisplay] = useState<RowDisplay | null>(
-    null,
-  );
+  const [resolvedDisplay, setResolvedDisplay] = useState<
+    (RowDisplay & { row?: Record<string, unknown> }) | null
+  >(null);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -193,7 +204,10 @@ export function InventoryLookup<T = Record<string, unknown>>({
           const display = deriveRowDisplay(
             res.rows[0] as Record<string, unknown>,
           );
-          setResolvedDisplay(display);
+          setResolvedDisplay({
+            ...display,
+            row: res.rows[0] as Record<string, unknown>,
+          });
         }
       })
       .catch(() => {
@@ -311,7 +325,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
   const handleSelect = (row: T) => {
     const rowRec = row as Record<string, unknown>;
     const display = deriveRowDisplay(rowRec);
-    setResolvedDisplay(display);
+    setResolvedDisplay({ ...display, row: rowRec });
     onSelect(row);
     setOpen(false);
     triggerRef.current?.focus();
@@ -329,8 +343,11 @@ export function InventoryLookup<T = Record<string, unknown>>({
   };
 
   // Determine current display text
+  const localizedDisplay = resolvedDisplay?.row
+    ? deriveRowDisplay(resolvedDisplay.row, uiText)
+    : resolvedDisplay;
   const currentDisplayText =
-    selectedLabel || resolvedDisplay?.label || (value ? `${value}` : "");
+    selectedLabel || localizedDisplay?.label || (value ? `${value}` : "");
 
   return (
     <div className={`relative ${className}`}>
@@ -340,7 +357,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
           htmlFor={id}
           className="block text-xs font-semibold text-slate-700 mb-1"
         >
-          {label}
+          {uiText(label)}
           {required ? <span className="text-red-500 ml-0.5">*</span> : null}
         </label>
       )}
@@ -375,14 +392,14 @@ export function InventoryLookup<T = Record<string, unknown>>({
               <span className="font-medium text-slate-900 truncate">
                 {currentDisplayText}
               </span>
-              {resolvedDisplay?.subLabel && (
+              {localizedDisplay?.subLabel && (
                 <span className="text-[11px] text-slate-500 truncate">
-                  {resolvedDisplay.subLabel}
+                  {localizedDisplay.subLabel}
                 </span>
               )}
             </div>
           ) : (
-            <span className="text-slate-400">{placeholder}</span>
+            <span className="text-slate-400">{uiText(placeholder)}</span>
           )}
         </div>
         <ChevronRight
@@ -415,7 +432,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   type="search"
                   value={q}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Tìm kiếm theo mã, tên… / Search…"
+                  placeholder={uiText("Tìm kiếm theo mã, tên… / Search…")}
                   className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 {q ? (
@@ -423,7 +440,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
                     type="button"
                     onClick={() => handleSearchChange("")}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
-                    aria-label="Xóa tìm kiếm"
+                    aria-label={uiText("Xóa tìm kiếm")}
                   >
                     <X size={12} />
                   </button>
@@ -435,35 +452,39 @@ export function InventoryLookup<T = Record<string, unknown>>({
             <div
               id={listboxId}
               role="listbox"
-              aria-label={label}
+              aria-label={uiText(label)}
               className="flex-1 overflow-y-auto p-1 divide-y divide-slate-100 bg-white focus:outline-hidden"
               tabIndex={-1}
             >
               {loading ? (
                 <div className="p-4 text-center text-xs text-slate-500">
-                  Đang tải dữ liệu… / Loading…
+                  {uiText("Đang tải dữ liệu… / Loading…")}
                 </div>
               ) : error ? (
                 <div className="p-3 text-xs text-red-600 text-center space-y-1">
-                  <p>{error}</p>
+                  <p>
+                    <LocalizedText text={error ?? ""} />
+                  </p>
                   <button
                     type="button"
                     onClick={() => fetchOptions(q, page)}
                     className="text-xs text-indigo-600 underline font-medium"
                   >
-                    Thử lại / Retry
+                    {uiText("Thử lại / Retry")}
                   </button>
                 </div>
               ) : rows.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-500">
-                  Không tìm thấy kết quả phù hợp / No matching results
+                  {uiText(
+                    "Không tìm thấy kết quả phù hợp / No matching results",
+                  )}
                 </div>
               ) : (
                 rows.map((row, idx) => {
                   const rowRec = row as Record<string, unknown>;
                   const rowVal = getRowValue(row);
                   const isSelected = rowVal === value;
-                  const display = deriveRowDisplay(rowRec);
+                  const display = deriveRowDisplay(rowRec, uiText);
 
                   return (
                     <button
@@ -507,7 +528,10 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   onPageChange={handlePageChange}
                 />
                 <span className="text-[11px] text-slate-500">
-                  Tổng {total} kết quả (trang {page})
+                  {uiText("Tổng ")}
+                  {total}
+                  {uiText(" kết quả (trang ")}
+                  {page})
                 </span>
               </div>
             )}

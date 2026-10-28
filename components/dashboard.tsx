@@ -41,6 +41,7 @@ import { type ScheduleEvent } from "@/lib/demo-data";
 import { equipmentRequestDeepLink } from "@/lib/equipment-calendar-request";
 import { equipmentStatusMeta } from "@/lib/equipment-requests";
 import { useScheduleRealtime } from "@/lib/use-schedule-realtime";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 type Role = "admin" | "lecturer" | "staff" | "teaching_assistant" | "viewer";
 type View = "Tuần" | "Tháng" | "Danh sách";
@@ -127,6 +128,8 @@ function SlotEvents({
   slot: (typeof calendarSlots)[number];
   onOpen: (event: ScheduleEvent) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const slotEvents = events.filter(
     (event) =>
       event.type === slot.type &&
@@ -140,7 +143,11 @@ function SlotEvents({
           className={`slot-event slot-event-${event.type}`}
           key={event.id}
           onClick={() => onOpen(event)}
-          aria-label={`Xem ${event.title}, ${event.start} đến ${event.end}`}
+          aria-label={uiText("Xem {0}, {1} đến {2}", [
+            event.title,
+            event.start,
+            event.end,
+          ])}
         >
           <time>
             {event.start}–{event.end}
@@ -172,6 +179,8 @@ function PeriodCalendar({
   variant: "month" | "week";
   slots: readonly CalendarSlot[];
 }) {
+  const { text: uiText } = useLanguage();
+
   const dayGroups =
     variant === "month"
       ? Array.from({ length: Math.ceil(days.length / 7) }, (_, index) =>
@@ -181,7 +190,9 @@ function PeriodCalendar({
 
   return (
     <div
-      aria-label={`Lịch ${variant === "month" ? "tháng" : "tuần"}; vuốt ngang để xem thêm ngày`}
+      aria-label={uiText("Lịch {0}; vuốt ngang để xem thêm ngày", [
+        variant === "month" ? uiText("tháng") : uiText("tuần"),
+      ])}
       className={`period-calendar period-calendar-${variant}`}
       role="region"
       tabIndex={0}
@@ -190,7 +201,9 @@ function PeriodCalendar({
         <section
           className="period-week"
           aria-label={
-            variant === "month" ? `Tuần ${groupIndex + 1}` : "Các buổi trong kỳ"
+            variant === "month"
+              ? uiText("Tuần {0}", [groupIndex + 1])
+              : uiText("Các buổi trong kỳ")
           }
           key={group[0]?.date ?? groupIndex}
         >
@@ -200,7 +213,7 @@ function PeriodCalendar({
               { "--calendar-day-count": group.length } as React.CSSProperties
             }
           >
-            <div className="period-corner">Buổi</div>
+            <div className="period-corner">{uiText("Buổi")}</div>
             {group.map((day) => (
               <header
                 className={[
@@ -211,15 +224,15 @@ function PeriodCalendar({
                 ].join(" ")}
                 key={day.date}
               >
-                <span>{day.weekday}</span>
+                <span>{uiText(day.weekday)}</span>
                 <strong>{day.day}</strong>
               </header>
             ))}
             {slots.map((slot) => (
               <Fragment key={`${slot.type}-${slot.period}`}>
                 <div className={`period-label period-label-${slot.type}`}>
-                  <span>{slot.group}</span>
-                  <strong>{slot.label}</strong>
+                  <span>{uiText(slot.group)}</span>
+                  <strong>{uiText(slot.label)}</strong>
                 </div>
                 {group.map((day) => (
                   <div
@@ -261,6 +274,7 @@ function DayScheduleCell({
   variant: "month" | "week" | "list";
   slots: readonly CalendarSlot[];
 }) {
+  const { text: uiText } = useLanguage();
   return (
     <article
       className={[
@@ -272,7 +286,7 @@ function DayScheduleCell({
       ].join(" ")}
     >
       <header className="structured-day-heading">
-        <span>{day.weekday}</span>
+        <span>{uiText(day.weekday)}</span>
         <strong>{day.day}</strong>
       </header>
       <div className="day-slots">
@@ -282,7 +296,7 @@ function DayScheduleCell({
             key={`${slot.type}-${slot.period}`}
           >
             <span className="slot-label">
-              {slot.group} · {slot.label}
+              {uiText(slot.group)} · {uiText(slot.label)}
             </span>
             <SlotEvents events={events} slot={slot} onOpen={onOpen} />
           </div>
@@ -333,6 +347,8 @@ export function Dashboard({
   canManageEmailNotifications?: boolean;
   isRootAdministrator?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   useScheduleRealtime();
   const [pending, startTransition] = useTransition();
@@ -533,14 +549,16 @@ export function Dashboard({
       allowBasicMedicalAccess={allowBasicMedicalAccess}
       canManageEmailNotifications={canManageEmailNotifications}
       title={
-        calendarKind === "basic_medical" ? "Lịch Y cơ sở" : "Lịch Skills lab"
+        calendarKind === "basic_medical"
+          ? uiText("Lịch Y cơ sở")
+          : uiText("Lịch Skills lab")
       }
-      description={`${calendarKind === "basic_medical" ? "Lịch sử dụng phòng Y cơ sở" : "Lịch học và lịch trực"} · ${periodLabel}`}
+      description={`${calendarKind === "basic_medical" ? uiText("Lịch sử dụng phòng Y cơ sở") : uiText("Lịch học và lịch trực")} · ${uiText(periodLabel)}`}
       actions={
         roles.includes("admin") ? (
           <label className="role-switcher">
             <ShieldCheck size={16} />
-            <span className="sr-only">Xem theo vai trò</span>
+            <span className="sr-only">{uiText("Xem theo vai trò")}</span>
             <select
               name="display_role"
               value={role}
@@ -548,7 +566,7 @@ export function Dashboard({
             >
               {selectableRoles.map((item) => (
                 <option value={item} key={item}>
-                  {roleLabels[item]}
+                  {uiText(roleLabels[item])}
                 </option>
               ))}
             </select>
@@ -559,7 +577,7 @@ export function Dashboard({
       <div className="content">
         <section
           className={`kpi-grid ${calendarKind === "basic_medical" ? "kpi-grid-three" : ""}`}
-          aria-label="Tổng quan"
+          aria-label={uiText("Tổng quan")}
         >
           <article className="kpi-card kpi-teal">
             <div className="kpi-icon">
@@ -567,8 +585,8 @@ export function Dashboard({
             </div>
             <span>
               {calendarKind === "basic_medical"
-                ? "Tổng số lớp"
-                : "Tổng lớp học"}
+                ? uiText("Tổng số lớp")
+                : uiText("Tổng lớp học")}
             </span>
             <strong>{classEvents.length}</strong>
           </article>
@@ -578,7 +596,7 @@ export function Dashboard({
                 <div className="kpi-icon">
                   <GraduationCap size={19} />
                 </div>
-                <span>Tổng số giảng viên</span>
+                <span>{uiText("Tổng số giảng viên")}</span>
                 <strong>
                   {
                     new Set(
@@ -591,7 +609,7 @@ export function Dashboard({
                 <div className="kpi-icon">
                   <CircleAlert size={19} />
                 </div>
-                <span>Tổng số sinh viên</span>
+                <span>{uiText("Tổng số sinh viên")}</span>
                 <strong>
                   {classEvents.reduce(
                     (total, event) => total + (event.studentCount ?? 0),
@@ -606,7 +624,7 @@ export function Dashboard({
                 <div className="kpi-icon">
                   <GraduationCap size={19} />
                 </div>
-                <span>Đã có giảng viên</span>
+                <span>{uiText("Đã có giảng viên")}</span>
                 <strong>
                   {classEvents.filter((event) => event.assigned).length}
                 </strong>
@@ -615,14 +633,14 @@ export function Dashboard({
                 <div className="kpi-icon">
                   <CircleAlert size={19} />
                 </div>
-                <span>Chưa có giảng viên</span>
+                <span>{uiText("Chưa có giảng viên")}</span>
                 <strong>{unassigned.length}</strong>
               </article>
               <article className="kpi-card kpi-violet">
                 <div className="kpi-icon">
                   <PackageCheck size={19} />
                 </div>
-                <span>Số lớp chưa đăng ký thiết bị</span>
+                <span>{uiText("Số lớp chưa đăng ký thiết bị")}</span>
                 <strong>
                   {classesWithoutEffectiveEquipmentRequest.length}
                 </strong>
@@ -631,20 +649,23 @@ export function Dashboard({
           )}
         </section>
 
-        <section className="filter-bar" aria-label="Bộ lọc lịch">
+        <section className="filter-bar" aria-label={uiText("Bộ lọc lịch")}>
           <div className="search-field">
             <Search size={17} />
             <input
               name="schedule_search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Tìm môn, phòng, giảng viên…"
-              aria-label="Tìm kiếm lịch"
+              placeholder={uiText("Tìm môn, phòng, giảng viên…")}
+              aria-label={uiText("Tìm kiếm lịch")}
               autoComplete="off"
               spellCheck={false}
             />
             {query ? (
-              <button onClick={() => setQuery("")} aria-label="Xóa tìm kiếm">
+              <button
+                onClick={() => setQuery("")}
+                aria-label={uiText("Xóa tìm kiếm")}
+              >
                 <X size={15} />
               </button>
             ) : null}
@@ -652,7 +673,7 @@ export function Dashboard({
           <label className="filter-control date-filter-control">
             <input
               name="schedule_anchor_date"
-              aria-label="Chọn ngày làm mốc"
+              aria-label={uiText("Chọn ngày làm mốc")}
               type="date"
               value={anchorDate}
               onChange={(event) => navigateToDate(event.target.value)}
@@ -666,7 +687,7 @@ export function Dashboard({
               setShowShifts(true);
             }}
           >
-            Xóa lọc
+            {uiText("Xóa lọc")}
           </button>
         </section>
 
@@ -675,7 +696,7 @@ export function Dashboard({
             <div className="calendar-title">
               <div className="date-nav">
                 <button
-                  aria-label="Kỳ trước"
+                  aria-label={uiText("Kỳ trước")}
                   onClick={() => navigateToDate(previousDate)}
                 >
                   <ChevronLeft size={17} />
@@ -689,17 +710,17 @@ export function Dashboard({
                     )
                   }
                 >
-                  {view === "Tháng" ? "Tháng này" : "Tuần này"}
+                  {view === "Tháng" ? uiText("Tháng này") : uiText("Tuần này")}
                 </button>
                 <button
-                  aria-label="Kỳ sau"
+                  aria-label={uiText("Kỳ sau")}
                   onClick={() => navigateToDate(nextDate)}
                 >
                   <ChevronRight size={17} />
                 </button>
               </div>
               <div>
-                <h3>{periodLabel}</h3>
+                <h3>{uiText(periodLabel)}</h3>
               </div>
             </div>
             <div className="calendar-options">
@@ -715,7 +736,8 @@ export function Dashboard({
                           setShowClasses(event.target.checked);
                       }}
                     />
-                    <span className="toggle-dot class-dot" /> Lịch học
+                    <span className="toggle-dot class-dot" />
+                    {uiText(" Lịch học")}
                   </label>
                   <label className="layer-toggle">
                     <input
@@ -727,7 +749,8 @@ export function Dashboard({
                           setShowShifts(event.target.checked);
                       }}
                     />
-                    <span className="toggle-dot shift-dot" /> Lịch trực
+                    <span className="toggle-dot shift-dot" />
+                    {uiText(" Lịch trực")}
                   </label>
                 </>
               ) : null}
@@ -738,7 +761,7 @@ export function Dashboard({
                     className={view === item ? "selected" : ""}
                     onClick={() => navigateToView(item)}
                   >
-                    {item}
+                    {uiText(item)}
                   </button>
                 ))}
               </div>
@@ -783,13 +806,17 @@ export function Dashboard({
               <div className="section-heading">
                 <div>
                   <Badge tone="amber">
-                    <CircleAlert size={13} /> Cần giảng viên
+                    <CircleAlert size={13} />
+                    {uiText(" Cần giảng viên")}
                   </Badge>
-                  <h3>Lớp đang mở</h3>
-                  <p>Các lớp chưa có người nhận trong kỳ đang xem.</p>
+                  <h3>{uiText("Lớp đang mở")}</h3>
+                  <p>
+                    {uiText("Các lớp chưa có người nhận trong kỳ đang xem.")}
+                  </p>
                 </div>
                 <button className="text-button">
-                  Xem tất cả <ChevronRight size={15} />
+                  {uiText("Xem tất cả ")}
+                  <ChevronRight size={15} />
                 </button>
               </div>
               <div className="open-list">
@@ -797,7 +824,10 @@ export function Dashboard({
                   <div className="open-row" key={event.id}>
                     <div className="date-tile">
                       <strong>{event.date.slice(-2)}</strong>
-                      <span>Thg {Number(event.date.slice(5, 7))}</span>
+                      <span>
+                        {uiText("Thg ")}
+                        {Number(event.date.slice(5, 7))}
+                      </span>
                     </div>
                     <div className="open-info">
                       <strong>
@@ -814,16 +844,20 @@ export function Dashboard({
                         disabled={pending}
                         onClick={() => handleClaim(event.id)}
                       >
-                        {pending ? "Đang xử lý…" : "Nhận lớp"}
+                        {pending ? uiText("Đang xử lý…") : uiText("Nhận lớp")}
                       </button>
                     ) : (
-                      <Badge tone="slate">Chuyển sang vai trò Giảng viên</Badge>
+                      <Badge tone="slate">
+                        {uiText("Chuyển sang vai trò Giảng viên")}
+                      </Badge>
                     )}
                   </div>
                 ))}
                 {unassigned.length === 0 ? (
                   <p className="empty-state">
-                    Không có lớp nào đang chờ giảng viên trong kỳ này.
+                    {uiText(
+                      "Không có lớp nào đang chờ giảng viên trong kỳ này.",
+                    )}
                   </p>
                 ) : null}
               </div>
@@ -837,10 +871,10 @@ export function Dashboard({
           <button
             className="drawer-scrim"
             onClick={() => setSelectedEvent(null)}
-            aria-label="Đóng chi tiết"
+            aria-label={uiText("Đóng chi tiết")}
           />
           <aside
-            aria-label="Chi tiết lịch"
+            aria-label={uiText("Chi tiết lịch")}
             aria-modal="true"
             className="detail-drawer"
             ref={detailDrawerRef}
@@ -858,26 +892,26 @@ export function Dashboard({
               <button
                 className="icon-button"
                 onClick={() => setSelectedEvent(null)}
-                aria-label="Đóng"
+                aria-label={uiText("Đóng")}
               >
                 <X size={19} />
               </button>
             </div>
             {selectedEvent.type === "shift" ? (
-              <Badge tone="violet">Lịch trực kho</Badge>
+              <Badge tone="violet">{uiText("Lịch trực kho")}</Badge>
             ) : null}
             <h2>{selectedEvent.title}</h2>
             <p className="drawer-subtitle">{selectedEvent.subtitle}</p>
             <dl className="detail-list">
               <div>
-                <dt>Ngày</dt>
+                <dt>{uiText("Ngày")}</dt>
                 <dd>
                   {selectedEvent.type === "class" &&
                   (canEditClassDetails ||
                     (calendarKind !== "basic_medical" &&
                       selectedEvent.owned)) ? (
                     <input
-                      aria-label="Ngày học"
+                      aria-label={uiText("Ngày học")}
                       type="date"
                       value={selectedScheduleDate}
                       onChange={(event) =>
@@ -890,12 +924,12 @@ export function Dashboard({
                 </dd>
               </div>
               <div>
-                <dt>Thời gian</dt>
+                <dt>{uiText("Thời gian")}</dt>
                 <dd>
                   {selectedEvent.type === "class" && canEditClassDetails ? (
                     <span className="drawer-time-editor">
                       <TimePicker
-                        ariaLabel="Giờ bắt đầu"
+                        ariaLabel={uiText("Giờ bắt đầu")}
                         value={selectedStartTime}
                         onChange={setSelectedStartTime}
                         required
@@ -903,7 +937,7 @@ export function Dashboard({
                       />
                       <span>–</span>
                       <TimePicker
-                        ariaLabel="Giờ kết thúc"
+                        ariaLabel={uiText("Giờ kết thúc")}
                         value={selectedEndTime}
                         onChange={setSelectedEndTime}
                         required
@@ -917,13 +951,13 @@ export function Dashboard({
               </div>
               {selectedEvent.room ? (
                 <div>
-                  <dt>Phòng</dt>
+                  <dt>{uiText("Phòng")}</dt>
                   <dd>
                     {selectedEvent.type === "class" &&
                     canEditClassDetails &&
                     calendarKind !== "basic_medical" ? (
                       <select
-                        aria-label="Phòng học"
+                        aria-label={uiText("Phòng học")}
                         value={selectedRoomId}
                         onChange={(event) =>
                           setSelectedRoomId(event.target.value)
@@ -945,9 +979,9 @@ export function Dashboard({
                 <dt>
                   {selectedEvent.type === "class"
                     ? calendarKind === "basic_medical"
-                      ? "Giảng viên giảng dạy/hướng dẫn"
-                      : "Giảng viên"
-                    : "Người trực"}
+                      ? uiText("Giảng viên giảng dạy/hướng dẫn")
+                      : uiText("Giảng viên")
+                    : uiText("Người trực")}
                 </dt>
                 <dd>
                   {canEditClassDetails && selectedEvent.type === "class" ? (
@@ -966,11 +1000,11 @@ export function Dashboard({
                         }
                         aria-label={
                           calendarKind === "basic_medical"
-                            ? "Chọn giảng viên giảng dạy/hướng dẫn"
-                            : "Chọn giảng viên thứ nhất"
+                            ? uiText("Chọn giảng viên giảng dạy/hướng dẫn")
+                            : uiText("Chọn giảng viên thứ nhất")
                         }
                       >
-                        <option value="">Chưa có giảng viên</option>
+                        <option value="">{uiText("Chưa có giảng viên")}</option>
                         {lecturers
                           .filter(
                             (person) => person.id !== selectedLecturerIds[1],
@@ -992,9 +1026,11 @@ export function Dashboard({
                               ].filter(Boolean),
                             )
                           }
-                          aria-label="Chọn giảng viên thứ hai"
+                          aria-label={uiText("Chọn giảng viên thứ hai")}
                         >
-                          <option value="">Không có giảng viên thứ hai</option>
+                          <option value="">
+                            {uiText("Không có giảng viên thứ hai")}
+                          </option>
                           {lecturers
                             .filter(
                               (person) => person.id !== selectedLecturerIds[0],
@@ -1009,7 +1045,7 @@ export function Dashboard({
                     </span>
                   ) : (
                     <span className="lecturer-name-list">
-                      {(selectedEvent.person ?? "Chưa có giảng viên")
+                      {(selectedEvent.person ?? uiText("Chưa có giảng viên"))
                         .split("\n")
                         .map((name) => (
                           <strong key={name}>{name}</strong>
@@ -1020,17 +1056,17 @@ export function Dashboard({
               </div>
               {selectedEvent.note ? (
                 <div>
-                  <dt>Ghi chú</dt>
+                  <dt>{uiText("Ghi chú")}</dt>
                   <dd>{selectedEvent.note}</dd>
                 </div>
               ) : null}
               {selectedEvent.type === "class" ? (
                 <div>
-                  <dt>Số sinh viên</dt>
+                  <dt>{uiText("Số sinh viên")}</dt>
                   <dd>
                     {canEditClassDetails && calendarKind !== "basic_medical" ? (
                       <input
-                        aria-label="Số sinh viên"
+                        aria-label={uiText("Số sinh viên")}
                         type="number"
                         min="1"
                         value={selectedStudentCount}
@@ -1047,13 +1083,14 @@ export function Dashboard({
               {selectedEvent.type === "class" &&
               selectedEvent.rootOperationalAssignment ? (
                 <p className="action-feedback error">
-                  Tài khoản Root Admin không thể được phân công vận hành. Vui
-                  lòng chọn người thay thế.
+                  {uiText(
+                    "Tài khoản Root Admin không thể được phân công vận hành. Vui lòng chọn người thay thế.",
+                  )}
                 </p>
               ) : null}
               {selectedEvent.type === "class" && calendarKind === "combined" ? (
                 <div>
-                  <dt>Đăng ký TTB</dt>
+                  <dt>{uiText("Đăng ký TTB")}</dt>
                   <dd>
                     {selectedEvent.equipmentRequest ? (
                       <Link
@@ -1075,7 +1112,7 @@ export function Dashboard({
                         className="button button-secondary"
                         href={`/equipment/register?schedule=${selectedEvent.id}`}
                       >
-                        Chưa đăng ký
+                        {uiText("Chưa đăng ký")}
                       </Link>
                     )}
                   </dd>
@@ -1119,7 +1156,7 @@ export function Dashboard({
                     )
                   }
                 >
-                  Lưu
+                  {uiText("Lưu")}
                 </button>
               ) : null}
               {selectedEvent.type === "class" &&
@@ -1133,7 +1170,7 @@ export function Dashboard({
                   disabled={pending}
                   onClick={() => handleClaim(selectedEvent.id)}
                 >
-                  {pending ? "Đang xử lý…" : "Nhận lớp"}
+                  {pending ? uiText("Đang xử lý…") : uiText("Nhận lớp")}
                 </button>
               ) : null}
               {selectedEvent.type === "class" &&
@@ -1153,7 +1190,7 @@ export function Dashboard({
                     })
                   }
                 >
-                  Hủy
+                  {uiText("Hủy")}
                 </button>
               ) : null}
               {role === "admin" && selectedEvent.type === "class" ? (
@@ -1170,7 +1207,7 @@ export function Dashboard({
                         });
                       }}
                     >
-                      Vô hiệu hóa xác nhận
+                      {uiText("Vô hiệu hóa xác nhận")}
                     </button>
                   ) : (
                     <button
@@ -1184,7 +1221,7 @@ export function Dashboard({
                         });
                       }}
                     >
-                      Hủy lớp
+                      {uiText("Hủy lớp")}
                     </button>
                   )
                 ) : (
@@ -1200,7 +1237,7 @@ export function Dashboard({
                       })
                     }
                   >
-                    Hủy lớp
+                    {uiText("Hủy lớp")}
                   </button>
                 )
               ) : null}
@@ -1221,7 +1258,7 @@ export function Dashboard({
                     )
                   }
                 >
-                  Hủy ca trực
+                  {uiText("Hủy ca trực")}
                 </button>
               ) : null}
             </div>
@@ -1238,10 +1275,10 @@ export function Dashboard({
           <span>
             {actionMessage.ok ? <Check size={17} /> : <CircleAlert size={17} />}
           </span>
-          {actionMessage.text}
+          {uiText(actionMessage.text)}
           <button
             onClick={() => setActionMessage(null)}
-            aria-label="Đóng thông báo"
+            aria-label={uiText("Đóng thông báo")}
           >
             <X size={15} />
           </button>
@@ -1249,11 +1286,11 @@ export function Dashboard({
       ) : null}
       <ConfirmDialog
         open={Boolean(confirmation)}
-        title={confirmation?.title ?? "Xác nhận thao tác"}
+        title={confirmation?.title ?? uiText("Xác nhận thao tác")}
         description={
-          confirmation?.description ?? "Vui lòng xác nhận thao tác này."
+          confirmation?.description ?? uiText("Vui lòng xác nhận thao tác này.")
         }
-        confirmLabel={confirmation?.confirmLabel ?? "Xác nhận"}
+        confirmLabel={confirmation?.confirmLabel ?? uiText("Xác nhận")}
         pending={pending}
         onConfirm={() => {
           const action = confirmation?.action;
@@ -1266,18 +1303,43 @@ export function Dashboard({
         open={Boolean(basicMedicalAction)}
         title={
           basicMedicalAction?.kind === "invalidate"
-            ? "Vô hiệu hóa xác nhận buổi học?"
-            : "Hủy buổi học Y cơ sở?"
+            ? uiText("Vô hiệu hóa xác nhận buổi học?")
+            : uiText("Hủy buổi học Y cơ sở?")
         }
         description={
           basicMedicalAction?.kind === "invalidate"
-            ? `${basicMedicalAction.event.title} · ${formatDisplayDate(basicMedicalAction.event.date)} · ${basicMedicalAction.event.start}–${basicMedicalAction.event.end} · ${basicMedicalAction.event.room ?? "Chưa xác định phòng"} · Người ký: ${basicMedicalAction.event.activeConfirmation?.signerName ?? "Không xác định"} lúc ${basicMedicalAction.event.activeConfirmation ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(basicMedicalAction.event.activeConfirmation.signedAt)) : "không xác định"}. Chữ ký và bằng chứng gốc sẽ được giữ nguyên.`
-            : "Chỉ hủy đúng buổi đã chọn; các buổi khác của Phiếu Y cơ sở không thay đổi."
+            ? uiText(
+                "{0} · {1} · {2}–{3} · {4} · Người ký: {5} lúc {6}. Chữ ký và bằng chứng gốc sẽ được giữ nguyên.",
+                [
+                  basicMedicalAction.event.title,
+                  formatDisplayDate(basicMedicalAction.event.date),
+                  basicMedicalAction.event.start,
+                  basicMedicalAction.event.end,
+                  basicMedicalAction.event.room ??
+                    uiText("Chưa xác định phòng"),
+                  basicMedicalAction.event.activeConfirmation?.signerName ??
+                    uiText("Không xác định"),
+                  basicMedicalAction.event.activeConfirmation
+                    ? new Intl.DateTimeFormat("vi-VN", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                        timeZone: "Asia/Ho_Chi_Minh",
+                      }).format(
+                        new Date(
+                          basicMedicalAction.event.activeConfirmation.signedAt,
+                        ),
+                      )
+                    : uiText("không xác định"),
+                ],
+              )
+            : uiText(
+                "Chỉ hủy đúng buổi đã chọn; các buổi khác của Phiếu Y cơ sở không thay đổi.",
+              )
         }
         confirmLabel={
           basicMedicalAction?.kind === "invalidate"
-            ? "Vô hiệu hóa"
-            : "Hủy buổi học"
+            ? uiText("Vô hiệu hóa")
+            : uiText("Hủy buổi học")
         }
         pending={pending}
         onCancel={() => setBasicMedicalAction(null)}
@@ -1305,14 +1367,14 @@ export function Dashboard({
         <label className="form-field">
           <span>
             {basicMedicalAction?.kind === "invalidate"
-              ? "Lý do vô hiệu hóa *"
-              : "Lý do hủy buổi học *"}
+              ? uiText("Lý do vô hiệu hóa *")
+              : uiText("Lý do hủy buổi học *")}
           </span>
           <input
             value={basicMedicalReason}
             required
             onChange={(event) => setBasicMedicalReason(event.target.value)}
-            placeholder="Nhập lý do bắt buộc"
+            placeholder={uiText("Nhập lý do bắt buộc")}
           />
         </label>
       </ConfirmDialog>

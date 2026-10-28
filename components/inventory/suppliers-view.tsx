@@ -14,6 +14,8 @@ import { ConfirmActionModal } from "./confirm-action-modal";
 import { PaginationControls } from "@/components/pagination-controls";
 import { TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type { InventorySupplier } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export function SuppliersView({
   initialSuppliers,
@@ -34,6 +36,8 @@ export function SuppliersView({
   currentSort?: string;
   isAdmin: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -164,7 +168,9 @@ export function SuppliersView({
               : "bg-red-50 text-red-800 border-red-200"
           }`}
         >
-          <span>{notice.message}</span>
+          <span>
+            <LocalizedText text={notice.message ?? ""} />
+          </span>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 p-1"
@@ -183,11 +189,14 @@ export function SuppliersView({
             className="button button-primary text-xs"
             onClick={() => setCreateOpen(true)}
           >
-            <Plus size={15} /> Thêm nhà cung cấp mới / Add Supplier
+            <Plus size={15} />
+            {uiText(" Thêm nhà cung cấp mới / Add Supplier")}
           </button>
         </div>
         <span className="text-xs text-slate-500">
-          Tổng cộng: <strong>{total}</strong> nhà cung cấp
+          {uiText("Tổng cộng: ")}
+          <strong>{total}</strong>
+          {uiText(" nhà cung cấp")}
         </span>
       </div>
 
@@ -205,10 +214,12 @@ export function SuppliersView({
               />
               <input
                 id="suppliers-search"
-                aria-label="Tìm theo tên, mã số thuế, liên hệ / Search Supplier"
+                aria-label={uiText(
+                  "Tìm theo tên, mã số thuế, liên hệ / Search Supplier",
+                )}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Tìm theo tên, mã số thuế, liên hệ..."
+                placeholder={uiText("Tìm theo tên, mã số thuế, liên hệ...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -217,21 +228,27 @@ export function SuppliersView({
               type="submit"
               className="button button-secondary text-xs px-3 py-2"
             >
-              Tìm kiếm
+              {uiText("Tìm kiếm")}
             </button>
           </form>
 
           <div>
             <select
               id="suppliers-active-filter"
-              aria-label="Lọc theo trạng thái / Filter by Status"
+              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">Tất cả trạng thái / All Statuses</option>
-              <option value="active">Đang hoạt động / Active</option>
-              <option value="inactive">Đã ngừng hoạt động / Inactive</option>
+              <option value="all">
+                {uiText("Tất cả trạng thái / All Statuses")}
+              </option>
+              <option value="active">
+                {uiText("Đang hoạt động / Active")}
+              </option>
+              <option value="inactive">
+                {uiText("Đã ngừng hoạt động / Inactive")}
+              </option>
             </select>
           </div>
         </div>
@@ -242,20 +259,24 @@ export function SuppliersView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Tên nhà cung cấp / Name</th>
-                <th className="py-3 px-4">Mã số thuế / Tax</th>
-                <th className="py-3 px-4">Thông tin liên hệ / Contact</th>
-                <th className="py-3 px-4">Ghi chú / Notes</th>
-                <th className="py-3 px-4">Trạng thái / Status</th>
-                <th className="py-3 px-4 text-center">Bản / Rev</th>
-                <th className="py-3 px-4 text-right">Thao tác</th>
+                <th className="py-3 px-4">
+                  {uiText("Tên nhà cung cấp / Name")}
+                </th>
+                <th className="py-3 px-4">{uiText("Mã số thuế / Tax")}</th>
+                <th className="py-3 px-4">
+                  {uiText("Thông tin liên hệ / Contact")}
+                </th>
+                <th className="py-3 px-4">{uiText("Ghi chú / Notes")}</th>
+                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
+                <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {suppliers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    Chưa có nhà cung cấp nào phù hợp.
+                    {uiText("Chưa có nhà cung cấp nào phù hợp.")}
                   </td>
                 </tr>
               ) : (
@@ -280,7 +301,8 @@ export function SuppliersView({
                       <ActiveBadge active={s.active} />
                     </td>
                     <td className="py-3 px-4 text-center font-mono text-[11px] text-slate-400">
-                      r{String(s.revision)}
+                      {uiText("r")}
+                      {String(s.revision)}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
@@ -289,7 +311,7 @@ export function SuppliersView({
                           className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                           onClick={() => setEditSupplier(s)}
                         >
-                          Sửa
+                          {uiText("Sửa")}
                         </button>
                         {isAdmin ? (
                           s.active ? (
@@ -303,7 +325,7 @@ export function SuppliersView({
                                 })
                               }
                             >
-                              Ngừng HĐ
+                              {uiText("Ngừng HĐ")}
                             </button>
                           ) : (
                             <button
@@ -316,7 +338,7 @@ export function SuppliersView({
                                 })
                               }
                             >
-                              Kích hoạt
+                              {uiText("Kích hoạt")}
                             </button>
                           )
                         ) : null}
@@ -331,7 +353,11 @@ export function SuppliersView({
 
         <div className="p-4 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Hiển thị {suppliers.length} trên tổng số {total} nhà cung cấp
+            {uiText("Hiển thị ")}
+            {suppliers.length}
+            {uiText(" trên tổng số ")}
+            {total}
+            {uiText(" nhà cung cấp")}
           </span>
           <PaginationControls
             currentPage={currentPage}
@@ -391,20 +417,24 @@ export function SuppliersView({
           open={Boolean(targetStateChange)}
           title={
             targetStateChange.targetActive
-              ? "Kích hoạt lại nhà cung cấp"
-              : "Ngừng hoạt động nhà cung cấp"
+              ? uiText("Kích hoạt lại nhà cung cấp")
+              : uiText("Ngừng hoạt động nhà cung cấp")
           }
           description={
             targetStateChange.targetActive
-              ? "Nhà cung cấp sẽ có thể được chọn lại khi tạo hồ sơ nguồn mới."
-              : "Nhà cung cấp sẽ không còn được chọn cho các hồ sơ nguồn mới, nhưng toàn bộ lịch sử và hợp đồng cũ vẫn được bảo lưu nguyên vẹn."
+              ? uiText(
+                  "Nhà cung cấp sẽ có thể được chọn lại khi tạo hồ sơ nguồn mới.",
+                )
+              : uiText(
+                  "Nhà cung cấp sẽ không còn được chọn cho các hồ sơ nguồn mới, nhưng toàn bộ lịch sử và hợp đồng cũ vẫn được bảo lưu nguyên vẹn.",
+                )
           }
           targetName={targetStateChange.supplier.name}
           currentRevision={targetStateChange.supplier.revision}
           actionLabel={
             targetStateChange.targetActive
-              ? "Xác nhận kích hoạt"
-              : "Xác nhận ngừng hoạt động"
+              ? uiText("Xác nhận kích hoạt")
+              : uiText("Xác nhận ngừng hoạt động")
           }
           actionVariant={targetStateChange.targetActive ? "primary" : "danger"}
           isPending={isPending}
@@ -426,6 +456,8 @@ function CreateSupplierDialog({
   onClose: () => void;
   onCreated: (s: InventorySupplier) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [name, setName] = useState("");
   const [taxCode, setTaxCode] = useState("");
   const [contact, setContact] = useState("");
@@ -477,13 +509,13 @@ function CreateSupplierDialog({
             id="create-supplier-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Thêm nhà cung cấp mới
+            {uiText("Thêm nhà cung cấp mới")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -495,13 +527,14 @@ function CreateSupplierDialog({
               htmlFor="create-supplier-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên nhà cung cấp <span className="text-red-500">*</span>
+              {uiText("Tên nhà cung cấp ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="create-supplier-name"
               type="text"
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
-              placeholder="VD: Công ty TNHH Thiết bị Y tế Minh Tâm"
+              placeholder={uiText("VD: Công ty TNHH Thiết bị Y tế Minh Tâm")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -514,7 +547,7 @@ function CreateSupplierDialog({
                 htmlFor="create-supplier-tax"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã số thuế
+                {uiText("Mã số thuế")}
               </label>
               <input
                 id="create-supplier-tax"
@@ -530,7 +563,7 @@ function CreateSupplierDialog({
                 htmlFor="create-supplier-contact"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Liên hệ / ĐT
+                {uiText("Liên hệ / ĐT")}
               </label>
               <input
                 id="create-supplier-contact"
@@ -545,12 +578,12 @@ function CreateSupplierDialog({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Ghi chú
+              {uiText("Ghi chú")}
             </label>
             <textarea
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
               rows={2}
-              placeholder="Địa chỉ, người liên hệ chính..."
+              placeholder={uiText("Địa chỉ, người liên hệ chính...")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -558,7 +591,7 @@ function CreateSupplierDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -569,14 +602,14 @@ function CreateSupplierDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu nhà cung cấp"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu nhà cung cấp")}
             </button>
           </div>
         </form>
@@ -597,6 +630,8 @@ function EditSupplierDialog({
   onClose: () => void;
   onUpdated: (s: InventorySupplier) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [name, setName] = useState(supplier.name);
   const [taxCode, setTaxCode] = useState(supplier.tax_code || "");
   const [contact, setContact] = useState(supplier.contact || "");
@@ -649,13 +684,13 @@ function EditSupplierDialog({
             id="edit-supplier-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            Sửa nhà cung cấp / Edit Supplier
+            {uiText("Sửa nhà cung cấp / Edit Supplier")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label="Đóng / Close"
+            aria-label={uiText("Đóng / Close")}
           >
             <X size={18} />
           </button>
@@ -667,7 +702,8 @@ function EditSupplierDialog({
               htmlFor="edit-supplier-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              Tên nhà cung cấp <span className="text-red-500">*</span>
+              {uiText("Tên nhà cung cấp ")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="edit-supplier-name"
@@ -685,7 +721,7 @@ function EditSupplierDialog({
                 htmlFor="edit-supplier-tax"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Mã số thuế
+                {uiText("Mã số thuế")}
               </label>
               <input
                 id="edit-supplier-tax"
@@ -700,7 +736,7 @@ function EditSupplierDialog({
                 htmlFor="edit-supplier-contact"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Liên hệ / ĐT
+                {uiText("Liên hệ / ĐT")}
               </label>
               <input
                 id="edit-supplier-contact"
@@ -714,7 +750,7 @@ function EditSupplierDialog({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Ghi chú
+              {uiText("Ghi chú")}
             </label>
             <textarea
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
@@ -726,7 +762,7 @@ function EditSupplierDialog({
 
           {error ? (
             <div className="p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
-              {error}
+              <LocalizedText text={error ?? ""} />
             </div>
           ) : null}
 
@@ -737,14 +773,14 @@ function EditSupplierDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              Hủy bỏ
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
               className="button button-primary text-xs"
               disabled={isPending}
             >
-              {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {isPending ? uiText("Đang lưu...") : uiText("Lưu thay đổi")}
             </button>
           </div>
         </form>

@@ -1,5 +1,5 @@
 begin;
-select plan(21);
+select plan(23);
 
 create temp table bm_equipment_blocker_ctx (
   admin_id uuid, bm_staff_id uuid, skills_staff_id uuid, lecturer_id uuid,
@@ -39,7 +39,7 @@ begin
     (ctx.lecturer_id,'lecturer'), (ctx.override_lecturer_id,'lecturer'), (ctx.blocked_lecturer_id,'lecturer')
   on conflict do nothing;
   insert into public.profile_room_types (profile_id,room_type_id) values
-    (ctx.bm_staff_id,bm_type), (ctx.skills_staff_id,skills_type), (ctx.lecturer_id,bm_type), (ctx.override_lecturer_id,bm_type)
+    (ctx.bm_staff_id,bm_type), (ctx.skills_staff_id,skills_type), (ctx.lecturer_id,bm_type), (ctx.lecturer_id,skills_type), (ctx.override_lecturer_id,bm_type)
   on conflict do nothing;
   insert into public.courses (course_code,course_name,room_type_id,is_active) values ('W1-BM-' || substr(ctx.admin_id::text,1,8), 'Wave Basic Medical', bm_type, true) returning id into ctx.course_id;
   insert into public.courses (course_code,course_name,room_type_id,is_active) values ('W1-SK-' || substr(ctx.admin_id::text,1,8), 'Wave Skills', skills_type, true) returning id into ctx.skills_course_id;
@@ -86,12 +86,19 @@ $$, 'Basic Medical equipment request commits through shared table triggers');
 update bm_equipment_blocker_ctx set source_a_id = session_a_id;
 select is((select semester from public.equipment_requests where id=(select request_a_id from bm_equipment_blocker_ctx)), 'HK1', 'Basic Medical request ignores forged semester and uses registration semester');
 select ok(exists(select 1 from public.equipment_request_items where request_id=(select request_a_id from bm_equipment_blocker_ctx) and basic_medical_catalog_item_id=(select bm_catalog_id from bm_equipment_blocker_ctx)), 'Basic Medical active catalog is accepted');
+select throws_ok($$insert into public.equipment_request_items(request_id,skill_name,catalog_item_id,quantity) select request_a_id,'wrong',skills_catalog_id,1 from bm_equipment_blocker_ctx$$, '42501', null, 'Authenticated direct line INSERT remains denied');
+-- Isolate the table-level domain invariant without weakening public grants.
+reset role;
 select throws_ok($$insert into public.equipment_request_items(request_id,skill_name,catalog_item_id,quantity) select request_a_id,'wrong',skills_catalog_id,1 from bm_equipment_blocker_ctx$$, '22023', 'EQUIPMENT_REQUEST_BASIC_MEDICAL_CATALOG_REQUIRED', 'Skills catalog is rejected for Basic Medical');
+set local role authenticated;
 select is((select responsible_lecturer_id from public.equipment_requests where id=(select request_a_id from bm_equipment_blocker_ctx)), (select lecturer_id from bm_equipment_blocker_ctx), 'Basic Medical request defaults responsibility to its teaching lecturer');
 select lives_ok($$
   update bm_equipment_blocker_ctx set skills_request_id = public.create_equipment_request_with_items(skills_schedule_id,'HK4',lecturer_id,((current_date+15)::text || ' 09:00 Asia/Ho_Chi_Minh')::timestamptz,((current_date+15)::text || ' 11:00 Asia/Ho_Chi_Minh')::timestamptz,'skills',null,jsonb_build_array(jsonb_build_object('skill_name','skills','catalog_item_id',skills_catalog_id,'quantity',1)))
 $$, 'Skills request preserves the existing catalog lifecycle');
+select throws_ok($$insert into public.equipment_request_items(request_id,skill_name,basic_medical_catalog_item_id,quantity) select skills_request_id,'wrong',bm_catalog_id,1 from bm_equipment_blocker_ctx$$, '42501', null, 'Authenticated direct Skills line INSERT remains denied');
+reset role;
 select throws_ok($$insert into public.equipment_request_items(request_id,skill_name,basic_medical_catalog_item_id,quantity) select skills_request_id,'wrong',bm_catalog_id,1 from bm_equipment_blocker_ctx$$, '22023', 'EQUIPMENT_REQUEST_SKILLS_CATALOG_REQUIRED', 'Basic Medical catalog is rejected for Skills');
+set local role authenticated;
 
 select set_config('request.jwt.claims', json_build_object('sub', (select bm_staff_id from bm_equipment_blocker_ctx), 'role', 'authenticated')::text, true);
 select lives_ok($$

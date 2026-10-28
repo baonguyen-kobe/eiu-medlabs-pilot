@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { StockTable } from "@/components/inventory/stock-table";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { normalizePage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
   InventoryCohortDetail,
@@ -11,6 +11,7 @@ import type {
   InventoryStorageLocation,
   StockCondition,
 } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface StockPageProps {
   searchParams: Promise<{
@@ -103,15 +104,27 @@ export default async function StockPage({ searchParams }: StockPageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tồn kho thực tế & Đủ điều kiện / Stock Balances"
-        description="Số dư tồn kho phân tách theo vị trí lưu trữ, tình trạng tốt/hỏng và tính đủ điều kiện cấp phát"
+        title={
+          <LocalizedText
+            text={"Tồn kho thực tế & Đủ điều kiện / Stock Balances"}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Số dư tồn kho phân tách theo vị trí lưu trữ, tình trạng tốt/hỏng và tính đủ điều kiện cấp phát"
+            }
+          />
+        }
         actions={
           <div className="flex items-center gap-2">
             <Link
               href="/inventory/operations"
               className="button button-primary text-xs flex items-center gap-1.5"
             >
-              <span>Nghiệp vụ kho S2 / Operations →</span>
+              <span>
+                <LocalizedText text={"Nghiệp vụ kho S2 / Operations →"} />
+              </span>
             </Link>
           </div>
         }

@@ -5,12 +5,14 @@ import crypto from "node:crypto";
 export const sqlLiteral = (value) => `'${String(value).replaceAll("'", "''")}'`;
 export const jsonSql = (value) => `${sqlLiteral(JSON.stringify(value))}::jsonb`;
 
-export function createS5Harness() {
+export function createS5Harness({
+  quantityReturnSemantics = "nonreturnable",
+} = {}) {
+  assert.ok(["returnable", "nonreturnable"].includes(quantityReturnSemantics));
   const project = process.env.SUPABASE_LOCAL_PROJECT_ID ?? "eiu-medlabs-pilot";
-  assert.equal(
-    project,
-    "eiu-medlabs-pilot",
-    "S5 fixtures are isolated pilot only",
+  assert.ok(
+    ["eiu-medlabs-pilot", "lich-truc-app-ci"].includes(project),
+    "S5 fixtures require an isolated local pilot or disposable CI runtime",
   );
   const listed = spawnSync(
     "docker",
@@ -35,7 +37,7 @@ export function createS5Harness() {
   const nonce = crypto.randomBytes(6).toString("hex");
   const prefix = `e520${nonce.slice(0, 4)}-${nonce.slice(4, 8)}-${nonce.slice(8)}-0000-`;
   const id = (n) => `${prefix}${String(n).padStart(12, "0")}`;
-  const actors = [id(1), id(2), id(3)];
+  const actors = [id(1), id(2), id(3), id(4)];
 
   function start(sql, name = `s5_${nonce}_probe`, keepOpen = false) {
     const child = spawn(
@@ -163,7 +165,7 @@ export function createS5Harness() {
       select id,email,'S5 synthetic actor','0901234567',true from auth.users where id in (${actors.map(sqlLiteral).join(",")})
       on conflict(id) do update set phone=excluded.phone,is_active=true;
       insert into public.user_roles(user_id,role) values
-        ('${actors[0]}','admin'),('${actors[1]}','lecturer'),('${actors[2]}','staff');
+        ('${actors[0]}','admin'),('${actors[1]}','lecturer'),('${actors[2]}','staff'),('${actors[3]}','lecturer');
       insert into public.profile_room_types(profile_id,room_type_id)
       values('${actors[1]}','40000000-0000-0000-0000-000000000001'),
         ('${actors[2]}','40000000-0000-0000-0000-000000000001') on conflict do nothing;
@@ -175,7 +177,7 @@ export function createS5Harness() {
         schedule_date,start_time,end_time,semester,created_by,source,schedule_status,student_count,published_by,published_at)
       select ('${prefix}'||lpad(n::text,12,'0'))::uuid,'${id(11)}','S5-${nonce}','S5 race course','${id(10)}','${actors[1]}',
         current_date+60+n,'09:00','11:00','HK1','${actors[0]}','manual','published',20,'${actors[0]}',now()
-      from generate_series(101,105) n;
+      from generate_series(101,106) n;
       insert into public.equipment_catalog(id,item_name,commercial_name,unit) values
         ('${id(20)}','S5-${nonce} liquid','S5-${nonce} liquid demand','liều'),
         ('${id(21)}','S5-${nonce} asset','S5-${nonce} asset demand','cái');
@@ -183,7 +185,7 @@ export function createS5Harness() {
       insert into public.inventory_uoms(code,name,dimension,allowed_scale) values
         ('s5_${nonce}_ml','S5 volume','volume',6),('s5_${nonce}_count','S5 count','count',0);
       insert into public.inventory_catalog_items(id,code,name,category_id,material_kind,base_uom_code,tracking_strategy,return_semantics,expiry_required) values
-        ('${id(31)}','S5-${nonce}-Q','Synthetic S5 liquid','${id(30)}','other','s5_${nonce}_ml','quantity','nonreturnable',false),
+        ('${id(31)}','S5-${nonce}-Q','Synthetic S5 liquid','${id(30)}','other','s5_${nonce}_ml','quantity','${quantityReturnSemantics}',false),
         ('${id(32)}','S5-${nonce}-A','Synthetic S5 asset','${id(30)}','other','s5_${nonce}_count','serialized','returnable',false);
       insert into public.inventory_storage_locations(id,code,name) values
         ('${id(41)}','S5-${nonce}-BOOT','000 S5-${nonce} bootstrap'),
@@ -214,7 +216,7 @@ export function createS5Harness() {
         ((current_date+160+n)::text||' 09:00+07')::timestamptz,((current_date+160+n)::text||' 11:00+07')::timestamptz,null,
         'Synthetic S5 concurrency',jsonb_build_array(jsonb_build_object('skill_name','S5 race',
           'catalog_item_id',case when n<=3 then '${id(20)}' else '${id(21)}' end,'quantity',case when n=1 then 2 else 1 end))))
-      from generate_series(1,5) n;
+      from generate_series(1,6) n;
       select set_config('request.jwt.claims',${jsonSql({ sub: actors[0], role: "authenticated" })}::text,true);
       insert into context
       select 'map'||kind,public.equipment_preparation_command('map_item',request.id,
@@ -247,6 +249,7 @@ export function createS5Harness() {
           insert into context values('line'||n,to_jsonb(line));
         end loop;
       end; $$;
+      insert into context select 'line6',to_jsonb(id) from public.equipment_request_items where request_id=(select (v#>>'{}')::uuid from context where k='request6');
       select jsonb_object_agg(k,v) from context; commit;`);
     return parse(output);
   }

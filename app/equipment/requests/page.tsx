@@ -8,6 +8,7 @@ import {
   canUseEquipmentOperations,
   equipmentOperationsDomains,
 } from "@/lib/workspace-access";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function EquipmentRequestsPage({
   searchParams,
@@ -57,8 +58,14 @@ export default async function EquipmentRequestsPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Phiếu thiết bị"
-      description="Toàn bộ phiếu thiết bị đã đăng ký, dành cho Admin và Staff quản lý phòng."
+      title={<LocalizedText text={"Phiếu thiết bị"} />}
+      description={
+        <LocalizedText
+          text={
+            "Toàn bộ phiếu thiết bị đã đăng ký, dành cho Admin và Staff quản lý phòng."
+          }
+        />
+      }
     >
       <EquipmentRequestList
         requests={data ?? []}

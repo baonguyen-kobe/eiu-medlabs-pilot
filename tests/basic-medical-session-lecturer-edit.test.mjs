@@ -253,12 +253,12 @@ test("Basic Medical Lecturer Edit: UI component implements inline lecturer edit 
   );
   assert.match(
     listSource,
-    /title="Hủy buổi học Y cơ sở\?"/,
+    /title=\{uiText\("Hủy buổi học Y cơ sở\?"\)\}/,
     "Preserves Hủy lớp ConfirmDialog",
   );
   assert.match(
     listSource,
-    /title="Vô hiệu hóa xác nhận buổi học\?"/,
+    /title=\{uiText\("Vô hiệu hóa xác nhận buổi học\?"\)\}/,
     "Preserves Vô hiệu hóa xác nhận ConfirmDialog",
   );
 });

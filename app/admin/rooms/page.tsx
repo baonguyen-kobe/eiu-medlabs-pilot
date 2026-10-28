@@ -11,6 +11,8 @@ import { PaginationLinks } from "@/components/pagination-links";
 import { requireAdmin } from "@/lib/admin";
 import { normalizePage, paginationRange } from "@/lib/pagination";
 import { CatalogBatchManager } from "@/components/catalog-batch-manager";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 export default async function RoomsPage({
   searchParams,
@@ -38,41 +40,56 @@ export default async function RoomsPage({
   ]);
   return (
     <AdminShell
-      title="Danh mục phòng"
-      description="Quản lý mã phòng, tòa nhà và sức chứa dùng khi xếp lịch."
+      title={<LocalizedText text={"Danh mục phòng"} />}
+      description={
+        <LocalizedText
+          text={"Quản lý mã phòng, tòa nhà và sức chứa dùng khi xếp lịch."}
+        />
+      }
       active="/admin/rooms"
       actions={<CatalogImportActions action={importRooms} catalog="rooms" />}
     >
       <CatalogTabs active="/admin/rooms" />
       {query.notice ? (
-        <p className="action-feedback success">{query.notice}</p>
+        <p className="action-feedback success">
+          <LocalizedText text={query.notice} />
+        </p>
       ) : null}
       {query.error ? (
-        <p className="action-feedback error">{query.error}</p>
+        <p className="action-feedback error">
+          <LocalizedText text={query.error} />
+        </p>
       ) : null}
       <details className="catalog-manual-add">
-        <summary>+ Thêm phòng</summary>
+        <summary>
+          <LocalizedText text={"+ Thêm phòng"} />
+        </summary>
         <form
           action={createRoom}
           className="admin-create-form admin-create-room"
         >
           <label>
-            Mã phòng
+            <LocalizedText text={"Mã phòng"} />
             <input name="room_code" required placeholder="301" />
           </label>
           <label>
-            Tòa nhà
+            <LocalizedText text={"Tòa nhà"} />
             <input name="building_code" required placeholder="A3" />
           </label>
           <label>
-            Tên phòng
-            <input name="room_name" placeholder="Phòng học 301" />
+            <LocalizedText text={"Tên phòng"} />
+            <LocalizedElement
+              as="input"
+              textAttributes={["placeholder"]}
+              name="room_name"
+              placeholder="Phòng học 301"
+            />
           </label>
           <label>
-            Loại phòng
+            <LocalizedText text={"Loại phòng"} />
             <select name="room_type_id" required defaultValue="">
               <option value="" disabled>
-                Chọn Loại phòng
+                <LocalizedText text={"Chọn Loại phòng"} />
               </option>
               {(roomTypes ?? [])
                 .filter(({ is_active }) => is_active)
@@ -84,10 +101,12 @@ export default async function RoomsPage({
             </select>
           </label>
           <label>
-            Sức chứa
+            <LocalizedText text={"Sức chứa"} />
             <input name="capacity" type="number" min="1" />
           </label>
-          <button className="button button-primary">Thêm phòng</button>
+          <button className="button button-primary">
+            <LocalizedText text={"Thêm phòng"} />
+          </button>
         </form>
       </details>
       <CatalogBatchManager
@@ -104,19 +123,25 @@ export default async function RoomsPage({
         pathname="/admin/rooms"
       />
       <details className="admin-create-personnel room-type-manager">
-        <summary>Quản lý Loại phòng</summary>
+        <summary>
+          <LocalizedText text={"Quản lý Loại phòng"} />
+        </summary>
         <form action={createRoomType} className="admin-create-form">
           <label>
-            Tên Loại phòng
+            <LocalizedText text={"Tên Loại phòng"} />
             <input name="name" required />
           </label>
           <label>
-            Mã kỹ thuật
+            <LocalizedText text={"Mã kỹ thuật"} />
             <input name="code" required placeholder="basic_medical" />
           </label>
-          <button className="button button-primary">Thêm Loại phòng</button>
+          <button className="button button-primary">
+            <LocalizedText text={"Thêm Loại phòng"} />
+          </button>
         </form>
-        <div
+        <LocalizedElement
+          as="div"
+          textAttributes={["aria-label"]}
           className="responsive-table"
           role="region"
           aria-label="Danh sách Loại phòng"
@@ -125,9 +150,15 @@ export default async function RoomsPage({
           <table className="data-table catalog-data-table">
             <thead>
               <tr>
-                <th>Tên</th>
-                <th>Mã</th>
-                <th>Trạng thái</th>
+                <th>
+                  <LocalizedText text={"Tên"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Mã"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Trạng thái"} />
+                </th>
                 <th />
               </tr>
             </thead>
@@ -138,7 +169,13 @@ export default async function RoomsPage({
                     <strong>{roomType.name}</strong>
                   </td>
                   <td className="mono">{roomType.code}</td>
-                  <td>{roomType.is_active ? "Đang dùng" : "Ngừng dùng"}</td>
+                  <td>
+                    {roomType.is_active ? (
+                      <LocalizedText text={"Đang dùng"} />
+                    ) : (
+                      <LocalizedText text={"Ngừng dùng"} />
+                    )}
+                  </td>
                   <td>
                     <form action={toggleRoomType}>
                       <input type="hidden" name="id" value={roomType.id} />
@@ -148,7 +185,11 @@ export default async function RoomsPage({
                         value={String(!roomType.is_active)}
                       />
                       <button className="table-action">
-                        {roomType.is_active ? "Ngừng dùng" : "Kích hoạt"}
+                        {roomType.is_active ? (
+                          <LocalizedText text={"Ngừng dùng"} />
+                        ) : (
+                          <LocalizedText text={"Kích hoạt"} />
+                        )}
                       </button>
                     </form>
                   </td>
@@ -156,7 +197,7 @@ export default async function RoomsPage({
               ))}
             </tbody>
           </table>
-        </div>
+        </LocalizedElement>
       </details>
     </AdminShell>
   );

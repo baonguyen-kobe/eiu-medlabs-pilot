@@ -4,6 +4,7 @@ import { EquipmentPreparationWorkspace } from "@/components/equipment-preparatio
 import { preparationWorkspaceSchema } from "@/lib/equipment-preparation";
 import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
 import { getViewer } from "@/lib/viewer";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function PreparationPage({
   params,
@@ -32,8 +33,14 @@ export default async function PreparationPage({
       canImportSchedules={viewer.canImportSchedules}
       canManagePersonnel={viewer.canManagePersonnel}
       canManageEmailNotifications={viewer.canManageEmailNotifications}
-      title="Chuẩn bị thiết bị"
-      description="Rà soát, phân bổ và giữ cam kết thiết bị; chưa thực hiện bàn giao."
+      title={<LocalizedText text={"Chuẩn bị thiết bị"} />}
+      description={
+        <LocalizedText
+          text={
+            "Rà soát, phân bổ và giữ cam kết thiết bị; chưa thực hiện bàn giao."
+          }
+        />
+      }
     >
       <EquipmentPreparationWorkspace initial={workspace} />
     </WorkspaceShell>

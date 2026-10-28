@@ -8,6 +8,7 @@ import type {
   AssetOperationalStatus,
   EquipmentAsset,
 } from "@/lib/inventory/asset-types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetStateFormProps {
   asset: EquipmentAsset;
@@ -15,6 +16,8 @@ export interface AssetStateFormProps {
 }
 
 export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
+  const { text: uiText } = useLanguage();
+
   // Freeze expected_revision alongside initial snapshot fields to avoid silent rebase
   const [expectedRevision, setExpectedRevision] = useState(asset.revision);
   const [retryKey, setRetryKey] = useState(() => crypto.randomUUID());
@@ -106,17 +109,22 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div className="border-b pb-3 border-slate-200">
         <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-          Cập nhật Vị trí & Trạng thái Vận hành / Update Physical State
+          {uiText(
+            "Cập nhật Vị trí & Trạng thái Vận hành / Update Physical State",
+          )}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">
-          Ghi nhận thực tế quan sát hiện trường (Vị trí, hiện trạng hoạt động,
-          nhân sự chịu trách nhiệm).
+          {uiText(
+            "Ghi nhận thực tế quan sát hiện trường (Vị trí, hiện trạng hoạt động, nhân sự chịu trách nhiệm).",
+          )}
         </p>
       </div>
 
       {serverError && (
         <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-2">
-          <div className="font-semibold">Lỗi cập nhật trạng thái:</div>
+          <div className="font-semibold">
+            {uiText("Lỗi cập nhật trạng thái:")}
+          </div>
           <div>{serverError}</div>
           {isStaleRevision && (
             <div className="pt-2 border-t border-rose-200/60">
@@ -125,7 +133,8 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
                 onClick={handleReviewLatest}
                 className="button button-secondary text-xs px-3 py-1 bg-white border-rose-300 text-rose-900 font-medium"
               >
-                Tải lại snapshot mới nhất (Review Latest Rev #{asset.revision})
+                {uiText("Tải lại snapshot mới nhất (Review Latest Rev #")}
+                {asset.revision})
               </button>
             </div>
           )}
@@ -134,7 +143,9 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
 
       {isSuccess && (
         <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
-          [Thành công] Đã cập nhật vị trí và trạng thái vật lý thành công!
+          {uiText(
+            "[Thành công] Đã cập nhật vị trí và trạng thái vật lý thành công!",
+          )}
         </div>
       )}
 
@@ -145,7 +156,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               id="state-location-lookup"
               resource="locations"
               value={locationId}
-              label="Vị trí lưu trữ hiện tại *"
+              label={uiText("Vị trí lưu trữ hiện tại *")}
               selectedLabel={locationName}
               onSelect={(loc: Record<string, unknown>) => {
                 const code = String(loc.code || "");
@@ -162,7 +173,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               htmlFor="state-operational-status"
               className="block font-medium text-slate-700 mb-1"
             >
-              Trạng thái vận hành thực tế *
+              {uiText("Trạng thái vận hành thực tế *")}
             </label>
             <select
               id="state-operational-status"
@@ -172,13 +183,15 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               }
               className="input-field text-xs w-full"
             >
-              <option value="ready">Sẵn sàng / Ready</option>
-              <option value="in_use">Đang sử dụng / In Use</option>
+              <option value="ready">{uiText("Sẵn sàng / Ready")}</option>
+              <option value="in_use">{uiText("Đang sử dụng / In Use")}</option>
               <option value="under_maintenance">
-                Đang bảo trì / Under Maintenance
+                {uiText("Đang bảo trì / Under Maintenance")}
               </option>
-              <option value="damaged">Hư hỏng / Damaged</option>
-              <option value="prohibited">Cấm lưu hành / Prohibited</option>
+              <option value="damaged">{uiText("Hư hỏng / Damaged")}</option>
+              <option value="prohibited">
+                {uiText("Cấm lưu hành / Prohibited")}
+              </option>
             </select>
           </div>
         </div>
@@ -189,14 +202,14 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               htmlFor="state-custodian-id"
               className="block font-medium text-slate-700 mb-1"
             >
-              UUID người quản lý / Người chịu trách nhiệm (Tùy chọn)
+              {uiText("UUID người quản lý / Người chịu trách nhiệm (Tùy chọn)")}
             </label>
             <input
               id="state-custodian-id"
               type="text"
               value={custodianId}
               onChange={(e) => setCustodianId(e.target.value)}
-              placeholder="Để trống nếu không giao cá nhân quản lý"
+              placeholder={uiText("Để trống nếu không giao cá nhân quản lý")}
               className="input-field font-mono text-xs w-full"
             />
           </div>
@@ -206,7 +219,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               htmlFor="state-occurred-at"
               className="block font-medium text-slate-700 mb-1"
             >
-              Thời điểm quan sát / Bàn giao thực tế (Tùy chọn)
+              {uiText("Thời điểm quan sát / Bàn giao thực tế (Tùy chọn)")}
             </label>
             <input
               id="state-occurred-at"
@@ -223,7 +236,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
             htmlFor="state-reason"
             className="block font-medium text-slate-700 mb-1"
           >
-            Lý do cập nhật trạng thái vật lý *
+            {uiText("Lý do cập nhật trạng thái vật lý *")}
           </label>
           <input
             id="state-reason"
@@ -231,7 +244,9 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
             required
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="VD: Điều chuyển thiết bị sang Phòng Thực hành 302 phục vụ giảng dạy"
+            placeholder={uiText(
+              "VD: Điều chuyển thiết bị sang Phòng Thực hành 302 phục vụ giảng dạy",
+            )}
             className="input-field text-xs w-full"
           />
         </div>
@@ -241,7 +256,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
             htmlFor="state-evidence"
             className="block font-medium text-slate-700 mb-1"
           >
-            Ghi chú bằng chứng thực tế *
+            {uiText("Ghi chú bằng chứng thực tế *")}
           </label>
           <textarea
             id="state-evidence"
@@ -249,18 +264,21 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
             rows={2}
             value={evidenceNote}
             onChange={(e) => setEvidenceNote(e.target.value)}
-            placeholder="VD: Phiếu giao nhận nội bộ số 12/PGN ký nhận bởi bộ môn Điều dưỡng"
+            placeholder={uiText(
+              "VD: Phiếu giao nhận nội bộ số 12/PGN ký nhận bởi bộ môn Điều dưỡng",
+            )}
             className="input-field text-xs w-full"
           />
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-200">
           <div className="text-[11px] text-slate-500">
-            Phiên bản biểu mẫu:{" "}
+            {uiText("Phiên bản biểu mẫu:")}{" "}
             <span className="font-mono font-semibold">#{expectedRevision}</span>
             {expectedRevision !== asset.revision && (
               <span className="text-amber-700 font-medium ml-2">
-                (Server đã có Rev #{asset.revision})
+                {uiText("(Server đã có Rev #")}
+                {asset.revision})
               </span>
             )}
           </div>
@@ -269,7 +287,9 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
             disabled={isPending}
             className="button button-primary text-xs px-4 py-2 font-semibold"
           >
-            {isPending ? "Đang cập nhật..." : "Lưu thay đổi trạng thái"}
+            {isPending
+              ? uiText("Đang cập nhật...")
+              : uiText("Lưu thay đổi trạng thái")}
           </button>
         </div>
       </form>

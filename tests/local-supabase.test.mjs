@@ -2,6 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import test from "node:test";
+import {
+  legacyRequestFixture,
+  legacyItemFixture,
+  legacyStageFixture,
+  cleanupLegacyRequest,
+} from "./helpers/legacy-equipment-fixture.mjs";
+import { equipmentUpdateItems } from "./helpers/equipment-update-fixture.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const envText = readFileSync(new URL("../.env.local", import.meta.url), "utf8");
@@ -1137,7 +1144,7 @@ test("Staff ngoài room-type scope không quản lý được phiếu thiết b�
     );
     assert.ifError(
       (
-        await admin.supabase.from("equipment_requests").insert({
+        await legacyRequestFixture({
           id: requestId,
           class_schedule_id: scheduleId,
           registrant_id: admin.user.id,
@@ -1202,22 +1209,20 @@ test("Staff ngoài room-type scope không quản lý được phiếu thiết b�
       });
     assert.equal(unauthorizedItem.error?.code, "42501");
 
+    await legacyStageFixture(requestId, "preparing");
     const inScopeStaff = await signIn("staff@campus.local", "LocalStaff123!");
     assert.ifError(
       (
         await inScopeStaff.supabase.rpc("manager_confirm_equipment_status", {
           target_request_id: requestId,
-          target_status: "preparing",
+          target_status: "handed_over",
         })
       ).error,
     );
   } finally {
     // Must delete equipment_requests BEFORE class_schedules (FK dependency)
     // Use serviceClient() since DELETE privilege is revoked from authenticated role
-    await serviceClient()
-      .from("equipment_requests")
-      .delete()
-      .eq("id", requestId);
+    await cleanupLegacyRequest(requestId);
     await admin.supabase.from("equipment_catalog").delete().eq("id", catalogId);
     await serviceClient().from("class_schedules").delete().eq("id", scheduleId);
     await service.auth.admin.deleteUser(staffId);
@@ -1302,7 +1307,21 @@ test("Người xem chỉ đọc lịch và nhận email theo loại phòng đã 
   assert.ok(created.user);
   const viewerId = created.user.id;
 
+  const previousMode = await service
+    .from("email_delivery_settings")
+    .select("delivery_mode")
+    .eq("setting_key", "primary")
+    .single();
+  assert.ifError(previousMode.error);
+
   try {
+    assert.ifError(
+      (
+        await admin.supabase.rpc("set_email_delivery_mode", {
+          target_mode: "test",
+        })
+      ).error,
+    );
     const { error: roleError } = await service.from("user_roles").insert({
       user_id: viewerId,
       role: "viewer",
@@ -1383,9 +1402,21 @@ test("Người xem chỉ đọc lịch và nhận email theo loại phòng đã 
     assert.ok(forbiddenDetailsUpdate.error);
     assert.equal(forbiddenDetailsUpdate.error.code, "42501");
 
-    await serviceClient().rpc("process_email_outbox_events", {
-      batch_size: 50,
-    });
+    for (let batch = 0; batch < 10; batch++) {
+      assert.ifError(
+        (await service.rpc("process_email_outbox_events", { batch_size: 500 }))
+          .error,
+      );
+      const probe = await service
+        .from("email_notifications")
+        .select("id")
+        .eq("recipient_id", viewerId)
+        .eq("notification_type", "class_schedule_created")
+        .filter("payload->>schedule_id", "eq", scheduleId)
+        .maybeSingle();
+      assert.ifError(probe.error);
+      if (probe.data) break;
+    }
     const { data: notification, error: notificationError } =
       await serviceClient()
         .from("email_notifications")
@@ -1404,6 +1435,13 @@ test("Người xem chỉ đọc lịch và nhận email theo loại phòng đã 
         .eq("id", scheduleId);
     }
     await service.auth.admin.deleteUser(viewerId);
+    assert.ifError(
+      (
+        await admin.supabase.rpc("set_email_delivery_mode", {
+          target_mode: previousMode.data.delivery_mode,
+        })
+      ).error,
+    );
   }
 });
 
@@ -1859,7 +1897,7 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
     });
   assert.ifError(scheduleError);
 
-  const { error: invalidTimeError } = await admin.supabase
+  const { error: invalidTimeError } = await serviceClient()
     .from("equipment_requests")
     .insert({
       id: crypto.randomUUID(),
@@ -1879,7 +1917,7 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
   const pastDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);
-  const { error: pastReceiveError } = await admin.supabase
+  const { error: pastReceiveError } = await serviceClient()
     .from("equipment_requests")
     .insert({
       id: crypto.randomUUID(),
@@ -1896,7 +1934,7 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
   assert.ok(pastReceiveError);
   assert.equal(pastReceiveError.code, "22023");
 
-  const { error: afterClassError } = await admin.supabase
+  const { error: afterClassError } = await serviceClient()
     .from("equipment_requests")
     .insert({
       id: crypto.randomUUID(),
@@ -1913,7 +1951,7 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
   assert.ok(afterClassError);
   assert.equal(afterClassError.code, "22023");
 
-  const { error: requestError } = await admin.supabase
+  const { error: requestError } = await serviceClient()
     .from("equipment_requests")
     .insert({
       id: requestId,
@@ -1936,13 +1974,14 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
       .update({ status: "preparing" })
       .eq("id", requestId)
       .select("id");
-  assert.ifError(lecturerUpdateError);
-  assert.equal(lecturerUpdate.length, 0);
+  assert.equal(lecturerUpdateError?.code, "42501");
+  assert.equal(lecturerUpdate, null);
+  await legacyStageFixture(requestId, "preparing");
 
   const { data: staffUpdate, error: staffUpdateError } =
     await staff.supabase.rpc("manager_confirm_equipment_status", {
       target_request_id: requestId,
-      target_status: "preparing",
+      target_status: "handed_over",
     });
   assert.ifError(staffUpdateError);
   assert.equal(staffUpdate.status, "preparing");
@@ -1951,7 +1990,7 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
     .from("equipment_requests")
     .update({ note: "Vẫn được sửa khi Đã soạn" })
     .eq("id", requestId);
-  assert.ifError(adminContentEditError);
+  assert.equal(adminContentEditError?.code, "42501");
 
   const { data: nextStatus, error: nextStatusError } = await admin.supabase.rpc(
     "manager_confirm_equipment_status",
@@ -1961,15 +2000,9 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
   assert.equal(nextStatus.status, "preparing");
   assert.equal(nextStatus.handover_staff_confirmed_by, admin.user.id);
 
-  const { error: itemError } = await serviceClient()
-    .from("equipment_request_items")
-    .delete()
-    .eq("request_id", requestId);
+  const { error: itemError } = await cleanupLegacyRequest(requestId);
   assert.ifError(itemError);
-  const { error: reqError } = await serviceClient()
-    .from("equipment_requests")
-    .delete()
-    .eq("id", requestId);
+  const { error: reqError } = await cleanupLegacyRequest(requestId);
   assert.ifError(reqError);
 
   const { error: scheduleCleanupError } = await serviceClient()
@@ -2020,32 +2053,34 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
     .single();
   assert.ifError(catalogError);
 
-  const { error: requestError } = await lecturer.supabase
-    .from("equipment_requests")
-    .insert({
-      id: requestId,
-      class_schedule_id: firstScheduleId,
-      semester: "HK1",
-      registrant_id: lecturer.user.id,
-      responsible_lecturer_id: lecturer.user.id,
-      phone_snapshot: "0901000004",
-      email_snapshot: "giangvien@campus.local",
-      receive_at: "2035-09-09T02:00:00.000Z",
-      return_at: "2035-09-09T04:00:00.000Z",
-      status: "new",
-      created_by: lecturer.user.id,
-    });
+  const { error: requestError } = await legacyRequestFixture({
+    id: requestId,
+    class_schedule_id: firstScheduleId,
+    semester: "HK1",
+    registrant_id: lecturer.user.id,
+    responsible_lecturer_id: lecturer.user.id,
+    phone_snapshot: "0901000004",
+    email_snapshot: "giangvien@campus.local",
+    receive_at: "2035-09-09T02:00:00.000Z",
+    return_at: "2035-09-09T04:00:00.000Z",
+    status: "new",
+    created_by: lecturer.user.id,
+  });
   assert.ifError(requestError);
 
-  const { error: initialItemError } = await lecturer.supabase
-    .from("equipment_request_items")
-    .insert({
-      request_id: requestId,
-      skill_name: "Kỹ năng cũ",
-      catalog_item_id: catalogItem.id,
-      quantity: 1,
-    });
+  const { error: initialItemError } = await legacyItemFixture({
+    request_id: requestId,
+    skill_name: "Kỹ năng cũ",
+    catalog_item_id: catalogItem.id,
+    quantity: 1,
+  });
   assert.ifError(initialItemError);
+  const savedLine = await lecturer.supabase
+    .from("equipment_request_items")
+    .select("id")
+    .eq("request_id", requestId)
+    .single();
+  assert.ifError(savedLine.error);
 
   const { error: statusError } = await lecturer.supabase
     .from("equipment_requests")
@@ -2064,14 +2099,15 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
       target_receive_at: "2035-09-09T02:00:00.000Z",
       target_return_at: "2035-09-09T04:00:00.000Z",
       target_note: "Nội dung đã điều chỉnh",
-      target_items: [
+      target_items: await equipmentUpdateItems(lecturer.supabase, requestId, [
         {
+          id: savedLine.data.id,
           skill_name: "Kỹ năng mới",
           catalog_item_id: catalogItem.id,
           quantity: 2,
           note: "Ghi chú mới",
         },
-      ],
+      ]),
     },
   );
   assert.ifError(updateError);
@@ -2098,7 +2134,8 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
     "manager_confirm_equipment_status",
     { target_request_id: requestId, target_status: "preparing" },
   );
-  assert.ifError(preparingError);
+  assert.match(preparingError.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
+  await legacyStageFixture(requestId, "preparing");
 
   const { error: warehouseHandoverError } = await admin.supabase.rpc(
     "manager_confirm_equipment_status",
@@ -2126,14 +2163,15 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
       target_receive_at: "2035-09-09T02:00:00.000Z",
       target_return_at: "2035-09-09T04:00:00.000Z",
       target_note: "Không được cập nhật",
-      target_items: [
+      target_items: await equipmentUpdateItems(lecturer.supabase, requestId, [
         {
+          id: savedLine.data.id,
           skill_name: "Kỹ năng bị khóa",
           catalog_item_id: catalogItem.id,
           quantity: 1,
           note: "Không được lưu",
         },
-      ],
+      ]),
     },
   );
   assert.ok(lockedRpcError);
@@ -2150,15 +2188,9 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
   assert.ok(lockedItemError);
   assert.equal(lockedItemError.code, "42501");
 
-  const { error: itemError } = await serviceClient()
-    .from("equipment_request_items")
-    .delete()
-    .eq("request_id", requestId);
+  const { error: itemError } = await cleanupLegacyRequest(requestId);
   assert.ifError(itemError);
-  const { error: reqError } = await serviceClient()
-    .from("equipment_requests")
-    .delete()
-    .eq("id", requestId);
+  const { error: reqError } = await cleanupLegacyRequest(requestId);
   assert.ifError(reqError);
 
   for (const id of [firstScheduleId]) {
@@ -2243,32 +2275,28 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
       });
     assert.ifError(catalogError);
 
-    const { error: requestError } = await service
-      .from("equipment_requests")
-      .insert({
-        id: requestId,
-        class_schedule_id: scheduleId,
-        semester: "HK1",
-        registrant_id: ta.user.id,
-        responsible_lecturer_id: historicalLecturer.id,
-        phone_snapshot: "0901234567",
-        email_snapshot: "trogiang@campus.local",
-        receive_at: "2036-04-10T02:00:00.000Z",
-        return_at: "2036-04-10T04:00:00.000Z",
-        status: "new",
-        created_by: ta.user.id,
-        note: "Ghi chú ban đầu",
-      });
+    const { error: requestError } = await legacyRequestFixture({
+      id: requestId,
+      class_schedule_id: scheduleId,
+      semester: "HK1",
+      registrant_id: ta.user.id,
+      responsible_lecturer_id: historicalLecturer.id,
+      phone_snapshot: "0901234567",
+      email_snapshot: "trogiang@campus.local",
+      receive_at: "2036-04-10T02:00:00.000Z",
+      return_at: "2036-04-10T04:00:00.000Z",
+      status: "new",
+      created_by: ta.user.id,
+      note: "Ghi chú ban đầu",
+    });
     assert.ifError(requestError);
 
-    const { error: itemError } = await service
-      .from("equipment_request_items")
-      .insert({
-        request_id: requestId,
-        skill_name: "Kỹ năng thực hành",
-        catalog_item_id: catalogItemId,
-        quantity: 1,
-      });
+    const { error: itemError } = await legacyItemFixture({
+      request_id: requestId,
+      skill_name: "Kỹ năng thực hành",
+      catalog_item_id: catalogItemId,
+      quantity: 1,
+    });
     assert.ifError(itemError);
 
     const basicMedicalRoomTypeId = "40000000-0000-0000-0000-000000000002";
@@ -2301,6 +2329,12 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
       false,
     );
 
+    const savedLine = await ta.supabase
+      .from("equipment_request_items")
+      .select("id")
+      .eq("request_id", requestId)
+      .single();
+    assert.ifError(savedLine.error);
     const { data: updatedId, error: updateError } = await ta.supabase.rpc(
       "update_equipment_request_content",
       {
@@ -2312,14 +2346,15 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
         target_return_at: "2036-04-10T04:00:00.000Z",
         target_note: "Ghi chú đã cập nhật bảo lưu giảng viên cũ",
         target_late_registration_reason: null,
-        target_items: [
+        target_items: await equipmentUpdateItems(ta.supabase, requestId, [
           {
+            id: savedLine.data.id,
             skill_name: "Kỹ năng thực hành cập nhật",
             catalog_item_id: catalogItemId,
             quantity: 2,
             note: "Đã cập nhật số lượng",
           },
-        ],
+        ]),
       },
     );
     assert.ifError(updateError);
@@ -2345,13 +2380,14 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
         target_return_at: "2036-04-10T04:00:00.000Z",
         target_note: "Cố tình gán giảng viên không đủ điều kiện mới",
         target_late_registration_reason: null,
-        target_items: [
+        target_items: await equipmentUpdateItems(ta.supabase, requestId, [
           {
+            id: savedLine.data.id,
             skill_name: "Kỹ năng",
             catalog_item_id: catalogItemId,
             quantity: 2,
           },
-        ],
+        ]),
       },
     );
     assert.equal(
@@ -2394,13 +2430,14 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
         target_return_at: "2036-04-10T04:00:00.000Z",
         target_note: "Cố tình bảo lưu giảng viên nay đã là Root",
         target_late_registration_reason: null,
-        target_items: [
+        target_items: await equipmentUpdateItems(ta.supabase, requestId, [
           {
+            id: savedLine.data.id,
             skill_name: "Kỹ năng",
             catalog_item_id: catalogItemId,
             quantity: 2,
           },
-        ],
+        ]),
       },
     );
     assert.ok(rootPreserveError);
@@ -2419,16 +2456,10 @@ test("TA preserves historical Skills responsible lecturer but cannot assign a ne
       assert.ifError(restoreRootError);
       rootWasReassigned = false;
     }
-    const { error: deleteItemsError } = await service
-      .from("equipment_request_items")
-      .delete()
-      .eq("request_id", requestId);
+    const { error: deleteItemsError } = await cleanupLegacyRequest(requestId);
     assert.ifError(deleteItemsError);
 
-    const { error: deleteRequestError } = await service
-      .from("equipment_requests")
-      .delete()
-      .eq("id", requestId);
+    const { error: deleteRequestError } = await cleanupLegacyRequest(requestId);
     assert.ifError(deleteRequestError);
 
     const { error: deleteScheduleError } = await service
@@ -3349,6 +3380,7 @@ test("Admin và Staff xóa phiếu thiết bị, phiếu Y cơ sở chỉ hủy 
   const equipmentRequestId = crypto.randomUUID();
   const equipmentItemId = crypto.randomUUID();
   const equipmentCatalogItemId = crypto.randomUUID();
+  const equipmentRoomId = crypto.randomUUID();
   let registrationId = null;
   const basicRoomId = crypto.randomUUID();
   const basicCourseId = crypto.randomUUID();
@@ -3407,6 +3439,18 @@ test("Admin và Staff xóa phiếu thiết bị, phiếu Y cơ sở chỉ hủy 
       .single();
     assert.ifError(catalogError);
 
+    // This scenario deliberately preserves cancelled history. Give each run
+    // its own room so retained schedules cannot collide on the next run.
+    assert.ifError(
+      (
+        await admin.supabase.from("rooms").insert({
+          id: equipmentRoomId,
+          room_code: `SK-${equipmentRoomId.slice(0, 8)}`,
+          building_code: "YT",
+          room_type_id: "40000000-0000-0000-0000-000000000001",
+        })
+      ).error,
+    );
     assert.ifError(
       (
         await serviceClient().from("class_schedules").insert({
@@ -3414,7 +3458,7 @@ test("Admin và Staff xóa phiếu thiết bị, phiếu Y cơ sở chỉ hủy 
           course_id: "10000000-0000-0000-0000-000000000001",
           course_code_snapshot: "NUR 101",
           course_name_snapshot: "Thăm khám thể chất",
-          room_id: "20000000-0000-0000-0000-000000000001",
+          room_id: equipmentRoomId,
           schedule_date: "2043-08-20",
           start_time: "07:30",
           end_time: "11:30",
@@ -3430,7 +3474,7 @@ test("Admin và Staff xóa phiếu thiết bị, phiếu Y cơ sở chỉ hủy 
     );
     assert.ifError(
       (
-        await admin.supabase.from("equipment_requests").insert({
+        await legacyRequestFixture({
           id: equipmentRequestId,
           class_schedule_id: equipmentScheduleId,
           semester: "HK1",
@@ -3447,7 +3491,7 @@ test("Admin và Staff xóa phiếu thiết bị, phiếu Y cơ sở chỉ hủy 
     );
     assert.ifError(
       (
-        await admin.supabase.from("equipment_request_items").insert({
+        await legacyItemFixture({
           id: equipmentItemId,
           request_id: equipmentRequestId,
           skill_name: "Kiểm thử xóa phiếu",
@@ -3745,7 +3789,7 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
     );
     assert.ifError(
       (
-        await admin.supabase.from("equipment_requests").insert({
+        await legacyRequestFixture({
           id: requestId,
           class_schedule_id: scheduleId,
           semester: "HK1",
@@ -3761,7 +3805,7 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
       ).error,
     );
 
-    const invalidTiming = await admin.supabase
+    const invalidTiming = await serviceClient()
       .from("equipment_requests")
       .insert({
         id: invalidRequestId,
@@ -3808,7 +3852,14 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
       "manager_confirm_equipment_status",
       { target_request_id: requestId, target_status: "preparing" },
     );
-    assert.ifError(preparing.error);
+    assert.match(preparing.error.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
+    await legacyItemFixture({
+      request_id: requestId,
+      skill_name: "Kỹ năng workflow",
+      catalog_item_id: catalogItemId,
+      quantity: 1,
+    });
+    await legacyStageFixture(requestId, "preparing");
     const adminHandover = await admin.supabase.rpc(
       "manager_confirm_equipment_status",
       { target_request_id: requestId, target_status: "handed_over" },
@@ -3835,14 +3886,16 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
         })
       ).error,
     );
-    assert.ifError(
+    assert.match(
       (
         await staff.supabase.rpc("manager_confirm_equipment_status", {
           target_request_id: requestId,
           target_status: "preparing",
         })
-      ).error,
+      ).error.message,
+      /S4_CONFIRM_PREPARATION_REQUIRED/,
     );
+    await legacyStageFixture(requestId, "preparing");
 
     const editWhilePreparing = await admin.supabase.rpc(
       "update_equipment_request_content",
@@ -3854,18 +3907,21 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
         target_receive_at: "2045-08-19T02:00:00.000Z",
         target_return_at: "2045-08-20T09:00:00.000Z",
         target_note: "Điều chỉnh khi Đã soạn",
-        target_items: [
+        target_items: await equipmentUpdateItems(admin.supabase, requestId, [
           {
             skill_name: "Kỹ năng workflow",
             catalog_item_id: catalogItemId,
             quantity: 1,
             note: null,
           },
-        ],
+        ]),
       },
     );
-    assert.ifError(editWhilePreparing.error);
-    assert.equal(editWhilePreparing.data, requestId);
+    assert.match(
+      editWhilePreparing.error.message,
+      /S4_USE_QUANTITY_ADJUSTMENT/,
+    );
+    assert.equal(editWhilePreparing.data, null);
 
     const managerAddsWhilePreparing = await staff.supabase
       .from("equipment_request_items")
@@ -3876,7 +3932,7 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
         quantity: 2,
         note: "Bổ sung trước khi giao",
       });
-    assert.ifError(managerAddsWhilePreparing.error);
+    assert.equal(managerAddsWhilePreparing.error?.code, "42501");
 
     const responsibleSignsBeforeWarehouse = await lecturer.supabase.rpc(
       "registrant_confirm_equipment_handoff",

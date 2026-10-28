@@ -3,6 +3,7 @@
 import { ChevronRight, Search } from "@/components/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export type ComboboxOption = {
   value: string;
@@ -43,6 +44,8 @@ export function SearchableCombobox({
   disabled?: boolean;
   ariaLabel: string;
 }) {
+  const { text: uiText } = useLanguage();
+
   const generatedId = useId();
   const listboxId = `${generatedId}-listbox`;
   const controlled = value !== undefined;
@@ -119,10 +122,10 @@ export function SearchableCombobox({
           aria-autocomplete="list"
           aria-controls={listboxId}
           aria-expanded={open}
-          aria-label={ariaLabel}
+          aria-label={uiText(ariaLabel)}
           autoComplete="off"
           disabled={disabled}
-          placeholder={placeholder}
+          placeholder={uiText(placeholder)}
           required={required}
           role="combobox"
           value={displayQuery}
@@ -166,7 +169,7 @@ export function SearchableCombobox({
                   type="button"
                   onClick={() => select("")}
                 >
-                  {emptyLabel}
+                  {uiText(emptyLabel)}
                 </button>
               ) : null}
               {filtered.map((option) => (
@@ -181,7 +184,9 @@ export function SearchableCombobox({
                   {option.label}
                 </button>
               ))}
-              {!filtered.length ? <p>Không tìm thấy kết quả phù hợp.</p> : null}
+              {!filtered.length ? (
+                <p>{uiText("Không tìm thấy kết quả phù hợp.")}</p>
+              ) : null}
             </div>,
             document.body,
           )

@@ -6,6 +6,7 @@ import {
 import { WorkspaceShell } from "@/components/workspace-shell";
 import { getViewer } from "@/lib/viewer";
 import { createEquipmentCatalogItem } from "./actions";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function EquipmentCatalogPage({
   searchParams,
@@ -53,8 +54,12 @@ export default async function EquipmentCatalogPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Danh mục thiết bị"
-      description="Thiết bị và vật tư dùng cho phiếu đăng ký Skills lab."
+      title={<LocalizedText text={"Danh mục thiết bị"} />}
+      description={
+        <LocalizedText
+          text={"Thiết bị và vật tư dùng cho phiếu đăng ký Skills lab."}
+        />
+      }
     >
       {query.notice || query.error ? (
         <p className={query.error ? "form-error" : "form-success"}>
@@ -63,45 +68,51 @@ export default async function EquipmentCatalogPage({
       ) : null}
 
       <details className="catalog-manual-add">
-        <summary>+ Thêm thiết bị</summary>
+        <summary>
+          <LocalizedText text={"+ Thêm thiết bị"} />
+        </summary>
         <form
           action={createEquipmentCatalogItem}
           className="data-panel catalog-inline-form equipment-catalog-create-form"
         >
           <div className="equipment-catalog-create-heading">
-            <strong>Thêm thiết bị thủ công</strong>
+            <strong>
+              <LocalizedText text={"Thêm thiết bị thủ công"} />
+            </strong>
           </div>
           <div className="form-grid equipment-catalog-create-grid">
             <label>
-              Tên thiết bị và vật tư *
+              <LocalizedText text={"Tên thiết bị và vật tư *"} />
               <input name="item_name" required />
             </label>
             <label>
-              Tên thương mại *
+              <LocalizedText text={"Tên thương mại *"} />
               <input name="commercial_name" required />
             </label>
             <label>
-              Loại
+              <LocalizedText text={"Loại"} />
               <input name="item_type" />
             </label>
             <label>
-              Nước SX
+              <LocalizedText text={"Nước SX"} />
               <input name="country_of_origin" />
             </label>
             <label>
-              Hãng
+              <LocalizedText text={"Hãng"} />
               <input name="manufacturer" />
             </label>
             <label>
-              Model
+              <LocalizedText text={"Model"} />
               <input name="model" />
             </label>
             <label>
-              ĐVT *
+              <LocalizedText text={"ĐVT *"} />
               <input name="unit" required />
             </label>
           </div>
-          <button className="button button-primary">Thêm vào danh mục</button>
+          <button className="button button-primary">
+            <LocalizedText text={"Thêm vào danh mục"} />
+          </button>
         </form>
       </details>
 

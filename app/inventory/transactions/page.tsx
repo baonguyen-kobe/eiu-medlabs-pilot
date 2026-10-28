@@ -2,9 +2,10 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { TransactionList } from "@/components/inventory/transaction-list";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { normalizePage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type { InventoryTransaction } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface TransactionsPageProps {
   searchParams: Promise<{
@@ -47,8 +48,18 @@ export default async function TransactionsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Lịch sử giao dịch Sổ cái / Inventory Transactions"
-        description="Toàn bộ nhật ký biến động kho bất biến: Nhận kho, Tồn đầu kỳ, Điều chỉnh và Hủy phiếu"
+        title={
+          <LocalizedText
+            text={"Lịch sử giao dịch Sổ cái / Inventory Transactions"}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Toàn bộ nhật ký biến động kho bất biến: Nhận kho, Tồn đầu kỳ, Điều chỉnh và Hủy phiếu"
+            }
+          />
+        }
       />
 
       <TransactionList

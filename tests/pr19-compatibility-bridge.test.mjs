@@ -88,6 +88,9 @@ test("evidence UI preserves reviewed Vietnamese text encoding", () => {
   assert.match(list, /Xem bằng chứng/);
   assert.match(evidencePage, /BẰNG CHỨNG XÁC NHẬN Y CƠ SỞ/);
   assert.match(evidencePage, /Chữ ký điện tử/);
-  assert.match(evidencePage, /<th>ĐVT<\/th>/);
+  assert.match(
+    evidencePage,
+    /<th>\s*<LocalizedText text=\{"ĐVT"\} \/>\s*<\/th>/,
+  );
   assert.doesNotMatch(`${list}\n${evidencePage}`, /(?:Ã.|Â.|Æ.|áº|á»|Ä)/);
 });

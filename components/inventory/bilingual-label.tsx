@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function BilingualLabel({
   vi,
@@ -11,19 +12,12 @@ export function BilingualLabel({
   className?: string;
   inline?: boolean;
 }) {
-  if (inline) {
-    return (
-      <span className={`inline-flex items-baseline gap-1.5 ${className}`}>
-        <span className="font-semibold text-slate-800">{vi}</span>
-        <span className="text-xs text-slate-400 font-normal">({en})</span>
-      </span>
-    );
-  }
-
+  const { language } = useLanguage();
   return (
-    <div className={`flex flex-col leading-tight ${className}`}>
-      <span className="font-semibold text-slate-800">{vi}</span>
-      <span className="text-xs text-slate-400 font-normal">{en}</span>
-    </div>
+    <span
+      className={`${inline ? "inline" : "block"} font-semibold leading-tight ${className}`}
+    >
+      {language === "en" ? en : vi}
+    </span>
   );
 }

@@ -8,8 +8,8 @@ export async function AdminShell({
   actions,
   children,
 }: {
-  title: string;
-  description: string;
+  title: React.ReactNode;
+  description: React.ReactNode;
   active: string;
   actions?: React.ReactNode;
   children: React.ReactNode;

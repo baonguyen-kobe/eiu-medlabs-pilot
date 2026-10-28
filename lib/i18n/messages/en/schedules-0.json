@@ -1,0 +1,19 @@
+{
+  "Ca trực": "Shift",
+  "Ca trực kho": "Warehouse duty",
+  "Thông tin nội bộ bổ sung nếu cần.": "Additional internal information if needed.",
+  "Tìm và chọn giảng viên thứ hai": "Find and select second lecturer",
+  "Tìm và chọn giảng viên thứ nhất": "Find and select first lecturer",
+  "Tìm và chọn môn học": "Find and select course",
+  "Chọn từ danh mục để dùng đúng mã và tên môn học.": "Select from the catalog to use the correct course code and name.",
+  "Database sẽ chặn trùng phòng và trùng lịch giảng viên.": "The database prevents room and lecturer schedule overlaps.",
+  "Gõ mã hoặc tên môn học…": "Type a course code or name…",
+  "Gõ tên giảng viên…": "Type a lecturer name…",
+  "Lịch được tạo chưa phân công giảng viên. Admin có thể phân công sau khi rà soát.": "Schedules are created without lecturers assigned. Administrators can assign them after review.",
+  "Lịch hợp lệ được tạo và hiển thị ngay trong hệ thống.": "Valid schedules are created and displayed immediately.",
+  "Môn học *": "Course *",
+  "Nhập ghi chú…": "Enter notes…",
+  "Phòng & thời gian": "Room and time",
+  "Số sinh viên *": "Student count *",
+  "Tải template chuẩn, kiểm tra từng dòng và tạo lịch hợp lệ.": "Download the standard template, validate each row and create valid schedules."
+}

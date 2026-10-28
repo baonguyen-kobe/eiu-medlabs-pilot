@@ -6,6 +6,8 @@ import { PaginationLinks } from "@/components/pagination-links";
 import { requireAdmin } from "@/lib/admin";
 import { normalizePage, paginationRange } from "@/lib/pagination";
 import { CatalogBatchManager } from "@/components/catalog-batch-manager";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 export default async function CoursesPage({
   searchParams,
@@ -30,8 +32,12 @@ export default async function CoursesPage({
 
   return (
     <AdminShell
-      title="Danh mục môn học"
-      description="Tạo mới, ngừng sử dụng hoặc xóa môn học chưa phát sinh lịch."
+      title={<LocalizedText text={"Danh mục môn học"} />}
+      description={
+        <LocalizedText
+          text={"Tạo mới, ngừng sử dụng hoặc xóa môn học chưa phát sinh lịch."}
+        />
+      }
       active="/admin/courses"
       actions={
         <CatalogImportActions action={importCourses} catalog="courses" />
@@ -39,30 +45,42 @@ export default async function CoursesPage({
     >
       <CatalogTabs active="/admin/courses" />
       {query.notice ? (
-        <p className="action-feedback success">{query.notice}</p>
+        <p className="action-feedback success">
+          <LocalizedText text={query.notice} />
+        </p>
       ) : null}
       {query.error ? (
-        <p className="action-feedback error">{query.error}</p>
+        <p className="action-feedback error">
+          <LocalizedText text={query.error} />
+        </p>
       ) : null}
       <details className="catalog-manual-add">
-        <summary>+ Thêm môn học</summary>
+        <summary>
+          <LocalizedText text={"+ Thêm môn học"} />
+        </summary>
         <form
           action={createCourse}
           className="admin-create-form admin-create-course"
         >
           <label>
-            Mã môn học
+            <LocalizedText text={"Mã môn học"} />
             <input name="course_code" required placeholder="NUR 301" />
           </label>
           <label>
-            Tên môn học
-            <input name="course_name" required placeholder="Tên môn học" />
+            <LocalizedText text={"Tên môn học"} />
+            <LocalizedElement
+              as="input"
+              textAttributes={["placeholder"]}
+              name="course_name"
+              required
+              placeholder="Tên môn học"
+            />
           </label>
           <label>
-            Loại
+            <LocalizedText text={"Loại"} />
             <select name="room_type_id" required defaultValue="">
               <option value="" disabled>
-                Chọn Loại
+                <LocalizedText text={"Chọn Loại"} />
               </option>
               {(roomTypes ?? [])
                 .filter(({ is_active }) => is_active)
@@ -73,7 +91,9 @@ export default async function CoursesPage({
                 ))}
             </select>
           </label>
-          <button className="button button-primary">Thêm môn học</button>
+          <button className="button button-primary">
+            <LocalizedText text={"Thêm môn học"} />
+          </button>
         </form>
       </details>
       <CatalogBatchManager

@@ -1,5 +1,5 @@
 begin;
-select plan(34);
+select plan(36);
 
 select has_table(
   'public',
@@ -125,23 +125,22 @@ values (
   coalesce((select id from public.profiles where lower(email) = 'admin@campus.local'), '10000000-0000-0000-0000-000000000001'::uuid)
 );
 
-select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'preparing'
-);
+select throws_ok($$select public.manager_confirm_equipment_status(
+  '94000000-0000-0000-0000-000000000002'::uuid, 'preparing')$$,
+  'P0001','S4_CONFIRM_PREPARATION_REQUIRED','Legacy status command cannot bypass S4 confirmation');
 
 select results_eq(
   $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
-  array['preparing'],
-  'new -> preparing is persisted'
+  array['new'],
+  'rejected preparation leaves the request NEW'
 );
 select ok(
-  exists (select 1 from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.status_changed'),
-  'new -> preparing writes semantic lifecycle audit'
+  not exists (select 1 from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.status_changed'),
+  'rejected preparation writes no lifecycle audit'
 );
 select ok(
-  exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'prepared'),
-  'new -> preparing notifies the participant side'
+  not exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'prepared'),
+  'rejected preparation sends no prepared notification; real S4 positive is covered by inventory_s4_reservations'
 );
 select ok(
   not exists (
@@ -156,6 +155,15 @@ select is_empty(
   'lifecycle observer does not enqueue lifecycle email'
 );
 
+-- Reconstruct only a historical legacy fixture, never an Inventory preparation.
+do $$ begin
+  if exists(select 1 from public.equipment_preparations where request_id='94000000-0000-0000-0000-000000000002'::uuid)
+    or exists(select 1 from public.equipment_fulfillment_events where request_id='94000000-0000-0000-0000-000000000002'::uuid)
+  then raise exception 'REFUSING_INVENTORY_HISTORY_LEGACY_FIXTURE'; end if;
+end $$;
+set local session_replication_role=replica;
+update public.equipment_requests set status='preparing' where id='94000000-0000-0000-0000-000000000002'::uuid;
+set local session_replication_role=origin;
 select public.manager_confirm_equipment_status(
   '94000000-0000-0000-0000-000000000002'::uuid,
   'handed_over'
@@ -188,8 +196,8 @@ select results_eq(
 );
 select results_eq(
   $$ select count(*)::integer from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.status_changed' $$,
-  array[1],
-  'recipient handover completion does not duplicate a status_changed audit'
+  array[0],
+  'recipient handover uses dedicated semantic audit without a generic status duplicate'
 );
 select ok(
   exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'handover_completed'),
@@ -251,18 +259,19 @@ select results_eq(
         'equipment_request.return_recipient_signed'
       )
   $$,
-  array[5],
+  array[4],
   'no-op confirmation adds no duplicate lifecycle audit'
 );
 
+select throws_ok($$select public.manager_confirm_equipment_status(
+  '94000000-0000-0000-0000-000000000002'::uuid,'preparing')$$,
+  'P0001','S4_CONFIRM_PREPARATION_REQUIRED','Rollback cannot fabricate an Inventory preparation');
 select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'preparing'
-);
+  '94000000-0000-0000-0000-000000000002'::uuid, 'new');
 select results_eq(
   $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
-  array['preparing'],
-  'manager rollback is persisted'
+  array['new'],
+  'legacy manager rollback to NEW is persisted'
 );
 select ok(
   exists (

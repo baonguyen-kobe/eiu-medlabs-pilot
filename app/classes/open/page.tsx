@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Plus } from "@/components/icons";
 import { defaultWorkspacePath } from "@/lib/workspace-access";
 import { NURSING_SKILLS_ROOM_TYPE_ID } from "@/lib/room-types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function OpenClassesPage({
   searchParams,
@@ -164,12 +165,21 @@ export default async function OpenClassesPage({
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title="Lớp đang mở"
-      description={`Toàn bộ lớp Kỹ năng Điều dưỡng từ ${range.from.split("-").reverse().join("/")} đến ${range.to.split("-").reverse().join("/")}.`}
+      title={<LocalizedText text={"Lớp đang mở"} />}
+      description={
+        <LocalizedText
+          text="Toàn bộ lớp Kỹ năng Điều dưỡng từ {0} đến {1}."
+          values={[
+            range.from.split("-").reverse().join("/"),
+            range.to.split("-").reverse().join("/"),
+          ]}
+        />
+      }
       actions={
         canCreate ? (
           <Link className="button button-primary" href="/schedule-entry/new">
-            <Plus size={17} /> Tạo phiếu mới thủ công
+            <Plus size={17} />
+            <LocalizedText text={" Tạo phiếu mới thủ công"} />
           </Link>
         ) : null
       }

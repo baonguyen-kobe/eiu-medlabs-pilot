@@ -8,6 +8,7 @@ import type {
   AssetLifecycleStatus,
   EquipmentAsset,
 } from "@/lib/inventory/asset-types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetLifecycleFormProps {
   asset: EquipmentAsset;
@@ -39,6 +40,8 @@ export function AssetLifecycleForm({
   isAdmin,
   onSuccess,
 }: AssetLifecycleFormProps) {
+  const { text: uiText } = useLanguage();
+
   const permitted = getPermittedTransitions(asset.lifecycle_status);
   const isTerminal = asset.lifecycle_status === "disposed";
 
@@ -61,8 +64,9 @@ export function AssetLifecycleForm({
   if (!isAdmin) {
     return (
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs text-slate-500">
-        [Quản trị] Thao tác chuyển đổi vòng đời tài sản (Lifecycle) chỉ dành
-        riêng cho Quản trị viên (Admin).
+        {uiText(
+          "[Quản trị] Thao tác chuyển đổi vòng đời tài sản (Lifecycle) chỉ dành riêng cho Quản trị viên (Admin).",
+        )}
       </div>
     );
   }
@@ -135,30 +139,36 @@ export function AssetLifecycleForm({
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-              Quản trị viên (Admin)
+              {uiText("Quản trị viên (Admin)")}
             </span>
           </div>
           <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mt-1">
-            Quyết định Vòng đời Thiết bị / Lifecycle Transition
+            {uiText("Quyết định Vòng đời Thiết bị / Lifecycle Transition")}
           </h3>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-500">Trạng thái hiện tại:</span>
+          <span className="text-slate-500">
+            {uiText("Trạng thái hiện tại:")}
+          </span>
           <LifecycleBadge status={asset.lifecycle_status} />
         </div>
       </div>
 
       {isTerminal ? (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-          [Trạng thái kết thúc] <strong>Tài sản đã thanh lý (Disposed):</strong>{" "}
-          Theo quy chế quản lý tài sản S3, tài sản đã thanh lý không thể tái
-          kích hoạt hay chuyển trạng thái thông thường.
+          {uiText("[Trạng thái kết thúc] ")}
+          <strong>{uiText("Tài sản đã thanh lý (Disposed):")}</strong>{" "}
+          {uiText(
+            "Theo quy chế quản lý tài sản S3, tài sản đã thanh lý không thể tái kích hoạt hay chuyển trạng thái thông thường.",
+          )}
         </div>
       ) : (
         <>
           {serverError && (
             <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-2">
-              <div className="font-semibold">Lỗi thay đổi vòng đời:</div>
+              <div className="font-semibold">
+                {uiText("Lỗi thay đổi vòng đời:")}
+              </div>
               <div>{serverError}</div>
               {isStaleRevision && (
                 <div className="pt-2 border-t border-rose-200/60">
@@ -167,7 +177,7 @@ export function AssetLifecycleForm({
                     onClick={handleReviewLatest}
                     className="button button-secondary text-xs px-3 py-1 bg-white border-rose-300 text-rose-900 font-medium"
                   >
-                    Tải lại snapshot mới nhất (Review Latest Rev #
+                    {uiText("Tải lại snapshot mới nhất (Review Latest Rev #")}
                     {asset.revision})
                   </button>
                 </div>
@@ -177,17 +187,23 @@ export function AssetLifecycleForm({
 
           {isSuccess && (
             <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
-              [Thành công] Quyết định chuyển trạng thái vòng đời đã được ghi
-              nhận thành công!
+              {uiText(
+                "[Thành công] Quyết định chuyển trạng thái vòng đời đã được ghi nhận thành công!",
+              )}
             </div>
           )}
 
           {asset.lifecycle_status === "retired" && (
             <div className="p-3 bg-amber-50 rounded border border-amber-200 text-amber-800 text-xs">
-              [Quy chế phục hồi tài sản ngừng sử dụng] Quản trị viên có thể đưa
-              tài sản từ <em>Ngừng sử dụng (Retired)</em> trở lại{" "}
-              <em>Đang vận hành (In Service)</em> khi có lý do chính đáng và văn
-              bản bằng chứng nghiệm thu tái sử dụng.
+              {uiText(
+                "[Quy chế phục hồi tài sản ngừng sử dụng] Quản trị viên có thể đưa tài sản từ ",
+              )}
+              <em>{uiText("Ngừng sử dụng (Retired)")}</em>
+              {uiText(" trở lại")}{" "}
+              <em>{uiText("Đang vận hành (In Service)")}</em>
+              {uiText(
+                " khi có lý do chính đáng và văn bản bằng chứng nghiệm thu tái sử dụng.",
+              )}
             </div>
           )}
 
@@ -198,7 +214,7 @@ export function AssetLifecycleForm({
                   htmlFor="lifecycle-target-status"
                   className="block font-medium text-slate-700 mb-1"
                 >
-                  Trạng thái vòng đời mới *
+                  {uiText("Trạng thái vòng đời mới *")}
                 </label>
                 <select
                   id="lifecycle-target-status"
@@ -211,13 +227,15 @@ export function AssetLifecycleForm({
                   {permitted.map((st) => (
                     <option key={st} value={st}>
                       {st === "in_service" &&
-                        "Đang vận hành / In Service (Đưa vào sử dụng)"}
+                        uiText("Đang vận hành / In Service (Đưa vào sử dụng)")}
                       {st === "inactive" &&
-                        "Tạm ngưng / Inactive (Bảo quản, lưu trữ)"}
+                        uiText("Tạm ngưng / Inactive (Bảo quản, lưu trữ)")}
                       {st === "retired" &&
-                        "Ngừng sử dụng / Retired (Hết niên hạn, hỏng nặng)"}
+                        uiText(
+                          "Ngừng sử dụng / Retired (Hết niên hạn, hỏng nặng)",
+                        )}
                       {st === "disposed" &&
-                        "Thanh lý / Disposed (Hủy bỏ, bán thanh lý)"}
+                        uiText("Thanh lý / Disposed (Hủy bỏ, bán thanh lý)")}
                     </option>
                   ))}
                 </select>
@@ -228,7 +246,7 @@ export function AssetLifecycleForm({
                   htmlFor="lifecycle-occurred-at"
                   className="block font-medium text-slate-700 mb-1"
                 >
-                  Thời điểm hiệu lực quyết định (Tùy chọn)
+                  {uiText("Thời điểm hiệu lực quyết định (Tùy chọn)")}
                 </label>
                 <input
                   id="lifecycle-occurred-at"
@@ -245,7 +263,7 @@ export function AssetLifecycleForm({
                 htmlFor="lifecycle-reason"
                 className="block font-medium text-slate-700 mb-1"
               >
-                Lý do thay đổi vòng đời *
+                {uiText("Lý do thay đổi vòng đời *")}
               </label>
               <input
                 id="lifecycle-reason"
@@ -253,7 +271,9 @@ export function AssetLifecycleForm({
                 required
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="VD: Quyết định nghiệm thu đưa thiết bị vào vận hành chính thức tại phòng thực hành"
+                placeholder={uiText(
+                  "VD: Quyết định nghiệm thu đưa thiết bị vào vận hành chính thức tại phòng thực hành",
+                )}
                 className="input-field text-xs w-full"
               />
             </div>
@@ -263,7 +283,7 @@ export function AssetLifecycleForm({
                 htmlFor="lifecycle-evidence"
                 className="block font-medium text-slate-700 mb-1"
               >
-                Căn cứ bằng chứng pháp lý / Số văn bản phê duyệt *
+                {uiText("Căn cứ bằng chứng pháp lý / Số văn bản phê duyệt *")}
               </label>
               <textarea
                 id="lifecycle-evidence"
@@ -271,7 +291,9 @@ export function AssetLifecycleForm({
                 rows={2}
                 value={evidenceNote}
                 onChange={(e) => setEvidenceNote(e.target.value)}
-                placeholder="VD: Quyết định số 108/QĐ-ĐHEIU ngày 03/10/2026 phê duyệt đưa vào sử dụng tài sản"
+                placeholder={uiText(
+                  "VD: Quyết định số 108/QĐ-ĐHEIU ngày 03/10/2026 phê duyệt đưa vào sử dụng tài sản",
+                )}
                 className="input-field text-xs w-full"
               />
             </div>
@@ -285,22 +307,23 @@ export function AssetLifecycleForm({
                   className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-slate-700 text-[11px] leading-relaxed">
-                  Tôi xác nhận với tư cách Quản trị viên (Admin) rằng quyết định
-                  thay đổi trạng thái vòng đời này là chính xác và chịu trách
-                  nhiệm về tính pháp lý của hồ sơ.
+                  {uiText(
+                    "Tôi xác nhận với tư cách Quản trị viên (Admin) rằng quyết định thay đổi trạng thái vòng đời này là chính xác và chịu trách nhiệm về tính pháp lý của hồ sơ.",
+                  )}
                 </span>
               </label>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-200">
               <div className="text-[11px] text-slate-500">
-                Phiên bản biểu mẫu:{" "}
+                {uiText("Phiên bản biểu mẫu:")}{" "}
                 <span className="font-mono font-semibold">
                   #{expectedRevision}
                 </span>
                 {expectedRevision !== asset.revision && (
                   <span className="text-amber-700 font-medium ml-2">
-                    (Server đã có Rev #{asset.revision})
+                    {uiText("(Server đã có Rev #")}
+                    {asset.revision})
                   </span>
                 )}
               </div>
@@ -309,7 +332,9 @@ export function AssetLifecycleForm({
                 disabled={isPending || !confirmed}
                 className="button button-primary text-xs px-4 py-2 font-semibold"
               >
-                {isPending ? "Đang xử lý..." : "Ban hành Quyết định Vòng đời"}
+                {isPending
+                  ? uiText("Đang xử lý...")
+                  : uiText("Ban hành Quyết định Vòng đời")}
               </button>
             </div>
           </form>

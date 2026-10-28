@@ -19,6 +19,7 @@ import {
   getMinutesForHour,
   isValidTime,
 } from "@/lib/time-picker-utils";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export {
   DEFAULT_TIME_PICKER_ALLOWED_VALUES,
@@ -79,6 +80,8 @@ export function TimePicker({
   invalidMessage,
   baselineKey,
 }: TimePickerProps) {
+  const { text: uiText } = useLanguage();
+
   const generatedId = useId();
   const inputId = id ?? `${generatedId}-time-input`;
   const errorId = `${inputId}-error`;
@@ -334,7 +337,7 @@ export function TimePicker({
               className="time-picker-popover"
               style={popoverStyle}
               role="dialog"
-              aria-label="Chọn giờ và phút"
+              aria-label={uiText("Chọn giờ và phút")}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
@@ -347,9 +350,11 @@ export function TimePicker({
                 <div
                   className="time-picker-column"
                   role="listbox"
-                  aria-label="Giờ"
+                  aria-label={uiText("Giờ")}
                 >
-                  <div className="time-picker-column-header">Giờ</div>
+                  <div className="time-picker-column-header">
+                    {uiText("Giờ")}
+                  </div>
                   <div className="time-picker-options">
                     {hoursList.map((hour) => {
                       const isSelected = activeHour === hour;
@@ -375,9 +380,11 @@ export function TimePicker({
                 <div
                   className="time-picker-column"
                   role="listbox"
-                  aria-label="Phút"
+                  aria-label={uiText("Phút")}
                 >
-                  <div className="time-picker-column-header">Phút</div>
+                  <div className="time-picker-column-header">
+                    {uiText("Phút")}
+                  </div>
                   <div className="time-picker-options">
                     {minutesList.map((minute) => {
                       const isSelected = activeMinute === minute;

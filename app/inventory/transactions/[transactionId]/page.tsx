@@ -6,12 +6,13 @@ import type { EquipmentAssetEvent } from "@/lib/inventory/asset-types";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { TransactionDetailView } from "@/components/inventory/transaction-detail-view";
-import { PageHeader } from "@/components/patterns/page-header";
+import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type {
   InventoryStorageLocation,
   InventoryUom,
   TransactionDetailResult,
 } from "@/lib/inventory/types";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function TransactionDetailPage({
   params,
@@ -53,18 +54,24 @@ export default async function TransactionDetailPage({
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Chi tiết giao dịch / Transaction Detail"
-          description="Lỗi khi truy xuất dữ liệu sổ cái"
+          title={
+            <LocalizedText text={"Chi tiết giao dịch / Transaction Detail"} />
+          }
+          description={
+            <LocalizedText text={"Lỗi khi truy xuất dữ liệu sổ cái"} />
+          }
         />
         <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
-          <p className="font-semibold">Không thể tải thông tin giao dịch:</p>
+          <p className="font-semibold">
+            <LocalizedText text={"Không thể tải thông tin giao dịch:"} />
+          </p>
           <p className="mt-1 font-mono text-xs">{queryError}</p>
           <div className="mt-4">
             <Link
               href="/inventory/transactions"
               className="button button-secondary text-xs"
             >
-              &larr; Quay lại danh sách lịch sử
+              <LocalizedText text={"&larr; Quay lại danh sách lịch sử"} />
             </Link>
           </div>
         </div>
@@ -76,13 +83,17 @@ export default async function TransactionDetailPage({
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Chi tiết giao dịch / Transaction Detail"
-          description="Không tìm thấy bản ghi"
+          title={
+            <LocalizedText text={"Chi tiết giao dịch / Transaction Detail"} />
+          }
+          description={<LocalizedText text={"Không tìm thấy bản ghi"} />}
         />
         <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm">
-          <p className="font-semibold">Giao dịch không tồn tại</p>
+          <p className="font-semibold">
+            <LocalizedText text={"Giao dịch không tồn tại"} />
+          </p>
           <p className="mt-1 text-xs text-slate-500">
-            Không tìm thấy thông tin cho mã giao dịch{" "}
+            <LocalizedText text={"Không tìm thấy thông tin cho mã giao dịch"} />{" "}
             <span className="font-mono">{transactionId}</span>.
           </p>
           <div className="mt-4">
@@ -90,7 +101,7 @@ export default async function TransactionDetailPage({
               href="/inventory/transactions"
               className="button button-secondary text-xs"
             >
-              &larr; Quay lại danh sách lịch sử
+              <LocalizedText text={"&larr; Quay lại danh sách lịch sử"} />
             </Link>
           </div>
         </div>
@@ -114,8 +125,19 @@ export default async function TransactionDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Chi tiết giao dịch: ${detail.transaction.business_key}`}
-        description="Lịch sử dịch chuyển số dư và đối chiếu bằng chứng sự thật nguồn gốc"
+        title={
+          <LocalizedText
+            text="Chi tiết giao dịch: {0}"
+            values={[detail.transaction.business_key]}
+          />
+        }
+        description={
+          <LocalizedText
+            text={
+              "Lịch sử dịch chuyển số dư và đối chiếu bằng chứng sự thật nguồn gốc"
+            }
+          />
+        }
       />
 
       <TransactionDetailView

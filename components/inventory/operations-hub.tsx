@@ -21,6 +21,7 @@ import {
   ProvenanceBadge,
 } from "./status-badge";
 import type { InventoryOperationStock } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export type OperationTab = "transfer" | "condition" | "stocktake" | "surplus";
 
@@ -33,6 +34,8 @@ export function OperationsHub({
   initialStock?: InventoryOperationStock[];
   heldStockCount?: number;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -75,7 +78,9 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "transfer" ? "text-sky-600" : "text-slate-400"}`}
           />
-          <span className="truncate">Điều chuyển kho / Transfer</span>
+          <span className="truncate">
+            {uiText("Điều chuyển kho / Transfer")}
+          </span>
         </button>
 
         <button
@@ -91,7 +96,9 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "condition" ? "text-amber-600" : "text-slate-400"}`}
           />
-          <span className="truncate">Hạ phẩm cấp / Deterioration</span>
+          <span className="truncate">
+            {uiText("Hạ phẩm cấp / Deterioration")}
+          </span>
         </button>
 
         <button
@@ -107,7 +114,11 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "stocktake" ? "text-purple-600" : "text-slate-400"}`}
           />
-          <span className="truncate">Kiểm kê {"&"} Đối soát / Stocktake</span>
+          <span className="truncate">
+            {uiText("Kiểm kê ")}
+            {"&"}
+            {uiText(" Đối soát / Stocktake")}
+          </span>
         </button>
 
         <button
@@ -123,7 +134,7 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "surplus" ? "text-emerald-600" : "text-slate-400"}`}
           />
-          <span className="truncate">Thẩm định Hàng thừa</span>
+          <span className="truncate">{uiText("Thẩm định Hàng thừa")}</span>
           {heldStockCount > 0 ? (
             <span className="bg-rose-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full shrink-0 animate-pulse">
               {heldStockCount}
@@ -157,7 +168,7 @@ export function OperationsHub({
 
       {/* Bounded Preview of Operation Stock & Cohort Identities */}
       <section
-        aria-label="Tra cứu số dư thực tế theo lô và phiên bản"
+        aria-label={uiText("Tra cứu số dư thực tế theo lô và phiên bản")}
         className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3"
       >
         <div className="flex items-center justify-between">
@@ -165,41 +176,55 @@ export function OperationsHub({
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <LayoutDashboard size={16} className="text-slate-600" />
               <span>
-                Tra cứu Bách phân vị Số dư Lô {"&"} Phiên bản / Bounded
-                Operation Stock Preview
+                {uiText("Tra cứu Bách phân vị Số dư Lô ")}
+                {"&"}
+                {uiText(" Phiên bản / Bounded Operation Stock Preview")}
               </span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Theo dõi trực tiếp số dư theo chiều kích (vị trí, tình trạng, lô
-              nguồn, phiên bản vX và trạng thái giữ Hold)
+              {uiText(
+                "Theo dõi trực tiếp số dư theo chiều kích (vị trí, tình trạng, lô nguồn, phiên bản vX và trạng thái giữ Hold)",
+              )}
             </p>
           </div>
           <Link
             href="/inventory/stock"
             className="button button-secondary text-xs"
           >
-            Về trang Tồn kho / Stock →
+            {uiText("Về trang Tồn kho / Stock →")}
           </Link>
         </div>
 
         {initialStock.length === 0 ? (
           <p className="text-xs text-slate-400 py-6 text-center">
-            Hiện không có số liệu tồn kho khả dụng để hiển thị xem trước.
+            {uiText(
+              "Hiện không có số liệu tồn kho khả dụng để hiển thị xem trước.",
+            )}
           </p>
         ) : (
           <div className="overflow-x-auto border border-slate-100 rounded-xl">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3">Mã SKU {"&"} Tên vật tư</th>
-                  <th className="py-2.5 px-3">Kho</th>
-                  <th className="py-2.5 px-3">Tình trạng</th>
-                  <th className="py-2.5 px-3">Trạng thái giữ</th>
-                  <th className="py-2.5 px-3 text-right">Tổng tồn</th>
-                  <th className="py-2.5 px-3 text-right">Khả dụng</th>
-                  <th className="py-2.5 px-3">Nguồn gốc</th>
-                  <th className="py-2.5 px-3">Hạn dùng</th>
-                  <th className="py-2.5 px-3 text-center">Tác vụ nhanh</th>
+                  <th className="py-2.5 px-3">
+                    {uiText("Mã SKU ")}
+                    {"&"}
+                    {uiText(" Tên vật tư")}
+                  </th>
+                  <th className="py-2.5 px-3">{uiText("Kho")}</th>
+                  <th className="py-2.5 px-3">{uiText("Tình trạng")}</th>
+                  <th className="py-2.5 px-3">{uiText("Trạng thái giữ")}</th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Tổng tồn")}
+                  </th>
+                  <th className="py-2.5 px-3 text-right">
+                    {uiText("Khả dụng")}
+                  </th>
+                  <th className="py-2.5 px-3">{uiText("Nguồn gốc")}</th>
+                  <th className="py-2.5 px-3">{uiText("Hạn dùng")}</th>
+                  <th className="py-2.5 px-3 text-center">
+                    {uiText("Tác vụ nhanh")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -213,7 +238,9 @@ export function OperationsHub({
                         {row.item_code} - {row.item_name}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        Lô: {row.origin_id.slice(0, 8)}... | Phiên bản kho: r
+                        {uiText("Lô: ")}
+                        {row.origin_id.slice(0, 8)}
+                        {uiText("... | Phiên bản kho: r")}
                         {row.stock_revision ?? row.current_version}
                       </div>
                     </td>
@@ -256,9 +283,9 @@ export function OperationsHub({
                             router.push(`${pathname}?${params.toString()}`);
                           }}
                           className="button button-secondary text-[10px] py-0.5 px-2 text-sky-700"
-                          title="Chuyển lô này sang kho khác"
+                          title={uiText("Chuyển lô này sang kho khác")}
                         >
-                          Chuyển
+                          {uiText("Chuyển")}
                         </button>
                         {row.condition === "good" ? (
                           <button
@@ -273,9 +300,9 @@ export function OperationsHub({
                               router.push(`${pathname}?${params.toString()}`);
                             }}
                             className="button button-secondary text-[10px] py-0.5 px-2 text-amber-700"
-                            title="Báo hỏng lô này"
+                            title={uiText("Báo hỏng lô này")}
                           >
-                            Hỏng
+                            {uiText("Hỏng")}
                           </button>
                         ) : null}
                       </div>

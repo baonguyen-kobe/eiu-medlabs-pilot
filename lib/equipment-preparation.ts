@@ -202,7 +202,8 @@ export type PreparationOperation =
   | "begin_reversal"
   | "finalize_reversal";
 export type PreparationResult<T> =
-  { ok: true; data: T } | { ok: false; error: string };
+  | { ok: true; data: T }
+  | { ok: false; error: string; committed?: boolean; uncertain?: boolean };
 
 export function preparationPlan(
   workspace: PreparationWorkspace,

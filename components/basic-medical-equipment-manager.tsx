@@ -18,6 +18,8 @@ import type {
   BasicMedicalEquipmentCatalogItem,
   BasicMedicalRoomInventoryItem,
 } from "@/lib/basic-medical-equipment";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Tab = "inventory" | "rooms" | "damaged" | "logs";
 type Room = {
@@ -94,6 +96,8 @@ function InventoryTab({
   catalog: BasicMedicalEquipmentCatalogItem[];
   canManage: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [catalog, setCatalog] = useState(initialCatalog);
   const [editing, setEditing] = useState(false);
@@ -154,13 +158,14 @@ function InventoryTab({
             notice.ok ? "action-feedback success" : "action-feedback error"
           }
         >
-          {notice.message}
+          <LocalizedText text={notice.message ?? ""} />
         </p>
       ) : null}
       <section className="data-panel equipment-catalog-panel basic-medical-catalog-panel">
         <div className="equipment-catalog-filters basic-medical-catalog-filters">
           <span className="equipment-catalog-count">
-            {catalog.length} thiết bị
+            {catalog.length}
+            {uiText(" thiết bị")}
           </span>
         </div>
         {canManage ? (
@@ -180,7 +185,7 @@ function InventoryTab({
                   setSelected(new Set());
                 }}
               >
-                Sửa
+                {uiText("Sửa")}
               </button>
               <button
                 className="button equipment-catalog-disable"
@@ -188,7 +193,7 @@ function InventoryTab({
                 disabled={!selected.size || isPending}
                 onClick={() => setBulkAction("deactivate")}
               >
-                Ngừng sử dụng
+                {uiText("Ngừng sử dụng")}
               </button>
               <button
                 className="button button-primary"
@@ -196,7 +201,7 @@ function InventoryTab({
                 disabled={!selected.size || isPending}
                 onClick={() => setBulkAction("activate")}
               >
-                Kích hoạt
+                {uiText("Kích hoạt")}
               </button>
               <button
                 className="button equipment-catalog-delete"
@@ -204,7 +209,7 @@ function InventoryTab({
                 disabled={!selected.size || isPending}
                 onClick={() => setBulkAction("delete")}
               >
-                Xóa
+                {uiText("Xóa")}
               </button>
             </div>
           </div>
@@ -213,13 +218,15 @@ function InventoryTab({
           open={bulkAction !== null}
           title={
             bulkAction === "deactivate"
-              ? `Ngừng sử dụng ${selected.size} thiết bị?`
+              ? uiText("Ngừng sử dụng {0} thiết bị?", [selected.size])
               : bulkAction === "activate"
-                ? `Kích hoạt ${selected.size} thiết bị?`
-                : `Xóa ${selected.size} thiết bị?`
+                ? uiText("Kích hoạt {0} thiết bị?", [selected.size])
+                : uiText("Xóa {0} thiết bị?", [selected.size])
           }
-          description="Thao tác chỉ áp dụng đúng các thiết bị đã chọn."
-          confirmLabel="Xác nhận"
+          description={uiText(
+            "Thao tác chỉ áp dụng đúng các thiết bị đã chọn.",
+          )}
+          confirmLabel={uiText("Xác nhận")}
           pending={isPending}
           onCancel={() => setBulkAction(null)}
           onConfirm={applyBulkAction}
@@ -229,9 +236,9 @@ function InventoryTab({
             <thead>
               <tr>
                 {canManage ? (
-                  <th aria-label="Chọn">
+                  <th aria-label={uiText("Chọn")}>
                     <input
-                      aria-label="Chọn tất cả thiết bị trên trang"
+                      aria-label={uiText("Chọn tất cả thiết bị trên trang")}
                       type="checkbox"
                       checked={
                         catalog.length > 0 &&
@@ -251,14 +258,14 @@ function InventoryTab({
                     />
                   </th>
                 ) : null}
-                <th>Tên thiết bị và vật tư</th>
-                <th>Tên thương mại</th>
-                <th>Loại</th>
-                <th>Nước SX</th>
-                <th>Hãng</th>
-                <th>Model</th>
-                <th>ĐVT</th>
-                <th>Trạng thái</th>
+                <th>{uiText("Tên thiết bị và vật tư")}</th>
+                <th>{uiText("Tên thương mại")}</th>
+                <th>{uiText("Loại")}</th>
+                <th>{uiText("Nước SX")}</th>
+                <th>{uiText("Hãng")}</th>
+                <th>{uiText("Model")}</th>
+                <th>{uiText("ĐVT")}</th>
+                <th>{uiText("Trạng thái")}</th>
               </tr>
             </thead>
             <tbody>
@@ -269,7 +276,7 @@ function InventoryTab({
                     {canManage ? (
                       <td>
                         <input
-                          aria-label={`Chọn ${item.item_name}`}
+                          aria-label={uiText("Chọn {0}", [item.item_name])}
                           type="checkbox"
                           checked={selected.has(item.id)}
                           onChange={(event) =>
@@ -297,7 +304,10 @@ function InventoryTab({
                       <td key={key}>
                         {editing ? (
                           <input
-                            aria-label={`${key} của ${item.item_name}`}
+                            aria-label={uiText("{0} của {1}", [
+                              key,
+                              item.item_name,
+                            ])}
                             value={draft[key] ?? ""}
                             onChange={(event) =>
                               setDrafts((current) => ({
@@ -318,7 +328,9 @@ function InventoryTab({
                       <span
                         className={`request-status request-status-${item.is_active ? "green" : "gray"}`}
                       >
-                        {item.is_active ? "Đang sử dụng" : "Ngừng sử dụng"}
+                        {item.is_active
+                          ? uiText("Đang sử dụng")
+                          : uiText("Ngừng sử dụng")}
                       </span>
                     </td>
                   </tr>
@@ -329,7 +341,7 @@ function InventoryTab({
         </div>
         {!catalog.length ? (
           <p className="panel-empty">
-            Không có thiết bị phù hợp với bộ lọc hiện tại.
+            {uiText("Không có thiết bị phù hợp với bộ lọc hiện tại.")}
           </p>
         ) : null}
         {editing ? (
@@ -354,7 +366,7 @@ function InventoryTab({
                 );
               }}
             >
-              Lưu chỉnh sửa
+              {uiText("Lưu chỉnh sửa")}
             </button>
           </div>
         ) : null}
@@ -374,6 +386,8 @@ function RoomInventoryTab({
   rooms: Room[];
   canManage: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [notice, setNotice] = useState<Notice>(null);
   const [isPending, startTransition] = useTransition();
@@ -397,21 +411,24 @@ function RoomInventoryTab({
           }
           role="status"
         >
-          {notice.message}
+          <LocalizedText text={notice.message ?? ""} />
         </p>
       ) : null}
       <section className="data-panel basic-medical-room-inventory-section">
         <header className="panel-heading">
           <div>
-            <h2>Thiết bị theo phòng</h2>
+            <h2>{uiText("Thiết bị theo phòng")}</h2>
             <p>
-              Phân bổ số lượng Tổng, Tốt và Hư riêng cho từng phòng Y cơ sở.
+              {uiText(
+                "Phân bổ số lượng Tổng, Tốt và Hư riêng cho từng phòng Y cơ sở.",
+              )}
             </p>
           </div>
         </header>
         <div className="basic-medical-section-filters">
           <span className="equipment-catalog-count">
-            {inventories.length} thiết bị trong phòng
+            {inventories.length}
+            {uiText(" thiết bị trong phòng")}
           </span>
         </div>
         {canManage ? (
@@ -426,14 +443,14 @@ function RoomInventoryTab({
           <table className="data-table">
             <thead>
               <tr>
-                <th>Phòng</th>
-                <th>Tên thiết bị</th>
-                <th>Tên thương mại</th>
-                <th>ĐVT</th>
-                <th>Tổng</th>
-                <th>Tốt</th>
-                <th>Hư</th>
-                {canManage ? <th>Thao tác</th> : null}
+                <th>{uiText("Phòng")}</th>
+                <th>{uiText("Tên thiết bị")}</th>
+                <th>{uiText("Tên thương mại")}</th>
+                <th>{uiText("ĐVT")}</th>
+                <th>{uiText("Tổng")}</th>
+                <th>{uiText("Tốt")}</th>
+                <th>{uiText("Hư")}</th>
+                {canManage ? <th>{uiText("Thao tác")}</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -455,7 +472,7 @@ function RoomInventoryTab({
                         className="text-action"
                         onClick={() => setStockAdjustment(item)}
                       >
-                        Sửa số lượng
+                        {uiText("Sửa số lượng")}
                       </button>
                     </td>
                   ) : null}
@@ -466,7 +483,7 @@ function RoomInventoryTab({
         </div>
         {!inventories.length ? (
           <p className="panel-empty">
-            Chưa có thiết bị được phân bổ cho phòng phù hợp.
+            {uiText("Chưa có thiết bị được phân bổ cho phòng phù hợp.")}
           </p>
         ) : null}
       </section>
@@ -513,6 +530,8 @@ function RoomInventoryForm({
   }) => void;
   pending: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [roomId, setRoomId] = useState("");
   const [catalogItemId, setCatalogItemId] = useState("");
   const [candidateQuery, setCandidateQuery] = useState("");
@@ -531,17 +550,17 @@ function RoomInventoryForm({
   return (
     <div className="basic-medical-inventory-form">
       <div className="basic-medical-inventory-form-heading">
-        <strong>Phân bổ thiết bị vào phòng</strong>
-        <span>Nhập tổng số lượng và số lượng đang hư.</span>
+        <strong>{uiText("Phân bổ thiết bị vào phòng")}</strong>
+        <span>{uiText("Nhập tổng số lượng và số lượng đang hư.")}</span>
       </div>
       <label>
-        <span>Phòng *</span>
+        <span>{uiText("Phòng *")}</span>
         <select
-          aria-label="Chọn phòng phân bổ thiết bị"
+          aria-label={uiText("Chọn phòng phân bổ thiết bị")}
           value={roomId}
           onChange={(event) => setRoomId(event.target.value)}
         >
-          <option value="">Chọn phòng</option>
+          <option value="">{uiText("Chọn phòng")}</option>
           {rooms.map((room) => (
             <option key={room.id} value={room.id}>
               {roomLabel(room)}
@@ -550,14 +569,14 @@ function RoomInventoryForm({
         </select>
       </label>
       <label>
-        <span>Thiết bị *</span>
+        <span>{uiText("Thiết bị *")}</span>
         <SearchableCombobox
-          ariaLabel="Chọn thiết bị phân bổ vào phòng"
+          ariaLabel={uiText("Chọn thiết bị phân bổ vào phòng")}
           value={catalogItemId}
           onChange={setCatalogItemId}
           onQueryChange={setCandidateQuery}
-          placeholder="Gõ để tìm trong toàn bộ danh mục…"
-          emptyLabel="Chọn thiết bị"
+          placeholder={uiText("Gõ để tìm trong toàn bộ danh mục…")}
+          emptyLabel={uiText("Chọn thiết bị")}
           options={candidates.map((item) => ({
             value: item.id,
             label: `${item.item_name}${item.commercial_name ? ` · ${item.commercial_name}` : ""}`,
@@ -568,9 +587,9 @@ function RoomInventoryForm({
         />
       </label>
       <label>
-        <span>Tổng số lượng *</span>
+        <span>{uiText("Tổng số lượng *")}</span>
         <input
-          aria-label="Tổng số lượng"
+          aria-label={uiText("Tổng số lượng")}
           type="number"
           min="0"
           value={total}
@@ -581,9 +600,9 @@ function RoomInventoryForm({
         />
       </label>
       <label>
-        <span>Số lượng hư *</span>
+        <span>{uiText("Số lượng hư *")}</span>
         <input
-          aria-label="Số lượng Hư"
+          aria-label={uiText("Số lượng Hư")}
           type="number"
           min="0"
           max={total}
@@ -608,7 +627,7 @@ function RoomInventoryForm({
           })
         }
       >
-        Thêm vào phòng
+        {uiText("Thêm vào phòng")}
       </button>
     </div>
   );
@@ -621,6 +640,8 @@ function DamagedTab({
   inventories: BasicMedicalRoomInventoryItem[];
   canManage: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const [notice, setNotice] = useState<Notice>(null);
   const [isPending, startTransition] = useTransition();
@@ -634,26 +655,27 @@ function DamagedTab({
             notice.ok ? "action-feedback success" : "action-feedback error"
           }
         >
-          {notice.message}
+          <LocalizedText text={notice.message ?? ""} />
         </p>
       ) : null}
       <div className="basic-medical-list-filters">
         <span className="equipment-catalog-count">
-          {inventories.length} thiết bị hư
+          {inventories.length}
+          {uiText(" thiết bị hư")}
         </span>
       </div>
       <div className="responsive-table">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Tên thiết bị</th>
-              <th>Phòng</th>
-              <th>ĐVT</th>
-              <th>Số lượng Tốt</th>
-              <th>Số lượng Hư</th>
-              <th>Người báo hư</th>
-              <th>Ngày báo hư gần nhất</th>
-              {canManage ? <th>Điều chỉnh</th> : null}
+              <th>{uiText("Tên thiết bị")}</th>
+              <th>{uiText("Phòng")}</th>
+              <th>{uiText("ĐVT")}</th>
+              <th>{uiText("Số lượng Tốt")}</th>
+              <th>{uiText("Số lượng Hư")}</th>
+              <th>{uiText("Người báo hư")}</th>
+              <th>{uiText("Ngày báo hư gần nhất")}</th>
+              {canManage ? <th>{uiText("Điều chỉnh")}</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -686,7 +708,7 @@ function DamagedTab({
                       disabled={isPending}
                       onClick={() => setConditionAdjustment(item)}
                     >
-                      Sửa Tốt/Hư
+                      {uiText("Sửa Tốt/Hư")}
                     </button>
                   </td>
                 ) : null}
@@ -696,7 +718,9 @@ function DamagedTab({
         </table>
       </div>
       {!inventories.length ? (
-        <p className="panel-empty">Không có thiết bị đang được báo Hư.</p>
+        <p className="panel-empty">
+          {uiText("Không có thiết bị đang được báo Hư.")}
+        </p>
       ) : null}
       {conditionAdjustment ? (
         <InventoryAdjustmentDialog
@@ -743,6 +767,8 @@ function InventoryAdjustmentDialog({
     note: string,
   ) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [total, setTotal] = useState(String(item.total_quantity));
   const [damaged, setDamaged] = useState(String(item.damaged_quantity));
   const [note, setNote] = useState("");
@@ -758,9 +784,23 @@ function InventoryAdjustmentDialog({
   return (
     <ConfirmDialog
       open
-      title={mode === "stock" ? "Điều chỉnh Tổng" : "Điều chỉnh Tốt/Hư"}
-      description={`Hiện tại: Tổng ${item.total_quantity} · Tốt ${item.good_quantity} · Hư ${item.damaged_quantity}. Mới: Tổng ${totalValue || 0} · Tốt ${Math.max(0, totalValue - damagedValue) || 0} · Hư ${damagedValue || 0}.`}
-      confirmLabel="Lưu"
+      title={
+        mode === "stock"
+          ? uiText("Điều chỉnh Tổng")
+          : uiText("Điều chỉnh Tốt/Hư")
+      }
+      description={uiText(
+        "Hiện tại: Tổng {0} · Tốt {1} · Hư {2}. Mới: Tổng {3} · Tốt {4} · Hư {5}.",
+        [
+          item.total_quantity,
+          item.good_quantity,
+          item.damaged_quantity,
+          totalValue || 0,
+          Math.max(0, totalValue - damagedValue) || 0,
+          damagedValue || 0,
+        ],
+      )}
+      confirmLabel={uiText("Lưu")}
       tone="primary"
       pending={pending}
       onCancel={onCancel}
@@ -769,7 +809,7 @@ function InventoryAdjustmentDialog({
       <div className="basic-medical-inventory-form">
         {mode === "stock" ? (
           <label>
-            <span>Tổng mới *</span>
+            <span>{uiText("Tổng mới *")}</span>
             <input
               type="number"
               min="0"
@@ -780,11 +820,12 @@ function InventoryAdjustmentDialog({
           </label>
         ) : (
           <p>
-            Tổng hiện tại: <strong>{item.total_quantity}</strong>
+            {uiText("Tổng hiện tại: ")}
+            <strong>{item.total_quantity}</strong>
           </p>
         )}
         <label>
-          <span>Hư *</span>
+          <span>{uiText("Hư *")}</span>
           <input
             type="number"
             min="0"
@@ -795,7 +836,7 @@ function InventoryAdjustmentDialog({
           />
         </label>
         <label>
-          <span>Ghi chú / Lý do *</span>
+          <span>{uiText("Ghi chú / Lý do *")}</span>
           <input
             value={note}
             onChange={(event) => setNote(event.target.value)}
@@ -808,23 +849,28 @@ function InventoryAdjustmentDialog({
 }
 
 function LogsTab({ logs }: { logs: BasicMedicalConditionLogItem[] }) {
+  const { text: uiText } = useLanguage();
+
   return (
     <section className="data-panel basic-medical-list-panel">
       <div className="basic-medical-list-filters">
-        <span className="equipment-catalog-count">{logs.length} thay đổi</span>
+        <span className="equipment-catalog-count">
+          {logs.length}
+          {uiText(" thay đổi")}
+        </span>
       </div>
       <div className="responsive-table">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Thời gian</th>
-              <th>Loại thay đổi</th>
-              <th>Thiết bị</th>
-              <th>Phòng</th>
-              <th>Trước thay đổi</th>
-              <th>Sau thay đổi</th>
-              <th>Người thực hiện</th>
-              <th>Ghi chú</th>
+              <th>{uiText("Thời gian")}</th>
+              <th>{uiText("Loại thay đổi")}</th>
+              <th>{uiText("Thiết bị")}</th>
+              <th>{uiText("Phòng")}</th>
+              <th>{uiText("Trước thay đổi")}</th>
+              <th>{uiText("Sau thay đổi")}</th>
+              <th>{uiText("Người thực hiện")}</th>
+              <th>{uiText("Ghi chú")}</th>
             </tr>
           </thead>
           <tbody>
@@ -833,14 +879,20 @@ function LogsTab({ logs }: { logs: BasicMedicalConditionLogItem[] }) {
                 <td>
                   {logDateTimeFormatter.format(new Date(item.created_at))}
                 </td>
-                <td>{conditionEventLabels[item.event_type]}</td>
+                <td>{uiText(conditionEventLabels[item.event_type])}</td>
                 <td>{item.inventory?.catalog?.item_name}</td>
                 <td>{roomLabel(item.inventory?.room)}</td>
                 <td>
-                  {item.good_before} Tốt · {item.damaged_before} Hư
+                  {item.good_before}
+                  {uiText(" Tốt · ")}
+                  {item.damaged_before}
+                  {uiText(" Hư")}
                 </td>
                 <td>
-                  {item.good_after} Tốt · {item.damaged_after} Hư
+                  {item.good_after}
+                  {uiText(" Tốt · ")}
+                  {item.damaged_after}
+                  {uiText(" Hư")}
                 </td>
                 <td>{item.actor?.full_name}</td>
                 <td>{item.note || "—"}</td>
@@ -850,7 +902,9 @@ function LogsTab({ logs }: { logs: BasicMedicalConditionLogItem[] }) {
         </table>
       </div>
       {!logs.length ? (
-        <p className="panel-empty">Chưa có lịch sử thay đổi phù hợp.</p>
+        <p className="panel-empty">
+          {uiText("Chưa có lịch sử thay đổi phù hợp.")}
+        </p>
       ) : null}
     </section>
   );

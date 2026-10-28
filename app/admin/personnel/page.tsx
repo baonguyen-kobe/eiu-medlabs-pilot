@@ -13,6 +13,8 @@ import {
 } from "@/components/personnel-management-list";
 import { PersonnelBasicMedicalPermissionField } from "@/components/personnel-basic-medical-permission-field";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { LocalizedText } from "@/components/i18n/language-provider";
+import { LocalizedElement } from "@/components/i18n/localized-element";
 
 const roleLabels = {
   admin: "Quản trị viên",
@@ -93,8 +95,14 @@ export default async function PersonnelPage({
 
   return (
     <AdminShell
-      title="Nhân sự & phân quyền"
-      description="Vai trò chính, quyền bổ sung và phạm vi được lưu trong một thao tác."
+      title={<LocalizedText text={"Nhân sự & phân quyền"} />}
+      description={
+        <LocalizedText
+          text={
+            "Vai trò chính, quyền bổ sung và phạm vi được lưu trong một thao tác."
+          }
+        />
+      }
       active="/admin/personnel"
     >
       {query.notice ? (
@@ -102,7 +110,9 @@ export default async function PersonnelPage({
       ) : null}
       {query.error || personnelError ? (
         <p className="action-feedback error">
-          {query.error ?? "Không thể tải danh sách nhân sự."}
+          {query.error ?? (
+            <LocalizedText text={"Không thể tải danh sách nhân sự."} />
+          )}
         </p>
       ) : null}
 
@@ -112,8 +122,12 @@ export default async function PersonnelPage({
       >
         <label className="equipment-import-file">
           <UploadCloud size={20} />
-          <span>File CSV hoặc XLSX</span>
-          <input
+          <span>
+            <LocalizedText text={"File CSV hoặc XLSX"} />
+          </span>
+          <LocalizedElement
+            as="input"
+            textAttributes={["aria-label"]}
             accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             aria-label="Chọn file import nhân sự"
             name="file"
@@ -128,56 +142,65 @@ export default async function PersonnelPage({
             href="/api/admin-catalog-template/personnel"
             prefetch={false}
           >
-            <Download size={17} /> Tải template
+            <Download size={17} />
+            <LocalizedText text={" Tải template"} />
           </Link>
           <PersonnelImportButtons />
         </div>
       </form>
 
       <details className="admin-create-personnel">
-        <summary>Thêm nhân sự mới</summary>
+        <summary>
+          <LocalizedText text={"Thêm nhân sự mới"} />
+        </summary>
         <form action={createPersonnel}>
           <label>
-            Họ và tên
+            <LocalizedText text={"Họ và tên"} />
             <input name="full_name" required />
           </label>
           <label>
-            Email đăng nhập
+            <LocalizedText text={"Email đăng nhập"} />
             <input name="email" type="email" required />
           </label>
           <label>
-            Mật khẩu tạm
+            <LocalizedText text={"Mật khẩu tạm"} />
             <input name="password" type="password" minLength={8} required />
           </label>
           <label>
-            Số điện thoại
+            <LocalizedText text={"Số điện thoại"} />
             <input name="phone" />
           </label>
           <label>
-            Chức danh
+            <LocalizedText text={"Chức danh"} />
             <input name="title" />
           </label>
           <fieldset>
-            <legend>Vai trò ban đầu</legend>
+            <legend>
+              <LocalizedText text={"Vai trò ban đầu"} />
+            </legend>
             {(Object.keys(roleLabels) as Array<keyof typeof roleLabels>).map(
               (role) => (
                 <label className="check-label" key={role}>
                   <input name="roles" type="checkbox" value={role} />
-                  {roleLabels[role]}
+                  <LocalizedText text={roleLabels[role]} />
                 </label>
               ),
             )}
           </fieldset>
           <fieldset>
-            <legend>Quyền bổ sung</legend>
+            <legend>
+              <LocalizedText text={"Quyền bổ sung"} />
+            </legend>
             <label className="check-label">
               <input name="can_import_schedules" type="checkbox" value="true" />
-              Cho phép nhập lịch
+              <LocalizedText text={"Cho phép nhập lịch"} />
             </label>
             <PersonnelBasicMedicalPermissionField />
           </fieldset>
           <fieldset>
-            <legend>Loại phòng</legend>
+            <legend>
+              <LocalizedText text={"Loại phòng"} />
+            </legend>
             {(roomTypes ?? []).map((roomType) => (
               <div className="person-room-scope" key={roomType.id}>
                 <label className="check-label">
@@ -195,60 +218,91 @@ export default async function PersonnelPage({
                     type="checkbox"
                     value={roomType.id}
                   />
-                  Nhận email lịch của loại phòng này (Người xem)
+                  <LocalizedText
+                    text={"Nhận email lịch của loại phòng này (Người xem)"}
+                  />
                 </label>
               </div>
             ))}
           </fieldset>
-          <button className="button button-primary">Tạo tài khoản</button>
+          <button className="button button-primary">
+            <LocalizedText text={"Tạo tài khoản"} />
+          </button>
         </form>
       </details>
 
       <form className="personnel-filters" method="get">
         <label>
-          <span>Tìm kiếm</span>
-          <input
+          <span>
+            <LocalizedText text={"Tìm kiếm"} />
+          </span>
+          <LocalizedElement
+            as="input"
+            textAttributes={["placeholder"]}
             name="q"
             defaultValue={query.q}
             placeholder="Tên, email, số điện thoại…"
           />
         </label>
         <label>
-          <span>Vai trò</span>
+          <span>
+            <LocalizedText text={"Vai trò"} />
+          </span>
           <select name="role" defaultValue={query.role ?? "all"}>
-            <option value="all">Tất cả vai trò</option>
+            <option value="all">
+              <LocalizedText text={"Tất cả vai trò"} />
+            </option>
             {(Object.keys(roleLabels) as Array<keyof typeof roleLabels>).map(
               (role) => (
                 <option value={role} key={role}>
-                  {roleLabels[role]}
+                  <LocalizedText text={roleLabels[role]} />
                 </option>
               ),
             )}
           </select>
         </label>
         <label>
-          <span>Quyền nhập lịch</span>
+          <span>
+            <LocalizedText text={"Quyền nhập lịch"} />
+          </span>
           <select
             name="import_permission"
             defaultValue={query.import_permission ?? "all"}
           >
-            <option value="all">Tất cả</option>
-            <option value="enabled">Có</option>
-            <option value="disabled">Không</option>
+            <option value="all">
+              <LocalizedText text={"Tất cả"} />
+            </option>
+            <option value="enabled">
+              <LocalizedText text={"Có"} />
+            </option>
+            <option value="disabled">
+              <LocalizedText text={"Không"} />
+            </option>
           </select>
         </label>
         <label>
-          <span>Trạng thái</span>
+          <span>
+            <LocalizedText text={"Trạng thái"} />
+          </span>
           <select name="status" defaultValue={query.status ?? "all"}>
-            <option value="all">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Đã khóa</option>
+            <option value="all">
+              <LocalizedText text={"Tất cả trạng thái"} />
+            </option>
+            <option value="active">
+              <LocalizedText text={"Đang hoạt động"} />
+            </option>
+            <option value="inactive">
+              <LocalizedText text={"Đã khóa"} />
+            </option>
           </select>
         </label>
-        <button className="button button-secondary">Lọc</button>
+        <button className="button button-secondary">
+          <LocalizedText text={"Lọc"} />
+        </button>
         <span className="inline-toolbar-count-slot">
           <span className="personnel-result-count inline-toolbar-count">
-            {totalItems} nhân sự
+            {totalItems}
+            <LocalizedText text={" nhân sự"} />
           </span>
         </span>
       </form>
@@ -283,7 +337,9 @@ export default async function PersonnelPage({
             target:
               operation.target_full_name || operation.target_email
                 ? {
-                    full_name: operation.target_full_name ?? "Nhân sự",
+                    full_name: operation.target_full_name ?? (
+                      <LocalizedText text={"Nhân sự"} />
+                    ),
                     email: operation.target_email ?? "",
                   }
                 : null,
@@ -298,7 +354,9 @@ export default async function PersonnelPage({
         }
       />
       {!rows.length ? (
-        <p className="panel-empty">Không tìm thấy nhân sự phù hợp.</p>
+        <p className="panel-empty">
+          <LocalizedText text={"Không tìm thấy nhân sự phù hợp."} />
+        </p>
       ) : null}
       <PaginationLinks
         currentPage={currentPage}

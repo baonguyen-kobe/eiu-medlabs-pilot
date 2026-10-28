@@ -2,12 +2,15 @@
 
 import { useRef } from "react";
 import { UploadCloud } from "@/components/icons";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export function CatalogImportNew({
   action,
 }: {
   action: (formData: FormData) => void | Promise<void>;
 }) {
+  const { text: uiText } = useLanguage();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -24,7 +27,8 @@ export function CatalogImportNew({
           }
         }}
       >
-        <UploadCloud size={17} /> Import mới
+        <UploadCloud size={17} />
+        {uiText(" Import mới")}
         <input
           ref={inputRef}
           aria-hidden="true"

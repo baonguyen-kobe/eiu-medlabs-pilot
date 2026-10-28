@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/components/i18n/language-provider";
 import { Dashboard } from "@/components/dashboard";
 import { redirect } from "next/navigation";
 import {
@@ -258,7 +259,8 @@ export default async function ClassSchedulesPage({
   return (
     <Dashboard
       fullName={
-        profile?.full_name || String(claimsData.claims.email ?? "Người dùng")
+        profile?.full_name ||
+        String(claimsData.claims.email ?? <LocalizedText text={"Người dùng"} />)
       }
       roles={roles}
       roomTypeCodes={roomTypeCodes}

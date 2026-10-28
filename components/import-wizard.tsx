@@ -33,6 +33,8 @@ import {
 import { PaginationControls } from "@/components/pagination-controls";
 import { TABLE_PAGE_SIZE, totalPagesFor } from "@/lib/pagination";
 import { CANONICAL_SEMESTERS, isCanonicalSemester } from "@/lib/semesters";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Row = Record<string, unknown>;
 type ValidationRow = ImportValidationResult["rows"][number];
@@ -53,10 +55,14 @@ function displayImportValue(row: Row, header: ImportHeader) {
   return String(row[header] ?? "").trim() || "—";
 }
 
-function validationMessage(review: ValidationRow) {
+function validationMessage(
+  review: ValidationRow,
+  text: (source: string) => string,
+) {
   const messages = [...review.errors, ...review.warnings];
-  if (messages.length) return messages.join("; ");
-  return "Hợp lệ";
+  if (messages.length)
+    return messages.map((message) => text(message)).join("; ");
+  return text("Hợp lệ");
 }
 
 function statusLabel(status: ValidationRow["status"]) {
@@ -78,6 +84,8 @@ function ImportRowsTable({
   includedIndexes?: number[];
   showValidation?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const indexes = includedIndexes ?? rows.map((_, index) => index);
   const [currentPage, setCurrentPage] = useState(1);
   const safePage = Math.min(
@@ -94,17 +102,17 @@ function ImportRowsTable({
       <div
         className="preview-table-wrap"
         role="region"
-        aria-label="Dữ liệu import; vuốt ngang để xem đầy đủ"
+        aria-label={uiText("Dữ liệu import; vuốt ngang để xem đầy đủ")}
         tabIndex={0}
       >
         <table className="preview-table">
           <thead>
             <tr>
-              <th>Dòng</th>
+              <th>{uiText("Dòng")}</th>
               {visibleHeaders.map((header) => (
-                <th key={header}>{importHeaderLabels[header]}</th>
+                <th key={header}>{uiText(importHeaderLabels[header])}</th>
               ))}
-              {showValidation ? <th>Kiểm tra</th> : null}
+              {showValidation ? <th>{uiText("Kiểm tra")}</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -130,12 +138,12 @@ function ImportRowsTable({
                           <span
                             className={`preview-status preview-status-${review.status}`}
                           >
-                            {statusLabel(review.status)}
+                            {uiText(statusLabel(review.status))}
                           </span>
-                          <small>{validationMessage(review)}</small>
+                          <small>{validationMessage(review, uiText)}</small>
                         </>
                       ) : (
-                        "Chưa có kết quả"
+                        uiText("Chưa có kết quả")
                       )}
                     </td>
                   ) : null}
@@ -161,6 +169,8 @@ export function ImportWizard({
   embedded?: boolean;
   scope?: "skills_lab" | "basic_medical";
 }) {
+  const { text: uiText } = useLanguage();
+
   const [semester, setSemester] = useState("");
   const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
@@ -316,15 +326,18 @@ export function ImportWizard({
       {!embedded ? (
         <div className="import-heading">
           <div>
-            <span className="eyebrow dark">Tạo phiếu hàng loạt</span>
+            <span className="eyebrow dark">
+              {uiText("Tạo phiếu hàng loạt")}
+            </span>
             <h1>
               {scope === "basic_medical"
-                ? "Import lịch Y cơ sở"
-                : "Import lịch Skills lab"}
+                ? uiText("Import lịch Y cơ sở")
+                : uiText("Import lịch Skills lab")}
             </h1>
             <p>
-              Tải template chuẩn, điền dữ liệu và kiểm tra từng dòng trước khi
-              tạo lịch.
+              {uiText(
+                "Tải template chuẩn, điền dữ liệu và kiểm tra từng dòng trước khi tạo lịch.",
+              )}
             </p>
           </div>
           <div className="template-actions">
@@ -334,7 +347,8 @@ export function ImportWizard({
               href={`/api/import-template/csv?scope=${scope}`}
               prefetch={false}
             >
-              <Download size={16} /> Template CSV
+              <Download size={16} />
+              {uiText(" Template CSV")}
             </Link>
             <Link
               className="button button-primary"
@@ -342,7 +356,8 @@ export function ImportWizard({
               href={`/api/import-template/xlsx?scope=${scope}`}
               prefetch={false}
             >
-              <Download size={16} /> Template XLSX
+              <Download size={16} />
+              {uiText(" Template XLSX")}
             </Link>
           </div>
         </div>
@@ -352,7 +367,8 @@ export function ImportWizard({
         {scope === "skills_lab" ? (
           <div className="import-semester-control">
             <label htmlFor="import-semester-select">
-              <span>Học kỳ</span> <span className="text-danger">*</span>
+              <span>{uiText("Học kỳ")}</span>{" "}
+              <span className="text-danger">*</span>
             </label>
             <select
               id="import-semester-select"
@@ -366,7 +382,7 @@ export function ImportWizard({
               disabled={step > 1}
               className="import-semester-select"
             >
-              <option value="">Chọn học kỳ</option>
+              <option value="">{uiText("Chọn học kỳ")}</option>
               {CANONICAL_SEMESTERS.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -377,16 +393,18 @@ export function ImportWizard({
         ) : null}
 
         <ol className="stepper">
-          {["Chọn file", "Xem trước", "Kiểm tra", "Xác nhận", "Kết quả"].map(
-            (label, index) => (
-              <li className={step >= index + 1 ? "active" : ""} key={label}>
-                <span>
-                  {step > index + 1 ? <Check size={14} /> : index + 1}
-                </span>
-                <b>{label}</b>
-              </li>
-            ),
-          )}
+          {[
+            uiText("Chọn file"),
+            uiText("Xem trước"),
+            uiText("Kiểm tra"),
+            uiText("Xác nhận"),
+            uiText("Kết quả"),
+          ].map((label, index) => (
+            <li className={step >= index + 1 ? "active" : ""} key={label}>
+              <span>{step > index + 1 ? <Check size={14} /> : index + 1}</span>
+              <b>{label}</b>
+            </li>
+          ))}
         </ol>
       </div>
 
@@ -444,11 +462,11 @@ export function ImportWizard({
             <span>
               <UploadCloud size={28} />
             </span>
-            <strong>Chọn hoặc kéo thả file vào đây</strong>
+            <strong>{uiText("Chọn hoặc kéo thả file vào đây")}</strong>
             <small>
               {scope === "skills_lab" && !semester
-                ? "Vui lòng chọn Học kỳ ở phía trên trước khi tải file"
-                : "Hỗ trợ CSV UTF-8 và XLSX, tối đa 5 MB"}
+                ? uiText("Vui lòng chọn Học kỳ ở phía trên trước khi tải file")
+                : uiText("Hỗ trợ CSV UTF-8 và XLSX, tối đa 5 MB")}
             </small>
           </label>
           <input
@@ -471,7 +489,7 @@ export function ImportWizard({
           />
           {error ? (
             <p className="form-error" role="alert">
-              <AlertTriangle size={15} /> {error}
+              <AlertTriangle size={15} /> <LocalizedText text={error ?? ""} />
             </p>
           ) : null}
         </section>
@@ -480,70 +498,83 @@ export function ImportWizard({
           <span className="result-icon">
             <Check size={30} />
           </span>
-          <h2>Import đã hoàn tất</h2>
-          <p>{result.message}</p>
+          <h2>{uiText("Import đã hoàn tất")}</h2>
+          <p>
+            <LocalizedText text={result.message ?? ""} />
+          </p>
           <div className="import-stats">
             {scope === "skills_lab" && (result.semester || semester) ? (
               <article>
-                <span>Học kỳ</span>
+                <span>{uiText("Học kỳ")}</span>
                 <strong>{result.semester || semester}</strong>
               </article>
             ) : null}
             <article>
-              <span>Tổng dòng</span>
+              <span>{uiText("Tổng dòng")}</span>
               <strong>{result.totalRows}</strong>
             </article>
             <article>
-              <span>Đã tạo lịch</span>
+              <span>{uiText("Đã tạo lịch")}</span>
               <strong>{result.importedRows}</strong>
             </article>
             <article className="warning">
-              <span>Cảnh báo</span>
+              <span>{uiText("Cảnh báo")}</span>
               <strong>{result.warningRows}</strong>
             </article>
             <article className="danger">
-              <span>Lỗi</span>
+              <span>{uiText("Lỗi")}</span>
               <strong>{result.errorRows ?? 0}</strong>
             </article>
             <article>
-              <span>Trùng</span>
+              <span>{uiText("Trùng")}</span>
               <strong>{result.duplicateRows ?? 0}</strong>
             </article>
             <article className="danger">
-              <span>Xung đột</span>
+              <span>{uiText("Xung đột")}</span>
               <strong>{result.conflictRows ?? 0}</strong>
             </article>
           </div>
           {result.issues?.length ? (
             <div className="import-issues" role="alert">
-              <strong>Tổng hợp các dòng không được tạo hoặc có lưu ý</strong>
+              <strong>
+                {uiText("Tổng hợp các dòng không được tạo hoặc có lưu ý")}
+              </strong>
               <ul>
                 {result.issues.slice(0, 12).map((issue) => (
                   <li key={`${issue.rowNumber}-${issue.errors.join("-")}`}>
-                    <b>Dòng {issue.rowNumber}</b>
-                    {issue.errors.length ? `: ${issue.errors.join("; ")}` : ""}
+                    <b>
+                      {uiText("Dòng ")}
+                      {issue.rowNumber}
+                    </b>
+                    {issue.errors.length
+                      ? `: ${issue.errors.map((message) => uiText(message)).join("; ")}`
+                      : ""}
                     {issue.warnings.length
-                      ? ` — ${issue.warnings.join("; ")}`
+                      ? ` — ${issue.warnings.map((message) => uiText(message)).join("; ")}`
                       : ""}
                   </li>
                 ))}
               </ul>
               {result.issues.length > 12 ? (
                 <small>
-                  Còn {result.issues.length - 12} dòng khác trong file lỗi tải
-                  xuống.
+                  {uiText("Còn ")}
+                  {result.issues.length - 12}
+                  {uiText(" dòng khác trong file lỗi tải xuống.")}
                 </small>
               ) : null}
             </div>
           ) : null}
-          <small className="mono">Mã phiên: {result.batchId}</small>
+          <small className="mono">
+            {uiText("Mã phiên: ")}
+            {result.batchId}
+          </small>
           {typeof result.durationMs === "number" ? (
             <small className="import-duration">
-              Thời gian xử lý:{" "}
+              {uiText("Thời gian xử lý:")}{" "}
               {(result.durationMs / 1000).toLocaleString("vi-VN", {
                 maximumFractionDigits: 1,
               })}{" "}
-              giây
+              {uiText("giây")}
             </small>
           ) : null}
           <div className="import-footer centered">
@@ -556,11 +587,12 @@ export function ImportWizard({
                 className="button button-secondary"
                 href={`/api/import-errors/${result.batchId}`}
               >
-                <Download size={16} /> Tải file lỗi / trùng / xung đột
+                <Download size={16} />
+                {uiText(" Tải file lỗi / trùng / xung đột")}
               </Link>
             ) : null}
             <button className="button button-secondary" onClick={resetImport}>
-              Import file khác
+              {uiText("Import file khác")}
             </button>
             <Link
               className="button button-primary"
@@ -570,7 +602,8 @@ export function ImportWizard({
                   : "/class-schedules"
               }
             >
-              Xem lịch đã tạo <ArrowRight size={16} />
+              {uiText("Xem lịch đã tạo ")}
+              <ArrowRight size={16} />
             </Link>
           </div>
         </section>
@@ -585,17 +618,20 @@ export function ImportWizard({
               <small>
                 {scope === "skills_lab" && semester ? (
                   <span>
-                    Học kỳ: <b>{semester}</b> ·{" "}
+                    {uiText("Học kỳ: ")}
+                    <b>{semester}</b> ·{" "}
                   </span>
                 ) : null}
                 {step === 2
-                  ? `${rows.length} dòng được đọc để xem trước`
+                  ? uiText("{0} dòng được đọc để xem trước", [rows.length])
                   : step === 3
-                    ? `Đã kiểm tra ${rows.length} dòng`
-                    : `${creatableIndexes.length} dòng sẽ được tạo lịch`}
+                    ? uiText("Đã kiểm tra {0} dòng", [rows.length])
+                    : uiText("{0} dòng sẽ được tạo lịch", [
+                        creatableIndexes.length,
+                      ])}
               </small>
             </div>
-            <button aria-label="Chọn file khác" onClick={resetImport}>
+            <button aria-label={uiText("Chọn file khác")} onClick={resetImport}>
               <X size={17} />
             </button>
           </div>
@@ -605,32 +641,33 @@ export function ImportWizard({
               <div className="import-stats">
                 {scope === "skills_lab" && semester ? (
                   <article>
-                    <span>Học kỳ</span>
+                    <span>{uiText("Học kỳ")}</span>
                     <strong>{semester}</strong>
                   </article>
                 ) : null}
                 <article>
-                  <span>Tổng dòng</span>
+                  <span>{uiText("Tổng dòng")}</span>
                   <strong>{rows.length}</strong>
                 </article>
                 <article>
-                  <span>Đủ dữ liệu sơ bộ</span>
+                  <span>{uiText("Đủ dữ liệu sơ bộ")}</span>
                   <strong>
                     {Math.max(0, rows.length - preliminaryInvalidRows)}
                   </strong>
                 </article>
                 <article className="warning">
-                  <span>Cần bổ sung</span>
+                  <span>{uiText("Cần bổ sung")}</span>
                   <strong>{preliminaryInvalidRows}</strong>
                 </article>
                 <article className={missingHeaders.length ? "danger" : ""}>
-                  <span>Thiếu cột</span>
+                  <span>{uiText("Thiếu cột")}</span>
                   <strong>{missingHeaders.length}</strong>
                 </article>
               </div>
               {missingHeaders.length ? (
                 <p className="inline-warning">
-                  <AlertTriangle size={16} /> File đang thiếu:{" "}
+                  <AlertTriangle size={16} />
+                  {uiText(" File đang thiếu:")}{" "}
                   {missingHeaders
                     .map((header) => importHeaderLabels[header])
                     .join(", ")}
@@ -646,37 +683,39 @@ export function ImportWizard({
               <div className="import-stats">
                 {scope === "skills_lab" && semester ? (
                   <article>
-                    <span>Học kỳ</span>
+                    <span>{uiText("Học kỳ")}</span>
                     <strong>{semester}</strong>
                   </article>
                 ) : null}
                 <article>
-                  <span>Tổng dòng</span>
+                  <span>{uiText("Tổng dòng")}</span>
                   <strong>{validation.totalRows}</strong>
                 </article>
                 <article>
-                  <span>Có thể tạo</span>
+                  <span>{uiText("Có thể tạo")}</span>
                   <strong>
                     {validation.validRows + validation.warningRows}
                   </strong>
                 </article>
                 <article className="danger">
-                  <span>Cần sửa</span>
+                  <span>{uiText("Cần sửa")}</span>
                   <strong>{validation.errorRows}</strong>
                 </article>
                 <article className="warning">
-                  <span>Trùng, không tạo</span>
+                  <span>{uiText("Trùng, không tạo")}</span>
                   <strong>{validation.duplicateRows}</strong>
                 </article>
                 <article className="danger">
-                  <span>Xung đột</span>
+                  <span>{uiText("Xung đột")}</span>
                   <strong>{validation.conflictRows}</strong>
                 </article>
               </div>
               <p className="import-step-note">
-                Kiểm tra từng dòng trong cột <b>Kiểm tra</b>. Bạn vẫn có thể
-                tiếp tục; các dòng lỗi, trùng và xung đột sẽ bị loại ở bước xác
-                nhận.
+                {uiText("Kiểm tra từng dòng trong cột ")}
+                <b>{uiText("Kiểm tra")}</b>
+                {uiText(
+                  ". Bạn vẫn có thể tiếp tục; các dòng lỗi, trùng và xung đột sẽ bị loại ở bước xác nhận.",
+                )}
               </p>
               <ImportRowsTable
                 key="validation-table"
@@ -692,33 +731,35 @@ export function ImportWizard({
               <div className="import-stats">
                 {scope === "skills_lab" && semester ? (
                   <article>
-                    <span>Học kỳ</span>
+                    <span>{uiText("Học kỳ")}</span>
                     <strong>{semester}</strong>
                   </article>
                 ) : null}
                 <article>
-                  <span>Tổng dòng ban đầu</span>
+                  <span>{uiText("Tổng dòng ban đầu")}</span>
                   <strong>{validation.totalRows}</strong>
                 </article>
                 <article>
-                  <span>Sẽ tạo lịch</span>
+                  <span>{uiText("Sẽ tạo lịch")}</span>
                   <strong>{creatableIndexes.length}</strong>
                 </article>
                 <article className="danger">
-                  <span>Đã loại do lỗi</span>
+                  <span>{uiText("Đã loại do lỗi")}</span>
                   <strong>{validation.errorRows}</strong>
                 </article>
                 <article className="warning">
-                  <span>Đã loại do trùng</span>
+                  <span>{uiText("Đã loại do trùng")}</span>
                   <strong>{validation.duplicateRows}</strong>
                 </article>
                 <article className="danger">
-                  <span>Đã loại do xung đột</span>
+                  <span>{uiText("Đã loại do xung đột")}</span>
                   <strong>{validation.conflictRows}</strong>
                 </article>
               </div>
               <p className="import-step-note">
-                Danh sách dưới đây chỉ còn các dòng hợp lệ có thể tạo mới.
+                {uiText(
+                  "Danh sách dưới đây chỉ còn các dòng hợp lệ có thể tạo mới.",
+                )}
               </p>
               {canCreate ? (
                 <ImportRowsTable
@@ -728,7 +769,8 @@ export function ImportWizard({
                 />
               ) : (
                 <p className="inline-warning">
-                  <AlertTriangle size={16} /> Không có dòng hợp lệ để tạo lịch.
+                  <AlertTriangle size={16} />
+                  {uiText(" Không có dòng hợp lệ để tạo lịch.")}
                 </p>
               )}
             </>
@@ -736,7 +778,7 @@ export function ImportWizard({
 
           {error ? (
             <p className="form-error">
-              <AlertTriangle size={15} /> {error}
+              <AlertTriangle size={15} /> <LocalizedText text={error ?? ""} />
             </p>
           ) : null}
 
@@ -746,7 +788,8 @@ export function ImportWizard({
               disabled={pending}
               onClick={() => setStep(Math.max(1, step - 1))}
             >
-              <ArrowLeft size={16} /> Quay lại
+              <ArrowLeft size={16} />
+              {uiText(" Quay lại")}
             </button>
             <button
               className="button button-primary"
@@ -764,19 +807,24 @@ export function ImportWizard({
             >
               {pending
                 ? step === 2
-                  ? "Đang kiểm tra…"
-                  : "Đang tạo lịch…"
+                  ? uiText("Đang kiểm tra…")
+                  : uiText("Đang tạo lịch…")
                 : step === 4
-                  ? "Tạo lịch"
-                  : "Tiếp tục"}{" "}
+                  ? uiText("Tạo lịch")
+                  : uiText("Tiếp tục")}{" "}
               <ArrowRight size={16} />
             </button>
           </div>
           {pending ? (
             <p className="import-progress" role="status">
               {step === 2
-                ? `Đang kiểm tra danh mục và dữ liệu trùng cho ${rows.length} dòng…`
-                : `Đang tạo lịch cho ${creatableIndexes.length} dòng hợp lệ…`}
+                ? uiText(
+                    "Đang kiểm tra danh mục và dữ liệu trùng cho {0} dòng…",
+                    [rows.length],
+                  )
+                : uiText("Đang tạo lịch cho {0} dòng hợp lệ…", [
+                    creatableIndexes.length,
+                  ])}
             </p>
           ) : null}
         </section>

@@ -8,6 +8,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 type UserNotification = {
   id: string;
@@ -18,21 +19,27 @@ type UserNotification = {
   created_at: string;
 };
 
-function formatRelativeTime(value: string) {
+function formatRelativeTime(
+  value: string,
+  text: (source: string, values?: readonly unknown[]) => string,
+) {
   const elapsed = Date.now() - new Date(value).getTime();
   const minutes = Math.max(0, Math.floor(elapsed / 60_000));
-  if (minutes < 1) return "Vừa xong";
-  if (minutes < 60) return `${minutes} phút trước`;
+  if (minutes < 1) return text("Vừa xong");
+  if (minutes < 60) return text("{0} phút trước", [minutes]);
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} giờ trước`;
+  if (hours < 24) return text("{0} giờ trước", [hours]);
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "Asia/Ho_Chi_Minh",
   }).format(new Date(value));
 }
 
 export function NotificationBell() {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -155,7 +162,9 @@ export function NotificationBell() {
         aria-controls="notification-popover"
         aria-expanded={open}
         aria-label={
-          unreadCount ? `Thông báo, ${unreadCount} chưa đọc` : "Thông báo"
+          unreadCount
+            ? uiText("Thông báo, {0} chưa đọc", [unreadCount])
+            : uiText("Thông báo")
         }
         className="icon-button notification-bell-trigger"
         onClick={() => setOpen((current) => !current)}
@@ -171,19 +180,19 @@ export function NotificationBell() {
       </button>
       {open ? (
         <section
-          aria-label="Thông báo"
+          aria-label={uiText("Thông báo")}
           className="notification-popover"
           id="notification-popover"
         >
           <div className="notification-popover-header">
-            <strong>Thông báo</strong>
+            <strong>{uiText("Thông báo")}</strong>
             <button
               className="button button-secondary notification-read-all"
               disabled={!unreadCount}
               onClick={() => void markAllRead()}
               type="button"
             >
-              Đánh dấu tất cả đã đọc
+              {uiText("Đánh dấu tất cả đã đọc")}
             </button>
           </div>
           <div className="notification-list">
@@ -205,11 +214,15 @@ export function NotificationBell() {
                 >
                   <strong>{notification.title}</strong>
                   <span>{notification.body}</span>
-                  <small>{formatRelativeTime(notification.created_at)}</small>
+                  <small>
+                    {formatRelativeTime(notification.created_at, uiText)}
+                  </small>
                 </button>
               ))
             ) : (
-              <p className="notification-empty">Chưa có thông báo.</p>
+              <p className="notification-empty">
+                {uiText("Chưa có thông báo.")}
+              </p>
             )}
           </div>
         </section>

@@ -37,6 +37,8 @@ import type {
   InventoryStorageLocation,
   VerifyStocktakeSurplusPayload,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 const SURPLUS_PAGE_SIZE = 20;
 
@@ -45,6 +47,8 @@ export function SurplusManagementView({
 }: {
   isAdmin?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const [items, setItems] = useState<InventoryOperationStock[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [page, setPage] = useState(1);
@@ -306,7 +310,9 @@ export function SurplusManagementView({
             />
           )}
           <div className="space-y-1">
-            <p className="font-semibold text-sm">{notice.message}</p>
+            <p className="font-semibold text-sm">
+              <LocalizedText text={notice.message ?? ""} />
+            </p>
           </div>
           <button
             type="button"
@@ -323,24 +329,33 @@ export function SurplusManagementView({
         <div className="font-bold flex items-center gap-1.5 text-sm">
           <ShieldCheck size={18} className="text-purple-600 shrink-0" />
           <span>
-            Quy chế Thẩm định Hàng Thừa Kiểm kê (Owner Surplus B Policy)
+            {uiText(
+              "Quy chế Thẩm định Hàng Thừa Kiểm kê (Owner Surplus B Policy)",
+            )}
           </span>
         </div>
         <p className="text-slate-700 leading-relaxed">
-          • <strong>Không tạo chứng từ nhận giả:</strong> Hàng thừa kiểm kê được
-          quản lý tách bạch dưới nguồn gốc <code>STOCKTAKE_SURPLUS</code>, vào
-          tồn thực tế (on-hand) ngay lập tức nhưng{" "}
-          <strong>TẠM GIỮ (HOLD)</strong> cho đến khi Quản trị viên thẩm định.
-          <br />• <strong>Giải tỏa hàng không yêu cầu HSD:</strong> Quản trị
-          viên có quyền giải tỏa dựa trên bằng chứng kiểm kê thực tế mà{" "}
-          <em>không cần chứng từ nhận hàng trong quá khứ</em>.
-          <br />• <strong>Vật tư Hóa chất bắt buộc xác minh HSD:</strong> Hóa
-          chất có hạn dùng chưa rõ (unknown) bắt buộc phải được Quản trị viên
-          thẩm định ngày/tháng hết hạn cụ thể trước khi giải tỏa. Không thể giải
-          tỏa hóa chất ở trạng thái chưa rõ HSD.
-          <br />• <strong>Bằng chứng bất biến (Append-only):</strong> Mọi ghi
-          chú thẩm định hoặc bằng chứng bổ sung chỉ được ghi thêm theo chuỗi
-          thời gian, không sửa đổi hay xóa bỏ dữ liệu trước đây.
+          • <strong>{uiText("Không tạo chứng từ nhận giả:")}</strong>
+          {uiText(" Hàng thừa kiểm kê được quản lý tách bạch dưới nguồn gốc ")}
+          <code>{uiText("STOCKTAKE_SURPLUS")}</code>
+          {uiText(", vào tồn thực tế (on-hand) ngay lập tức nhưng")}{" "}
+          <strong>{uiText("TẠM GIỮ (HOLD)")}</strong>
+          {uiText(" cho đến khi Quản trị viên thẩm định.")}
+          <br />• <strong>{uiText("Giải tỏa hàng không yêu cầu HSD:")}</strong>
+          {uiText(
+            " Quản trị viên có quyền giải tỏa dựa trên bằng chứng kiểm kê thực tế mà",
+          )}{" "}
+          <em>{uiText("không cần chứng từ nhận hàng trong quá khứ")}</em>.
+          <br />•{" "}
+          <strong>{uiText("Vật tư Hóa chất bắt buộc xác minh HSD:")}</strong>
+          {uiText(
+            " Hóa chất có hạn dùng chưa rõ (unknown) bắt buộc phải được Quản trị viên thẩm định ngày/tháng hết hạn cụ thể trước khi giải tỏa. Không thể giải tỏa hóa chất ở trạng thái chưa rõ HSD.",
+          )}
+          <br />•{" "}
+          <strong>{uiText("Bằng chứng bất biến (Append-only):")}</strong>
+          {uiText(
+            " Mọi ghi chú thẩm định hoặc bằng chứng bổ sung chỉ được ghi thêm theo chuỗi thời gian, không sửa đổi hay xóa bỏ dữ liệu trước đây.",
+          )}
         </p>
       </div>
 
@@ -348,24 +363,24 @@ export function SurplusManagementView({
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <span>Vị trí kho:</span>
+            <span>{uiText("Vị trí kho:")}</span>
           </div>
           <div className="relative min-w-56">
             <InventoryLookup<InventoryStorageLocation>
               resource="locations"
               filters={{ active: true }}
               value={selectedLocation}
-              label="Vị trí kho"
+              label={uiText("Vị trí kho")}
               id="surplus-filter-location"
-              placeholder="Tất cả vị trí / All Locations"
+              placeholder={uiText("Tất cả vị trí / All Locations")}
               hideLabel={true}
               onSelect={(loc) => handleLocationFilterChange(loc.id)}
             />
             {selectedLocation ? (
               <button
                 type="button"
-                aria-label="Xóa chọn vị trí / Clear location"
-                title="Xóa chọn vị trí / Clear location"
+                aria-label={uiText("Xóa chọn vị trí / Clear location")}
+                title={uiText("Xóa chọn vị trí / Clear location")}
                 onClick={() => handleLocationFilterChange("")}
                 className="absolute right-8 top-2 text-slate-400 hover:text-slate-600 z-10 p-0.5"
               >
@@ -380,7 +395,7 @@ export function SurplusManagementView({
               onChange={(e) => handleHeldOnlyChange(e.target.checked)}
               className="rounded text-purple-600 focus:ring-purple-500"
             />
-            <span>Chỉ hiển thị lô đang TẠM GIỮ (Held Only)</span>
+            <span>{uiText("Chỉ hiển thị lô đang TẠM GIỮ (Held Only)")}</span>
           </label>
         </div>
 
@@ -395,7 +410,7 @@ export function SurplusManagementView({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm SKU, tên vật tư..."
+              placeholder={uiText("Tìm SKU, tên vật tư...")}
               className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 w-52"
             />
           </div>
@@ -403,7 +418,7 @@ export function SurplusManagementView({
             type="submit"
             className="button button-secondary text-xs py-1.5 px-3"
           >
-            Tìm
+            {uiText("Tìm")}
           </button>
           <button
             type="button"
@@ -412,10 +427,10 @@ export function SurplusManagementView({
               loadSurplusStock(selectedLocation, page, search, filterHeldOnly)
             }
             className="button button-secondary text-xs flex items-center gap-1.5"
-            title="Làm mới"
+            title={uiText("Làm mới")}
           >
             <History size={13} className={isLoading ? "animate-spin" : ""} />
-            <span>Làm mới</span>
+            <span>{uiText("Làm mới")}</span>
           </button>
         </form>
       </div>
@@ -425,24 +440,32 @@ export function SurplusManagementView({
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Danh sách Vật tư Thừa {"&"} Lô Tạm giữ / Surplus {"&"} Held Items
-              ({totalItems} lô)
+              {uiText("Danh sách Vật tư Thừa ")}
+              {"&"}
+              {uiText(" Lô Tạm giữ / Surplus ")}
+              {"&"}
+              {uiText(" Held Items (")}
+              {totalItems}
+              {uiText(" lô)")}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Các lô vật tư cần Quản trị viên thẩm định giải tỏa hoặc bổ sung
-              bằng chứng chứng minh
+              {uiText(
+                "Các lô vật tư cần Quản trị viên thẩm định giải tỏa hoặc bổ sung bằng chứng chứng minh",
+              )}
             </p>
           </div>
           {!isAdmin ? (
             <span className="text-[11px] bg-slate-100 text-slate-600 py-1 px-2.5 rounded-full font-medium flex items-center gap-1">
               <LockKeyhole size={12} />
-              <span>Chế độ Nhân viên: Bổ sung bằng chứng</span>
+              <span>{uiText("Chế độ Nhân viên: Bổ sung bằng chứng")}</span>
             </span>
           ) : (
             <span className="text-[11px] bg-purple-100 text-purple-800 py-1 px-2.5 rounded-full font-semibold flex items-center gap-1">
               <ShieldCheck size={12} />
               <span>
-                Quyền Quản trị viên: Toàn quyền Thẩm định {"&"} Giải tỏa
+                {uiText("Quyền Quản trị viên: Toàn quyền Thẩm định ")}
+                {"&"}
+                {uiText(" Giải tỏa")}
               </span>
             </span>
           )}
@@ -451,8 +474,10 @@ export function SurplusManagementView({
         {items.length === 0 ? (
           <div className="text-center py-12 text-slate-400 text-xs">
             {isLoading
-              ? "Đang tải dữ liệu..."
-              : "Hiện không có lô vật tư nào đang bị tạm giữ hoặc phù hợp bộ lọc."}
+              ? uiText("Đang tải dữ liệu...")
+              : uiText(
+                  "Hiện không có lô vật tư nào đang bị tạm giữ hoặc phù hợp bộ lọc.",
+                )}
           </div>
         ) : (
           <>
@@ -460,13 +485,21 @@ export function SurplusManagementView({
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                    <th className="py-2.5 px-3">Mã SKU {"&"} Tên vật tư</th>
-                    <th className="py-2.5 px-3">Kho lưu trữ</th>
-                    <th className="py-2.5 px-3">Nguồn gốc</th>
-                    <th className="py-2.5 px-3">Trạng thái giữ</th>
-                    <th className="py-2.5 px-3 text-right">Tổng tồn</th>
-                    <th className="py-2.5 px-3">Hạn dùng</th>
-                    <th className="py-2.5 px-3 text-center">Thao tác</th>
+                    <th className="py-2.5 px-3">
+                      {uiText("Mã SKU ")}
+                      {"&"}
+                      {uiText(" Tên vật tư")}
+                    </th>
+                    <th className="py-2.5 px-3">{uiText("Kho lưu trữ")}</th>
+                    <th className="py-2.5 px-3">{uiText("Nguồn gốc")}</th>
+                    <th className="py-2.5 px-3">{uiText("Trạng thái giữ")}</th>
+                    <th className="py-2.5 px-3 text-right">
+                      {uiText("Tổng tồn")}
+                    </th>
+                    <th className="py-2.5 px-3">{uiText("Hạn dùng")}</th>
+                    <th className="py-2.5 px-3 text-center">
+                      {uiText("Thao tác")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -482,8 +515,10 @@ export function SurplusManagementView({
                         <div className="flex items-center gap-2 mt-1">
                           <ConditionBadge condition={row.condition} />
                           <span className="text-[11px] text-slate-400 font-mono">
-                            Lô: {row.origin_id.slice(0, 8)}... | Phiên bản kho:
-                            r{row.stock_revision}
+                            {uiText("Lô: ")}
+                            {row.origin_id.slice(0, 8)}
+                            {uiText("... | Phiên bản kho: r")}
+                            {row.stock_revision}
                           </span>
                         </div>
                       </td>
@@ -506,9 +541,9 @@ export function SurplusManagementView({
                       <td className="py-3 px-3 text-slate-600">
                         {row.expiry_date ||
                           (row.expiry_precision === "unknown"
-                            ? "Chưa rõ HSD"
+                            ? uiText("Chưa rõ HSD")
                             : row.expiry_precision === "not_required"
-                              ? "Không yêu cầu"
+                              ? uiText("Không yêu cầu")
                               : "—")}
                       </td>
                       <td className="py-3 px-3 text-center">
@@ -518,10 +553,10 @@ export function SurplusManagementView({
                               type="button"
                               onClick={() => openActionModal(row, "release")}
                               className="button button-primary bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] py-1 px-2.5 flex items-center gap-1"
-                              title="Thẩm định & Giải tỏa cấp phát"
+                              title={uiText("Thẩm định & Giải tỏa cấp phát")}
                             >
                               <Check size={12} />
-                              <span>Giải tỏa</span>
+                              <span>{uiText("Giải tỏa")}</span>
                             </button>
                           ) : null}
 
@@ -529,19 +564,21 @@ export function SurplusManagementView({
                             type="button"
                             onClick={() => openActionModal(row, "append")}
                             className="button button-secondary text-[11px] py-1 px-2 flex items-center gap-1"
-                            title="Ghi thêm bằng chứng lưu trữ"
+                            title={uiText("Ghi thêm bằng chứng lưu trữ")}
                           >
                             <ClipboardList size={12} />
-                            <span>Ghi bằng chứng</span>
+                            <span>{uiText("Ghi bằng chứng")}</span>
                           </button>
 
                           <button
                             type="button"
                             onClick={() => setEvidenceModalOrigin(row)}
                             className="button button-secondary text-[11px] py-1 px-2 flex items-center gap-1 text-purple-700 hover:bg-purple-50"
-                            title="Xem lịch sử bằng chứng kiểm kê / thẩm định"
+                            title={uiText(
+                              "Xem lịch sử bằng chứng kiểm kê / thẩm định",
+                            )}
                           >
-                            <span>Lịch sử</span>
+                            <span>{uiText("Lịch sử")}</span>
                           </button>
                         </div>
                       </td>
@@ -555,7 +592,11 @@ export function SurplusManagementView({
         {/* Pagination Controls */}
         <div className="p-4 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Hiển thị trang {page} trên tổng số {totalItems} lô
+            {uiText("Hiển thị trang ")}
+            {page}
+            {uiText(" trên tổng số ")}
+            {totalItems}
+            {uiText(" lô")}
           </span>
           <PaginationControls
             currentPage={page}
@@ -576,19 +617,23 @@ export function SurplusManagementView({
                   <>
                     <Check className="text-emerald-600" size={18} />
                     <span>
-                      Thẩm định {"&"} Giải tỏa Hàng thừa (Release Hold)
+                      {uiText("Thẩm định ")}
+                      {"&"}
+                      {uiText(" Giải tỏa Hàng thừa (Release Hold)")}
                     </span>
                   </>
                 ) : (
                   <>
                     <ClipboardList className="text-blue-600" size={18} />
-                    <span>Bổ sung Bằng chứng Thẩm định (Append Evidence)</span>
+                    <span>
+                      {uiText("Bổ sung Bằng chứng Thẩm định (Append Evidence)")}
+                    </span>
                   </>
                 )}
               </h3>
               <button
                 type="button"
-                aria-label="Đóng hộp thoại"
+                aria-label={uiText("Đóng hộp thoại")}
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
               >
@@ -599,28 +644,28 @@ export function SurplusManagementView({
             {/* Target Item summary */}
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
               <div className="flex justify-between">
-                <span className="text-slate-500">Vật tư:</span>
+                <span className="text-slate-500">{uiText("Vật tư:")}</span>
                 <span className="font-semibold text-slate-900">
                   {selectedOrigin.item_code} - {selectedOrigin.item_name}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Loại vật tư:</span>
+                <span className="text-slate-500">{uiText("Loại vật tư:")}</span>
                 <span className="font-semibold text-slate-800">
                   {selectedOrigin.material_kind === "chemical"
-                    ? "Hóa chất (Chemical)"
-                    : "Vật tư thông thường"}
+                    ? uiText("Hóa chất (Chemical)")
+                    : uiText("Vật tư thông thường")}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Vị trí kho:</span>
+                <span className="text-slate-500">{uiText("Vị trí kho:")}</span>
                 <span className="font-semibold text-slate-800">
                   {selectedOrigin.location_code} -{" "}
                   {selectedOrigin.location_name}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Số lượng:</span>
+                <span className="text-slate-500">{uiText("Số lượng:")}</span>
                 <span className="font-bold text-slate-900">
                   {formatDisplayQuantity(selectedOrigin.quantity)}{" "}
                   {selectedOrigin.base_uom_code}
@@ -628,7 +673,7 @@ export function SurplusManagementView({
               </div>
               {selectedOrigin.hold_reason ? (
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Lý do giữ:</span>
+                  <span className="text-slate-500">{uiText("Lý do giữ:")}</span>
                   <span className="text-rose-700 font-medium">
                     {selectedOrigin.hold_reason}
                   </span>
@@ -645,8 +690,9 @@ export function SurplusManagementView({
                 >
                   <ClipboardList size={13} />
                   <span>
-                    Xem lịch sử bằng chứng trước đây ({selectedOrigin.item_code}
-                    ) &rarr;
+                    {uiText("Xem lịch sử bằng chứng trước đây (")}
+                    {selectedOrigin.item_code}
+                    {uiText(") &rarr;")}
                   </span>
                 </button>
               </div>
@@ -664,11 +710,14 @@ export function SurplusManagementView({
               selectedOrigin.material_kind === "chemical" ? (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs">
                   <span className="font-bold text-amber-900 block">
-                    Xác minh Hạn sử dụng bắt buộc cho Hóa chất (O01 / INV-042)
+                    {uiText(
+                      "Xác minh Hạn sử dụng bắt buộc cho Hóa chất (O01 / INV-042)",
+                    )}
                   </span>
                   <p className="text-slate-600">
-                    Hóa chất không thể giải tỏa ở trạng thái chưa rõ hạn sử
-                    dụng. Vui lòng thẩm định ngày hoặc tháng hết hạn cụ thể:
+                    {uiText(
+                      "Hóa chất không thể giải tỏa ở trạng thái chưa rõ hạn sử dụng. Vui lòng thẩm định ngày hoặc tháng hết hạn cụ thể:",
+                    )}
                   </p>
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
@@ -676,7 +725,7 @@ export function SurplusManagementView({
                         htmlFor="surplus-release-exp-prec"
                         className="block font-semibold text-slate-700 mb-1"
                       >
-                        Độ chính xác HSD *
+                        {uiText("Độ chính xác HSD *")}
                       </label>
                       <select
                         id="surplus-release-exp-prec"
@@ -688,8 +737,12 @@ export function SurplusManagementView({
                         }
                         className="w-full text-xs py-1.5 px-2 border border-slate-300 rounded-lg bg-white"
                       >
-                        <option value="day">Theo ngày (YYYY-MM-DD)</option>
-                        <option value="month">Theo tháng (YYYY-MM)</option>
+                        <option value="day">
+                          {uiText("Theo ngày (YYYY-MM-DD)")}
+                        </option>
+                        <option value="month">
+                          {uiText("Theo tháng (YYYY-MM)")}
+                        </option>
                       </select>
                     </div>
                     <div>
@@ -697,7 +750,7 @@ export function SurplusManagementView({
                         htmlFor="surplus-release-exp-val"
                         className="block font-semibold text-slate-700 mb-1"
                       >
-                        Ngày/Tháng hết hạn *
+                        {uiText("Ngày/Tháng hết hạn *")}
                       </label>
                       <input
                         id="surplus-release-exp-val"
@@ -718,14 +771,16 @@ export function SurplusManagementView({
                   htmlFor="surplus-release-reason"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Lý do thẩm định / giải quyết *
+                  {uiText("Lý do thẩm định / giải quyết *")}
                 </label>
                 <input
                   id="surplus-release-reason"
                   type="text"
                   value={modalReason}
                   onChange={(e) => setModalReason(e.target.value)}
-                  placeholder="VD: Đã đối chiếu tem mác và kiểm định chất lượng đạt chuẩn..."
+                  placeholder={uiText(
+                    "VD: Đã đối chiếu tem mác và kiểm định chất lượng đạt chuẩn...",
+                  )}
                   className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
                   required
                 />
@@ -737,20 +792,23 @@ export function SurplusManagementView({
                   htmlFor="surplus-release-evidence"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Ghi chú Bằng chứng / Số quyết định phê duyệt *
+                  {uiText("Ghi chú Bằng chứng / Số quyết định phê duyệt *")}
                 </label>
                 <textarea
                   id="surplus-release-evidence"
                   value={modalEvidence}
                   onChange={(e) => setModalEvidence(e.target.value)}
-                  placeholder="VD: Biên bản thẩm định số 15/BB-TĐCL ngày 03/10/2026 của Hội đồng Kho..."
+                  placeholder={uiText(
+                    "VD: Biên bản thẩm định số 15/BB-TĐCL ngày 03/10/2026 của Hội đồng Kho...",
+                  )}
                   rows={3}
                   className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
                   required
                 />
                 <span className="text-[11px] text-slate-400 mt-1 block">
-                  Bằng chứng này sẽ được lưu trữ bất biến (append-only) trong Sổ
-                  cái.
+                  {uiText(
+                    "Bằng chứng này sẽ được lưu trữ bất biến (append-only) trong Sổ cái.",
+                  )}
                 </span>
               </div>
 
@@ -760,7 +818,7 @@ export function SurplusManagementView({
                   onClick={closeModal}
                   className="button button-secondary text-xs"
                 >
-                  Đóng / Close
+                  {uiText("Đóng / Close")}
                 </button>
                 <button
                   type="submit"
@@ -771,7 +829,9 @@ export function SurplusManagementView({
                       : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
-                  {isPending ? "Đang xử lý..." : "Xác nhận & Ghi sổ"}
+                  {isPending
+                    ? uiText("Đang xử lý...")
+                    : uiText("Xác nhận & Ghi sổ")}
                 </button>
               </div>
             </form>

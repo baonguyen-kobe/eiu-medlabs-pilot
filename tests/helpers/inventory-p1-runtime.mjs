@@ -59,7 +59,10 @@ function parseJson(output) {
 // No discovery or execution occurs on importing this module.
 export function createP1LocalClient() {
   const project = process.env.SUPABASE_LOCAL_PROJECT_ID ?? "eiu-medlabs-pilot";
-  assert.equal(project, "eiu-medlabs-pilot");
+  assert.ok(
+    ["eiu-medlabs-pilot", "lich-truc-app-ci"].includes(project),
+    "P1 fixtures require an isolated local pilot or disposable CI runtime",
+  );
   const listed = spawnSync(
     "docker",
     [

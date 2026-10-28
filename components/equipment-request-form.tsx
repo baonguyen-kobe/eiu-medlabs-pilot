@@ -25,6 +25,8 @@ import {
 } from "@/lib/equipment-lead-time";
 import { hasDuplicateCommercialNameWithinActivity } from "@/lib/equipment-request-commercial-name-duplicate";
 import type { EquipmentLateApprovalStatus } from "@/lib/equipment-requests";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LocalizedText } from "@/components/i18n/language-provider";
 
 type CatalogItem = {
   id: string;
@@ -182,6 +184,8 @@ export function EquipmentRequestForm({
   today: string;
   initialData?: EquipmentRequestInitialData;
 }) {
+  const { text: uiText } = useLanguage();
+
   const isEditMode = initialData?.mode === "edit";
   const submitAction = isEditMode
     ? updateEquipmentRequest
@@ -509,18 +513,19 @@ export function EquipmentRequestForm({
         >
           <strong>
             {initialData.mode === "copy"
-              ? "Đang sao chép phiếu"
-              : "Đang điều chỉnh phiếu"}{" "}
+              ? uiText("Đang sao chép phiếu")
+              : uiText("Đang điều chỉnh phiếu")}{" "}
             #{initialData.sourceRequestCode}
           </strong>
           {isEditMode ? (
             <p>
-              Chỉ chỉnh sửa thông tin và ghi chú tại đây. Để thay đổi số lượng,
-              thêm hoặc bỏ thiết bị,{" "}
+              {uiText(
+                "Chỉ chỉnh sửa thông tin và ghi chú tại đây. Để thay đổi số lượng, thêm hoặc bỏ thiết bị,",
+              )}{" "}
               <Link
                 href={`/equipment/preparation/${initialData.sourceRequestId}`}
               >
-                gửi yêu cầu điều chỉnh trong trang chuẩn bị thiết bị
+                {uiText("gửi yêu cầu điều chỉnh trong trang chuẩn bị thiết bị")}
               </Link>
               .
             </p>
@@ -534,24 +539,30 @@ export function EquipmentRequestForm({
           role="status"
           style={{ textAlign: "center" }}
         >
-          {state.message}
+          <LocalizedText text={state.message ?? ""} />
         </p>
       ) : null}
-      {clientError ? <p className="form-error">{clientError}</p> : null}
+      {clientError ? (
+        <p className="form-error">
+          <LocalizedText text={clientError ?? ""} />
+        </p>
+      ) : null}
 
       <section>
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">01</span>
-            <h2>Thông tin môn học</h2>
+            <h2>{uiText("Thông tin môn học")}</h2>
           </div>
           <p>
-            Chọn lớp đã tạo trên Lịch Skills lab hoặc tạo một lớp mới trước.
+            {uiText(
+              "Chọn lớp đã tạo trên Lịch Skills lab hoặc tạo một lớp mới trước.",
+            )}
           </p>
         </div>
         <div className="class-picker-row">
           <label>
-            Lớp Skills lab *
+            {uiText("Lớp Skills lab *")}
             <select
               name={isEditMode ? undefined : "class_schedule_id"}
               required={!isEditMode}
@@ -571,7 +582,7 @@ export function EquipmentRequestForm({
               }}
             >
               <option value="" disabled>
-                Chọn lớp theo ngày, giờ và phòng
+                {uiText("Chọn lớp theo ngày, giờ và phòng")}
               </option>
               {classes.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -585,20 +596,20 @@ export function EquipmentRequestForm({
               className="button button-secondary create-class-button"
               href={`/schedule-entry/new?returnTo=${encodeURIComponent(registerReturnTo)}`}
             >
-              + Tạo lớp mới
+              {uiText("+ Tạo lớp mới")}
             </Link>
           )}
         </div>
         <div className="form-grid three">
           <label>
-            Ngày học
+            {uiText("Ngày học")}
             <input
               value={selectedClass?.date.split("-").reverse().join("/") ?? ""}
               readOnly
             />
           </label>
           <label>
-            Giờ học
+            {uiText("Giờ học")}
             <input
               value={
                 selectedClass
@@ -609,7 +620,7 @@ export function EquipmentRequestForm({
             />
           </label>
           <label>
-            Học kỳ
+            {uiText("Học kỳ")}
             <input
               value={
                 selectedClass?.semester ||
@@ -618,27 +629,30 @@ export function EquipmentRequestForm({
                   : "")
               }
               readOnly
-              placeholder="Chưa có học kỳ"
+              placeholder={uiText("Chưa có học kỳ")}
             />
           </label>
           <label>
-            Mã môn học
+            {uiText("Mã môn học")}
             <input value={selectedClass?.courseCode ?? ""} readOnly />
           </label>
           <label>
-            Tên môn học
+            {uiText("Tên môn học")}
             <input value={selectedClass?.courseName ?? ""} readOnly />
           </label>
           <label>
-            Số lượng sinh viên
+            {uiText("Số lượng sinh viên")}
             <input value={selectedClass?.studentCount ?? ""} readOnly />
           </label>
           <label>
-            Loại lab
-            <input value={selectedClass ? "Kỹ năng Điều dưỡng" : ""} readOnly />
+            {uiText("Loại lab")}
+            <input
+              value={selectedClass ? uiText("Kỹ năng Điều dưỡng") : ""}
+              readOnly
+            />
           </label>
           <label>
-            Phòng/Lab
+            {uiText("Phòng/Lab")}
             <input value={selectedClass?.room ?? ""} readOnly />
           </label>
         </div>
@@ -648,20 +662,20 @@ export function EquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">02</span>
-            <h2>Thông tin người đăng ký</h2>
+            <h2>{uiText("Thông tin người đăng ký")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Người đăng ký
+            {uiText("Người đăng ký")}
             <input value={registrantName} readOnly />
           </label>
           <label>
-            Email
+            {uiText("Email")}
             <input value={registrantEmail} readOnly />
           </label>
           <label>
-            Số điện thoại *
+            {uiText("Số điện thoại *")}
             <input
               name="phone"
               value={defaultPhone}
@@ -673,8 +687,9 @@ export function EquipmentRequestForm({
         </div>
         {!/^\d{10}$/.test(defaultPhone) ? (
           <p className="form-error">
-            Hồ sơ Nhân sự chưa có số điện thoại 10 chữ số. Vui lòng bổ sung
-            trước khi đăng ký.
+            {uiText(
+              "Hồ sơ Nhân sự chưa có số điện thoại 10 chữ số. Vui lòng bổ sung trước khi đăng ký.",
+            )}
           </p>
         ) : null}
       </section>
@@ -683,19 +698,19 @@ export function EquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">03</span>
-            <h2>Thông tin giảng viên phụ trách</h2>
+            <h2>{uiText("Thông tin giảng viên phụ trách")}</h2>
           </div>
         </div>
         <div className="form-grid three">
           <label>
-            Giảng viên phụ trách *
+            {uiText("Giảng viên phụ trách *")}
             <select
               name="responsible_lecturer_id"
               required
               defaultValue={defaultResponsibleLecturerId}
             >
               <option value="" disabled>
-                Select a responsible lecturer
+                {uiText("Select a responsible lecturer")}
               </option>
               {responsibleOptions.map((person) => (
                 <option key={person.id} value={person.id}>
@@ -707,10 +722,13 @@ export function EquipmentRequestForm({
         </div>
         {initialData?.requiresResponsibleLecturerReplacement ? (
           <p className="form-error" role="alert">
-            Tài khoản Root Admin không thể được phân công vận hành. Vui lòng
-            chọn người thay thế.
+            {uiText(
+              "Tài khoản Root Admin không thể được phân công vận hành. Vui lòng chọn người thay thế.",
+            )}
             {initialData.historicalResponsibleLecturerName
-              ? ` Phân công lịch sử: ${initialData.historicalResponsibleLecturerName}.`
+              ? uiText(" Phân công lịch sử: {0}.", [
+                  initialData.historicalResponsibleLecturerName,
+                ])
               : ""}
           </p>
         ) : null}
@@ -720,12 +738,12 @@ export function EquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">04</span>
-            <h2>Thông tin nhận thiết bị</h2>
+            <h2>{uiText("Thông tin nhận thiết bị")}</h2>
           </div>
         </div>
         <div className="form-grid four">
           <label>
-            Ngày nhận *
+            {uiText("Ngày nhận *")}
             <input
               name="receive_date"
               type="date"
@@ -742,7 +760,7 @@ export function EquipmentRequestForm({
             />
           </label>
           <label>
-            Giờ nhận *
+            {uiText("Giờ nhận *")}
             <select
               name="receive_time"
               value={receiveTime}
@@ -753,7 +771,7 @@ export function EquipmentRequestForm({
               required
             >
               <option value="" disabled>
-                Chọn giờ
+                {uiText("Chọn giờ")}
               </option>
               {equipmentHandoffTimes.map((time) => (
                 <option key={time} value={time}>
@@ -763,7 +781,7 @@ export function EquipmentRequestForm({
             </select>
           </label>
           <label>
-            Ngày trả *
+            {uiText("Ngày trả *")}
             <input
               name="return_date"
               type="date"
@@ -777,14 +795,14 @@ export function EquipmentRequestForm({
             />
           </label>
           <label>
-            Giờ trả *
+            {uiText("Giờ trả *")}
             <select
               name="return_time"
               defaultValue={initialData?.returnTime ?? ""}
               required
             >
               <option value="" disabled>
-                Chọn giờ
+                {uiText("Chọn giờ")}
               </option>
               {equipmentHandoffTimes.map((time) => (
                 <option key={time} value={time}>
@@ -798,7 +816,7 @@ export function EquipmentRequestForm({
           <div className="equipment-late-warning" role="alert">
             <strong>{lateEquipmentWarning(leadTime.remainingMs)}</strong>
             <label>
-              Lý do đăng ký trễ *
+              {uiText("Lý do đăng ký trễ *")}
               <textarea
                 name="late_registration_reason"
                 rows={3}
@@ -816,7 +834,7 @@ export function EquipmentRequestForm({
         )}
         <div className="skill-count-controls">
           <label>
-            Số lượng kỹ năng/bài thực hành *
+            {uiText("Số lượng kỹ năng/bài thực hành *")}
             <select
               value={skillCount}
               disabled={isEditMode}
@@ -835,7 +853,7 @@ export function EquipmentRequestForm({
             onClick={buildSkillTables}
             disabled={isEditMode}
           >
-            + Tạo bảng thiết bị
+            {uiText("+ Tạo bảng thiết bị")}
           </button>
         </div>
       </section>
@@ -844,12 +862,16 @@ export function EquipmentRequestForm({
         <div className="form-section-title">
           <div className="form-section-title-line">
             <span className="form-section-number">05</span>
-            <h2>Thiết bị theo kỹ năng/bài thực hành</h2>
+            <h2>{uiText("Thiết bị theo kỹ năng/bài thực hành")}</h2>
           </div>
           <p>
             {isEditMode
-              ? "Thiết bị và số lượng đã đăng ký được giữ nguyên; có thể sửa tên kỹ năng và ghi chú."
-              : "Chọn tên thiết bị trước; tên thương mại sẽ được lọc tương ứng và các thông tin danh mục được tự động điền."}
+              ? uiText(
+                  "Thiết bị và số lượng đã đăng ký được giữ nguyên; có thể sửa tên kỹ năng và ghi chú.",
+                )
+              : uiText(
+                  "Chọn tên thiết bị trước; tên thương mại sẽ được lọc tương ứng và các thông tin danh mục được tự động điền.",
+                )}
           </p>
         </div>
         <datalist id="equipment-skill-suggestions">
@@ -859,20 +881,26 @@ export function EquipmentRequestForm({
         </datalist>
         {!skills.length ? (
           <p className="panel-empty">
-            Chọn số lượng kỹ năng ở mục 4 rồi bấm “Tạo bảng thiết bị”.
+            {uiText(
+              "Chọn số lượng kỹ năng ở mục 4 rồi bấm “Tạo bảng thiết bị”.",
+            )}
           </p>
         ) : null}
         <div className="equipment-skill-list">
           {skills.map((skill, skillIndex) => (
             <article className="equipment-skill-card" key={skill.key}>
               <div className="equipment-skill-header">
-                <strong>Kỹ năng/Bài thực hành #{skillIndex + 1}</strong>
+                <strong>
+                  {uiText("Kỹ năng/Bài thực hành #")}
+                  {skillIndex + 1}
+                </strong>
                 <span className="badge badge-slate">
-                  {skill.rows.length} dòng
+                  {skill.rows.length}
+                  {uiText(" dòng")}
                 </span>
               </div>
               <label>
-                Tên kỹ năng/Bài thực hành *
+                {uiText("Tên kỹ năng/Bài thực hành *")}
                 <input
                   list="equipment-skill-suggestions"
                   value={skill.skillName}
@@ -880,19 +908,19 @@ export function EquipmentRequestForm({
                     updateSkill(skill.key, { skillName: event.target.value })
                   }
                   required
-                  placeholder="Nhập hoặc chọn tên kỹ năng…"
+                  placeholder={uiText("Nhập hoặc chọn tên kỹ năng…")}
                 />
               </label>
               <div className="responsive-table">
                 <table className="data-table equipment-items-table">
                   <thead>
                     <tr>
-                      <th>STT</th>
-                      <th>Tên thiết bị và vật tư *</th>
-                      <th>Tên thương mại *</th>
-                      <th>ĐVT</th>
-                      <th>Số lượng *</th>
-                      <th>Ghi chú</th>
+                      <th>{uiText("STT")}</th>
+                      <th>{uiText("Tên thiết bị và vật tư *")}</th>
+                      <th>{uiText("Tên thương mại *")}</th>
+                      <th>{uiText("ĐVT")}</th>
+                      <th>{uiText("Số lượng *")}</th>
+                      <th>{uiText("Ghi chú")}</th>
                       <th />
                     </tr>
                   </thead>
@@ -917,8 +945,11 @@ export function EquipmentRequestForm({
                                 selectItemName(skill.key, row, value)
                               }
                               required
-                              ariaLabel={`Tên thiết bị dòng ${rowIndex + 1}, kỹ năng ${skillIndex + 1}`}
-                              placeholder="Gõ hoặc chọn tên thiết bị…"
+                              ariaLabel={uiText(
+                                "Tên thiết bị dòng {0}, kỹ năng {1}",
+                                [rowIndex + 1, skillIndex + 1],
+                              )}
+                              placeholder={uiText("Gõ hoặc chọn tên thiết bị…")}
                             />
                           </td>
                           <td>
@@ -930,8 +961,13 @@ export function EquipmentRequestForm({
                                 selectCommercialItem(skill.key, row, value)
                               }
                               required
-                              ariaLabel={`Tên thương mại dòng ${rowIndex + 1}, kỹ năng ${skillIndex + 1}`}
-                              placeholder="Gõ hoặc chọn tên thương mại…"
+                              ariaLabel={uiText(
+                                "Tên thương mại dòng {0}, kỹ năng {1}",
+                                [rowIndex + 1, skillIndex + 1],
+                              )}
+                              placeholder={uiText(
+                                "Gõ hoặc chọn tên thương mại…",
+                              )}
                             />
                           </td>
                           <td>
@@ -959,7 +995,7 @@ export function EquipmentRequestForm({
                                   note: event.target.value,
                                 })
                               }
-                              placeholder="Nếu có"
+                              placeholder={uiText("Nếu có")}
                             />
                           </td>
                           <td>
@@ -975,7 +1011,7 @@ export function EquipmentRequestForm({
                                 })
                               }
                             >
-                              Xóa
+                              {uiText("Xóa")}
                             </button>
                           </td>
                         </tr>
@@ -994,7 +1030,7 @@ export function EquipmentRequestForm({
                   })
                 }
               >
-                + Thêm dòng
+                {uiText("+ Thêm dòng")}
               </button>
             </article>
           ))}
@@ -1003,7 +1039,7 @@ export function EquipmentRequestForm({
 
       <section>
         <label>
-          Ghi chú chung
+          {uiText("Ghi chú chung")}
           <textarea
             name="note"
             rows={3}
@@ -1013,7 +1049,7 @@ export function EquipmentRequestForm({
       </section>
       <footer>
         <Link className="button button-secondary" href="/class-schedules">
-          Hủy
+          {uiText("Hủy")}
         </Link>
         <button
           type="submit"
@@ -1021,14 +1057,14 @@ export function EquipmentRequestForm({
           disabled={pending || !/^\d{10}$/.test(defaultPhone)}
         >
           {pending
-            ? "Đang lưu…"
+            ? uiText("Đang lưu…")
             : needsLateApprovalSubmission
-              ? "Gửi yêu cầu duyệt đăng ký trễ"
+              ? uiText("Gửi yêu cầu duyệt đăng ký trễ")
               : initialData?.mode === "edit"
-                ? "Lưu điều chỉnh"
+                ? uiText("Lưu điều chỉnh")
                 : initialData?.mode === "copy"
-                  ? "Tạo phiếu sao chép"
-                  : "Gửi đăng ký"}
+                  ? uiText("Tạo phiếu sao chép")
+                  : uiText("Gửi đăng ký")}
         </button>
       </footer>
     </form>

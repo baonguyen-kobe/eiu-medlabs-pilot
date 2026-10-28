@@ -15,6 +15,7 @@ import type {
   InventoryStorageLocation,
   StockCondition,
 } from "@/lib/inventory/types";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface StockTableProps {
   balances?: InventoryStockBalance[];
@@ -54,6 +55,8 @@ export function StockTable({
   totalCohorts = 0,
   cohortPage = 1,
 }: StockTableProps) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -142,10 +145,10 @@ export function StockTable({
               size={16}
             />
             <input
-              aria-label="Tìm vật tư tồn kho / Search stock"
+              aria-label={uiText("Tìm vật tư tồn kho / Search stock")}
               type="text"
               className="w-full text-xs pl-9 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Tìm theo mã SKU, tên vật tư..."
+              placeholder={uiText("Tìm theo mã SKU, tên vật tư...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onBlur={() => {
@@ -157,7 +160,7 @@ export function StockTable({
             {search ? (
               <button
                 type="button"
-                aria-label="Xóa ô tìm kiếm"
+                aria-label={uiText("Xóa ô tìm kiếm")}
                 onClick={() => {
                   setSearch("");
                   updateParams({ q: undefined, page: 1 });
@@ -176,10 +179,10 @@ export function StockTable({
               filters={{ active: true }}
               value={currentFilters.location_id}
               valueKey="id"
-              label="Vị trí kho / Location"
+              label={uiText("Vị trí kho / Location")}
               id="stock-location-filter"
               selectedLabel={selectedLocationLabel}
-              placeholder="Tất cả vị trí / All Locations"
+              placeholder={uiText("Tất cả vị trí / All Locations")}
               hideLabel={true}
               onSelect={(loc) => {
                 updateParams({ location_id: loc.id, page: 1 });
@@ -188,8 +191,8 @@ export function StockTable({
             {currentFilters.location_id ? (
               <button
                 type="button"
-                aria-label="Xóa chọn vị trí"
-                title="Xóa chọn vị trí / Clear location"
+                aria-label={uiText("Xóa chọn vị trí")}
+                title={uiText("Xóa chọn vị trí / Clear location")}
                 onClick={() =>
                   updateParams({ location_id: undefined, page: 1 })
                 }
@@ -203,49 +206,69 @@ export function StockTable({
           {/* Condition Filter */}
           <div>
             <select
-              aria-label="Lọc tình trạng / Filter condition"
+              aria-label={uiText("Lọc tình trạng / Filter condition")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={currentFilters.condition}
               onChange={(e) => {
                 updateParams({ condition: e.target.value, page: 1 });
               }}
             >
-              <option value="all">Tất cả tình trạng / All Conditions</option>
-              <option value="good">Chỉ hàng tốt / Good condition</option>
-              <option value="damaged">Chỉ hàng hỏng / Damaged condition</option>
+              <option value="all">
+                {uiText("Tất cả tình trạng / All Conditions")}
+              </option>
+              <option value="good">
+                {uiText("Chỉ hàng tốt / Good condition")}
+              </option>
+              <option value="damaged">
+                {uiText("Chỉ hàng hỏng / Damaged condition")}
+              </option>
             </select>
           </div>
 
           {/* Expiry State / Status Filter */}
           <div>
             <select
-              aria-label="Lọc hạn dùng / Filter expiry"
+              aria-label={uiText("Lọc hạn dùng / Filter expiry")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={currentFilters.expiry_state}
               onChange={(e) => {
                 updateParams({ expiry_state: e.target.value, page: 1 });
               }}
             >
-              <option value="all">Tất cả hạn dùng / All Expiry States</option>
-              <option value="eligible">Đủ điều kiện cấp phát / Eligible</option>
-              <option value="expired">Đã hết hạn / Expired</option>
-              <option value="unknown">Chưa rõ HSD (Tồn đầu) / Unknown</option>
+              <option value="all">
+                {uiText("Tất cả hạn dùng / All Expiry States")}
+              </option>
+              <option value="eligible">
+                {uiText("Đủ điều kiện cấp phát / Eligible")}
+              </option>
+              <option value="expired">{uiText("Đã hết hạn / Expired")}</option>
+              <option value="unknown">
+                {uiText("Chưa rõ HSD (Tồn đầu) / Unknown")}
+              </option>
             </select>
           </div>
 
           {/* Active / Inactive Historical Filter */}
           <div>
             <select
-              aria-label="Lọc trạng thái hoạt động / Filter active state"
+              aria-label={uiText(
+                "Lọc trạng thái hoạt động / Filter active state",
+              )}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={currentFilters.active}
               onChange={(e) => {
                 updateParams({ active: e.target.value, page: 1 });
               }}
             >
-              <option value="all">Tất cả trạng thái / All (Historical)</option>
-              <option value="true">Chỉ đang hoạt động / Active only</option>
-              <option value="false">Đã ngừng hoạt động / Inactive</option>
+              <option value="all">
+                {uiText("Tất cả trạng thái / All (Historical)")}
+              </option>
+              <option value="true">
+                {uiText("Chỉ đang hoạt động / Active only")}
+              </option>
+              <option value="false">
+                {uiText("Đã ngừng hoạt động / Inactive")}
+              </option>
             </select>
           </div>
         </div>
@@ -253,43 +276,53 @@ export function StockTable({
         {/* Sort & Active Filters Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-slate-500 font-medium">Sắp xếp / Sort:</span>
+            <span className="text-slate-500 font-medium">
+              {uiText("Sắp xếp / Sort:")}
+            </span>
             <select
-              aria-label="Sắp xếp tồn kho / Sort stock"
+              aria-label={uiText("Sắp xếp tồn kho / Sort stock")}
               className="text-xs py-1 px-2 border border-slate-300 rounded-md bg-white text-slate-700"
               value={currentFilters.sort || "code_asc"}
               onChange={(e) => updateParams({ sort: e.target.value, page: 1 })}
             >
-              <option value="code_asc">Mã SKU: A &rarr; Z</option>
-              <option value="code_desc">Mã SKU: Z &rarr; A</option>
-              <option value="name_asc">Tên vật tư: A &rarr; Z</option>
-              <option value="name_desc">Tên vật tư: Z &rarr; A</option>
+              <option value="code_asc">{uiText("Mã SKU: A &rarr; Z")}</option>
+              <option value="code_desc">{uiText("Mã SKU: Z &rarr; A")}</option>
+              <option value="name_asc">
+                {uiText("Tên vật tư: A &rarr; Z")}
+              </option>
+              <option value="name_desc">
+                {uiText("Tên vật tư: Z &rarr; A")}
+              </option>
             </select>
           </div>
 
           {hasActiveFilters ? (
             <div className="flex items-center gap-3 text-slate-500">
               <span>
-                Tìm thấy <strong>{totalBalances}</strong> kết quả lọc
+                {uiText("Tìm thấy ")}
+                <strong>{totalBalances}</strong>
+                {uiText(" kết quả lọc")}
               </span>
               <button
                 type="button"
                 className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold"
                 onClick={clearFilters}
               >
-                <X size={14} /> Xóa bộ lọc / Clear filters
+                <X size={14} />
+                {uiText(" Xóa bộ lọc / Clear filters")}
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
               <span className="text-slate-400">
-                Tổng số dòng tồn kho: <strong>{totalBalances}</strong>
+                {uiText("Tổng số dòng tồn kho: ")}
+                <strong>{totalBalances}</strong>
               </span>
               <Link
                 href="/inventory/operations"
                 className="button button-primary text-xs py-1 px-2.5"
               >
-                Nghiệp vụ kho S2 →
+                {uiText("Nghiệp vụ kho S2 →")}
               </Link>
             </div>
           )}
@@ -303,37 +336,37 @@ export function StockTable({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th scope="col" className="py-3 px-4">
-                  Mã SKU / Code
+                  {uiText("Mã SKU / Code")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Tên vật tư / Name
+                  {uiText("Tên vật tư / Name")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Vị trí kho / Location
+                  {uiText("Vị trí kho / Location")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  Tình trạng / Condition
+                  {uiText("Tình trạng / Condition")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Tồn thực tế / On hand
+                  {uiText("Tồn thực tế / On hand")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Đủ ĐK / Eligible
+                  {uiText("Đủ ĐK / Eligible")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Khả dụng cho yêu cầu mới / Available for new
+                  {uiText("Khả dụng cho yêu cầu mới / Available for new")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Hết hạn / Expired
+                  {uiText("Hết hạn / Expired")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  Chưa rõ HSD / Unknown
+                  {uiText("Chưa rõ HSD / Unknown")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  ĐVT / Unit
+                  {uiText("ĐVT / Unit")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-center">
-                  Chi tiết lô
+                  {uiText("Chi tiết lô")}
                 </th>
               </tr>
             </thead>
@@ -342,8 +375,10 @@ export function StockTable({
                 <tr>
                   <td colSpan={11} className="py-12 text-center text-slate-400">
                     {hasActiveFilters
-                      ? "Không tìm thấy dòng tồn kho nào phù hợp với bộ lọc."
-                      : "Kho hiện chưa có số dư tồn kho nào."}
+                      ? uiText(
+                          "Không tìm thấy dòng tồn kho nào phù hợp với bộ lọc.",
+                        )
+                      : uiText("Kho hiện chưa có số dư tồn kho nào.")}
                   </td>
                 </tr>
               ) : (
@@ -385,7 +420,7 @@ export function StockTable({
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
                         {bal.available_quantity == null
-                          ? "Chưa xác định / Unknown"
+                          ? uiText("Chưa xác định / Unknown")
                           : formatDisplayQuantity(bal.available_quantity)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-rose-600">
@@ -425,7 +460,9 @@ export function StockTable({
                               : "button-secondary"
                           }`}
                         >
-                          {isSelected ? "Đang chọn" : "Lô / Cohorts"}
+                          {isSelected
+                            ? uiText("Đang chọn")
+                            : uiText("Lô / Cohorts")}
                         </button>
                       </td>
                     </tr>
@@ -439,8 +476,10 @@ export function StockTable({
         {/* Pagination Controls */}
         <div className="p-4 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            Hiển thị {balances.length} trên tổng số{" "}
-            <strong>{totalBalances}</strong> dòng số dư
+            {uiText("Hiển thị ")}
+            {balances.length}
+            {uiText(" trên tổng số")} <strong>{totalBalances}</strong>
+            {uiText(" dòng số dư")}
           </span>
           <PaginationControls
             currentPage={currentPage}
@@ -454,17 +493,18 @@ export function StockTable({
       {/* Cohort Drilldown Section */}
       {selectedDimensions ? (
         <section
-          aria-label="Chi tiết lô tồn kho"
+          aria-label={uiText("Chi tiết lô tồn kho")}
           className="bg-white rounded-xl border border-blue-200 overflow-hidden shadow-xs space-y-3 p-4"
         >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Chi tiết các lô tiếp nhận / Cohort Breakdown
+                {uiText("Chi tiết các lô tiếp nhận / Cohort Breakdown")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Truy vết nguồn gốc giao dịch nhập, hạn dùng và số dư theo từng
-                lô tiếp nhận ban đầu
+                {uiText(
+                  "Truy vết nguồn gốc giao dịch nhập, hạn dùng và số dư theo từng lô tiếp nhận ban đầu",
+                )}
               </p>
             </div>
             <button
@@ -479,13 +519,15 @@ export function StockTable({
               }}
               className="button button-secondary text-xs"
             >
-              Đóng / Close
+              {uiText("Đóng / Close")}
             </button>
           </div>
 
           {cohorts.length === 0 ? (
             <p className="text-xs text-slate-400 py-6 text-center">
-              Không tìm thấy thông tin lô tồn kho nào cho mục đã chọn.
+              {uiText(
+                "Không tìm thấy thông tin lô tồn kho nào cho mục đã chọn.",
+              )}
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -493,28 +535,28 @@ export function StockTable({
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                     <th scope="col" className="py-2.5 px-3">
-                      Mã lô / Line Key
+                      {uiText("Mã lô / Line Key")}
                     </th>
                     <th scope="col" className="py-2.5 px-3">
-                      Tham chiếu nhận / Reference
+                      {uiText("Tham chiếu nhận / Reference")}
                     </th>
                     <th scope="col" className="py-2.5 px-3">
-                      Vị trí kho / Location
+                      {uiText("Vị trí kho / Location")}
                     </th>
                     <th scope="col" className="py-2.5 px-3 text-right">
-                      Tổng tồn / Physical
+                      {uiText("Tổng tồn / Physical")}
                     </th>
                     <th scope="col" className="py-2.5 px-3 text-right">
-                      Đủ ĐK / Eligible
+                      {uiText("Đủ ĐK / Eligible")}
                     </th>
                     <th scope="col" className="py-2.5 px-3 text-right">
-                      Khả dụng cho yêu cầu mới / Available for new
+                      {uiText("Khả dụng cho yêu cầu mới / Available for new")}
                     </th>
                     <th scope="col" className="py-2.5 px-3">
-                      Hạn dùng / Expiry
+                      {uiText("Hạn dùng / Expiry")}
                     </th>
                     <th scope="col" className="py-2.5 px-3 text-right">
-                      Giao dịch gốc / Origin
+                      {uiText("Giao dịch gốc / Origin")}
                     </th>
                   </tr>
                 </thead>
@@ -534,8 +576,9 @@ export function StockTable({
                         {cohort.location_state === "split" ? (
                           <div className="space-y-0.5">
                             <span className="badge bg-purple-50 text-purple-800 border-purple-200 text-[10px] font-semibold">
-                              Phân tán ({cohort.locations?.length || "nhiều"}{" "}
-                              kho)
+                              {uiText("Phân tán (")}
+                              {cohort.locations?.length || uiText("nhiều")}{" "}
+                              {uiText("kho)")}
                             </span>
                             {cohort.locations ? (
                               <div className="text-[10px] text-slate-500 font-mono">
@@ -550,7 +593,7 @@ export function StockTable({
                           </div>
                         ) : cohort.location_state === "depleted" ? (
                           <span className="text-slate-400 text-xs italic">
-                            Đã xuất hết / Depleted
+                            {uiText("Đã xuất hết / Depleted")}
                           </span>
                         ) : (
                           `${cohort.current_location_code || "—"} - ${cohort.current_location_name || ""}`
@@ -568,15 +611,15 @@ export function StockTable({
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-semibold text-emerald-700">
                         {cohort.available_quantity == null
-                          ? "Chưa xác định / Unknown"
+                          ? uiText("Chưa xác định / Unknown")
                           : `${formatDisplayQuantity(cohort.available_quantity)} ${cohort.base_uom_code}`}
                       </td>
                       <td className="py-2.5 px-3 text-slate-600">
                         {cohort.current_expiry_date ||
                           (cohort.current_expiry_precision === "not_required"
-                            ? "Không yêu cầu"
+                            ? uiText("Không yêu cầu")
                             : cohort.current_expiry_precision === "unknown"
-                              ? "Chưa rõ (Tồn đầu)"
+                              ? uiText("Chưa rõ (Tồn đầu)")
                               : "—")}
                       </td>
                       <td className="py-2.5 px-3 text-right">
@@ -584,9 +627,9 @@ export function StockTable({
                           <Link
                             href={`/inventory/transactions/${cohort.transaction_id}?origin=${cohort.origin_id}`}
                             className="button button-secondary text-[11px] py-1 px-2"
-                            title="Xem lịch sử giao dịch gốc"
+                            title={uiText("Xem lịch sử giao dịch gốc")}
                           >
-                            Giao dịch
+                            {uiText("Giao dịch")}
                           </Link>
                           <Link
                             href={
@@ -595,9 +638,9 @@ export function StockTable({
                                 : `/inventory/operations?tab=transfer&origin_id=${cohort.origin_id}`
                             }
                             className="button button-secondary text-[11px] py-1 px-2 text-sky-700"
-                            title="Chuyển lô này sang kho khác"
+                            title={uiText("Chuyển lô này sang kho khác")}
                           >
-                            Chuyển
+                            {uiText("Chuyển")}
                           </Link>
                           {isPositive(cohort.good_balance) ? (
                             <Link
@@ -607,9 +650,9 @@ export function StockTable({
                                   : `/inventory/operations?tab=condition&origin_id=${cohort.origin_id}`
                               }
                               className="button button-secondary text-[11px] py-1 px-2 text-amber-700"
-                              title="Báo hỏng lô này"
+                              title={uiText("Báo hỏng lô này")}
                             >
-                              Báo hỏng
+                              {uiText("Báo hỏng")}
                             </Link>
                           ) : null}
                         </div>
@@ -624,7 +667,11 @@ export function StockTable({
           {totalCohorts > 20 ? (
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500">
-                Hiển thị {cohorts.length} trên tổng số {totalCohorts} lô
+                {uiText("Hiển thị ")}
+                {cohorts.length}
+                {uiText(" trên tổng số ")}
+                {totalCohorts}
+                {uiText(" lô")}
               </span>
               <PaginationControls
                 currentPage={cohortPage}

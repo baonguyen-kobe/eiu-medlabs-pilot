@@ -29,9 +29,9 @@ test("equipment operations stays unified and filters its managed domains", async
     "Phòng/Lab",
     "Thiết bị",
   ]) {
-    assert.match(list, new RegExp(`<th>${header}</th>`));
+    assert.ok(list.includes(`<th>{uiText("${header}")}</th>`));
   }
-  assert.match(list, /equipment-status-heading">Trạng thái/);
+  assert.match(list, /equipment-status-heading">\s*\{uiText\("Trạng thái"\)\}/);
   assert.match(list, /const \[domainFilter, setDomainFilter\]/);
   assert.match(list, /Tất cả phạm vi/);
   assert.match(list, /value="nursing_skills"/);

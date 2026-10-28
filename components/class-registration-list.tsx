@@ -21,6 +21,7 @@ import {
 import { TimePicker } from "@/components/time-picker";
 import { PaginationControls } from "@/components/pagination-controls";
 import { TABLE_PAGE_SIZE, totalPagesFor } from "@/lib/pagination";
+import { useLanguage } from "@/components/i18n/language-provider";
 
 export type RegistrationClass = {
   id: string;
@@ -66,6 +67,8 @@ export function ClassRegistrationList({
   roomOptions?: Array<{ id: string; label: string; roomTypeId: string }>;
   isRootAdministrator?: boolean;
 }) {
+  const { text: uiText } = useLanguage();
+
   const router = useRouter();
   useScheduleRealtime();
   const [query, setQuery] = useState("");
@@ -333,7 +336,7 @@ export function ClassRegistrationList({
               setQuery(event.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Tìm mã môn học, tên lớp, phòng, giảng viên…"
+            placeholder={uiText("Tìm mã môn học, tên lớp, phòng, giảng viên…")}
             autoComplete="off"
             spellCheck={false}
           />
@@ -341,7 +344,7 @@ export function ClassRegistrationList({
         <label className="class-range-mode">
           <CalendarDays size={17} />
           <select
-            aria-label="Kiểu lọc thời gian"
+            aria-label={uiText("Kiểu lọc thời gian")}
             value={rangeMode}
             onChange={(event) => {
               const nextMode = event.target.value as ClassRangeMode;
@@ -350,18 +353,18 @@ export function ClassRegistrationList({
               applyRange(nextMode);
             }}
           >
-            <option value="default">Mặc định</option>
-            <option value="week">Theo tuần</option>
-            <option value="month">Theo tháng</option>
-            <option value="day">Chọn ngày</option>
-            <option value="custom">Khoảng tùy chỉnh</option>
+            <option value="default">{uiText("Mặc định")}</option>
+            <option value="week">{uiText("Theo tuần")}</option>
+            <option value="month">{uiText("Theo tháng")}</option>
+            <option value="day">{uiText("Chọn ngày")}</option>
+            <option value="custom">{uiText("Khoảng tùy chỉnh")}</option>
           </select>
         </label>
         {rangeMode === "custom" ? (
           <div className="class-range-dates">
             <input
               name="from_date"
-              aria-label="Từ ngày"
+              aria-label={uiText("Từ ngày")}
               type="date"
               value={customFrom}
               onChange={(event) => {
@@ -370,10 +373,10 @@ export function ClassRegistrationList({
                 applyRange("custom", anchorDate, value, customTo);
               }}
             />
-            <span>đến</span>
+            <span>{uiText("đến")}</span>
             <input
               name="to_date"
-              aria-label="Đến ngày"
+              aria-label={uiText("Đến ngày")}
               type="date"
               value={customTo}
               onChange={(event) => {
@@ -386,7 +389,7 @@ export function ClassRegistrationList({
         ) : rangeMode !== "default" ? (
           <input
             name="anchor_date"
-            aria-label="Ngày làm mốc"
+            aria-label={uiText("Ngày làm mốc")}
             type="date"
             value={anchorDate}
             onChange={(event) => {
@@ -407,12 +410,12 @@ export function ClassRegistrationList({
                 setCurrentPage(1);
               }}
             />
-            Lớp trống
+            {uiText("Lớp trống")}
           </label>
         ) : null}
         {mode === "open" && roomTypeOptions.length > 1 ? (
           <label className="class-range-mode">
-            <span className="sr-only">Loại phòng</span>
+            <span className="sr-only">{uiText("Loại phòng")}</span>
             <select
               value={roomTypeId}
               onChange={(event) => {
@@ -420,7 +423,7 @@ export function ClassRegistrationList({
                 setCurrentPage(1);
               }}
             >
-              <option value="all">Tất cả Loại phòng</option>
+              <option value="all">{uiText("Tất cả Loại phòng")}</option>
               {roomTypeOptions.map((roomType) => (
                 <option key={roomType.id} value={roomType.id}>
                   {roomType.name}
@@ -436,12 +439,13 @@ export function ClassRegistrationList({
             disabled={!filtered.length || exporting}
             onClick={exportFilteredClasses}
           >
-            <Download size={17} /> {exporting ? "Đang xuất…" : "Export"}
+            <Download size={17} /> {exporting ? uiText("Đang xuất…") : "Export"}
           </button>
         ) : null}
         <span className="inline-toolbar-count-slot class-result-count-slot">
           <span className="class-result-count inline-toolbar-count">
-            {filtered.length} lớp
+            {filtered.length}
+            {uiText(" lớp")}
           </span>
         </span>
       </div>
@@ -451,14 +455,14 @@ export function ClassRegistrationList({
           className={`action-feedback ${message.ok ? "success" : "error"}`}
           role="status"
         >
-          {message.text}
+          {uiText(message.text)}
         </p>
       ) : null}
 
       <div
         className="responsive-table"
         role="region"
-        aria-label="Danh sách lớp; vuốt ngang để xem đầy đủ"
+        aria-label={uiText("Danh sách lớp; vuốt ngang để xem đầy đủ")}
         tabIndex={0}
       >
         <table
@@ -478,15 +482,15 @@ export function ClassRegistrationList({
           </colgroup>
           <thead>
             <tr>
-              <th>Ngày</th>
-              <th>Thời gian</th>
-              <th>Mã môn</th>
-              <th>Tên môn học</th>
-              <th>Phòng</th>
-              <th>Số sinh viên</th>
-              {mode === "open" ? <th>Giảng viên</th> : null}
+              <th>{uiText("Ngày")}</th>
+              <th>{uiText("Thời gian")}</th>
+              <th>{uiText("Mã môn")}</th>
+              <th>{uiText("Tên môn học")}</th>
+              <th>{uiText("Phòng")}</th>
+              <th>{uiText("Số sinh viên")}</th>
+              {mode === "open" ? <th>{uiText("Giảng viên")}</th> : null}
               <th>
-                <span className="sr-only">Thao tác</span>
+                <span className="sr-only">{uiText("Thao tác")}</span>
               </th>
             </tr>
           </thead>
@@ -554,7 +558,9 @@ export function ClassRegistrationList({
                   <td>
                     {canEditDetails ? (
                       <input
-                        aria-label={`Ngày học ${item.course_code_snapshot}`}
+                        aria-label={uiText("Ngày học {0}", [
+                          item.course_code_snapshot,
+                        ])}
                         type="date"
                         value={detailDraft.date}
                         onChange={(event) =>
@@ -569,13 +575,17 @@ export function ClassRegistrationList({
                     {canEditDetails ? (
                       <span className="inline-time-editor">
                         <TimePicker
-                          ariaLabel={`Giờ bắt đầu ${item.course_code_snapshot}`}
+                          ariaLabel={uiText("Giờ bắt đầu {0}", [
+                            item.course_code_snapshot,
+                          ])}
                           value={detailDraft.start}
                           onChange={(val) => updateDetail({ start: val })}
                           required
                         />
                         <TimePicker
-                          ariaLabel={`Giờ kết thúc ${item.course_code_snapshot}`}
+                          ariaLabel={uiText("Giờ kết thúc {0}", [
+                            item.course_code_snapshot,
+                          ])}
                           value={detailDraft.end}
                           onChange={(val) => updateDetail({ end: val })}
                           required
@@ -588,7 +598,9 @@ export function ClassRegistrationList({
                   <td>
                     {canEditDetails && courses.length > 0 ? (
                       <select
-                        aria-label={`Mã môn học ${item.course_code_snapshot}`}
+                        aria-label={uiText("Mã môn học {0}", [
+                          item.course_code_snapshot,
+                        ])}
                         value={detailDraft.courseId || item.course_id || ""}
                         onChange={(event) =>
                           updateDetail({ courseId: event.target.value })
@@ -608,7 +620,9 @@ export function ClassRegistrationList({
                   <td>
                     {canEditDetails ? (
                       <select
-                        aria-label={`Phòng ${item.course_code_snapshot}`}
+                        aria-label={uiText("Phòng {0}", [
+                          item.course_code_snapshot,
+                        ])}
                         value={detailDraft.roomId}
                         onChange={(event) =>
                           updateDetail({ roomId: event.target.value })
@@ -634,7 +648,9 @@ export function ClassRegistrationList({
                     {canEditDetails ? (
                       <input
                         className="student-count-input"
-                        aria-label={`Số sinh viên ${item.course_code_snapshot}`}
+                        aria-label={uiText("Số sinh viên {0}", [
+                          item.course_code_snapshot,
+                        ])}
                         type="number"
                         min="1"
                         step="1"
@@ -673,7 +689,7 @@ export function ClassRegistrationList({
                           ))}
                         </span>
                       ) : (
-                        <strong>Chưa có giảng viên</strong>
+                        <strong>{uiText("Chưa có giảng viên")}</strong>
                       )}
                     </td>
                   ) : null}
@@ -682,9 +698,11 @@ export function ClassRegistrationList({
                       {isLocked ? (
                         <span
                           className="badge-tag badge-tag-warning"
-                          title="Lớp đã có Phiếu đăng ký thiết bị (khóa chỉnh sửa)"
+                          title={uiText(
+                            "Lớp đã có Phiếu đăng ký thiết bị (khóa chỉnh sửa)",
+                          )}
                         >
-                          Khóa thiết bị
+                          {uiText("Khóa thiết bị")}
                         </span>
                       ) : null}
                       {canEditDetails ? (
@@ -697,7 +715,7 @@ export function ClassRegistrationList({
                           type="button"
                           onClick={() => saveRow(item)}
                         >
-                          Lưu
+                          {uiText("Lưu")}
                         </button>
                       ) : null}
                       {canJoinRow ? (
@@ -706,7 +724,7 @@ export function ClassRegistrationList({
                           disabled={pending}
                           onClick={() => runAction(item, "claim")}
                         >
-                          Nhận lớp
+                          {uiText("Nhận lớp")}
                         </button>
                       ) : null}
                       {canWithdrawRow ? (
@@ -717,7 +735,7 @@ export function ClassRegistrationList({
                             setConfirmation({ item, action: "withdraw" })
                           }
                         >
-                          Hủy
+                          {uiText("Hủy")}
                         </button>
                       ) : null}
                       {canDeleteRow ? (
@@ -727,13 +745,16 @@ export function ClassRegistrationList({
                           onClick={() =>
                             setConfirmation({ item, action: "delete" })
                           }
-                          aria-label={`Xóa lớp ${item.course_code_snapshot}`}
+                          aria-label={uiText("Xóa lớp {0}", [
+                            item.course_code_snapshot,
+                          ])}
                         >
-                          <Trash2 size={16} /> Xóa
+                          <Trash2 size={16} />
+                          {uiText(" Xóa")}
                         </button>
                       ) : null}
                       {pendingId === item.id ? (
-                        <span className="sr-only">Đang xử lý</span>
+                        <span className="sr-only">{uiText("Đang xử lý")}</span>
                       ) : null}
                     </div>
                   </td>
@@ -744,7 +765,9 @@ export function ClassRegistrationList({
         </table>
       </div>
       {!filtered.length ? (
-        <p className="panel-empty">Không có lớp phù hợp với bộ lọc hiện tại.</p>
+        <p className="panel-empty">
+          {uiText("Không có lớp phù hợp với bộ lọc hiện tại.")}
+        </p>
       ) : null}
       <PaginationControls
         currentPage={safePage}
@@ -754,15 +777,27 @@ export function ClassRegistrationList({
       <ConfirmDialog
         open={Boolean(confirmation)}
         title={
-          confirmation?.action === "delete" ? "Xóa lịch học?" : "Hủy nhận lớp?"
+          confirmation?.action === "delete"
+            ? uiText("Xóa lịch học?")
+            : uiText("Hủy nhận lớp?")
         }
         description={
           confirmation?.action === "delete"
-            ? `Lớp ${confirmation.item.course_code_snapshot} ngày ${formatBusinessDate(confirmation.item.schedule_date)} sẽ bị xóa. Thao tác này không thể hoàn tác.`
-            : `Lớp ${confirmation?.item.course_code_snapshot ?? "đã chọn"} sẽ trở lại trạng thái chưa có giảng viên.`
+            ? uiText(
+                "Lớp {0} ngày {1} sẽ bị xóa. Thao tác này không thể hoàn tác.",
+                [
+                  confirmation.item.course_code_snapshot,
+                  formatBusinessDate(confirmation.item.schedule_date),
+                ],
+              )
+            : uiText("Lớp {0} sẽ trở lại trạng thái chưa có giảng viên.", [
+                confirmation?.item.course_code_snapshot ?? uiText("đã chọn"),
+              ])
         }
         confirmLabel={
-          confirmation?.action === "delete" ? "Xóa lịch học" : "Hủy nhận lớp"
+          confirmation?.action === "delete"
+            ? uiText("Xóa lịch học")
+            : uiText("Hủy nhận lớp")
         }
         pending={pending}
         onConfirm={() => {
@@ -790,6 +825,8 @@ function LecturerAssignmentFields({
   value: string[];
   onChange: (ids: string[]) => void;
 }) {
+  const { text: uiText } = useLanguage();
+
   const firstId = value[0] ?? "";
   const secondId = value[1] ?? "";
   const currentLecturers = [item.lecturer_id, item.lecturer_2_id]
@@ -812,21 +849,25 @@ function LecturerAssignmentFields({
   return (
     <div className="table-lecturer-editor">
       <SearchableCombobox
-        ariaLabel={`Giảng viên 1 của lớp ${item.course_code_snapshot}`}
+        ariaLabel={uiText("Giảng viên 1 của lớp {0}", [
+          item.course_code_snapshot,
+        ])}
         disabled={disabled}
-        emptyLabel="Chưa chọn giảng viên"
+        emptyLabel={uiText("Chưa chọn giảng viên")}
         onChange={(nextId) => onChange([nextId, secondId])}
         options={availableOptions.filter((option) => option.value !== secondId)}
-        placeholder="Giảng viên 1…"
+        placeholder={uiText("Giảng viên 1…")}
         value={firstId}
       />
       <SearchableCombobox
-        ariaLabel={`Giảng viên 2 của lớp ${item.course_code_snapshot}`}
+        ariaLabel={uiText("Giảng viên 2 của lớp {0}", [
+          item.course_code_snapshot,
+        ])}
         disabled={disabled}
-        emptyLabel="Không có giảng viên 2"
+        emptyLabel={uiText("Không có giảng viên 2")}
         onChange={(nextId) => onChange([firstId, nextId])}
         options={availableOptions.filter((option) => option.value !== firstId)}
-        placeholder="Giảng viên 2…"
+        placeholder={uiText("Giảng viên 2…")}
         value={secondId}
       />
     </div>
