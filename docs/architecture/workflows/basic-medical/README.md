@@ -31,14 +31,14 @@ Database authority: `supabase/schemas/03_registration_workflows.sql`, `11_basic_
 
 ## Data and authorization boundary
 
-| Concern | Evidence |
-| --- | --- |
-| Registration-to-session | `basic_medical_registrations → basic_medical_registration_sessions → class_schedules` |
-| Confirmation evidence | `basic_medical_session_confirmations`, checks, inventory and condition logs; FK structure supported by Liam ERD |
-| Direct writes | insert/update/delete revoked from authenticated users for confirmation/inventory mutation tables; RPCs are the mutation boundary |
-| RLS/read scope | confirmation/evidence reads use `private.can_view_basic_medical_registration` or Basic Medical management predicates |
-| Concurrency | confirmation eligibility and inventory mutation code locks/validates source state; active confirmation unique index prevents duplicate active confirmation per session |
-| Auditability | cancellation, invalidation, linked change and equipment condition paths have explicit audit/outbox behavior |
+| Concern                 | Evidence                                                                                                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registration-to-session | `basic_medical_registrations → basic_medical_registration_sessions → class_schedules`                                                                                  |
+| Confirmation evidence   | `basic_medical_session_confirmations`, checks, inventory and condition logs; FK structure supported by Liam ERD                                                        |
+| Direct writes           | insert/update/delete revoked from authenticated users for confirmation/inventory mutation tables; RPCs are the mutation boundary                                       |
+| RLS/read scope          | confirmation/evidence reads use `private.can_view_basic_medical_registration` or Basic Medical management predicates                                                   |
+| Concurrency             | confirmation eligibility and inventory mutation code locks/validates source state; active confirmation unique index prevents duplicate active confirmation per session |
+| Auditability            | cancellation, invalidation, linked change and equipment condition paths have explicit audit/outbox behavior                                                            |
 
 ## State model
 

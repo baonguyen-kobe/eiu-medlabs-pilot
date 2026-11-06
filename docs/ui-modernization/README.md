@@ -26,6 +26,7 @@ Highest to lowest for UI continuity:
 7. Audit evidence in `docs/ui-modernization/audits/`
 
 When two continuity sources disagree, follow the higher-authority source. Do not silently rewrite history. Record deliberate changes in `DECISIONS.md` or append them to `WORKLOG.md`.
+
 ## Session startup protocol
 
 For any session working on UI modernization:
@@ -55,6 +56,7 @@ Rules:
 - If `CURRENT.md` identifies an active task, inspect existing source and `git diff`, then continue that task.
 - If there is no active task, select the first eligible `READY` task by dependency order, phase order, then priority unless the user explicitly requests another task.
 - Do not put unrelated tasks `IN_PROGRESS` together.
+
 ## Explicit user-request rule
 
 An explicit current user request takes precedence. If the user requests work unrelated to UI modernization, perform that task. Do not hijack unrelated work merely because modernization remains active.
@@ -101,6 +103,7 @@ Before changing a task to `DONE`, record applicable verification evidence in `TR
 - Do not rewrite historical statuses to match wording changes.
 
 If implementation exists but required verification is incomplete or awaiting user visual review, keep the task `VERIFY`, not `DONE`. Never turn an unavailable check into `PASS`. Keep known local test-environment limitations distinct from code regressions.
+
 ## Interruption recovery
 
 ### Case A — Uncommitted source changes exist
@@ -135,6 +138,7 @@ Before ending a UI-modernization session:
 7. **Never commit, push, merge, or deploy without explicit current authorization.** If authorized, commit only when task and tracking state form a coherent batch.
 
 This protocol works locally without requiring chat history.
+
 ## Commit convention
 
 Prefer stable task IDs in implementation commit subjects:

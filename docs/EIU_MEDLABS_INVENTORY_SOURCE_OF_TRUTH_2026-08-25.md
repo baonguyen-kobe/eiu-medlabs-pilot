@@ -326,34 +326,34 @@ Principle:
 
 **Admin = daily operations + configuration + terminal/destructive business states + override**
 
-| Operation | Admin | Staff |
-|---|---:|---:|
-| View Inventory | Yes | Yes |
-| View acquisition cost | Yes | Yes |
-| Create/edit category | Yes | Yes |
-| Deactivate category | Yes | No |
-| Create/edit catalog item | Yes | Yes |
-| Deactivate catalog item | Yes | No |
-| Create/edit supplier | Yes | Yes |
-| Deactivate supplier | Yes | No |
-| Create/edit acquisition record | Yes | Yes |
-| View all acquisition data | Yes | Yes |
-| Create/edit storage location | Yes | Yes |
-| Deactivate location | Yes | No |
-| Receive stock | Yes | Yes |
-| Adjust stock | Yes | Yes |
-| Stock transfer | Yes | Yes |
-| Register serialized asset | Yes | Yes |
-| Edit asset facts | Yes | Yes |
-| Change operational status | Yes | Yes |
-| Retire asset | Yes | No |
-| Dispose asset | Yes | No |
-| Configure shortage reasons | Yes | No |
-| Prepare request | Yes | Yes |
-| NEW → PREPARED | Yes | Yes |
-| PREPARED → NEW | Yes | Yes |
-| Override/transfer another user's preparation lock | Yes | No |
-| Release own lock | Yes | Yes |
+| Operation                                         | Admin | Staff |
+| ------------------------------------------------- | ----: | ----: |
+| View Inventory                                    |   Yes |   Yes |
+| View acquisition cost                             |   Yes |   Yes |
+| Create/edit category                              |   Yes |   Yes |
+| Deactivate category                               |   Yes |    No |
+| Create/edit catalog item                          |   Yes |   Yes |
+| Deactivate catalog item                           |   Yes |    No |
+| Create/edit supplier                              |   Yes |   Yes |
+| Deactivate supplier                               |   Yes |    No |
+| Create/edit acquisition record                    |   Yes |   Yes |
+| View all acquisition data                         |   Yes |   Yes |
+| Create/edit storage location                      |   Yes |   Yes |
+| Deactivate location                               |   Yes |    No |
+| Receive stock                                     |   Yes |   Yes |
+| Adjust stock                                      |   Yes |   Yes |
+| Stock transfer                                    |   Yes |   Yes |
+| Register serialized asset                         |   Yes |   Yes |
+| Edit asset facts                                  |   Yes |   Yes |
+| Change operational status                         |   Yes |   Yes |
+| Retire asset                                      |   Yes |    No |
+| Dispose asset                                     |   Yes |    No |
+| Configure shortage reasons                        |   Yes |    No |
+| Prepare request                                   |   Yes |   Yes |
+| NEW → PREPARED                                    |   Yes |   Yes |
+| PREPARED → NEW                                    |   Yes |   Yes |
+| Override/transfer another user's preparation lock |   Yes |    No |
+| Release own lock                                  |   Yes |   Yes |
 
 Stock adjustment:
 
