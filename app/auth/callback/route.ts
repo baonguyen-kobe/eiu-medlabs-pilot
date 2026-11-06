@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeInternalPath } from "@/lib/application-url.mjs";
 import { createClient } from "@/lib/supabase/server";
 
 function redirectOrigin(request: Request) {
@@ -21,11 +22,10 @@ function loginError(request: Request, message: string) {
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
-  const next =
-    requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-      ? requestedNext
-      : "/dashboard";
+  const next = safeInternalPath(
+    requestUrl.searchParams.get("next"),
+    "/dashboard",
+  );
   const isPasswordRecovery = next === "/reset-password";
 
   if (!code) {
