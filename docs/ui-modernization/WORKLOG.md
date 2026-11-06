@@ -169,3 +169,9 @@ Status remains VERIFY pending owner visual acceptance. Source is unchanged
 at 058014b52e5dee4f2b21af49fa02c56b9cc53c8f on the pilot branch; no commit,
 push, deployment or database mutation. Browser/ARIA/gesture behavior was not
 tested by this static design task.
+
+## 2026-11-06 — UI consistency baseline
+
+Compared computed styles of MedLabs and UniCouncil primitives in Chromium and
+measured styling drift by family. Updated UI Master Section 0A and added the
+`medlabs-ui` skill. No application source changed. Evidence: DEC-UI-20261106.

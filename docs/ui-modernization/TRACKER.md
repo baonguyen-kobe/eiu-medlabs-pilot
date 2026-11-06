@@ -20,6 +20,10 @@ Follow-up user direction: finish the workflow plan before implementation, priori
 
 ## Primary task registry
 
+UI-BASE-2026: READY (2026-11-06). Rules in UI Master Section 0A and the `medlabs-ui`
+skill are recorded. Next: apply tokens and shared classes centrally, then migrate
+`components/inventory` family by family. See DEC-UI-20261106.
+
 FIGMA-V2026: VERIFY (updated 2026-11-04). Owner-requested editable design artifact:
 112 UI frames covering all sidebar families, shared components and
 representative responsive views; 23 original Figma frames preserved.

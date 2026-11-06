@@ -132,6 +132,7 @@ Historical evidence may explain why a decision was made, but it cannot override:
 - **Pilot delivery remote / branch:** `origin` / `main`; bootstrap `e8024212edd4b9c179055ad5c9490832f42944ea`.
 - **Original application reference:** `upstream` = `baonguyen-kobe/eiu-medlabs`, fetch/reference only; local push URL intentionally disabled.
 - **Inventory architecture/design authority:** `D:/orca/medlabs-OPs` current state, decisions, requirements, master roadmap and approved Page/Data/DB/D2 contracts. Do not copy that entire control plane into this repository.
+- **Interim Inventory design approval (owner decision, 2026-11-06):** while the control plane above is unavailable, use the Kho VTTB prototype (`D:/Orca/Medlab review/sites/kho-vttb-review-20261104`) plus Figma V2026. This replaces design approval only; it does not reopen recorded business decisions.
 - **Pilot review supplement:** [Inventory reconciliation](architecture/INVENTORY_PILOT_RECONCILIATION.md); current entry points link to it and the control plane rather than maintaining conflicting full plans.
 - **Equipment contract reference:** pinned original `ui-modernization@b8467835c28f279f7182781c8ce3c96220a27dc7`; business decisions may be reconciled without merging its source/UI.
 - **Historical modernization source:** `baonguyen1301/eiu-medlabs@e42b2ed6cbd89bb080a2c74d62f659560207b792`, reference only.

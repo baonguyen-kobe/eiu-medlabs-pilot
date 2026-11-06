@@ -30,6 +30,22 @@ business fields. Desktop/tablet scrolling remains permitted. Names, stored
 business content and necessary explanatory sentences are not truncated to
 satisfy the label limit. This does not advance prior implementation tasks.
 
+## DEC-UI-20261106 — UniCouncil is the visual baseline
+
+**Status:** ACCEPTED (owner, 2026-11-06). Rollout pending; visual acceptance stays VERIFY.
+
+Visual values follow UniCouncil first and the current MedLabs interface where
+UniCouncil has no equivalent. The EIU brand stays; business rules do not transfer.
+This refines DEC-UI-001 and DEC-UI-002 for type, color, control size and badges,
+and supersedes the 2026-11-04 note against an orange edit action. The full
+contract is UI Master Section 0A. The 920px breakpoint stays. Table headers stay
+sentence case because MedLabs tables are wider than UniCouncil's.
+
+Reason: 2026-11-06 measurement. `components/inventory` holds 698 `text-xs`, 225
+`text-[11px]`, 1,713 `slate-*` and 179 `font-mono` uses, against 11 `text-xs` in
+`app/`. The Master named five components that do not exist, so new pages had
+nothing real to reuse.
+
 ## DEC-UI-001 — Preserve MedLabs identity
 
 **Status:** ACCEPTED

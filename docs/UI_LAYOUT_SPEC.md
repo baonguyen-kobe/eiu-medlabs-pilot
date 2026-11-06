@@ -1,5 +1,8 @@
 # MedLabs Calendar — UI & Layout Review Spec
 
+> Historical. Colors and type here are out of date (for example teal). Use
+> `docs/UI_DESIGN_SYSTEM_V2_MASTER.md`, Section 0A.
+
 ## 1. Định hướng thị giác
 
 - Ngôn ngữ: tiếng Việt.

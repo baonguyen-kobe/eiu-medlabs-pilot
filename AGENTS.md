@@ -111,8 +111,9 @@ Follow this direct, evidence-first execution loop:
 - Vercel Preview and production release are separate. Preview work must use
   `medlabs-vercel-preview`; `docs/RELEASE.md` describes the original application,
   not a pilot deployment.
-- Do not implement an Inventory page or feature unless its design status in
-  `medlabs-OPs` is **APPROVED**. Reference repositories for Inventory design are
+- Do not implement an Inventory page or feature without approved design. While
+  `medlabs-OPs` is unavailable, the owner's approval source is the Kho VTTB
+  prototype plus Figma V2026 (owner decision, 2026-11-06). Reference repositories for Inventory design are
   listed in `docs/architecture/REFERENCE_REPOS.md`.
 - Supabase MCP, Context7 MCP, and GitNexus MCP are optional tool integrations,
   not prerequisites for ordinary MedLabs source work. Do not assume they are

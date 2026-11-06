@@ -1,6 +1,12 @@
 # Current UI Modernization State
 
-Last updated: 2026-11-04
+Last updated: 2026-11-06
+
+## UI consistency baseline
+
+The owner set UniCouncil as the visual baseline, with the current MedLabs interface
+where UniCouncil has no equivalent. Read UI Master Section 0A and the `medlabs-ui`
+skill before any UI work. Source rollout has not started. See DEC-UI-20261106.
 
 ## Figma V2026 design review
 

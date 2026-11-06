@@ -7,7 +7,7 @@ Canonical path:
 docs/UI_DESIGN_SYSTEM_V2_MASTER.md
 
 Last updated:
-2026-11-04
+2026-11-06
 
 ---
 
@@ -76,6 +76,153 @@ without redefining it.
 
 ---
 
+# 0A. CONSISTENCY BASELINE — OWNER DECISION, 2026-11-06
+
+The owner set this order for every visual value, and it overrides any older
+value further down this document:
+
+```text
+1. Explicit owner decision
+2. UniCouncil design rules (workflow-app-ui, 2026-11-05), then its source
+   (UniCouncil-Scheduler main@1be7159)
+3. Current MedLabs interface, where UniCouncil has no equivalent
+```
+
+Take presentation only from UniCouncil. Do not import its roles, statuses,
+business rules, page sizes (5/4 records), 700px breakpoint, logo or sample data.
+Business, security and data rules in this document stay in force.
+
+Status: the target is approved; source rollout is pending and stays VERIFY
+until owner visual acceptance. New code uses the shared classes and components
+below, so a rollout changes values centrally instead of page by page.
+
+## 0A.1 Tokens
+
+| Role                                   | Value                                                                            | Current MedLabs             |
+| :------------------------------------- | :------------------------------------------------------------------------------- | :-------------------------- |
+| Primary / heading                      | `#144069`                                                                        | same                        |
+| Sidebar                                | `#102F4D` (existing gradient kept)                                               | same                        |
+| Gold accent, never small text on light | `#A78656`                                                                        | same                        |
+| Canvas                                 | `#F9F8F5`                                                                        | `#F8F6F1`                   |
+| Surface                                | `#FFFFFF`                                                                        | same                        |
+| Text primary                           | `#303033`                                                                        | same                        |
+| Text secondary                         | `#58595B`                                                                        | `#68686B`                   |
+| Separator line                         | `#E9E5DD`                                                                        | `#E2D9CC`                   |
+| Editable control border                | `#8A8F94`                                                                        | `#C7BBA9`                   |
+| Cream                                  | `#EAE2D6`                                                                        | `#F6F1E8`                   |
+| Table header background                | `#F8F7F3`                                                                        | `#F6F1E8`                   |
+| UI font                                | Be Vietnam Pro                                                                   | same                        |
+| Display font                           | Crimson Pro                                                                      | none                        |
+| Spacing                                | 4, 8, 12, 16, 20, 24, 32 px                                                      | 4, 8, 12, 16, 24, 32, 48 px |
+| Radius                                 | control 10, table/toolbar/pagination/KPI 12, card 15, dialog/drawer 16, pill 999 | table 15                    |
+| Control height                         | Forms, actions and everything at <=920px: 44px. Desktop filter toolbar: 40px     | 40px                        |
+| Button padding                         | 10px 18px                                                                        | 0 14px                      |
+| Page gutter                            | >920: 32; 761–920: 24; 361–760: 16; <=360: 12                                    | 30                          |
+| Danger button                          | `#B91C1C`                                                                        | `#B44425`                   |
+| Edit button                            | `#B45309`                                                                        | none                        |
+
+Display font use: desktop page title, KPI value, table-card heading, empty-state
+heading, drawer and modal title, form section heading, login headings. All other
+text uses Be Vietnam Pro.
+
+| Text role                                            | Desktop                                | Phone                     |
+| :--------------------------------------------------- | :------------------------------------- | :------------------------ |
+| Page title                                           | Crimson Pro 30/38, 700, uppercase      | Be Vietnam Pro 19/24, 700 |
+| Section / card heading                               | Crimson Pro 25, 600                    | Be Vietnam Pro 18–20      |
+| KPI value                                            | Crimson Pro 40/44, 700, primary        | same                      |
+| Body, label, metadata, badge, table cell, pagination | 14, line height 20–24                  | same                      |
+| Field label                                          | 14, 700                                | same                      |
+| Input, select, search value                          | 14, 500                                | 16, 500                   |
+| Table header                                         | 14, 700, sentence case, text secondary | same                      |
+
+The 14px floor has no exception for functional text. Existing logos and original
+signed documents are not resized.
+
+Breakpoints stay MedLabs: 920px is the only layout breakpoint for new code; 760px
+and 360px change the gutter only. Others in `globals.css` remain until their
+family is touched.
+
+## 0A.2 Real shared building blocks
+
+Earlier sections name `DataTableShell`, `TableScrollViewport`, `FilterBar`,
+`BulkActionBar` and `EmptyState`. Those are layout concepts, not components, and
+importing them will fail. Use these:
+
+| Need            | Use                                                                                          | Do not                                |
+| :-------------- | :------------------------------------------------------------------------------------------- | :------------------------------------ |
+| Page title      | `PageHeader`; WorkspaceShell owns the h1                                                     | Second h1 or custom topbar            |
+| In-page heading | `InventoryPageHeader` (h2), or the family heading class                                      | New heading styles                    |
+| Button          | `.button` with `.button-primary`, `.button-secondary`, `.button-danger`                      | Tailwind-built buttons                |
+| Text input      | `.input-field`                                                                               | New input styling; `.input` is legacy |
+| Search combobox | `SearchableCombobox`; `InventoryLookup` for Inventory items, restyle pending                 | Custom dropdown                       |
+| Time            | `TimePicker`                                                                                 | Custom picker                         |
+| Form            | `.form-grid`, `.form-section-title`, `.form-section-number`, `.form-error`                   | Page-specific form shell              |
+| Table           | `.data-panel` > `.responsive-table` > `table.data-table`                                     | Own border, radius, header color      |
+| Pagination      | `PaginationControls` for client lists, `PaginationLinks` for URL lists                       | Custom pager                          |
+| Status          | `.badge` with a tone from 0A.3                                                               | Per-page badge markup                 |
+| KPI             | `.kpi-card`                                                                                  | Custom stat cards                     |
+| Confirmation    | `ConfirmDialog`                                                                              | `window.confirm`, `window.prompt`     |
+| Drawer          | `.detail-drawer`, 520px wide, sticky head and footer; Calendar stays 480, Personnel edit 600 | Another overlay                       |
+| Feedback        | `.action-feedback`, `.panel-empty`, `app/error.tsx`                                          | Empty list on failure                 |
+
+When nothing fits, extend the shared class or component first, then record it
+here. Do not build a one-page variant.
+
+## 0A.3 Status tones
+
+| Tone    | Meaning                                   | Background / text / border        |
+| :------ | :---------------------------------------- | :-------------------------------- |
+| info    | Processing, new, pending approval         | `#F0F4F8` / `#144069` / `#D5E1EB` |
+| warning | Adjusted, pending return, needs attention | `#FFF8E8` / `#765A0D` / `#EADBB2` |
+| success | Approved, returned in full                | `#F0FDF4` / `#15803D` / `#BBF7D0` |
+| danger  | Cancelled, overdue, damaged               | `#FFF1ED` / `#8C301B` / `#EED6CC` |
+| neutral | Completed, inactive                       | `#EEF2F2` / `#68686B` / `#DDE3E3` |
+
+Badges are 14px, 700, pill, padding 6px 11px, text only with no dot. The same
+status has the same tone everywhere. Colors never stand in for the label or
+imply a permission. Color-named classes such as `.badge-teal` are legacy.
+
+Actions: one primary per group. Edit uses the edit color, destructive actions
+use danger, routine confirmation uses primary. `Đóng` dismisses; it never
+destroys data.
+
+## 0A.4 Building a page
+
+```text
+PageHeader
+KPI row (optional)
+Filter toolbar: search, filters, reset
+Table or phone record list
+Pagination
+```
+
+1. Copy the closest existing family: Personnel for tables, Create Schedule for
+   forms. Reuse before writing anything.
+2. Filters above and pagination below stay outside the record scroller.
+3. At 920px and below, render labeled vertical records with no field hidden and
+   no horizontal scroll.
+4. Provide loading, first-use empty, filtered-zero, failed load with retry,
+   saving and saved states.
+5. Keep values out of page code: tokens and shared classes own them.
+
+## 0A.5 Rejected in page and component code
+
+- `text-xs`, `text-[10px]`, `text-[11px]`, or any size under 14px.
+- `font-mono` for ordinary data; use tabular numerals.
+- Tailwind palette classes (`slate-*`, `emerald-*`, `indigo-*`, `gray-*`) for
+  surfaces, text, borders or status; use tokens.
+- `dark:` classes. The application has no dark mode.
+- `<table>` without `.data-table`, and scroll wrappers with their own border or
+  radius.
+- `shadow-*`, `rounded-*` and `backdrop-blur-*` where a shared class owns them.
+- Copying a sibling page's drift. Existing Inventory code is not a reference
+  until migrated.
+
+`tests/ui-drift-ratchet.test.mjs` enforces this list: a file may not gain
+violations, and a new file starts at zero.
+
+---
+
 # 1. DESIGN DIALS — FINAL
 
 ## Workflow-app-ui refinement — owner request, 2026-11-04
@@ -101,10 +248,10 @@ tables into another app shell. Drawers have a visible close control, bounded
 body scroll, and fixed action footer. Dismissal uses `Đóng` or `Quay lại`;
 destructive cancellation retains an explicit destructive action and tone.
 
-Use semantic `control-border` (#8A8174) for editable input/search/select
+Use semantic `control-border` (#8A8F94) for editable input/search/select
 boundaries, while retaining the lighter `line` token for card/table separators.
-Focus and error keep their existing brand/danger boundaries. Preserve the
-approved MedLabs action colors rather than introducing an orange edit rule.
+Focus and error keep their existing brand/danger boundaries. Action colors
+follow Section 0A.
 Loading, saving and success examples must communicate actual state without
 fake percentages, duplicate submission, or a toast covering pagination.
 These are Figma presentation changes; frontend implementation and owner visual
@@ -219,13 +366,13 @@ Core colors:
 ```text
 EIU Blue      #144069
 EIU Gold      #A78656
-EIU Cream     #F6F1E8
-Canvas        #F8F6F1
+EIU Cream     #EAE2D6
+Canvas        #F9F8F5
 Surface       #FFFFFF
 Ink Primary   #303033
-Danger        #B44425
-Success       #52813B
-Warning       #D88327
+Ink Secondary #58595B
+Danger        #B91C1C
+Edit          #B45309
 ```
 
 Component mới nên dùng semantic token thay vì hardcode brand hex trực tiếp khi có thể.
@@ -237,9 +384,9 @@ Component mới nên dùng semantic token thay vì hardcode brand hex trực ti�
 Recommended semantic roles:
 
 ```text
-Page title       clamp(27px, 2vw, 32px) / 1.2 / 750
-Section title    16px / 1.35 / 800
-Card title       15px / 1.4 / 700
+Page title       Section 0A.1
+Section title    Section 0A.1
+Card title       Section 0A.1
 Body             14px / 1.5 / 400-500
 Table body       14px / 1.4 / 400-600
 Table header     14px / 1.43 / 700
@@ -262,7 +409,7 @@ Rules:
 Scale:
 
 ```text
-4 / 8 / 12 / 16 / 24 / 32 / 48 px
+4 / 8 / 12 / 16 / 20 / 24 / 32 px
 ```
 
 Desktop guideline:
@@ -283,7 +430,8 @@ Không thêm random spacing 13/17/23px nếu không có lý do layout rõ.
 
 ```text
 Control radius     10px
-Card/Table radius  15px
+Table/Toolbar      12px
+Card radius        15px
 Dialog/Drawer      16px
 Badge/Pill         999px
 ```
@@ -426,13 +574,10 @@ Header của mọi page phải là **trắng**, không vàng nhạt.
 
 ## Page title
 
+Typography follows Section 0A.1.
+
 ```text
-font: Be Vietnam Pro
 color: #144069
-font-size: clamp(27px, 2vw, 32px)
-font-weight: 750
-line-height: 1.2
-letter-spacing: -0.025em
 margin: 0
 ```
 
@@ -623,9 +768,9 @@ one control → one visual border/radius/background → one visible focus bounda
 
 ## Height
 
+Height follows Section 0A.1: 40px on desktop, 44px at 920px and below.
+
 ```text
-height: 44px
-min-height: 44px
 box-sizing: border-box
 border-radius: 10px
 ```
@@ -641,7 +786,7 @@ border-radius: 10px
 Không để cùng hàng tồn tại:
 
 ```text
-39px / 42px / 44px
+nhiều chiều cao khác nhau
 ```
 
 ## Alignment
@@ -675,7 +820,6 @@ Không để cùng hàng tồn tại:
 Wrapper:
 
 ```text
-height: 44px
 display: inline-flex
 align-items: center
 justify-content: center
@@ -691,6 +835,9 @@ Rules:
 ---
 
 # 13. TABLE MASTER — CRITICAL
+
+The structure below is conceptual; Section 0A.2 lists the real classes and
+components.
 
 Table shell, textual header alignment, body-cell safe inset, and responsive
 local-scroll behavior are Global UI Master contracts. A family or page may
@@ -1630,7 +1777,7 @@ Action buttons
 verify:
 
 ```text
-all controls same 44px row height
+all controls same row height (Section 0A.1)
 counter visually centered
 reset button same height
 same baseline
@@ -1923,7 +2070,7 @@ This task is DONE only when:
 - Personnel production remains the visual reference for Data Table edge/radius;
 - shared TableScrollViewport behavior is used instead of page-specific fixes;
 - Equipment name columns prioritized;
-- filters same 44px height;
+- filters share one height (Section 0A.1);
 - reset aligned;
 - counters centered;
 - dropdown focus has one border;
