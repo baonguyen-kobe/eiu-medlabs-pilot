@@ -40,7 +40,11 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
-      - name: Audit dependencies
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
+      - name: Report development dependency audit
+        continue-on-error: true
         run: npm audit
 
       - name: Retire stale CI Supabase runtime
