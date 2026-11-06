@@ -23,36 +23,10 @@ Use the smallest sufficient navigation tool for the task:
 
 ## Repository skill routing
 
-Read root `SKILLS.md` before selecting a MedLabs skill.
+Read root `SKILLS.md` only when a task matches one of its rows, and load only that
+skill. Skills live under `.agents/skills`. Skill additions or upgrades are reviewed
+changes.
 
-The curated MedLabs skills live under `.agents/skills`.
-
-Use only the skill or skills relevant to the active task; do not load every
-skill body by default.
-
-Routing rules:
-
-- If the current user or independent Reviewer has supplied a verified root
-  cause or settled exact implementation contract, use
-  `medlabs-implement-contract` and do not restart broad diagnosis.
-- If root cause is genuinely unknown, use `systematic-debugging`.
-- Use the curated Supabase skills for Supabase/Auth/database/RLS/RPC/schema work.
-- Use the curated Vercel React/composition skills only for the matching
-  React/Next.js implementation concerns.
-- Use `accessibility` for keyboard/focus/ARIA/semantic/WCAG implementation.
-- Use `tdd` only when a test-first loop materially improves the approved
-  behavioral seam or is explicitly requested.
-- Use `ponytail-review` only for an explicit or materially useful
-  over-engineering review.
-- Use `medlabs-verification-gate` for completion evidence.
-- Use `medlabs-vercel-preview` only for explicitly authorized Vercel Preview
-  work.
-- Use `medlabs-release-preflight` only for explicitly authorized release work.
-
-Do not use `find-skills` to expand the MedLabs skill set during implementation.
-Skill additions or upgrades are reviewed profile changes.
-
-Mutating `task`/`sonic` workers are not the default MedLabs execution model.
 Do not run concurrent mutating agents in the same canonical worktree.
 Read-only specialist agents may assist when materially useful.
 
@@ -69,7 +43,7 @@ Do not run codemods or package updates during documentation or localized bug tas
 
 ## Coding guardrails
 
-Apply `.agents/skills/karpathy-coding-heuristics/SKILL.md` for implementation, bug fixes, refactors, and reviews:
+For implementation, bug fixes, refactors, and reviews:
 
 - Think before coding and make material assumptions explicit.
 - Prefer the simplest solution that fully meets the request.
@@ -89,13 +63,12 @@ exact implementation or fix contract after inspecting current evidence:
 4. if it materially no longer matches current source, stop and report
    `CONTRACT_ANCHOR_MISMATCH` rather than improvising a replacement design.
 
-Use `.agents/skills/medlabs-implement-contract/SKILL.md` for this workflow. This
-contract does not require an external Reviewer role; it applies whenever a
+This contract does not require an external Reviewer role; it applies whenever a
 verified implementation contract is provided.
 
-## Local OMP workflow
+## Local workflow
 
-When working in OMP, follow this direct, evidence-first execution loop:
+Follow this direct, evidence-first execution loop:
 
 1. **Understand request & policy once:** Read the user request, current source,
    and relevant policy/topic once; do not re-read entire sets of documentation
@@ -105,10 +78,9 @@ When working in OMP, follow this direct, evidence-first execution loop:
    redesigns, or material migrations. Do not manufacture proposal/reviewer loops
    for routine tasks.
 3. **Surgical edits & targeted verification:** Edit directly in the working tree,
-   preserving user modifications. Unknown bugs require root-cause diagnosis via
-   `systematic-debugging`; verified supplied contracts require verifying the
-   source anchor via `medlabs-implement-contract` without re-diagnosing the whole
-   repository. Review the diff of the touched scope before handoff.
+   preserving user modifications. Unknown bugs require root-cause diagnosis; verified
+   supplied contracts require verifying the source anchor without re-diagnosing
+   the whole repository. Review the diff of the touched scope before handoff.
 4. **Independent review by risk:** Run independent read-only review only when
    explicitly requested by the user, or when modifying authorization/RLS/privileged
    behavior, migrations/data integrity, broad shared architecture, or release-critical
@@ -116,7 +88,7 @@ When working in OMP, follow this direct, evidence-first execution loop:
    After findings, re-review only the touched boundary and dependent impact, not
    the entire repository.
 5. **Direct reporting & explicit authorization:** Report findings, test evidence,
-   and limitations directly in OMP. **Never commit, push, merge, deploy, or mutate
+   and limitations directly. **Never commit, push, merge, deploy, or mutate
    production databases without explicit current authorization for that specific
    operation.** There is no exception for automatic pushes upon interruption;
    uncommitted source and local checkpoints are the mechanism for session resumption.
@@ -125,28 +97,22 @@ When working in OMP, follow this direct, evidence-first execution loop:
 ## Specialized guidance
 
 - For Supabase Auth, database, RLS, grants, RPC/functions, migrations, storage,
-  or Supabase client behavior, use the relevant curated Supabase skill. For
-  RLS, grants, authorization, or privileged database behavior, use `supabase`
-  first and treat `supabase-postgres-best-practices` as secondary advisory
-  guidance. Approved MedLabs contracts and actual effective schema/runtime
-  behavior outrank generic skill examples. Repository schema/migrations remain
-  database change authority. Do not auto-configure MCP and do not use a remote
-  Supabase database as an iterative write scratchpad. Production database
-  mutation requires separate explicit authorization under `docs/RELEASE.md`.
-- For React/Next.js implementation or performance work, use
-  `vercel-react-best-practices`.
-- Use `vercel-composition-patterns` only when reusable component API or
-  composition architecture is materially in scope.
-- Use `web-design-guidelines` for explicit general UI/UX review; it does not
-  override the MedLabs UI Master.
-- Use `accessibility` for focus, keyboard, semantics, ARIA, screen-reader, or
-  WCAG behavior.
+  or Supabase client behavior, use `supabase` first and treat
+  `supabase-postgres-best-practices` as secondary advisory guidance. Approved
+  MedLabs contracts and actual effective schema/runtime behavior outrank generic
+  skill examples. Repository schema/migrations remain database change authority.
+  Do not auto-configure MCP and do not use a remote Supabase database as an
+  iterative write scratchpad. Production database mutation requires separate
+  explicit authorization under `docs/RELEASE.md`.
 - Use OpenSpec for cross-cutting features, breaking behavior, schema/security
   redesign, material migrations, or work that needs a durable approved
   proposal. Small fixes and localized UI changes remain direct.
 - Vercel Preview and production release are separate. Preview work must use
-  `medlabs-vercel-preview`; production/release work must follow
-  `docs/RELEASE.md` through `medlabs-release-preflight`.
+  `medlabs-vercel-preview`; `docs/RELEASE.md` describes the original application,
+  not a pilot deployment.
+- Do not implement an Inventory page or feature unless its design status in
+  `medlabs-OPs` is **APPROVED**. Reference repositories for Inventory design are
+  listed in `docs/architecture/REFERENCE_REPOS.md`.
 - Supabase MCP, Context7 MCP, and GitNexus MCP are optional tool integrations,
   not prerequisites for ordinary MedLabs source work. Do not assume they are
   active unless the current runtime proves it.
@@ -172,10 +138,7 @@ Do not infer scope, selector, breakpoint, ownership, or shared impact from a scr
 
 OpenSpec lifecycle:
 
-Use OpenSpec only for cross-cutting features, breaking behavior, schema/security redesign, material migrations, or durable architecture proposals. Localized bug fixes, simple UI tweaks, and typo corrections remain direct edits. Both entrypoints are supported:
-
-- Skills: `openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`, `openspec-sync-specs`, `openspec-update-change`.
-- Commands: `/opsx-explore`, `/opsx-propose`, `/opsx-apply`, `/opsx-archive`, `/opsx-sync`, `/opsx-update`.
+Use OpenSpec only for cross-cutting features, breaking behavior, schema/security redesign, material migrations, or durable architecture proposals. Localized bug fixes, simple UI tweaks, and typo corrections remain direct edits. Changes live under `openspec/changes/`; use `npm.cmd run openspec` for the CLI.
 
 ## UI Modernization Continuity
 
@@ -183,7 +146,7 @@ The persistent UI/UX/responsive modernization state is stored in:
 
 `docs/ui-modernization/`
 
-UI tasks follow the `ui-modernization` branch; release tasks follow `main`. Inspect current branch and working tree state at execution start; do not fetch or switch branches merely at session startup or during unrelated documentation audits. Do not switch branches when unrelated dirty working tree changes exist; report the conflict rather than stashing or resetting.
+Pilot work is delivered to `origin/main` (see `docs/DOCUMENTATION_AUTHORITY.md`). Inspect current branch and working tree state at execution start; do not fetch or switch branches merely at session startup or during unrelated documentation audits. Do not switch branches when unrelated dirty working tree changes exist; report the conflict rather than stashing or resetting.
 
 For any UI modernization, responsive, accessibility, design-system, frontend-polish, or related continuation task:
 
@@ -204,7 +167,7 @@ Commit and push are separate delivery operations, not criteria for task completi
 
 If the user says only `continue`, `resume`, `proceed`, `tiếp tục`, `làm tiếp`, `đọc repo rồi tiếp tục`, or equivalent while UI modernization is active:
 
-1. Confirm current branch is `ui-modernization` (if on `main` without uncommitted work, switch; if dirty, stop and report).
+1. Inspect the current branch; do not switch it while unrelated work is dirty.
 2. Read `CURRENT.md` and `TRACKER.md`.
 3. Inspect Git status, diff, branch, and commit.
 4. Resume the recorded `IN_PROGRESS` task, or take the first eligible `READY` task.
@@ -213,9 +176,6 @@ If the user says only `continue`, `resume`, `proceed`, `tiếp tục`, `làm ti�
 An explicit current user request always takes precedence over automatic continuation. Do not redirect unrelated work into UI modernization.
 
 ## Verification
-
-Use `.agents/skills/medlabs-verification-gate/SKILL.md` as the procedural
-implementation of the verification policy below.
 
 Validation is change-aware, risk-based, and Actions-budget-aware.
 
@@ -256,6 +216,13 @@ are not the default CI path.
 Use `npm.cmd run react-doctor:audit` as an advisory audit after meaningful
 React work. Do not weaken tests, types, lint rules, security controls, or the
 validation scope merely to make checks pass.
+
+Before an explicitly authorized push, inspect the actual changed files, run
+`npm.cmd run preflight:changed -- <base-ref>` when the whole changed set is in
+scope, run tests covering the touched boundary, and review `git diff --stat`. Use
+local formatting, not CI, as the first formatter, and never mass-format unrelated
+files to pass a check. `preflight:changed` does not run behavioral tests or
+typecheck.
 
 See `docs/RELEASE.md` for the durable release and production-verification
 policy.

@@ -7,8 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $requiredFiles = @(
-  "AGENTS.md",
-  ".agents/skills/karpathy-coding-heuristics/SKILL.md"
+  "AGENTS.md"
 )
 
 Push-Location $repositoryRoot

@@ -1,4 +1,3 @@
-<!-- omp-managed-reference-repos:start -->
 # Reference Repositories
 
 ## EIU Medlabs
@@ -54,4 +53,3 @@ They may overlap conceptually but currently have different operational semantics
 QLTBYT Nam Phong may be used as a reference for database quality gates, migration verification, specification-first workflows, GIVEN/WHEN/THEN acceptance criteria, repair/maintenance domain invariants, and audit/history practices.
 
 Do not copy its mandatory push workflow, AgentMemory configuration, context-mode configuration, repository-specific agent instructions, complete `AGENTS.md`/`CLAUDE.md`, or no-RLS assumptions. Any engineering-practice adoption requires explicit evaluation against current Medlabs tooling.
-<!-- omp-managed-reference-repos:end -->

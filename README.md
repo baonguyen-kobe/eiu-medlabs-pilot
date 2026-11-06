@@ -4,7 +4,7 @@
 
 ## Tài liệu và hướng dẫn vận hành
 
-- **Engineering & OMP Workflow:** `AGENTS.md` và `docs/DOCUMENTATION_AUTHORITY.md`.
+- **Engineering Workflow:** `AGENTS.md` và `docs/DOCUMENTATION_AUTHORITY.md`.
 - **Lựa chọn Skill:** `SKILLS.md`.
 - **UI Modernization & Tiếp tục:** `docs/ui-modernization/README.md`.
 - **Quy trình Release & Production:** `docs/RELEASE.md` và `docs/PRODUCTION_DEPLOYMENT.md`.
@@ -61,7 +61,7 @@ powershell.exe -ExecutionPolicy Bypass -File scripts/seed-local-users.ps1
 
 ## Kiểm tra chất lượng
 
-Các lệnh kiểm tra chất lượng được phân chia theo rủi ro và phạm vi thay đổi (chi tiết xem `.agents/skills/medlabs-verification-gate/SKILL.md`):
+Các lệnh kiểm tra chất lượng được phân chia theo rủi ro và phạm vi thay đổi (chi tiết xem mục Verification trong `AGENTS.md`):
 
 | Loại task | Kiểm chứng local | Khi cần mở rộng |
 | :--- | :--- | :--- |
@@ -174,7 +174,7 @@ Version 1 luôn ghi `null` và không hiển thị.
 ## Code navigation & tri thức mã nguồn
 
 - **Graphify:** Knowledge graph nằm trong `graphify-out/`. Đây là artifact tham khảo lịch sử tùy chọn; không bắt buộc phải tồn tại hay tự động refresh cho mọi task.
-- **GitNexus:** Công cụ phân tích cấu trúc, blast radius và luồng thực thi tùy chọn (xem `.omp/skills/gitnexus-code-intelligence/SKILL.md`).
+- **GitNexus:** Công cụ phân tích cấu trúc, blast radius và luồng thực thi tùy chọn.
 - **Quyền tài liệu:** Các hợp đồng nghiệp vụ, phân quyền và kiến trúc hệ thống hiện hành được định nghĩa tại `docs/DOCUMENTATION_AUTHORITY.md`.
 ## Ghi chú chạy preview trên Windows
 

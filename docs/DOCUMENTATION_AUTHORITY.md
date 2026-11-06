@@ -112,7 +112,7 @@ to reconstruct policy from past discussion. Minor incidental statements do not
 require manufactured documents.
 
 GitHub is a durable versioning, issue-tracking, review, and delivery log; it is
-not an interactive transport channel required for OMP to inspect or mutate the
+not an interactive transport channel required for agents to inspect or mutate the
 local working tree.
 
 Historical evidence may explain why a decision was made, but it cannot override:
@@ -184,7 +184,7 @@ Use the smallest sufficient navigation method for the task:
 
 1. **Direct inspection and search (`read`, `grep`, `glob`):**
    - Default for localized, surgical edits, single-component changes, and straightforward investigations.
-2. **GitNexus (`gitnexus-code-intelligence` MCP / CLI):**
+2. **GitNexus CLI:**
    - Use when repository-level architecture, multi-file dependency tracing, caller graphs, shared consumers, or blast radius analysis is useful.
    - Do not require GitNexus for localized edits.
 3. **Graphify:**

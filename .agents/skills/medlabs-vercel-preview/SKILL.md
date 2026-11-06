@@ -17,7 +17,8 @@ Before any preview deployment:
 
 1. identify the current Git branch;
 2. identify the exact source SHA;
-3. verify the intended MedLabs Vercel project linkage;
+3. verify the linkage is the pilot project `eiu-medlabs-pilot`, never the original
+   application's Vercel project;
 4. verify that no production deployment flag or production alias operation is
    present.
 
