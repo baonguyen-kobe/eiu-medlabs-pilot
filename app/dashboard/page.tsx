@@ -53,7 +53,7 @@ export default async function DashboardPage() {
     "yyyy-MM-dd",
   );
 
-  const [{ data: schedules }, { data: people }] = await Promise.all([
+  const [{ data: schedules, error }, { data: people }] = await Promise.all([
     supabase
       .from("class_schedules")
       .select(
@@ -72,6 +72,7 @@ export default async function DashboardPage() {
       .order("start_time"),
     supabase.rpc("list_active_people"),
   ]);
+  if (error) throw new Error(`Dashboard schedules: ${error.message}`);
 
   const classRows = schedules ?? [];
   const peopleById = new Map(

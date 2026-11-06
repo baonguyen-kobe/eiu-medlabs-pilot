@@ -42,38 +42,43 @@ export default async function MyClassesPage({
 
   const range = resolveClassDateRange(await searchParams);
 
-  const [{ data }, { data: people }, { data: rooms }, { data: courses }] =
-    await Promise.all([
-      supabase
-        .from("class_schedules")
-        .select(
-          `
+  const [
+    { data, error },
+    { data: people },
+    { data: rooms },
+    { data: courses },
+  ] = await Promise.all([
+    supabase
+      .from("class_schedules")
+      .select(
+        `
       id, room_id, course_id, schedule_date, start_time, end_time, course_code_snapshot,
       course_name_snapshot, lecturer_id, lecturer_2_id, student_count, created_by,
       rooms!inner (room_code, building_code, room_type_id, room_types (name))
     `,
-        )
-        .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-        .or(`lecturer_id.eq.${userId},lecturer_2_id.eq.${userId}`)
-        .neq("schedule_status", "cancelled")
-        .gte("schedule_date", range.from)
-        .lte("schedule_date", range.to)
-        .order("schedule_date")
-        .order("start_time"),
-      supabase.rpc("list_active_people"),
-      supabase
-        .from("rooms")
-        .select("id, room_code, building_code, room_type_id")
-        .eq("is_active", true)
-        .eq("room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-        .order("room_code"),
-      supabase
-        .from("courses")
-        .select("id, course_code, course_name")
-        .eq("is_active", true)
-        .eq("room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-        .order("course_code"),
-    ]);
+      )
+      .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .or(`lecturer_id.eq.${userId},lecturer_2_id.eq.${userId}`)
+      .neq("schedule_status", "cancelled")
+      .gte("schedule_date", range.from)
+      .lte("schedule_date", range.to)
+      .order("schedule_date")
+      .order("start_time"),
+    supabase.rpc("list_active_people"),
+    supabase
+      .from("rooms")
+      .select("id, room_code, building_code, room_type_id")
+      .eq("is_active", true)
+      .eq("room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .order("room_code"),
+    supabase
+      .from("courses")
+      .select("id, course_code, course_name")
+      .eq("is_active", true)
+      .eq("room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .order("course_code"),
+  ]);
+  if (error) throw new Error(`My classes: ${error.message}`);
 
   const scheduleIds = (data ?? []).map((s) => s.id);
   const { data: lockStatuses } = scheduleIds.length

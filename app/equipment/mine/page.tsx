@@ -36,7 +36,7 @@ export default async function MyEquipmentRequestsPage({
   }
   const canAddItems = canManageEquipmentRequestItems(roles);
 
-  const [query, { data }, { data: catalog }] = await Promise.all([
+  const [query, { data, error }, { data: catalog }] = await Promise.all([
     searchParams,
     supabase
       .from("equipment_requests")
@@ -53,6 +53,7 @@ export default async function MyEquipmentRequestsPage({
           .order("item_name")
       : Promise.resolve({ data: [] }),
   ]);
+  if (error) throw new Error(`My equipment requests: ${error.message}`);
 
   return (
     <WorkspaceShell

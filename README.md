@@ -26,8 +26,8 @@ npm.cmd run dev
 Mở:
 
 - Ứng dụng: http://localhost:3000
-- Supabase Studio: http://127.0.0.1:54323
-- Mailpit: http://127.0.0.1:54324
+- Supabase Studio: http://127.0.0.1:58323
+- Mailpit: http://127.0.0.1:58324
 
 ## Tài khoản mẫu
 
@@ -105,7 +105,8 @@ Xem mã nguồn script tại `scripts/apps-script-email-webhook.gs` và cấu h�
 
 ### Personnel reconciliation
 
-Vercel Cron gọi `/api/internal/personnel-reconciliation` mỗi giờ. Cấu hình
+Vercel Cron gọi `/api/internal/personnel-reconciliation` mỗi ngày (`0 0 * * *`,
+giờ UTC). Cấu hình
 `CRON_SECRET` riêng cho production; Vercel tự gửi secret qua header
 `Authorization: Bearer <CRON_SECRET>`. Theo dõi response `inspected`,
 `committed`, `rolledBack`, và `reconciliationRequired`. Cấu hình alert Vercel
@@ -121,7 +122,7 @@ Auth/Profile trong lúc operation còn mở.
 Luồng OAuth và kiểm tra tên miền `@eiu.edu.vn` đã có sẵn. Để bật Google ở local:
 
 1. Tạo OAuth Web Client trong Google Cloud, thêm callback
-   `http://127.0.0.1:54321/auth/v1/callback`.
+   `http://127.0.0.1:58321/auth/v1/callback`.
 2. Tạo file `.env` ở thư mục dự án với
    `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` và
    `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET`.

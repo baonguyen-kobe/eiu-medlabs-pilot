@@ -48,7 +48,7 @@ export default async function OpenClassesPage({
   const range = resolveClassDateRange(await searchParams);
 
   const [
-    { data },
+    { data, error },
     { data: people },
     { data: rooms },
     { data: courses },
@@ -93,6 +93,7 @@ export default async function OpenClassesPage({
         })),
     ),
   ]);
+  if (error) throw new Error(`Open classes: ${error.message}`);
 
   const scheduleIds = (data ?? []).map((s) => s.id);
   const { data: lockStatuses } = scheduleIds.length

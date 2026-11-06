@@ -814,5 +814,7 @@
   "Thiếu tên thiết bị và vật tư": "Missing equipment and supply name",
   "Chờ duyệt": "Awaiting approval",
   "Đã duyệt": "Approved",
-  "Đã từ chối": "Rejected"
+  "Đã từ chối": "Rejected",
+  "Không tải được trang này": "This page could not be loaded",
+  "Dữ liệu chưa được hiển thị vì hệ thống gặp lỗi. Không có nghĩa là danh sách đang trống.": "The data is not shown because of a system error. This does not mean the list is empty."
 }

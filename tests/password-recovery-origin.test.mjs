@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
+  isPasswordRecoveryCallback,
   passwordRecoveryRedirectUrl,
   resolveApplicationOrigin,
   safeInternalPath,
 } from "../lib/application-url.mjs";
 import { resolvePasswordChangeState } from "../lib/password-state.mjs";
+
+test("only password accounts take the recovery shortcut past Google sign-in checks", () => {
+  assert.equal(isPasswordRecoveryCallback("/reset-password", "email"), true);
+  assert.equal(isPasswordRecoveryCallback("/reset-password", "google"), false);
+  assert.equal(isPasswordRecoveryCallback("/dashboard", "email"), false);
+});
 
 test("internal redirect paths keep their route, query and hash", () => {
   for (const path of [

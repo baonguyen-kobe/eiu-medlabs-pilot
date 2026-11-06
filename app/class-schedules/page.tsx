@@ -59,8 +59,8 @@ export default async function ClassSchedulesPage({
   const [
     { data: profile },
     { data: roleRows },
-    { data: schedules },
-    { data: shifts },
+    { data: schedules, error: schedulesError },
+    { data: shifts, error: shiftsError },
     { data: people },
     { data: roomTypes },
     { data: scopedLecturers },
@@ -117,6 +117,8 @@ export default async function ClassSchedulesPage({
       .order("room_code"),
     supabase.rpc("get_personnel_authority_context"),
   ]);
+  const loadError = schedulesError ?? shiftsError;
+  if (loadError) throw new Error(`Skills calendar: ${loadError.message}`);
 
   const roles = (roleRows ?? []).map((row) => row.role as Role);
   const roomTypeCodes = (roomTypes ?? []).map(({ code }) => code);

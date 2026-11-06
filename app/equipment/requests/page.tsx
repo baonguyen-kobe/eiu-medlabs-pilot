@@ -33,7 +33,7 @@ export default async function EquipmentRequestsPage({
     redirect("/equipment/mine");
   }
 
-  const [query, { data }, { data: catalog }] = await Promise.all([
+  const [query, { data, error }, { data: catalog }] = await Promise.all([
     searchParams,
     supabase
       .from("equipment_requests")
@@ -48,6 +48,7 @@ export default async function EquipmentRequestsPage({
       .eq("is_active", true)
       .order("item_name"),
   ]);
+  if (error) throw new Error(`Equipment requests: ${error.message}`);
 
   return (
     <WorkspaceShell

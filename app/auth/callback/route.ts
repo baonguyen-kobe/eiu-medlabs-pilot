@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { safeInternalPath } from "@/lib/application-url.mjs";
+import {
+  isPasswordRecoveryCallback,
+  safeInternalPath,
+} from "@/lib/application-url.mjs";
 import { createClient } from "@/lib/supabase/server";
 
 function redirectOrigin(request: Request) {
@@ -26,7 +29,6 @@ export async function GET(request: Request) {
     requestUrl.searchParams.get("next"),
     "/dashboard",
   );
-  const isPasswordRecovery = next === "/reset-password";
 
   if (!code) {
     return loginError(request, "Google không trả về mã đăng nhập hợp lệ.");
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
     );
   }
 
-  if (isPasswordRecovery) {
+  if (isPasswordRecoveryCallback(next, data.user.app_metadata?.provider)) {
     return NextResponse.redirect(
       new URL("/reset-password", redirectOrigin(request)),
     );

@@ -163,6 +163,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const latestRequest = useRef(0);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   const listboxId = `${id}-listbox`;
@@ -222,6 +223,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
   // Load bounded options on open or filter/q/page change
   const fetchOptions = useCallback(
     async (searchQuery: string, pageNum: number) => {
+      const requestId = ++latestRequest.current;
       setLoading(true);
       setError(null);
       try {
@@ -231,16 +233,18 @@ export function InventoryLookup<T = Record<string, unknown>>({
           page: pageNum,
           page_size: pageSize,
         });
+        if (requestId !== latestRequest.current) return;
         setRows(res.rows);
         setTotal(res.total);
       } catch (err: unknown) {
+        if (requestId !== latestRequest.current) return;
         setError(
           err instanceof Error
             ? err.message
             : "Lỗi tải dữ liệu / Failed to load options",
         );
       } finally {
-        setLoading(false);
+        if (requestId === latestRequest.current) setLoading(false);
       }
     },
     [resource, filters, pageSize],
@@ -252,7 +256,10 @@ export function InventoryLookup<T = Record<string, unknown>>({
     const rect = triggerRef.current.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
-    const desiredWidth = Math.max(rect.width, 340);
+    const desiredWidth = Math.min(
+      Math.max(rect.width, 340),
+      window.innerWidth - 16,
+    );
     const left = Math.max(
       8,
       Math.min(rect.left, window.innerWidth - desiredWidth - 8),
