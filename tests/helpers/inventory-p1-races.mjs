@@ -28,7 +28,10 @@ const writers = [
 
 export function createP1RaceHarness({ container } = {}) {
   const project = process.env.SUPABASE_LOCAL_PROJECT_ID ?? "eiu-medlabs-pilot";
-  assert.equal(project, "eiu-medlabs-pilot", "LOCAL_PILOT_ONLY");
+  assert.ok(
+    ["eiu-medlabs-pilot", "lich-truc-app-ci"].includes(project),
+    "P1 races require an isolated local pilot or disposable CI runtime",
+  );
   const discovered = spawnSync(
     "docker",
     [
