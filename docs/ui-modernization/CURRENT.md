@@ -1,6 +1,36 @@
 # Current UI Modernization State
 
-Last updated: 2026-10-28
+Last updated: 2026-11-04
+
+## Figma V2026 design review
+
+The owner requested the full application redrawn in the existing Figma file.
+The artifact now contains 112 editable UI frames across all sidebar families,
+with shared components and representative responsive views. The 23 original
+frames are preserved. Status: VERIFY, pending owner visual/workflow review.
+See [Figma checkpoint](FIGMA_V2026_REVIEW.md) for links, coverage and evidence.
+This design task does not implement the proposed UI changes or advance the
+existing Inventory/language acceptance gates. No commit/push/deployment was
+performed for this task.
+
+Owner-approved polish was applied on 2026-10-30 using Impeccable
+polish/clarify/adapt guidance: short labels, unit-aware quantity fields,
+return emphasis, compact Basic Medical form, pinned desktop catalog identity,
+daily shortcuts and mobile vertical reflow. Two 320px VI/EN return previews
+were added. UI Master records the new maximum-two-word labels and no horizontal
+scrolling at the existing mobile breakpoint (920px). Source implementation is
+still pending; design status stays VERIFY for owner acceptance. Evidence:
+`D:/Orca/MedLabs-Figma-2026-10-28/04-POLISH-IMPLEMENTED-2026-10-30.md`.
+
+The owner-requested `workflow-app-ui` review was applied on 2026-11-04:
+readable shared typography, viewport-bound lists and pagination, bounded
+drawers/forms, source-correct Personnel checkboxes, 42-cell month calendar,
+and six phone feedback/Personnel examples. Current structural read-back covers
+112 roots, including 19 phone views; no unintended overflow, sub-14px text,
+sub-16px recognized phone input values or mobile horizontal scrollers were
+found. Representative final renders were inspected. See
+[workflow review](FIGMA_WORKFLOW_APP_UI_2026-11-04.md). Status stays VERIFY;
+application source, deployment and prior acceptance gates are unchanged.
 
 ## Pilot source publication — current authorization
 

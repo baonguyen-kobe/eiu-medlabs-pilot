@@ -118,3 +118,54 @@ Final APP-I18N checkpoint: VERIFY. Build/typecheck, full lint0 errors/9 baseline
 ## 2026-10-28 — Owner-authorized pilot source publication
 
 Owner explicitly requested updating `eiu-medlabs-pilot` after being told the changes were local only. Delivery targets `origin/main` from `codex/pilot-deep-review-20261028`; this bounded authorization supersedes earlier no-push checkpoint statements. Preserve VERIFY pending owner acceptance; do not mark the full plan/design backlog DONE. Portable publication handoff is `docs/PILOT_IMPLEMENTATION_STATUS_2026-10-28.md`. Reuse prior unchanged-impact functional evidence and run publication hygiene/targeted regression. No original-repo push or cloud migration/manual deployment is part of this operation.
+
+## 2026-10-28 — Figma V2026 design artifact
+
+Created the owner-requested editable Figma redesign in the existing file,
+organized by sidebar families. Preserved all 23 original frames; added 104 UI
+frames, shared components, representative responsive views and a clickable
+index. Structural read-back found no unintended overflow or overlapping
+screen roots; representative renders were inspected and corrected. Status
+remains VERIFY pending owner design/workflow review. Links, coverage and
+limitations are in FIGMA_V2026_REVIEW.md and the external MedLabs-Figma folder.
+Application source, database, secrets and deployment were unchanged; no
+commit or push was performed for this design task.
+
+## 2026-10-30 — FIGMA-V2026 approved polish
+
+Applied owner-approved polish to the existing Figma, keeping the 23 original
+frames. The artifact now has 106 UI frames, including 320px VI/EN return review.
+Short labels, vertical phone records, unit-aware quantities, current-return
+emphasis, compact Basic Medical fields, daily shortcuts and pinned desktop
+catalog identity reuse the existing MedLabs tokens and components. The UI
+Master records the owner correction; source/frontend implementation is pending.
+Final structural read-back: no unintended overflow, collisions or overlong
+interface labels; business-name exceptions are retained. Figma rendered review
+is recorded in external `04-POLISH-IMPLEMENTED-2026-10-30.md`. Status remains
+VERIFY pending owner acceptance. No commit, push, deploy or database mutation.
+
+## 2026-11-04 — FIGMA-V2026 workflow-app-ui refinement
+
+Applied the owner-requested local workflow skill to the existing editable
+Figma. Raised functional typography to 14px and phone input values to 16px;
+added stronger semantic field borders and shared pagination. Bounded 23
+dedicated desktop lists, phone record/form regions and Personnel/calendar/file
+overlays so headers, filters and actions remain accessible outside record/body
+scroll. Corrected Personnel roles/capabilities/scope to source-backed checkbox
+choices, Viewer exclusivity and conditional Basic Medical eligibility. Month
+calendar now matches source's 42 cells. Added six phone examples for loading,
+posting, saved return, Personnel, first use and failed list load; unknown load
+counts remain distinct from zero results.
+
+RUN AND PASS: Figma structural read-back of 112 UI roots / 7,572 editable text
+nodes: zero unintended bounds/collision issues, functional text below 14px,
+recognized phone input values below 16px or horizontal phone scrollers.
+Library: 78 main components, six sets, 64 variables, 11 text styles. Inspected
+final representative desktop/phone, Personnel, file preview, month calendar,
+feedback and component renders. Preserved all 23 original frames. Current
+evidence: FIGMA_WORKFLOW_APP_UI_2026-11-04.md and external
+`D:/Orca/MedLabs-Figma-Workflow-2026-11-04/VERIFICATION-CURRENT.json`.
+Status remains VERIFY pending owner visual acceptance. Source is unchanged
+at 058014b52e5dee4f2b21af49fa02c56b9cc53c8f on the pilot branch; no commit,
+push, deployment or database mutation. Browser/ARIA/gesture behavior was not
+tested by this static design task.

@@ -7,7 +7,7 @@ Canonical path:
 docs/UI_DESIGN_SYSTEM_V2_MASTER.md
 
 Last updated:
-2026-10-28
+2026-11-04
 
 ---
 
@@ -77,6 +77,83 @@ without redefining it.
 ---
 
 # 1. DESIGN DIALS — FINAL
+
+## Workflow-app-ui refinement — owner request, 2026-11-04
+
+Design-review status: **VERIFY — visual acceptance pending**. The owner
+authorized this refinement; applying it in Figma does not record final visual
+acceptance or authorize frontend rollout.
+
+The owner requested applying the workflow-app-ui skill to the Figma. Functional
+UI text now has a 14px floor (labels, navigation, badges, metadata, filters,
+pagination and helper text), with 20–24px line height. Phone input/select text
+uses at least 16px. This supersedes the older 12–13px values below for the
+refined design; preserve Be Vietnam Pro, the brand palette, short names and
+the 920px no-horizontal-scroll rule. Existing brand marks and original signed
+document content are not resized by this UI text rule.
+
+Workflow lists use a viewport-bound workspace: header and usual filters stay
+above the record scroller; pagination stays below it. The record region may
+scroll vertically without moving those controls. At zoom or short heights,
+implementation must allow reflow and keep focused controls reachable. Forms
+and evidence remain distinct from paginated lists; do not turn nested form
+tables into another app shell. Drawers have a visible close control, bounded
+body scroll, and fixed action footer. Dismissal uses `Đóng` or `Quay lại`;
+destructive cancellation retains an explicit destructive action and tone.
+
+Use semantic `control-border` (#8A8174) for editable input/search/select
+boundaries, while retaining the lighter `line` token for card/table separators.
+Focus and error keep their existing brand/danger boundaries. Preserve the
+approved MedLabs action colors rather than introducing an orange edit rule.
+Loading, saving and success examples must communicate actual state without
+fake percentages, duplicate submission, or a toast covering pagination.
+These are Figma presentation changes; frontend implementation and owner visual
+acceptance remain separate.
+
+Personnel role/capability/scope controls mirror the effective source: checkbox
+choices, multiple supported roles with Viewer exclusive, and conditional
+Basic Medical creation eligibility. A field-shaped free-text role editor is
+not a valid substitute. The month-calendar design uses 42 day cells, matching
+the current schedule pages; cells grow to fit readable event text instead of
+shrinking the font. These presentation corrections grant no new access.
+
+## Concise labels and mobile reflow — owner correction, 2026-10-30
+
+For the approved Figma refinement and subsequent implementation, navigation,
+page/section titles, field labels, table headers, tabs and action labels use
+at most two whitespace-separated words in the selected language. Section
+numbers, required markers and dynamic identifiers are separate from the label.
+Keep full business names, user data, signed evidence and useful explanatory
+sentences intact. Put necessary qualifications in nearby helper text; do not
+replace distinct business concepts with an ambiguous shared abbreviation.
+
+In the existing mobile layout (up to 920px), horizontal scrolling is forbidden both at page
+level and inside tables, tabs, dialogs, drawers and other content. This
+supersedes the mobile local-scroll permission in Sections 13, 29 and 38 and
+historical mobile Strategy A. Preserve every business field through vertical
+row details, labeled record lists, stacked controls or a full-width detail
+view. Do not conceal columns with clipping or shrink typography to fit.
+Above 920px, local table scrolling remains permitted. The existing 920px
+calendar default is unchanged; phone calendars use a readable vertical list.
+
+Inventory forms distinguish entered quantities from read-only conversions.
+Keep condition counts as actual inspection inputs. Return previews emphasize
+this visit and the remaining obligation; history uses quieter styling. Use
+`Xem trước` for the preview action and an explicit final action such as
+`Nhập kho` or `Nhận trả` in the review context. The preview itself never implies
+posting has already occurred. These are presentation changes only.
+
+Keep the four Basic Medical form groups and their order. Scalar fields need
+only enough width for their values; names and course fields take remaining
+space. Empty-metadata mobile KPIs may use 144px height, equal within a row,
+without reducing the canonical font sizes or 44px control height.
+
+The refined sidebar includes compact `Công việc` and `Phiếu tôi` shortcuts.
+In implementation, show a shortcut only when the existing route access rules
+permit it; this rule grants no additional access. Phone navigation uses
+44px route targets and a vertically scrollable menu. Wide desktop catalog
+tables keep their identity columns visible while the remaining columns scroll
+inside the single table shell; pagination stays outside that viewport.
 
 ## Application language — owner correction, 2026-10-28
 
@@ -165,11 +242,11 @@ Section title    16px / 1.35 / 800
 Card title       15px / 1.4 / 700
 Body             14px / 1.5 / 400-500
 Table body       14px / 1.4 / 400-600
-Table header     13px / 1.35 / 700
-Field label      13px / 1.4 / 600-700
+Table header     14px / 1.43 / 700
+Field label      14px / 1.43 / 600-700
 Button           14px / 1.2 / 600-700
-Metadata         13px / 1.45 / 400-500
-Caption          12px / 1.4 / 400-600
+Metadata         14px / 1.43 / 400-500
+Caption          14px / 1.43 / 400-600
 ```
 
 Rules:
@@ -282,14 +359,14 @@ color: #D9C49E
 ## Menu item / Mục nhỏ
 
 ```text
-font-size: 12px
+font-size: 14px
 font-weight: 500
 ```
 
 ## Active menu item
 
 ```text
-font-size: 12px
+font-size: 14px
 font-weight: 700
 
 height: 42px
@@ -714,7 +791,7 @@ nếu reserve khoảng trắng.
 
 ```text
 Page horizontal overflow: FORBIDDEN
-Table local horizontal scroll: ALLOWED
+Table local horizontal scroll: ALLOWED above 920px only
 ```
 
 ---
@@ -727,7 +804,7 @@ All textual Data Table headers:
 text-align: left
 vertical-align: middle
 padding: 14px 16px
-font-size: 13px
+font-size: 14px
 font-weight: 700
 white-space: nowrap
 ```
@@ -1309,6 +1386,7 @@ Inherit:
 - Table Master
 - Equipment column intent
 - local horizontal scroll
+- at 920px and below, use vertical record details instead of horizontal scroll
 - no white gutter
 - one-line headers
 - consistent add-row/footer actions
@@ -1581,13 +1659,14 @@ Desktop:
 Tablet:
 
 - intentional wrap
-- local table scroll
+- local table scroll only above 920px; smaller layouts use the mobile rule
 
 Mobile:
 
 - no page horizontal scroll
 - controls 1 or 2 columns
-- table can horizontal-scroll internally
+- no horizontal scroll inside tables, tabs, dialogs or other content
+- use labeled vertical records/details or stacked controls without hiding fields
 - modal/drawer fit viewport
 
 ---
@@ -1830,7 +1909,7 @@ Do not mark FIXED based only on source presence.
 This task is DONE only when:
 
 - approved Master values are implemented;
-- Sidebar group 14px / menu 12px;
+- Sidebar group 14px / menu 14px;
 - Topbar is white and 82px;
 - Page title exact Master;
 - Section badge exact Master;

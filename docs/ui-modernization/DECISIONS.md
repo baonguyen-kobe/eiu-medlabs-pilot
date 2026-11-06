@@ -2,6 +2,34 @@
 
 This file records durable accepted and pending decisions. Do not silently rewrite accepted history. Add a new decision or explicitly supersede an existing decision when direction changes.
 
+## DEC-UI-20261104 — Workflow skill refinement
+
+**Status:** APPLIED FOR DESIGN REVIEW — owner requested the skill; visual
+acceptance pending. Frontend rollout is outside this Figma task.
+
+UI Master Section 1 records the design direction: functional text at least
+14px, phone inputs at least 16px, bounded list record regions with pagination
+outside the scroller, visible drawer dismissal and bounded body/footer, clear
+load/save states and distinct dismissal/destructive wording. Preserve the
+existing palette, typeface, two-word labels and no horizontal phone scrolling.
+`control-border` strengthens field boundaries without changing card dividers.
+Personnel checkbox types/eligibility and the 42-cell month calendar mirror
+current source; this creates no new role, capability or business transition.
+Evidence: [workflow review](FIGMA_WORKFLOW_APP_UI_2026-11-04.md).
+
+## DEC-UI-20261030 — Concise labels and phone reflow
+
+**Status:** ACCEPTED owner direction for Figma refinement; frontend implementation pending.
+
+The owner approved the polish proposal, requested labels under three words,
+and prohibited horizontal scrolling on mobile. The canonical rule is recorded
+in UI Master Section 1. At the existing mobile breakpoint up to 920px, this supersedes Strategy A
+and the historical permission to scroll tables horizontally. Select a vertical
+summary/detail, record or stacked-control presentation per family; retain all
+business fields. Desktop/tablet scrolling remains permitted. Names, stored
+business content and necessary explanatory sentences are not truncated to
+satisfy the label limit. This does not advance prior implementation tasks.
+
 ## DEC-UI-001 — Preserve MedLabs identity
 
 **Status:** ACCEPTED

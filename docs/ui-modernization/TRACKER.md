@@ -20,6 +20,28 @@ Follow-up user direction: finish the workflow plan before implementation, priori
 
 ## Primary task registry
 
+FIGMA-V2026: VERIFY (updated 2026-11-04). Owner-requested editable design artifact:
+112 UI frames covering all sidebar families, shared components and
+representative responsive views; 23 original Figma frames preserved.
+Structural and rendered evidence is in [Figma checkpoint](FIGMA_V2026_REVIEW.md).
+Await owner design/workflow review. This does not mark frontend implementation,
+INV-OPS-V1 or APP-I18N DONE.
+
+Owner-approved polish is reflected in the Figma checkpoint and external
+`04-POLISH-IMPLEMENTED-2026-10-30.md`: 320px VI/EN return previews, mobile
+vertical records, two-word labels and clearer quantity/preview presentation.
+The October snapshot covered 106 roots with zero unintended overflow/collisions;
+frontend implementation and owner visual acceptance remain pending.
+
+Current `workflow-app-ui` refinement covers 112 roots (19 phone, one tablet),
+with shared typography/controls, bounded lists/drawers, source-correct
+Personnel choices, 42-cell month calendar and six new phone state examples.
+Structural checks found zero unintended overflow/collisions, functional text
+under 14px, recognized phone input values under 16px or mobile horizontal
+scrollers. Final representative renders were inspected. Evidence:
+[workflow review](FIGMA_WORKFLOW_APP_UI_2026-11-04.md). Keep VERIFY pending
+owner visual acceptance; no frontend implementation is implied.
+
 Inventory follow-up batch `INV-OPS-V1`: VERIFY under explicit user authorization, 2026-10-28. Implementation is uncommitted on the pilot branch. Scope/checklist: `openspec/changes/inventory-operational-v1/`. Evidence: `D:/Orca/MedLabs-Deep-Review-2026-10-28/06-IMPLEMENTATION-HANDOFF.md` (build, audit, 140-migration replay, 36 pgTAP files / 943 tests, final Node checks and bounded browser observations). Owner visual/operational acceptance is pending. This does not advance historical UI task statuses or authorize production.
 
 | ID          | Task                                                                    | Phase | Priority | Status  | Dependencies                                  | Scope                                                     | Verification/Evidence                                                                                                              |
