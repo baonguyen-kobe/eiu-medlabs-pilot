@@ -127,3 +127,32 @@
     transform: none;
   }
 }
+
+/* Phone return table: labeled records, no horizontal scroll (UI Master 0A.4). */
+@media (max-width: 920px) {
+  .returnTable,
+  .returnTable tbody,
+  .returnTable tr,
+  .returnTable th,
+  .returnTable td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .returnTable thead {
+    display: none;
+  }
+
+  .returnTable td {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+  }
+
+  .returnTable td::before {
+    content: attr(data-label);
+    font-weight: 700;
+  }
+}

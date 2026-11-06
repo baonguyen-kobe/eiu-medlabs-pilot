@@ -816,5 +816,16 @@
   "Đã duyệt": "Approved",
   "Đã từ chối": "Rejected",
   "Không tải được trang này": "This page could not be loaded",
+  "Không còn hàng cần nhận.": "Nothing is left to receive.",
+  "Nơi nhận": "Received at",
+  "Hàng": "Item",
+  "Đã nhận": "Received",
+  "Còn trả": "Still due",
+  " · Đã xử lý": " · Resolved",
+  " · Chờ đối soát": " · Awaiting reconciliation",
+  ", đã xử lý ": ", resolved ",
+  ", chờ đối soát ": ", awaiting reconciliation ",
+  "Số lượng thực tế (đơn vị kho)": "Actual quantity (stock unit)",
+  "Số nhận lần này vượt phần thực giao chưa nhận lại.": "This visit exceeds what is still out.",
   "Dữ liệu chưa được hiển thị vì hệ thống gặp lỗi. Không có nghĩa là danh sách đang trống.": "The data is not shown because of a system error. This does not mean the list is empty."
 }

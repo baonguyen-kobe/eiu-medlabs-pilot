@@ -394,3 +394,43 @@ export function formatCurrencyAmount(
   const formatted = formatDisplayQuantity(amount);
   return `${formatted} ${currencyCode}`;
 }
+
+export type ReturnEntry = { good: string; damaged: string };
+
+const conditions = ["good", "damaged"] as const;
+const isQuantity = (value: string) =>
+  /^\d+(\.\d{1,6})?$/.test(value) && validateDecimalString(value).valid;
+
+/** Checks one row of a return visit; blank cells mean nothing received. */
+export function returnEntryError(
+  entry: ReturnEntry,
+  issue: { issued: string; returned: string },
+) {
+  const values = conditions.map((condition) => entry[condition] || "0");
+  if (!values.every(isQuantity)) {
+    return "Nhập số lượng chính xác, tối đa 6 chữ số thập phân.";
+  }
+  return compareExact(
+    addExact(values[0], values[1]),
+    subtractExact(issue.issued, issue.returned),
+  ) > 0
+    ? "Số nhận lần này vượt phần thực giao chưa nhận lại."
+    : null;
+}
+
+/** Turns table cells into the event lines the fulfillment command expects. */
+export function returnEntryLines(
+  entries: Record<string, ReturnEntry>,
+  locationId: string,
+) {
+  return Object.entries(entries).flatMap(([issueSliceId, entry]) =>
+    conditions
+      .filter((condition) => isPositive(entry[condition] || "0"))
+      .map((condition) => ({
+        issue_slice_id: issueSliceId,
+        quantity: entry[condition],
+        location_id: locationId,
+        condition,
+      })),
+  );
+}

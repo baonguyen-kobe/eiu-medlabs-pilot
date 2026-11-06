@@ -24,12 +24,16 @@ import {
   addExact,
   compareExact,
   isPositive,
+  returnEntryError,
+  returnEntryLines,
   subtractExact,
   validateDecimalString,
+  type ReturnEntry,
 } from "@/lib/inventory/decimal";
 import { FulfillmentAddedLine } from "./fulfillment-added-line";
 import { FulfillmentEventEvidence } from "./fulfillment-event-evidence";
 import { FulfillmentReturnPreview } from "./fulfillment-return-preview";
+import { FulfillmentReturnTable } from "./fulfillment-return-table";
 import styles from "./equipment-preparation.module.css";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { LocalizedText } from "@/components/i18n/language-provider";
@@ -61,6 +65,9 @@ export function EquipmentFulfillmentWorkspace({
   const [reason, setReason] = useState("");
   const [evidence, setEvidence] = useState("");
   const [rows, setRows] = useState<Entry[]>([]);
+  const [returnEntries, setReturnEntries] = useState<
+    Record<string, ReturnEntry>
+  >({});
   const [lineId, setLineId] = useState(initial.lines[0]?.id ?? "");
   const [sources, setSources] = useState<PreparationSource[]>([]);
   const [sourceIndex, setSourceIndex] = useState(-1);
@@ -105,6 +112,25 @@ export function EquipmentFulfillmentWorkspace({
     (issue) => !receiving || issue.return_required,
   );
   const selectedIssue = selectableIssues.find((issue) => issue.id === sliceId);
+  const returning = receiving && operation !== "correct";
+  const returnIssues = selectableIssues.filter(
+    (issue) => compareExact(issue.issued, issue.returned) > 0,
+  );
+  const returnRows: Entry[] = returning
+    ? returnEntryLines(returnEntries, locationId)
+    : rows;
+  const returnError =
+    returning &&
+    returnIssues.some((issue) =>
+      returnEntryError(
+        returnEntries[issue.id] ?? { good: "", damaged: "" },
+        issue,
+      ),
+    );
+  const returnIncomplete =
+    returning &&
+    (Boolean(returnError) ||
+      (operation === "recover" && returnRows.length === 0));
   const selectedSource = sources[sourceIndex];
   const signEvent = workspace.events.find((event) => event.id === signingId);
 
@@ -189,6 +215,7 @@ export function EquipmentFulfillmentWorkspace({
       pending.current = null;
       setUncertain(false);
       setRows([]);
+      setReturnEntries({});
       setReason("");
       setCarrierName("");
       setEvidence("");
@@ -345,7 +372,7 @@ export function EquipmentFulfillmentWorkspace({
       ...(operation === "correct" ? { event_id: correction } : {}),
       ...(administrative
         ? { issue_slice_id: sliceId, quantity, classification, evidence }
-        : { lines: rows }),
+        : { lines: returnRows }),
     });
   }
 
@@ -447,10 +474,10 @@ export function EquipmentFulfillmentWorkspace({
               {issue.issued}
               {uiText(" · Thực trả ")}
               {issue.returned}
-              {uiText(" · Đã resolve")} {issue.resolved}
+              {uiText(" · Đã xử lý")} {issue.resolved}
               {uiText(" · Còn phải trả ")}
               {issue.due}
-              {uiText(" · Hold đối soát")} {issue.held}
+              {uiText(" · Chờ đối soát")} {issue.held}
               {uiText(" · Đơn vị kho: ")}
               {issue.base_uom_code}
             </p>
@@ -459,9 +486,7 @@ export function EquipmentFulfillmentWorkspace({
                 ? uiText("Có nghĩa vụ hoàn trả")
                 : uiText(
                     "Không phải trả vật tư; vẫn phải ký xác nhận trả lần đầu",
-                  )}{" "}
-              {uiText("· Mã phần thực giao: ")}
-              {issue.id}
+                  )}
             </p>
           </article>
         ))}
@@ -477,6 +502,7 @@ export function EquipmentFulfillmentWorkspace({
                 onChange={(event) => {
                   setOperation(event.target.value as FulfillmentOperation);
                   setRows([]);
+                  setReturnEntries({});
                   setConfirmed(false);
                 }}
               >
@@ -661,6 +687,17 @@ export function EquipmentFulfillmentWorkspace({
                   </>
                 ) : null}
               </>
+            ) : returning ? (
+              <FulfillmentReturnTable
+                issues={returnIssues}
+                locations={workspace.locations}
+                locationId={locationId}
+                entries={returnEntries}
+                onLocationChange={setLocationId}
+                onEntryChange={(id, entry) =>
+                  setReturnEntries((current) => ({ ...current, [id]: entry }))
+                }
+              />
             ) : (
               <>
                 <label>
@@ -674,9 +711,9 @@ export function EquipmentFulfillmentWorkspace({
                       <option key={issue.id} value={issue.id}>
                         {issue.item_name} {issue.asset_code ?? issue.id}
                         {uiText(" — còn")} {issue.due}
-                        {uiText(", resolve ")}
+                        {uiText(", đã xử lý ")}
                         {issue.resolved}
-                        {uiText(", hold ")}
+                        {uiText(", chờ đối soát ")}
                         {issue.held}
                       </option>
                     ))}
@@ -736,17 +773,17 @@ export function EquipmentFulfillmentWorkspace({
                 )}
               </>
             )}
-            <label>
-              {receiving && operation !== "correct"
-                ? uiText("Số thực nhận lần này (đơn vị kho)")
-                : uiText("Số lượng thực tế (base unit)")}
-              <input
-                inputMode="decimal"
-                value={quantity}
-                onChange={(event) => setQuantity(event.target.value)}
-              />
-            </label>
-            {!administrative ? (
+            {returning ? null : (
+              <label>
+                {uiText("Số lượng thực tế (đơn vị kho)")}
+                <input
+                  inputMode="decimal"
+                  value={quantity}
+                  onChange={(event) => setQuantity(event.target.value)}
+                />
+              </label>
+            )}
+            {returning ? null : !administrative ? (
               <>
                 <button className="button button-secondary" onClick={addRow}>
                   {uiText("Thêm dòng sự kiện")}
@@ -774,13 +811,6 @@ export function EquipmentFulfillmentWorkspace({
                     </button>
                   </p>
                 ))}
-                {effectiveOperation === "initial_return" ? (
-                  <p>
-                    {uiText(
-                      "Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
-                    )}
-                  </p>
-                ) : null}
               </>
             ) : (
               <label>
@@ -791,8 +821,18 @@ export function EquipmentFulfillmentWorkspace({
                 />
               </label>
             )}
-            {receiving && operation !== "correct" ? (
-              <FulfillmentReturnPreview workspace={workspace} rows={rows} />
+            {effectiveOperation === "initial_return" ? (
+              <p>
+                {uiText(
+                  "Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
+                )}
+              </p>
+            ) : null}
+            {returning ? (
+              <FulfillmentReturnPreview
+                workspace={workspace}
+                rows={returnRows}
+              />
             ) : null}
             <label>
               {uiText("Lý do")}
@@ -825,7 +865,7 @@ export function EquipmentFulfillmentWorkspace({
             </label>
             <button
               className="button"
-              disabled={!confirmed || !reason.trim()}
+              disabled={!confirmed || !reason.trim() || returnIncomplete}
               onClick={post}
             >
               {uiText("Ghi nhận ")}
