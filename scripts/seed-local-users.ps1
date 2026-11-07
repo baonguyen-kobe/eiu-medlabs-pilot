@@ -150,15 +150,20 @@ foreach ($entry in $users) {
     $userId = $created.id
   }
   catch {
-    $list = Invoke-RestMethod `
-      -Uri "$apiUrl/auth/v1/admin/users?per_page=100" `
-      -Method Get `
-      -Headers $headers
-    $userId = (
-      $list.users |
-        Where-Object { $_.email -eq $entry.email } |
-        Select-Object -First 1
-    ).id
+    # Test runs leave more users than one page holds, so search every page.
+    $page = 1
+    do {
+      $list = Invoke-RestMethod `
+        -Uri "$apiUrl/auth/v1/admin/users?page=$page&per_page=100" `
+        -Method Get `
+        -Headers $headers
+      $userId = (
+        $list.users |
+          Where-Object { $_.email -eq $entry.email } |
+          Select-Object -First 1
+      ).id
+      $page += 1
+    } while (-not $userId -and $list.users.Count -gt 0)
   }
 
   if (-not $userId) {
