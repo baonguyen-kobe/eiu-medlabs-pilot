@@ -15,7 +15,8 @@ test("equipment operations stays unified and filters its managed domains", async
 
   assert.match(page, /equipmentOperationsDomains/);
   assert.match(page, /canUseEquipmentOperations/);
-  assert.match(page, /\.in\("request_domain", manageableDomains\)/);
+  // Domains are filtered in list_equipment_request_page (t2i).
+  assert.match(page, /domains: manageableDomains/);
   assert.doesNotMatch(page, /basic-medical\/equipment-operations/);
   assert.match(access, /canManageEquipmentRequestDomain/);
   assert.match(shell, /canUseEquipmentOperations/);
@@ -32,13 +33,13 @@ test("equipment operations stays unified and filters its managed domains", async
     assert.ok(list.includes(`<th>{uiText("${header}")}</th>`));
   }
   assert.match(list, /equipment-status-heading">\s*\{uiText\("Trạng thái"\)\}/);
-  assert.match(list, /const \[domainFilter, setDomainFilter\]/);
+  assert.match(list, /const domainFilter = paging\.filters\.domain/);
   assert.match(list, /Tất cả phạm vi/);
   assert.match(list, /value="nursing_skills"/);
   assert.match(list, /value="basic_medical"/);
   assert.match(list, /domainLabel\(request\)/);
-  assert.match(list, /request\.request_domain === domainFilter/);
-  assert.match(list, /setCurrentPage\(1\)/);
+  // Filtering and paging now run in list_equipment_request_page (t2i).
+  assert.match(list, /navigate\(\{ domain: event\.target\.value \}\)/);
 });
 
 test("unified operations retains domain-specific content and safety", async () => {

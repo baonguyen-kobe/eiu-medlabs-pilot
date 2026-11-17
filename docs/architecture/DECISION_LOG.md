@@ -189,3 +189,21 @@ Append approved decisions; do not rewrite superseded entries. `PROJECT_HANDOFF.m
 Canonical INV-041–046 approve immediate return/separate signature; day/month expiry/FEFO/no future-use-date/opening-only unknown; Staff/Admin late intake/Admin hold; replacement candidate with port-back fallback; synthetic S1–S5/single-writer P1; mandatory rotation before real operational use and Vercel before deployed UAT.
 
 Supersedes corresponding proposals/default-port-back of PILOT-REVIEW-001 and canonical INV-031/035/039/040. History retained. Policy approved, detailed design UNDER_REVIEW, G0 OPEN, implementation NOT_STARTED. No execution authorized.
+
+## PILOT-REVIEW-003 — 2026-11-17 owner decisions: request policy and room equipment
+
+- **Status:** APPROVED by the owner in session on 2026-11-17. Request-policy items are implemented and applied to the pilot. Room-equipment items are policy only; design and implementation are NOT_STARTED.
+- **Implemented:**
+  - Cancel: only while Mới or Đã soạn (`20261117090000`).
+  - Rollback: Admin only, no reason required, audited.
+  - Đã soạn before Đã giao for everyone. The two hard-coded early-handover emails were removed.
+  - Source records: purchase or donation (`20261117100000`). A donation needs no supplier but needs an origin note.
+- **Room equipment policy:**
+  - One stock ledger for Skills Lab and Basic Medical. Each room has one root storage location. No duplicate room stock and no fake return.
+  - "Fixed in room" = stock or assets held at the room location. Room locations are excluded from automatic issue.
+  - "Temporary in room" = outstanding issued quantity on requests whose session is in that room. In v1, a loan must be linked to a session.
+  - "Keep for the room" (loan → fixed) is a return whose receiving location is the room location: one physical event, `due` unchanged in formula, the initial-return signature still applies. Only an Admin may do it.
+  - Fixed in room A lent to room B is deferred to G5. No `room_equipment_assignments` or `room_loan_placements` table until then.
+  - Basic Medical items need no cleaning or sterilisation step before reuse.
+  - Basic Medical catalog joins `equipment_inventory_mappings` as an exclusive second FK (`num_nonnulls = 1`), with no name-based auto-mapping.
+- **Sources:** `docs/EIU_MedLabs_Pilot_Plan_Cap_Nhat_2026-11-17.md` (owner plan) and the session review of it.

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   type PointerEvent as ReactPointerEvent,
   useEffect,
@@ -37,8 +38,7 @@ import {
   type EquipmentRequestStatus,
   type EquipmentRequestWorkflowStatus,
 } from "@/lib/equipment-requests";
-import { equipmentRequestTargetPage } from "@/lib/equipment-calendar-request";
-import { TABLE_PAGE_SIZE, totalPagesFor } from "@/lib/pagination";
+import type { EquipmentRequestFilters } from "@/lib/equipment-request-page";
 import type { AppRole } from "@/lib/viewer";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { LocalizedText } from "@/components/i18n/language-provider";
@@ -768,6 +768,34 @@ function SignatureModal({
   );
 }
 
+function statusMap(items: EquipmentRequestListItem[]) {
+  return Object.fromEntries(items.map((item) => [item.id, item.status]));
+}
+
+function confirmationMap(
+  items: EquipmentRequestListItem[],
+): Record<string, EquipmentConfirmationState> {
+  return Object.fromEntries(
+    items.map((item) => [
+      item.id,
+      {
+        status: item.status,
+        late_approval_status: item.late_approval_status,
+        late_registration_reason: item.late_registration_reason,
+        late_requested_at: item.late_requested_at,
+        late_reviewed_at: item.late_reviewed_at,
+        late_review_note: item.late_review_note,
+        handover_staff_confirmed_at: item.handover_staff_confirmed_at,
+        handover_recipient_signed_at: item.handover_recipient_signed_at,
+        handover_effective_at: item.handover_effective_at,
+        return_staff_confirmed_at: item.return_staff_confirmed_at,
+        return_recipient_signed_at: item.return_recipient_signed_at,
+        return_effective_at: item.return_effective_at,
+      },
+    ]),
+  );
+}
+
 export function EquipmentRequestList({
   requests,
   emptyMessage,
@@ -778,6 +806,7 @@ export function EquipmentRequestList({
   viewerRoles = [],
   manageableDomains = [],
   initialRequestId,
+  paging,
 }: {
   requests: unknown[];
   emptyMessage: string;
@@ -788,6 +817,8 @@ export function EquipmentRequestList({
   viewerRoles?: AppRole[];
   manageableDomains?: EquipmentRequestDomain[];
   initialRequestId?: string;
+  /** Filters, page and total come from the URL and the database (t2i). */
+  paging: { filters: EquipmentRequestFilters; total: number; page: number };
 }) {
   const { text: uiText } = useLanguage();
 
@@ -802,18 +833,36 @@ export function EquipmentRequestList({
   );
   const [modalRequest, setModalRequest] =
     useState<EquipmentRequestListItem | null>(null);
-  const [query, setQuery] = useState("");
-  const [domainFilter, setDomainFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [currentPage, setCurrentPage] = useState(() =>
-    equipmentRequestTargetPage(
-      items.map((item) => item.id),
-      initialRequestId,
-      TABLE_PAGE_SIZE,
-    ),
-  );
+  const router = useRouter();
+  const pathname = usePathname();
+  const [query, setQuery] = useState(paging.filters.q);
+  const domainFilter = paging.filters.domain;
+  const statusFilter = paging.filters.status;
+  const dateFrom = paging.filters.from;
+  const dateTo = paging.filters.to;
+  const hasFilters = Object.values(paging.filters).some(Boolean);
+
+  function navigate(
+    next: Partial<EquipmentRequestFilters> & { page?: number },
+  ) {
+    const merged = { ...paging.filters, q: query.trim(), ...next };
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(merged)) {
+      if (key !== "page" && value) params.set(key, String(value));
+    }
+    if (next.page && next.page > 1) params.set("page", String(next.page));
+    router.replace(params.size ? `${pathname}?${params}` : pathname, {
+      scroll: false,
+    });
+  }
+
+  // Search waits for a pause in typing before asking the server.
+  useEffect(() => {
+    if (query.trim() === paging.filters.q) return;
+    const timer = window.setTimeout(() => navigate({ q: query.trim() }), 400);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
   const [statusNotice, setStatusNotice] = useState<{
     ok: boolean;
     message: string;
@@ -831,90 +880,20 @@ export function EquipmentRequestList({
   const canRollBack = viewerRoles.includes("admin");
   const [currentStatuses, setCurrentStatuses] = useState<
     Record<string, EquipmentRequestStatus>
-  >(() => Object.fromEntries(items.map((item) => [item.id, item.status])));
+  >(() => statusMap(items));
   const [confirmationStates, setConfirmationStates] = useState<
     Record<string, EquipmentConfirmationState>
-  >(() =>
-    Object.fromEntries(
-      items.map((item) => [
-        item.id,
-        {
-          status: item.status,
-          late_approval_status: item.late_approval_status,
-          late_registration_reason: item.late_registration_reason,
-          late_requested_at: item.late_requested_at,
-          late_reviewed_at: item.late_reviewed_at,
-          late_review_note: item.late_review_note,
-          handover_staff_confirmed_at: item.handover_staff_confirmed_at,
-          handover_recipient_signed_at: item.handover_recipient_signed_at,
-          handover_effective_at: item.handover_effective_at,
-          return_staff_confirmed_at: item.return_staff_confirmed_at,
-          return_recipient_signed_at: item.return_recipient_signed_at,
-          return_effective_at: item.return_effective_at,
-        },
-      ]),
-    ),
-  );
+  >(() => confirmationMap(items));
+  // A new server page replaces the local view of statuses and deletions.
+  const [seenRequests, setSeenRequests] = useState(requests);
+  if (seenRequests !== requests) {
+    setSeenRequests(requests);
+    setCurrentStatuses(statusMap(items));
+    setConfirmationStates(confirmationMap(items));
+    setDeletedIds(new Set());
+  }
 
-  const visibleItems = useMemo(
-    () => items.filter(({ id }) => !deletedIds.has(id)),
-    [deletedIds, items],
-  );
-
-  const filteredItems = useMemo(
-    () =>
-      visibleItems.filter((request) => {
-        const scheduleDate = request.class_schedules?.schedule_date ?? "";
-        const status = getWarehouseStatus(
-          currentStatuses[request.id] ?? request.status,
-          confirmationStates[request.id],
-        );
-        const normalizedQuery = query.trim().toLocaleLowerCase("vi");
-        const schedule = request.class_schedules;
-        const room = schedule?.rooms;
-        const matchesQuery =
-          !normalizedQuery ||
-          [
-            request.id,
-            schedule?.course_code_snapshot,
-            schedule?.course_name_snapshot,
-            room?.room_code,
-            room?.building_code,
-            request.profiles?.full_name,
-            request.responsible?.full_name,
-            domainLabel(request),
-          ].some((value) =>
-            String(value ?? "")
-              .toLocaleLowerCase("vi")
-              .includes(normalizedQuery),
-          );
-        return (
-          matchesQuery &&
-          (!domainFilter || request.request_domain === domainFilter) &&
-          (!statusFilter || status === statusFilter) &&
-          (!dateFrom || scheduleDate >= dateFrom) &&
-          (!dateTo || scheduleDate <= dateTo)
-        );
-      }),
-    [
-      confirmationStates,
-      currentStatuses,
-      dateFrom,
-      dateTo,
-      domainFilter,
-      query,
-      statusFilter,
-      visibleItems,
-    ],
-  );
-  const safePage = Math.min(
-    currentPage,
-    totalPagesFor(filteredItems.length, TABLE_PAGE_SIZE),
-  );
-  const pageItems = filteredItems.slice(
-    (safePage - 1) * TABLE_PAGE_SIZE,
-    safePage * TABLE_PAGE_SIZE,
-  );
+  const visibleItems = items.filter(({ id }) => !deletedIds.has(id));
 
   function toggleExpanded(requestId: string) {
     setExpandedIds((current) => {
@@ -1074,10 +1053,7 @@ export function EquipmentRequestList({
           <Search size={18} />
           <input
             value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(event) => setQuery(event.target.value)}
             placeholder={uiText("Tìm mã phiếu, môn học, phòng, giảng viên…")}
             autoComplete="off"
             spellCheck={false}
@@ -1087,10 +1063,7 @@ export function EquipmentRequestList({
           <span className="sr-only">{uiText("Phạm vi")}</span>
           <select
             value={domainFilter}
-            onChange={(event) => {
-              setDomainFilter(event.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(event) => navigate({ domain: event.target.value })}
           >
             <option value="">{uiText("Tất cả phạm vi")}</option>
             <option value="nursing_skills">
@@ -1103,10 +1076,7 @@ export function EquipmentRequestList({
           <span className="sr-only">{uiText("Trạng thái")}</span>
           <select
             value={statusFilter}
-            onChange={(event) => {
-              setStatusFilter(event.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(event) => navigate({ status: event.target.value })}
           >
             <option value="">{uiText("Tất cả trạng thái")}</option>
             {equipmentRequestStatuses.map((status) => (
@@ -1122,10 +1092,7 @@ export function EquipmentRequestList({
             aria-label={uiText("Từ ngày")}
             type="date"
             value={dateFrom}
-            onChange={(event) => {
-              setDateFrom(event.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(event) => navigate({ from: event.target.value })}
           />
         </label>
         <label className="equipment-date-filter">
@@ -1134,10 +1101,7 @@ export function EquipmentRequestList({
             aria-label={uiText("Đến ngày")}
             type="date"
             value={dateTo}
-            onChange={(event) => {
-              setDateTo(event.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(event) => navigate({ to: event.target.value })}
           />
         </label>
         <button
@@ -1145,18 +1109,14 @@ export function EquipmentRequestList({
           className="button button-secondary"
           onClick={() => {
             setQuery("");
-            setDomainFilter("");
-            setStatusFilter("");
-            setDateFrom("");
-            setDateTo("");
-            setCurrentPage(1);
+            router.replace(pathname, { scroll: false });
           }}
         >
           {uiText("Xóa bộ lọc")}
         </button>
         <span className="inline-toolbar-count-slot equipment-filter-count-slot">
           <span className="equipment-filter-count">
-            {filteredItems.length}/{visibleItems.length}
+            {paging.total}
             {uiText(" phiếu")}
           </span>
         </span>
@@ -1209,7 +1169,7 @@ export function EquipmentRequestList({
                 </th>
               </tr>
             </thead>
-            {pageItems.map((request) => {
+            {visibleItems.map((request) => {
               const schedule = request.class_schedules;
               const room = schedule?.rooms;
               const status = currentStatuses[request.id] ?? request.status;
@@ -1745,17 +1705,17 @@ export function EquipmentRequestList({
             })}
           </table>
         </div>
-        {!filteredItems.length ? (
+        {!visibleItems.length ? (
           <p className="panel-empty">
-            {visibleItems.length
+            {hasFilters
               ? uiText("Không có phiếu phù hợp bộ lọc.")
               : emptyMessage}
           </p>
         ) : null}
         <PaginationControls
-          currentPage={safePage}
-          totalItems={filteredItems.length}
-          onPageChange={setCurrentPage}
+          currentPage={paging.page}
+          totalItems={paging.total}
+          onPageChange={(page) => navigate({ page })}
         />
       </section>
 
