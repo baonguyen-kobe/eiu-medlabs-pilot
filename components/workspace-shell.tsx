@@ -399,7 +399,7 @@ function buildNavigation(
           activeIcon: PackageCheckSolid,
         },
         {
-          label: "Thiết bị theo phòng",
+          label: "Kho theo phòng",
           href: "/inventory/rooms",
           icon: DoorOpen,
           activeIcon: DoorOpenSolid,
