@@ -5,45 +5,44 @@ import type {
 } from "@/lib/inventory/asset-types";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
+type Tone = "info" | "warning" | "success" | "danger" | "neutral";
+
+// UI Master 0A.3 status tones; labels are i18n keys.
+const lifecycle: Record<string, [Tone, string]> = {
+  in_service: ["success", "Đang vận hành"],
+  registered: ["info", "Mới tiếp nhận"],
+  inactive: ["neutral", "Tạm ngưng"],
+  retired: ["warning", "Ngừng sử dụng"],
+  disposed: ["danger", "Đã thanh lý"],
+};
+
+const operational: Record<string, [Tone, string]> = {
+  ready: ["success", "Sẵn sàng"],
+  in_use: ["info", "Đang sử dụng"],
+  under_maintenance: ["warning", "Bảo trì"],
+  damaged: ["danger", "Hư hỏng"],
+  prohibited: ["neutral", "Cấm lưu hành"],
+};
+
+function Badge({
+  tone,
+  label,
+  title,
+}: {
+  tone: Tone;
+  label: string;
+  title?: string;
+}) {
+  return (
+    <span className="badge" data-tone={tone} title={title}>
+      <LocalizedText text={label} />
+    </span>
+  );
+}
+
 export function LifecycleBadge({ status }: { status: AssetLifecycleStatus }) {
-  switch (status) {
-    case "in_service":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
-          <LocalizedText text={"Đang vận hành"} />
-        </span>
-      );
-    case "registered":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 border border-sky-200">
-          <LocalizedText text={"Mới tiếp nhận"} />
-        </span>
-      );
-    case "inactive":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-          <LocalizedText text={"Tạm ngưng"} />
-        </span>
-      );
-    case "retired":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
-          <LocalizedText text={"Ngừng sử dụng"} />
-        </span>
-      );
-    case "disposed":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
-          <LocalizedText text={"Đã thanh lý"} />
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          {status}
-        </span>
-      );
-  }
+  const [tone, label] = lifecycle[status] ?? ["neutral", status];
+  return <Badge tone={tone} label={label} />;
 }
 
 export function OperationalStatusBadge({
@@ -51,44 +50,8 @@ export function OperationalStatusBadge({
 }: {
   status: AssetOperationalStatus;
 }) {
-  switch (status) {
-    case "ready":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <LocalizedText text={"Sẵn sàng"} />
-        </span>
-      );
-    case "in_use":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-          <LocalizedText text={"Đang sử dụng"} />
-        </span>
-      );
-    case "under_maintenance":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-          <LocalizedText text={"Bảo trì"} />
-        </span>
-      );
-    case "damaged":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
-          <LocalizedText text={"Hư hỏng"} />
-        </span>
-      );
-    case "prohibited":
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-          <LocalizedText text={"Cấm lưu hành"} />
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          {status}
-        </span>
-      );
-  }
+  const [tone, label] = operational[status] ?? ["neutral", status];
+  return <Badge tone={tone} label={label} />;
 }
 
 export function AssetEligibilityBadge({
@@ -100,46 +63,19 @@ export function AssetEligibilityBadge({
   available: boolean;
   reasons?: string[];
 }) {
-  const availability = (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
-        available === true
-          ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-          : "bg-amber-100 text-amber-800 border-amber-300"
-      }`}
-    >
-      {available === true ? (
-        <LocalizedText text={"Khả dụng cho yêu cầu mới"} />
-      ) : available === false ? (
-        <LocalizedText text={"Không khả dụng cho yêu cầu mới"} />
-      ) : (
-        <LocalizedText text={"Chưa xác định khả dụng"} />
-      )}
-    </span>
-  );
-  const tooltip = eligible
-    ? "Đủ điều kiện vật lý; không đồng nghĩa với khả dụng cho yêu cầu mới"
+  if (available === true) {
+    return <Badge tone="success" label="Cấp được" />;
+  }
+  const why = eligible
+    ? "Đủ điều kiện vật lý nhưng đang được giữ hoặc đã cấp cho phiếu khác"
     : reasons.length > 0
       ? reasons.join("; ")
       : "Không đủ điều kiện xuất mượn hoặc vận hành";
-
   return (
-    <span className="inline-flex flex-wrap items-center gap-1">
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
-          eligible
-            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-            : "bg-rose-100 text-rose-800 border-rose-300"
-        }`}
-        title={tooltip}
-      >
-        {eligible ? (
-          <LocalizedText text={"[Đủ điều kiện]"} />
-        ) : (
-          <LocalizedText text={"[Không đủ ĐK]"} />
-        )}
-      </span>
-      {availability}
-    </span>
+    <Badge
+      tone={eligible ? "warning" : "danger"}
+      label={eligible ? "Đang bận" : "Không cấp được"}
+      title={why}
+    />
   );
 }
