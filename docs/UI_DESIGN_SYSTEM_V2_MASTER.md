@@ -151,7 +151,7 @@ importing them will fail. Use these:
 | Need            | Use                                                                                          | Do not                                |
 | :-------------- | :------------------------------------------------------------------------------------------- | :------------------------------------ |
 | Page title      | `PageHeader`; WorkspaceShell owns the h1                                                     | Second h1 or custom topbar            |
-| In-page heading | `InventoryPageHeader` (h2), or the family heading class                                      | New heading styles                    |
+| In-page heading | Section h2 with the family heading class; Inventory has none (DEC-UI-20261117)               | New heading styles                    |
 | Button          | `.button` with `.button-primary`, `.button-secondary`, `.button-danger`                      | Tailwind-built buttons                |
 | Text input      | `.input-field`                                                                               | New input styling; `.input` is legacy |
 | Search combobox | `SearchableCombobox`; `InventoryLookup` for Inventory items, restyle pending                 | Custom dropdown                       |

@@ -1,14 +1,21 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { createP1LocalClient } from "../helpers/inventory-p1-runtime.mjs";
+import { cleanupLegacyRequest } from "../helpers/legacy-equipment-fixture.mjs";
 
-const adminId = "c18c4f94-a58a-4b5f-abd0-8c4856affab8";
-const lecturerId = "fc072ca9-e5e0-4b06-b5a8-5d863273992d";
+const adminSql =
+  "(select id from public.profiles where email = 'admin@campus.local')";
+const lecturerSql =
+  "(select id from public.profiles where email = 'giangvien@campus.local')";
+const courseId = "10000000-0000-0000-0000-000000000001";
+const localSql = (query: string) => createP1LocalClient().sql(query);
 const skillRoomId = crypto.randomUUID();
 const basicRoomId = crypto.randomUUID();
 const equipmentScheduleId = crypto.randomUUID();
 const equipmentRequestId = crypto.randomUUID();
 const equipmentItemId = crypto.randomUUID();
+const catalogItemId = crypto.randomUUID();
 const registrationId = crypto.randomUUID();
 const basicScheduleId = crypto.randomUUID();
 const basicSessionId = crypto.randomUUID();
@@ -21,7 +28,7 @@ async function loginAsAdmin(page: Page) {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
-test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện", async ({
+test("Admin hủy phiếu Y cơ sở và xóa phiếu thiết bị trên giao diện", async ({
   page,
 }) => {
   const envText = await readFile(
@@ -49,126 +56,47 @@ test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện",
   expect(signInError).toBeNull();
 
   try {
-    expect(
-      (
-        await databaseClient.from("rooms").insert([
-          {
-            id: skillRoomId,
-            room_code: "E2E-SKILL-DELETE",
-            building_code: "QA",
-            room_type_id: "40000000-0000-0000-0000-000000000001",
-          },
-          {
-            id: basicRoomId,
-            room_code: "E2E-BASIC-DELETE",
-            building_code: "QA",
-            room_type_id: "40000000-0000-0000-0000-000000000002",
-          },
-        ])
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("class_schedules").insert({
-          id: equipmentScheduleId,
-          course_id: "10000000-0000-0000-0000-000000000001",
-          course_code_snapshot: "DELETE-EQUIPMENT",
-          course_name_snapshot: "Kiểm thử xóa phiếu thiết bị",
-          room_id: skillRoomId,
-          schedule_date: "2044-08-20",
-          start_time: "07:30",
-          end_time: "11:30",
-          source: "manual",
-          schedule_status: "published",
-          student_count: 20,
-          created_by: adminId,
-          published_by: adminId,
-          published_at: new Date().toISOString(),
-        })
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("equipment_requests").insert({
-          id: equipmentRequestId,
-          class_schedule_id: equipmentScheduleId,
-          semester: "HK1",
-          registrant_id: adminId,
-          responsible_lecturer_id: lecturerId,
-          phone_snapshot: "0901000001",
-          email_snapshot: "admin@campus.local",
-          receive_at: "2044-08-20T02:00:00.000Z",
-          return_at: "2044-08-20T04:00:00.000Z",
-          status: "new",
-          created_by: adminId,
-        })
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("equipment_request_items").insert({
-          id: equipmentItemId,
-          request_id: equipmentRequestId,
-          skill_name: "Kiểm thử xóa phiếu",
-          catalog_item_id: "60000000-0000-0000-0000-000000000001",
-          quantity: 1,
-        })
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("basic_medical_registrations").insert({
-          id: registrationId,
-          academic_year: "2044-2045",
-          semester: "HK1",
-          start_date: "2044-08-21",
-          end_date: "2044-08-21",
-          course_id: "10000000-0000-0000-0000-000000000001",
-          room_id: basicRoomId,
-          student_count: 20,
-          registrant_id: adminId,
-          responsible_lecturer_id: lecturerId,
-          note: "E2E DELETE BASIC MEDICAL",
-          created_by: adminId,
-        })
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("class_schedules").insert({
-          id: basicScheduleId,
-          course_id: "10000000-0000-0000-0000-000000000001",
-          course_code_snapshot: "DELETE-BASIC",
-          course_name_snapshot: "Kiểm thử xóa phiếu Y cơ sở",
-          room_id: basicRoomId,
-          lecturer_id: lecturerId,
-          schedule_date: "2044-08-21",
-          start_time: "07:30",
-          end_time: "11:30",
-          source: "manual",
-          schedule_status: "published",
-          student_count: 20,
-          basic_medical_registration_id: registrationId,
-          created_by: adminId,
-          published_by: adminId,
-          published_at: new Date().toISOString(),
-        })
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await databaseClient
-          .from("basic_medical_registration_sessions")
-          .insert({
-            id: basicSessionId,
-            registration_id: registrationId,
-            class_schedule_id: basicScheduleId,
-            lesson_title: "E2E DELETE BASIC MEDICAL",
-            teaching_lecturer_id: lecturerId,
-            session_number: 1,
-          })
-      ).error,
-    ).toBeNull();
+    // Direct table writes are closed to signed-in users and the request and
+    // registration guards need their command context, so seed through SQL.
+    await localSql(`
+      begin;
+      select set_config('request.jwt.claims', jsonb_build_object('sub', ${adminSql}, 'role', 'authenticated')::text, true);
+      select set_config('app.basic_medical_registration_mutation', 'true', true);
+      insert into public.rooms (id, room_code, building_code, room_type_id) values
+        ('${skillRoomId}', 'E2E-SKILL-DELETE', 'QA', '40000000-0000-0000-0000-000000000001'),
+        ('${basicRoomId}', 'E2E-BASIC-DELETE', 'QA', '40000000-0000-0000-0000-000000000002');
+      insert into public.class_schedules
+        (id, course_id, course_code_snapshot, course_name_snapshot, room_id, schedule_date, start_time,
+         end_time, source, schedule_status, student_count, semester, created_by, published_by, published_at)
+      values ('${equipmentScheduleId}', '${courseId}', 'DELETE-EQUIPMENT', 'Kiểm thử xóa phiếu thiết bị',
+        '${skillRoomId}', '2044-08-20', '07:30', '11:30', 'manual', 'published', 20, 'HK1', ${adminSql}, ${adminSql}, clock_timestamp());
+      insert into public.equipment_requests
+        (id, class_schedule_id, semester, registrant_id, responsible_lecturer_id, phone_snapshot,
+         email_snapshot, receive_at, return_at, status, created_by)
+      values ('${equipmentRequestId}', '${equipmentScheduleId}', 'HK1', ${adminSql}, ${lecturerSql}, '0901000001',
+        'admin@campus.local', '2044-08-20T02:00:00Z', '2044-08-20T04:00:00Z', 'new', ${adminSql});
+      insert into public.equipment_catalog (id, item_name, commercial_name, unit)
+      values ('${catalogItemId}', 'E2E DELETE ITEM', 'E2E DELETE ITEM ${catalogItemId}', 'Cái');
+      select set_config('app.s4_registration', '${equipmentRequestId}', true);
+      insert into public.equipment_request_items (id, request_id, skill_name, catalog_item_id, quantity)
+      values ('${equipmentItemId}', '${equipmentRequestId}', 'Kiểm thử xóa phiếu', '${catalogItemId}', 1);
+      insert into public.basic_medical_registrations
+        (id, academic_year, semester, start_date, end_date, course_id, room_id, student_count,
+         registrant_id, responsible_lecturer_id, note, created_by)
+      values ('${registrationId}', '2044-2045', 'HK1', '2044-08-21', '2044-08-21', '${courseId}', '${basicRoomId}', 20,
+        ${adminSql}, ${lecturerSql}, 'E2E DELETE BASIC MEDICAL', ${adminSql});
+      insert into public.class_schedules
+        (id, course_id, course_code_snapshot, course_name_snapshot, room_id, lecturer_id, schedule_date,
+         start_time, end_time, source, schedule_status, student_count, basic_medical_registration_id,
+         created_by, published_by, published_at)
+      values ('${basicScheduleId}', '${courseId}', 'DELETE-BASIC', 'Kiểm thử xóa phiếu Y cơ sở', '${basicRoomId}',
+        ${lecturerSql}, '2044-08-21', '07:30', '11:30', 'manual', 'published', 20, '${registrationId}',
+        ${adminSql}, ${adminSql}, clock_timestamp());
+      insert into public.basic_medical_registration_sessions
+        (id, registration_id, class_schedule_id, lesson_title, teaching_lecturer_id, session_number)
+      values ('${basicSessionId}', '${registrationId}', '${basicScheduleId}', 'E2E DELETE BASIC MEDICAL', ${lecturerSql}, 1);
+      commit;
+    `);
 
     await loginAsAdmin(page);
     await page.goto("/equipment/register");
@@ -191,12 +119,13 @@ test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện",
     );
 
     await page.goto("/basic-medical/registrations");
+    // A Y cơ sở registration is cancelled, not deleted: its rows are kept.
     const registrationCard = page
-      .locator(".registration-card-list > .data-panel")
-      .filter({ hasText: "E2E DELETE BASIC MEDICAL" });
-    await expect(registrationCard).toBeVisible();
+      .locator(".basic-medical-registration-table tbody")
+      .filter({ hasText: "E2E-BASIC-DELETE" });
+    await registrationCard.locator("tr").first().click();
     await registrationCard
-      .getByRole("button", { name: "Xóa phiếu", exact: true })
+      .getByRole("button", { name: "Hủy phiếu", exact: true })
       .click();
     const registrationDialog = page.getByRole("dialog", {
       name: "Xác nhận thao tác",
@@ -205,8 +134,7 @@ test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện",
     await registrationDialog
       .getByRole("button", { name: "Xác nhận", exact: true })
       .click();
-    await expect(page.getByText("Đã xóa phiếu Y cơ sở.")).toBeVisible();
-    await expect(registrationCard).toHaveCount(0);
+    await expect(page.getByText("Đã hủy phiếu Y cơ sở.")).toBeVisible();
 
     await page.goto("/equipment/requests");
     await page
@@ -228,13 +156,15 @@ test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện",
     await equipmentDialog
       .getByRole("button", { name: "Xóa phiếu", exact: true })
       .click();
-    await expect(page.getByText("Đã xóa phiếu thiết bị.")).toBeVisible();
+    await expect(
+      page.getByText("Đã xóa vĩnh viễn phiếu thiết bị."),
+    ).toBeVisible();
     await expect(equipmentRow).toHaveCount(0);
 
     for (const [table, id, expected] of [
-      ["basic_medical_registrations", registrationId, 0],
-      ["basic_medical_registration_sessions", basicSessionId, 0],
-      ["class_schedules", basicScheduleId, 0],
+      ["basic_medical_registrations", registrationId, 1],
+      ["basic_medical_registration_sessions", basicSessionId, 1],
+      ["class_schedules", basicScheduleId, 1],
       ["equipment_requests", equipmentRequestId, 0],
       ["equipment_request_items", equipmentItemId, 0],
       ["class_schedules", equipmentScheduleId, 1],
@@ -247,25 +177,16 @@ test("Admin xóa phiếu Y cơ sở và phiếu thiết bị trên giao diện",
       expect(data).toHaveLength(expected);
     }
   } finally {
-    await databaseClient
-      .from("equipment_request_items")
-      .delete()
-      .eq("id", equipmentItemId);
-    await databaseClient
-      .from("equipment_requests")
-      .delete()
-      .eq("id", equipmentRequestId);
-    await databaseClient
-      .from("basic_medical_registrations")
-      .delete()
-      .eq("id", registrationId);
-    await databaseClient
-      .from("class_schedules")
-      .delete()
-      .in("id", [equipmentScheduleId, basicScheduleId]);
-    await databaseClient
-      .from("rooms")
-      .delete()
-      .in("id", [skillRoomId, basicRoomId]);
+    await cleanupLegacyRequest(equipmentRequestId);
+    await localSql(`
+      begin;
+      select set_config('app.basic_medical_registration_mutation', 'true', true);
+      delete from public.basic_medical_registration_sessions where id = '${basicSessionId}';
+      delete from public.class_schedules where id in ('${equipmentScheduleId}', '${basicScheduleId}');
+      delete from public.basic_medical_registrations where id = '${registrationId}';
+      delete from public.equipment_catalog where id = '${catalogItemId}';
+      delete from public.rooms where id in ('${skillRoomId}', '${basicRoomId}');
+      commit;
+    `);
   }
 });

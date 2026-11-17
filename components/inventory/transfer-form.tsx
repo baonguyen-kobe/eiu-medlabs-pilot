@@ -26,6 +26,7 @@ import {
   formatDisplayQuantity,
   isPositive,
   validateDecimalString,
+  uomLabel,
 } from "@/lib/inventory/decimal";
 import { InventoryLookup } from "@/components/inventory/inventory-lookup";
 import {
@@ -698,11 +699,11 @@ export function TransferForm({
                           </td>
                           <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">
                             {formatDisplayQuantity(item.quantity)}{" "}
-                            {item.base_uom_code}
+                            {uomLabel(item)}
                           </td>
                           <td className="py-2.5 px-3 text-right font-mono text-emerald-700 font-semibold">
                             {formatDisplayQuantity(item.available_quantity)}{" "}
-                            {item.base_uom_code}
+                            {uomLabel(item)}
                           </td>
                           <td className="py-2.5 px-3 text-slate-600">
                             {item.expiry_date || "—"}

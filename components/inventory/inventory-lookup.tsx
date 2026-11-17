@@ -1,5 +1,6 @@
 "use client";
 
+import { uomLabel } from "@/lib/inventory/decimal";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronRight, Search, X } from "@/components/icons";
@@ -55,7 +56,7 @@ export function deriveRowDisplay(
     );
     const heldTag = row.is_held ? text(" [TẠM GIỮ / HELD]") : "";
     const qtyStr = row.quantity
-      ? `${row.quantity} ${row.base_uom_code || ""}`.trim()
+      ? `${row.quantity} ${uomLabel(row)}`.trim()
       : "";
     const locStr = row.location_code ? `@ ${row.location_code}` : "";
     const label = `${row.item_code || ""} - ${row.item_name || ""} (${condLabel})${heldTag}`;
@@ -362,10 +363,10 @@ export function InventoryLookup<T = Record<string, unknown>>({
         <label
           id={labelId}
           htmlFor={id}
-          className="block text-xs font-semibold text-slate-700 mb-1"
+          className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
         >
           {uiText(label)}
-          {required ? <span className="text-red-500 ml-0.5">*</span> : null}
+          {required ? " *" : null}
         </label>
       )}
 
@@ -387,32 +388,32 @@ export function InventoryLookup<T = Record<string, unknown>>({
         aria-controls={listboxId}
         aria-labelledby={hideLabel ? undefined : labelId}
         aria-label={hideLabel ? label : undefined}
-        className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-lg border text-left transition-colors ${
+        className={`inventory-lookup-trigger w-full flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-lg border text-left transition-colors ${
           disabled
-            ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-            : "bg-white border-slate-300 text-slate-900 hover:border-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+            ? "bg-[var(--surface-soft)] text-[var(--ink-600)] border-[var(--line)] cursor-not-allowed"
+            : "bg-white border-[var(--line-strong)] text-[var(--ink-950)] hover:border-[var(--line-strong)] focus:outline-hidden focus:ring-2 focus:ring-[var(--eiu-blue)] focus:border-[var(--tone-info-line)]"
         }`}
       >
         <div className="truncate flex-1">
           {currentDisplayText ? (
             <div className="flex flex-col">
-              <span className="font-medium text-slate-900 truncate">
+              <span className="font-medium text-[var(--ink-950)] truncate">
                 {currentDisplayText}
               </span>
               {localizedDisplay?.subLabel && (
-                <span className="text-[11px] text-slate-500 truncate">
+                <span className="text-[11px] text-[var(--ink-600)] truncate">
                   {localizedDisplay.subLabel}
                 </span>
               )}
             </div>
           ) : (
-            <span className="text-slate-400">{uiText(placeholder)}</span>
+            <span className="text-[var(--ink-600)]">{uiText(placeholder)}</span>
           )}
         </div>
         <ChevronRight
           size={14}
-          className={`shrink-0 text-slate-400 transition-transform ${
-            open ? "rotate-90 text-indigo-600" : ""
+          className={`shrink-0 text-[var(--ink-600)] transition-transform ${
+            open ? "rotate-90 text-[var(--eiu-blue)]" : ""
           }`}
         />
       </button>
@@ -425,14 +426,14 @@ export function InventoryLookup<T = Record<string, unknown>>({
             ref={dropdownRef}
             style={dropdownStyle}
             onKeyDown={handleKeyDown}
-            className="rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[380px] z-50 text-slate-900"
+            className="rounded-xl border border-[var(--line)] bg-white shadow-2xl overflow-hidden flex flex-col max-h-[380px] z-50 text-[var(--ink-950)]"
           >
             {/* Search Header */}
-            <div className="p-2 border-b border-slate-100 bg-slate-50">
+            <div className="p-2 border-b border-[var(--line)] bg-[var(--surface-soft)]">
               <div className="relative">
                 <Search
                   size={14}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ink-600)] pointer-events-none"
                 />
                 <input
                   ref={searchInputRef}
@@ -440,13 +441,13 @@ export function InventoryLookup<T = Record<string, unknown>>({
                   value={q}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder={uiText("Tìm kiếm theo mã, tên… / Search…")}
-                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md border border-[var(--line-strong)] bg-white text-[var(--ink-950)] placeholder:text-[var(--ink-600)] focus:outline-hidden focus:ring-2 focus:ring-[var(--eiu-blue)]"
                 />
                 {q ? (
                   <button
                     type="button"
                     onClick={() => handleSearchChange("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--ink-600)] hover:text-[var(--ink-800)] p-0.5"
                     aria-label={uiText("Xóa tìm kiếm")}
                   >
                     <X size={12} />
@@ -460,28 +461,28 @@ export function InventoryLookup<T = Record<string, unknown>>({
               id={listboxId}
               role="listbox"
               aria-label={uiText(label)}
-              className="flex-1 overflow-y-auto p-1 divide-y divide-slate-100 bg-white focus:outline-hidden"
+              className="flex-1 overflow-y-auto p-1 divide-y divide-[var(--line)] bg-white focus:outline-hidden"
               tabIndex={-1}
             >
               {loading ? (
-                <div className="p-4 text-center text-xs text-slate-500">
+                <div className="p-4 text-center text-xs text-[var(--ink-600)]">
                   {uiText("Đang tải dữ liệu… / Loading…")}
                 </div>
               ) : error ? (
-                <div className="p-3 text-xs text-red-600 text-center space-y-1">
+                <div className="p-3 text-xs text-[var(--tone-danger-fg)] text-center space-y-1">
                   <p>
                     <LocalizedText text={error ?? ""} />
                   </p>
                   <button
                     type="button"
                     onClick={() => fetchOptions(q, page)}
-                    className="text-xs text-indigo-600 underline font-medium"
+                    className="text-xs text-[var(--eiu-blue)] underline font-medium"
                   >
                     {uiText("Thử lại / Retry")}
                   </button>
                 </div>
               ) : rows.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-500">
+                <div className="p-4 text-center text-xs text-[var(--ink-600)]">
                   {uiText(
                     "Không tìm thấy kết quả phù hợp / No matching results",
                   )}
@@ -502,22 +503,25 @@ export function InventoryLookup<T = Record<string, unknown>>({
                       onClick={() => handleSelect(row)}
                       className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2 transition-colors ${
                         isSelected
-                          ? "bg-blue-50 text-blue-900 font-semibold"
-                          : "hover:bg-slate-50 text-slate-900"
+                          ? "bg-[var(--tone-info-bg)] text-[var(--eiu-blue)] font-semibold"
+                          : "hover:bg-[var(--surface-soft)] text-[var(--ink-950)]"
                       }`}
                     >
                       <div className="flex-1 truncate">
-                        <div className="truncate text-xs font-medium text-slate-900">
+                        <div className="truncate text-xs font-medium text-[var(--ink-950)]">
                           {display.label}
                         </div>
                         {display.subLabel && (
-                          <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                          <div className="text-[11px] text-[var(--ink-600)] truncate mt-0.5">
                             {display.subLabel}
                           </div>
                         )}
                       </div>
                       {isSelected ? (
-                        <Check size={14} className="shrink-0 text-blue-600" />
+                        <Check
+                          size={14}
+                          className="shrink-0 text-[var(--eiu-blue)]"
+                        />
                       ) : null}
                     </button>
                   );
@@ -527,14 +531,14 @@ export function InventoryLookup<T = Record<string, unknown>>({
 
             {/* Bounded Pagination Footer */}
             {total > pageSize && (
-              <div className="p-2 border-t border-slate-100 bg-slate-50 flex flex-col items-center gap-1">
+              <div className="p-2 border-t border-[var(--line)] bg-[var(--surface-soft)] flex flex-col items-center gap-1">
                 <PaginationControls
                   currentPage={page}
                   totalItems={total}
                   pageSize={pageSize}
                   onPageChange={handlePageChange}
                 />
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-[var(--ink-600)]">
                   {uiText("Tổng ")}
                   {total}
                   {uiText(" kết quả (trang ")}

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatQuantityDelta } from "../lib/inventory/decimal.ts";
+import {
+  formatDisplayQuantity,
+  formatQuantityDelta,
+} from "../lib/inventory/decimal.ts";
 
 test("correction previews retain six decimals and large exact quantities", () => {
   for (const [current, previous, expected] of [
@@ -15,4 +18,17 @@ test("correction previews retain six decimals and large exact quantities", () =>
     ["1.0000001", "1", "—"],
   ])
     assert.equal(formatQuantityDelta(current, previous), expected);
+});
+
+test("displayed quantities drop trailing zeros but keep exact digits", () => {
+  for (const [value, expected] of [
+    ["10.000000", "10"],
+    ["2.500000", "2.5"],
+    ["1234567.000100", "1,234,567.0001"],
+    ["0.000000", "0"],
+    ["-3.250", "-3.25"],
+    ["15", "15"],
+    [null, "0"],
+  ])
+    assert.equal(formatDisplayQuantity(value), expected);
 });

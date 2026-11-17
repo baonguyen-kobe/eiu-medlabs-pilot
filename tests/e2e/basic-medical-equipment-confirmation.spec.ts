@@ -205,7 +205,7 @@ test("Người xem Y cơ sở không truy cập Danh sách thiết bị Y cơ s�
     await page.locator('input[name="email"]').fill(email);
     await page.locator('input[name="password"]').fill(password);
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(/\/basic-medical\/schedules$/);
     await expect(
       page.getByRole("link", { name: "Danh mục TB Y cơ sở" }),
     ).toHaveCount(0);

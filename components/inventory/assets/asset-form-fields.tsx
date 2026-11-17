@@ -3,6 +3,14 @@
 import React from "react";
 import type { AssetOperationalStatus } from "@/lib/inventory/asset-types";
 import { useLanguage } from "@/components/i18n/language-provider";
+import { SearchableCombobox } from "@/components/searchable-combobox";
+
+/** Active staff a custodian can be chosen from (list_active_people). */
+export type CustodianOption = {
+  id: string;
+  full_name: string;
+  title: string | null;
+};
 
 export interface AssetManufacturerFieldsProps {
   serial: string;
@@ -13,6 +21,7 @@ export interface AssetManufacturerFieldsProps {
   onModelChange: (val: string) => void;
   custodianId: string;
   onCustodianIdChange: (val: string) => void;
+  people: CustodianOption[];
   operationalStatus: AssetOperationalStatus;
   onOperationalStatusChange: (val: AssetOperationalStatus) => void;
   occurredAt: string;
@@ -30,6 +39,7 @@ export function AssetManufacturerFields({
   onModelChange,
   custodianId,
   onCustodianIdChange,
+  people,
   operationalStatus,
   onOperationalStatusChange,
   occurredAt,
@@ -104,19 +114,22 @@ export function AssetManufacturerFields({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label
-            htmlFor={`${idPrefix}-custodian-id`}
-            className="block text-xs font-medium text-slate-700 mb-1"
-          >
-            {uiText("UUID người quản lý (Tùy chọn)")}
-          </label>
-          <input
-            id={`${idPrefix}-custodian-id`}
-            type="text"
+          <span className="block text-xs font-medium text-slate-700 mb-1">
+            {uiText("Người quản lý (tùy chọn)")}
+          </span>
+          <SearchableCombobox
+            ariaLabel={uiText("Chọn người quản lý thiết bị")}
             value={custodianId}
-            onChange={(e) => onCustodianIdChange(e.target.value)}
-            placeholder={uiText("UUID nhân sự chịu trách nhiệm (nếu có)")}
-            className="input-field font-mono text-xs w-full"
+            onChange={onCustodianIdChange}
+            emptyLabel={uiText("Chưa giao cho ai")}
+            placeholder={uiText("Gõ tên nhân sự…")}
+            options={people.map((person) => ({
+              value: person.id,
+              label: person.title
+                ? `${person.full_name} — ${person.title}`
+                : person.full_name,
+              keywords: person.full_name,
+            }))}
           />
         </div>
 

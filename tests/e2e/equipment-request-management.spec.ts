@@ -2,6 +2,10 @@ import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import {
+  cleanupLegacyRequest,
+  legacyItemFixture,
+} from "../helpers/legacy-equipment-fixture.mjs";
+import {
   assertLocalDestructiveTestTarget,
   resolveEffectiveSupabaseTestConfig,
 } from "../helpers/local-test-safety.mjs";
@@ -142,17 +146,16 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
         })
       ).error,
     ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("equipment_request_items").insert({
-          id: itemId,
-          request_id: requestId,
-          skill_name: "Kỹ năng E2E",
-          catalog_item_id: catalogItem.id,
-          quantity: 1,
-        })
-      ).error,
-    ).toBeNull();
+    await legacyItemFixture(
+      {
+        id: itemId,
+        request_id: requestId,
+        skill_name: "Kỹ năng E2E",
+        catalog_item_id: catalogItem.id,
+        quantity: 1,
+      },
+      { staged: true },
+    );
 
     await databaseClient
       .from("profiles")
@@ -254,10 +257,7 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
     ).toBeVisible();
     await expect(page.locator(".form-success")).toHaveCount(0);
   } finally {
-    await databaseClient
-      .from("equipment_requests")
-      .delete()
-      .eq("id", requestId);
+    await cleanupLegacyRequest(requestId);
     if (scheduleId) {
       await databaseClient
         .from("class_schedules")
@@ -419,17 +419,16 @@ test("calendar equipment request round trip follows the signed-in role", async (
         })
       ).error,
     ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("equipment_request_items").insert({
-          id: itemId,
-          request_id: requestId,
-          skill_name: "Kỹ năng E2E",
-          catalog_item_id: catalogItemId,
-          quantity: 1,
-        })
-      ).error,
-    ).toBeNull();
+    await legacyItemFixture(
+      {
+        id: itemId,
+        request_id: requestId,
+        skill_name: "Kỹ năng E2E",
+        catalog_item_id: catalogItemId,
+        quantity: 1,
+      },
+      { staged: true },
+    );
 
     await page.goto("/login");
     await page.locator('input[name="email"]').fill("admin@campus.local");
@@ -547,10 +546,7 @@ test("calendar equipment request round trip follows the signed-in role", async (
     lecturerPage.off("framenavigated", recordLecturerNavigation);
   } finally {
     await lecturerContext?.close();
-    await databaseClient
-      .from("equipment_requests")
-      .delete()
-      .eq("id", requestId);
+    await cleanupLegacyRequest(requestId);
     if (secondScheduleId) {
       await databaseClient
         .from("class_schedules")

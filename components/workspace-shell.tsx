@@ -127,7 +127,7 @@ function buildNavigation(
       label: "Kỹ năng Điều dưỡng",
       items: [
         {
-          label: "Tổng quan",
+          label: "Tổng quan Skills lab",
           href: "/dashboard",
           icon: LayoutDashboard,
           activeIcon: LayoutDashboardSolid,
@@ -238,14 +238,9 @@ function buildNavigation(
       icon: FileClock,
       activeIcon: FileClockSolid,
     });
-    if (canManageSkillsEquipment) {
-      quanLyPhongItems.push({
-        label: "Import Phiếu thiết bị",
-        href: "/equipment/import",
-        icon: Import,
-        activeIcon: ImportSolid,
-      });
-    }
+    // "Import Phiếu thiết bị" is hidden (owner decision, 2026-11-17): the
+    // inventory line guard rejects finished requests, so the import cannot
+    // succeed. Its page redirects until the feature is reopened.
     if (canManageSkillsEquipment && canManageEmailNotifications) {
       quanLyPhongItems.push({
         label: "Email thông báo",
@@ -378,27 +373,51 @@ function buildNavigation(
     });
   }
 
-  // Group 7 — Quản lý Kho & Thiết bị (S1 Inventory)
+  // Group 7 — Kho, split into daily work and setup (approved menu tree).
   if (isAdmin || isStaff) {
-    const inventoryItems: NavItem[] = [
-      {
-        label: "Công việc & giao nhận",
-        href: "/equipment/operations",
-        icon: PackageCheck,
-        activeIcon: PackageCheckSolid,
-      },
-      {
-        label: "Tổng quan",
-        href: "/inventory",
-        icon: LayoutDashboard,
-        activeIcon: LayoutDashboardSolid,
-      },
-      {
-        label: "Tồn kho",
-        href: "/inventory/stock",
-        icon: PackageCheck,
-        activeIcon: PackageCheckSolid,
-      },
+    groups.push({
+      label: "Vận hành kho",
+      items: [
+        {
+          label: "Công việc & giao nhận",
+          href: "/equipment/operations",
+          icon: PackageCheck,
+          activeIcon: PackageCheckSolid,
+        },
+        {
+          label: "Tổng quan kho",
+          href: "/inventory",
+          icon: LayoutDashboard,
+          activeIcon: LayoutDashboardSolid,
+        },
+        {
+          label: "Tồn kho",
+          href: "/inventory/stock",
+          icon: PackageCheck,
+          activeIcon: PackageCheckSolid,
+        },
+        {
+          label: "Nhận kho",
+          href: "/inventory/receive",
+          icon: Plus,
+          activeIcon: PlusSolid,
+        },
+        {
+          label: "Nghiệp vụ kho",
+          href: "/inventory/operations",
+          icon: ClipboardList,
+          activeIcon: ClipboardListSolid,
+        },
+        {
+          label: "Lịch sử giao dịch",
+          href: "/inventory/transactions",
+          icon: FileClock,
+          activeIcon: FileClockSolid,
+        },
+      ],
+    });
+
+    const setupItems: NavItem[] = [
       {
         label: "Thiết bị cá thể",
         href: "/inventory/assets",
@@ -417,30 +436,16 @@ function buildNavigation(
         icon: ClipboardList,
         activeIcon: ClipboardListSolid,
       },
-      {
-        label: "Nhận kho",
-        href: "/inventory/receive",
-        icon: Plus,
-        activeIcon: PlusSolid,
-      },
     ];
-
     if (isAdmin) {
-      inventoryItems.push({
+      setupItems.push({
         label: "Tồn đầu kỳ",
         href: "/inventory/opening",
         icon: Import,
         activeIcon: ImportSolid,
       });
     }
-
-    inventoryItems.push(
-      {
-        label: "Lịch sử giao dịch",
-        href: "/inventory/transactions",
-        icon: FileClock,
-        activeIcon: FileClockSolid,
-      },
+    setupItems.push(
       {
         label: "Nhà cung cấp",
         href: "/inventory/suppliers",
@@ -454,11 +459,7 @@ function buildNavigation(
         activeIcon: SettingsSolid,
       },
     );
-
-    groups.push({
-      label: "Quản lý Kho & Thiết bị",
-      items: inventoryItems,
-    });
+    groups.push({ label: "Thiết lập kho", items: setupItems });
   }
 
   return groups;

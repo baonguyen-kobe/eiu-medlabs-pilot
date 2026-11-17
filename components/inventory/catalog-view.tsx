@@ -1,5 +1,6 @@
 "use client";
 
+import { uomLabel } from "@/lib/inventory/decimal";
 import React, { useCallback, useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search, Settings, X } from "@/components/icons";
@@ -401,7 +402,7 @@ export function CatalogView({
                       {item.category_name || item.category_id}
                     </td>
                     <td className="py-3 px-4 font-semibold text-slate-700">
-                      {item.base_uom_code}
+                      {uomLabel(item)}
                     </td>
                     <td className="py-3 px-4">
                       <MaterialKindBadge kind={item.material_kind} />
@@ -988,7 +989,7 @@ function EditItemDialog({
             <div className="flex justify-between">
               <span className="text-slate-500">{uiText("ĐVT cơ sở:")}</span>
               <span className="font-medium text-slate-800">
-                {item.base_uom_code}
+                {uomLabel(item)}
               </span>
             </div>
             <div className="flex justify-between">

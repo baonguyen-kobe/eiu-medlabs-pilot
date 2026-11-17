@@ -1,4 +1,44 @@
+import nextEnv from "@next/env";
 import { expect, test, type Page } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
+
+nextEnv.loadEnvConfig(process.cwd());
+
+const serviceDb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } },
+);
+// The seed has no catalog rows with these names, so the test brings its own.
+const catalogFixture = [
+  ["6e2e0000-0000-4000-8000-000000000001", "Anti A", "Anti A Atlas 10ml"],
+  ["6e2e0000-0000-4000-8000-000000000002", "Anti A", "Anti A Spectrum 10ml"],
+  ["6e2e0000-0000-4000-8000-000000000003", "Anti B", "Anti B Spectrum 10ml"],
+  ["6e2e0000-0000-4000-8000-000000000004", "Ambu", "Ambu bóp bóng"],
+].map(([id, item_name, commercial_name]) => ({
+  id,
+  item_name,
+  commercial_name,
+  unit: item_name === "Ambu" ? "Cái" : "Lọ",
+  is_active: true,
+}));
+
+test.beforeAll(async () => {
+  const { error } = await serviceDb
+    .from("equipment_catalog")
+    .upsert(catalogFixture, { onConflict: "id" });
+  expect(error).toBeNull();
+});
+
+test.afterAll(async () => {
+  await serviceDb
+    .from("equipment_catalog")
+    .delete()
+    .in(
+      "id",
+      catalogFixture.map(({ id }) => id),
+    );
+});
 
 async function loginAsAdmin(page: Page) {
   await page.goto("/login");

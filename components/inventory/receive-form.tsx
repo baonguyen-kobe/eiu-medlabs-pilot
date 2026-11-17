@@ -23,6 +23,7 @@ import {
   formatDisplayQuantity,
   multiplyExact,
   validateSplit,
+  uomLabel,
 } from "@/lib/inventory/decimal";
 import { normalizeExpiryInput } from "@/lib/inventory/dates";
 import { InventoryLookup } from "@/components/inventory/inventory-lookup";
@@ -147,6 +148,8 @@ export function ReceiveForm({
   });
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Line problems are shown only after the first review attempt, not on load.
+  const [attempted, setAttempted] = useState(false);
   const [notice, setNotice] = useState<{
     ok: boolean;
     message: string;
@@ -386,6 +389,7 @@ export function ReceiveForm({
     lines.length > 0;
 
   function handleOpenReview() {
+    setAttempted(true);
     setValidationError(null);
     if (!canSubmit) {
       setValidationError(
@@ -468,15 +472,21 @@ export function ReceiveForm({
           aria-live="polite"
           className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
             notice.ok
-              ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-              : "bg-red-50 text-red-900 border-red-200"
+              ? "bg-[var(--tone-success-bg)] text-[var(--tone-success-fg)] border-[var(--tone-success-line)]"
+              : "bg-[var(--tone-danger-bg)] text-[var(--tone-danger-fg)] border-[var(--tone-danger-line)]"
           }`}
         >
           <div className="flex items-center gap-2 text-xs font-semibold">
             {notice.ok ? (
-              <Check className="text-emerald-600 shrink-0" size={18} />
+              <Check
+                className="text-[var(--tone-success-fg)] shrink-0"
+                size={18}
+              />
             ) : (
-              <AlertTriangle className="text-red-600 shrink-0" size={18} />
+              <AlertTriangle
+                className="text-[var(--tone-danger-fg)] shrink-0"
+                size={18}
+              />
             )}
             <span>
               <LocalizedText text={notice.message ?? ""} />
@@ -502,7 +512,7 @@ export function ReceiveForm({
           ) : (
             <button
               type="button"
-              className="text-slate-400 hover:text-slate-600 p-1"
+              className="text-[var(--ink-600)] hover:text-[var(--ink-800)] p-1"
               onClick={() => setNotice(null)}
               aria-label={uiText("Đóng thông báo")}
             >
@@ -516,17 +526,20 @@ export function ReceiveForm({
         <div
           role="alert"
           aria-live="polite"
-          className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xl flex items-center justify-between"
+          className="p-3 bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)] text-xs rounded-xl flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
-            <AlertTriangle size={16} className="text-red-600 shrink-0" />
+            <AlertTriangle
+              size={16}
+              className="text-[var(--tone-danger-fg)] shrink-0"
+            />
             <span>
               <LocalizedText text={validationError ?? ""} />
             </span>
           </div>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600 p-1"
+            className="text-[var(--ink-600)] hover:text-[var(--ink-800)] p-1"
             onClick={() => setValidationError(null)}
             aria-label={uiText("Đóng lỗi")}
           >
@@ -536,38 +549,40 @@ export function ReceiveForm({
       ) : null}
 
       {/* Main Intake Form Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 space-y-6 dark:bg-slate-900 dark:border-slate-800">
-        <div>
-          <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            {uiText("Thông tin tiếp nhận thực tế / Intake Document")}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+      <div className="kho-form bg-white rounded-xl border border-[var(--line)] shadow-xs p-6 space-y-6">
+        <div className="form-section-title">
+          <div className="form-section-title-line">
+            <span className="form-section-number">01</span>
+            <h2 className="standard-section-heading">
+              {uiText("Thông tin phiếu nhận")}
+            </h2>
+          </div>
+          <p>
             {uiText(
-              "Xác nhận thực nhận tại kho MedLabs. Biểu mẫu có thể chỉnh sửa trước khi ghi sổ; sau khi ghi sổ, chứng từ trở thành bất biến.",
+              "Số phiếu và thời điểm hàng thực tế về kho. Sau khi ghi sổ, phiếu không sửa được.",
             )}
           </p>
         </div>
 
         {/* Header Fields Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200/80 dark:bg-slate-800/40 dark:border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label
               htmlFor="receipt-reference"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Mã phiếu nhận hàng (Số hóa đơn/biên bản)")}{" "}
-              <span className="text-red-500">*</span>
+              {uiText("Mã phiếu nhận hàng (Số hóa đơn/biên bản)")} *
             </label>
             <input
               id="receipt-reference"
               type="text"
-              className="w-full text-xs font-mono uppercase border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs font-mono uppercase border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               placeholder={uiText("VD: PNK-2026-001")}
               value={receiptReference}
               onChange={(e) => setReceiptReference(e.target.value)}
               required
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
               {uiText("Định danh duy nhất của đợt giao nhận vật lý")}
             </span>
           </div>
@@ -575,21 +590,20 @@ export function ReceiveForm({
           <div>
             <label
               htmlFor="receipt-occurred-at"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Thời điểm nhận thực tế ")}
-              <span className="text-red-500">*</span>
+              {uiText("Thời điểm nhận thực tế ")}*
             </label>
             <input
               id="receipt-occurred-at"
               type="datetime-local"
-              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               value={occurredAt}
               onChange={(e) => setOccurredAt(e.target.value)}
               required
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
-              {uiText("Giờ và ngày thực tế hàng đến kho (Asia/Ho_Chi_Minh)")}
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
+              {uiText("Giờ Việt Nam, lúc hàng về kho")}
             </span>
           </div>
 
@@ -599,11 +613,11 @@ export function ReceiveForm({
               filters={{ active: true }}
               value={selectedSourceId}
               onSelect={(source) => setSelectedSourceId(source.id)}
-              label={uiText("Lọc nhanh hồ sơ nguồn cam kết")}
+              label={uiText("Hồ sơ nguồn")}
               id="receipt-source-filter"
               placeholder={uiText("Chọn hồ sơ nguồn để lọc dòng…")}
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
               {uiText("Giúp chọn nhanh các dòng cam kết từ hồ sơ này")}
             </span>
           </div>
@@ -612,10 +626,12 @@ export function ReceiveForm({
         {/* Multi-line Intake Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-              {uiText("Chi tiết các dòng hàng thực nhận (")}
-              {lines.length})
-            </h3>
+            <div className="form-section-title-line">
+              <span className="form-section-number">02</span>
+              <h2 className="standard-section-heading">
+                {uiText("Các dòng hàng ({0})", [lines.length])}
+              </h2>
+            </div>
             <button
               type="button"
               className="button button-secondary text-xs"
@@ -636,22 +652,22 @@ export function ReceiveForm({
                 <div
                   key={idx}
                   className={`p-4 rounded-xl border transition-colors ${
-                    calc?.isValid
-                      ? "bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-                      : "bg-red-50/20 border-red-200 dark:bg-red-950/20 dark:border-red-900/40"
+                    calc?.isValid || !attempted
+                      ? "bg-white border-[var(--line)]"
+                      : "bg-[var(--tone-danger-bg)] border-[var(--tone-danger-line)]"
                   }`}
                 >
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--line)]">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-xs font-bold flex items-center justify-center">
+                      <span className="w-6 h-6 rounded-full bg-[var(--tone-info-bg)] text-[var(--eiu-blue)] text-xs font-bold flex items-center justify-center">
                         {idx + 1}
                       </span>
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
+                      <span className="text-xs font-bold text-[var(--ink-950)] font-mono">
                         {uiText("Dòng ")}
                         {line.lineKey}
                       </span>
                       {item ? (
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-xs text-[var(--ink-600)]">
                           {uiText("&bull; ")}
                           {item.name} ({item.code})
                         </span>
@@ -661,7 +677,7 @@ export function ReceiveForm({
                     {lines.length > 1 ? (
                       <button
                         type="button"
-                        className="text-slate-400 hover:text-red-600 p-1 rounded"
+                        className="text-[var(--ink-600)] hover:text-[var(--tone-danger-fg)] p-1 rounded"
                         title={uiText("Xóa dòng")}
                         aria-label={uiText("Xóa dòng {0}", [idx + 1])}
                         onClick={() => removeLine(idx)}
@@ -715,17 +731,16 @@ export function ReceiveForm({
                     <div>
                       <label
                         htmlFor={`receive-line-purchase-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("SL Giao / ĐVT Nhập")}{" "}
-                        <span className="text-red-500">*</span>
+                        {uiText("SL giao & ĐVT")} *
                       </label>
                       <div className="flex gap-1.5">
                         <input
                           id={`receive-line-purchase-qty-${idx}`}
                           type="text"
                           inputMode="decimal"
-                          className="w-full text-xs font-mono border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-full text-xs font-mono border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.purchaseQuantity}
                           onChange={(e) =>
                             updateLine(idx, {
@@ -757,18 +772,17 @@ export function ReceiveForm({
                     <div>
                       <label
                         htmlFor={`receive-line-factor-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {uiText("Hệ số quy đổi sang ")}
-                        {item?.base_uom_code || uiText("Cơ sở")}{" "}
-                        <span className="text-red-500">*</span>
+                        {item ? uomLabel(item) : uiText("Cơ sở")} *
                       </label>
                       <div className="flex items-center gap-2">
                         <input
                           id={`receive-line-factor-${idx}`}
                           type="text"
                           inputMode="decimal"
-                          className="w-24 text-xs font-mono border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-24 text-xs font-mono border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.conversionFactor}
                           onChange={(e) =>
                             updateLine(idx, {
@@ -777,35 +791,32 @@ export function ReceiveForm({
                           }
                           required
                         />
-                        <div className="flex-1 bg-slate-50 border border-slate-200 rounded p-1.5 text-center dark:bg-slate-800/50 dark:border-slate-800">
-                          <span className="text-[10px] text-slate-400 block uppercase">
-                            {uiText("SL cơ sở:")}
-                          </span>
-                          <span className="font-mono font-bold text-xs text-indigo-700 dark:text-indigo-300">
+                        <div className="kho-derived">
+                          <span>{uiText("= SL cơ sở")}</span>
+                          <strong>
                             {formatDisplayQuantity(calc?.baseQty)}{" "}
-                            {item?.base_uom_code}
-                          </span>
+                            {item ? uomLabel(item) : ""}
+                          </strong>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Second row: Inspection Split (Good vs Damaged) and Expiry */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mt-3 pt-3 border-t border-[var(--line)]">
                     {/* Good Quantity */}
                     <div>
                       <label
                         htmlFor={`receive-line-good-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--tone-success-fg)] mb-1"
                       >
-                        {uiText("SL Tốt / Đạt chuẩn")}{" "}
-                        <span className="text-red-500">*</span>
+                        {uiText("SL tốt")} *
                       </label>
                       <input
                         id={`receive-line-good-qty-${idx}`}
                         type="text"
                         inputMode="decimal"
-                        className="w-full text-xs font-mono border border-emerald-300 rounded p-2 focus:ring-1 focus:ring-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20 dark:border-emerald-800 dark:text-emerald-200"
+                        className="w-full text-xs font-mono border border-[var(--tone-success-line)] rounded p-2 focus:ring-1 focus:ring-[var(--tone-success-line)] bg-[var(--tone-success-bg)]"
                         value={line.goodQuantity}
                         onChange={(e) =>
                           updateLine(idx, { goodQuantity: e.target.value })
@@ -818,16 +829,15 @@ export function ReceiveForm({
                     <div>
                       <label
                         htmlFor={`receive-line-damaged-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-amber-800 dark:text-amber-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--tone-warning-fg)] mb-1"
                       >
-                        {uiText("SL Hỏng / Lỗi ")}
-                        <span className="text-red-500">*</span>
+                        {uiText("SL hỏng ")}*
                       </label>
                       <input
                         id={`receive-line-damaged-qty-${idx}`}
                         type="text"
                         inputMode="decimal"
-                        className="w-full text-xs font-mono border border-amber-300 rounded p-2 focus:ring-1 focus:ring-amber-500 bg-amber-50/30 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-200"
+                        className="w-full text-xs font-mono border border-[var(--tone-warning-line)] rounded p-2 focus:ring-1 focus:ring-[var(--tone-warning-line)] bg-[var(--tone-warning-bg)]"
                         value={line.damagedQuantity}
                         onChange={(e) =>
                           updateLine(idx, { damagedQuantity: e.target.value })
@@ -840,14 +850,13 @@ export function ReceiveForm({
                     <div>
                       <label
                         htmlFor={`receive-line-expiry-precision-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Độ chính xác HSD ")}
-                        <span className="text-red-500">*</span>
+                        {uiText("Độ chính xác HSD ")}*
                       </label>
                       <select
                         id={`receive-line-expiry-precision-${idx}`}
-                        className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                        className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)] bg-white"
                         value={line.expiryPrecision}
                         onChange={(e) =>
                           updateLine(idx, {
@@ -873,7 +882,7 @@ export function ReceiveForm({
                     <div>
                       <label
                         htmlFor={`receive-line-expiry-input-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {line.expiryPrecision === "not_required"
                           ? uiText("Trạng thái HSD")
@@ -884,14 +893,14 @@ export function ReceiveForm({
                           id={`receive-line-expiry-input-${idx}`}
                           type="text"
                           disabled
-                          className="w-full text-xs border border-slate-200 rounded p-2 bg-slate-100 text-slate-400 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500"
+                          className="w-full text-xs border border-[var(--line)] rounded p-2 bg-[var(--surface-soft)] text-[var(--ink-600)]"
                           value="Không yêu cầu hạn dùng"
                         />
                       ) : line.expiryPrecision === "day" ? (
                         <input
                           id={`receive-line-expiry-input-${idx}`}
                           type="date"
-                          className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.expiryInput}
                           onChange={(e) =>
                             updateLine(idx, { expiryInput: e.target.value })
@@ -902,7 +911,7 @@ export function ReceiveForm({
                         <input
                           id={`receive-line-expiry-input-${idx}`}
                           type="month"
-                          className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.expiryInput}
                           onChange={(e) =>
                             updateLine(idx, { expiryInput: e.target.value })
@@ -914,11 +923,11 @@ export function ReceiveForm({
                   </div>
 
                   {/* Line Validation Errors */}
-                  {!calc?.isValid ? (
+                  {attempted && !calc?.isValid ? (
                     <div
                       role="alert"
                       aria-live="polite"
-                      className="mt-3 p-2 text-xs rounded bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-900 dark:text-red-300 space-y-1"
+                      className="mt-3 p-2 text-xs rounded bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)] space-y-1"
                     >
                       {!calc?.hasSourceLine ? (
                         <div>
@@ -955,23 +964,23 @@ export function ReceiveForm({
         </div>
 
         {/* Submit Action Bar */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-[var(--ink-600)]">
             {allLinesValid && lines.length > 0 ? (
-              <span className="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5">
+              <span className="text-[var(--tone-success-fg)] font-semibold inline-flex items-center gap-1.5">
                 <Check size={16} />
                 {uiText(
                   " Toàn bộ các dòng hàng đã thỏa mãn điều kiện quy đổi và kiểm tra",
                 )}
               </span>
-            ) : (
-              <span className="text-amber-700 dark:text-amber-400 font-medium inline-flex items-center gap-1.5">
+            ) : attempted ? (
+              <span className="text-[var(--tone-warning-fg)] font-medium inline-flex items-center gap-1.5">
                 <AlertTriangle size={16} />
                 {uiText(
                   " Vui lòng hoàn thiện đúng các trường dữ liệu trên từng dòng",
                 )}
               </span>
-            )}
+            ) : null}
           </div>
 
           <button
@@ -991,25 +1000,25 @@ export function ReceiveForm({
       {/* Review & Final Confirmation Modal */}
       {confirmOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgb(20 64 105 / 45%)] backdrop-blur-xs"
           role="dialog"
           aria-modal="true"
           aria-labelledby="receive-confirmation-dialog-title"
         >
           <div
             ref={modalRef}
-            className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] dark:bg-slate-900 dark:border-slate-800"
+            className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-[var(--line)] overflow-hidden flex flex-col max-h-[85vh]"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--surface-soft)]">
               <h3
                 id="receive-confirmation-dialog-title"
-                className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
+                className="text-sm font-bold text-[var(--ink-950)] uppercase tracking-wider"
               >
                 {uiText("Xác nhận ghi sổ nhận kho / Post Receipt Confirmation")}
               </h3>
               <button
                 type="button"
-                className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
+                className="text-[var(--ink-600)] hover:text-[var(--ink-800)] rounded-lg p-1"
                 onClick={() => setConfirmOpen(false)}
                 aria-label={uiText("Đóng / Close")}
                 disabled={isPending}
@@ -1019,50 +1028,50 @@ export function ReceiveForm({
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto text-xs">
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 grid grid-cols-2 gap-3 dark:bg-slate-800/50 dark:border-slate-800">
+              <div className="p-3 bg-[var(--surface-soft)] rounded-lg border border-[var(--line)] grid grid-cols-2 gap-3">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">
+                  <span className="text-[var(--ink-600)] block text-[11px]">
                     {uiText("Mã phiếu nhận:")}
                   </span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 text-sm">
+                  <span className="font-mono font-bold text-[var(--ink-950)] text-sm">
                     {receiptReference.toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">
+                  <span className="text-[var(--ink-600)] block text-[11px]">
                     {uiText("Thời điểm tiếp nhận:")}
                   </span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="font-semibold text-[var(--ink-950)]">
                     {occurredAt.replace("T", " ")}
                   </span>
                 </div>
               </div>
 
-              <div className="border border-slate-200 rounded-lg overflow-hidden dark:border-slate-800">
+              <div className="border border-[var(--line)] rounded-lg overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] dark:bg-slate-800/50 dark:border-slate-800 dark:text-slate-300">
+                    <tr className="bg-[var(--surface-soft)] border-b border-[var(--line)] text-[var(--ink-800)] font-semibold uppercase text-[10px]">
                       <th className="p-2">{uiText("Dòng")}</th>
                       <th className="p-2">{uiText("Vật tư")}</th>
                       <th className="p-2 text-right">{uiText("SL Giao")}</th>
                       <th className="p-2 text-right">{uiText("Hệ số")}</th>
                       <th className="p-2 text-right">{uiText("SL Quy đổi")}</th>
-                      <th className="p-2 text-right text-emerald-700 dark:text-emerald-400">
+                      <th className="p-2 text-right text-[var(--tone-success-fg)]">
                         {uiText("Tốt")}
                       </th>
-                      <th className="p-2 text-right text-amber-700 dark:text-amber-400">
+                      <th className="p-2 text-right text-[var(--tone-warning-fg)]">
                         {uiText("Hỏng")}
                       </th>
                       <th className="p-2">{uiText("Hạn sử dụng")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                  <tbody className="divide-y divide-[var(--line)] font-mono text-[11px]">
                     {lines.map((l, i) => {
                       const calc = lineCalculations[i];
                       return (
                         <tr key={i}>
                           <td className="p-2">{l.lineKey}</td>
-                          <td className="p-2 font-sans font-medium text-slate-800 dark:text-slate-200">
+                          <td className="p-2 font-sans font-medium text-[var(--ink-950)]">
                             {calc?.item?.name || l.catalogItemId}
                           </td>
                           <td className="p-2 text-right">
@@ -1072,16 +1081,17 @@ export function ReceiveForm({
                             {uiText("&times;")}
                             {l.conversionFactor}
                           </td>
-                          <td className="p-2 text-right font-bold text-indigo-700 dark:text-indigo-300">
-                            {calc?.baseQty} {calc?.item?.base_uom_code}
+                          <td className="p-2 text-right font-bold text-[var(--eiu-blue)]">
+                            {calc?.baseQty}{" "}
+                            {calc?.item ? uomLabel(calc.item) : ""}
                           </td>
-                          <td className="p-2 text-right text-emerald-700 dark:text-emerald-400">
+                          <td className="p-2 text-right text-[var(--tone-success-fg)]">
                             {l.goodQuantity}
                           </td>
-                          <td className="p-2 text-right text-amber-700 dark:text-amber-400">
+                          <td className="p-2 text-right text-[var(--tone-warning-fg)]">
                             {l.damagedQuantity}
                           </td>
-                          <td className="p-2 font-sans text-slate-600 dark:text-slate-300">
+                          <td className="p-2 font-sans text-[var(--ink-800)]">
                             {l.expiryPrecision === "not_required"
                               ? uiText("Không yêu cầu")
                               : l.expiryInput}
@@ -1093,7 +1103,7 @@ export function ReceiveForm({
                 </table>
               </div>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-[11px] leading-relaxed dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-300">
+              <div className="p-3 bg-[var(--tone-warning-bg)] border border-[var(--tone-warning-line)] rounded-lg text-[var(--tone-warning-fg)] text-[11px] leading-relaxed">
                 <strong>{uiText("Lưu ý:")}</strong>
                 {uiText(
                   " Hành động này ghi nhận giao dịch nhập vật lý vào sổ cái kho MedLabs và cập nhật số dư tồn kho tức thời. Chứng từ sau khi ghi nhận không thể xóa mà chỉ có thể điều chỉnh hoặc hủy qua nghiệp vụ hiệu chỉnh có lưu vết kiểm toán.",
@@ -1101,7 +1111,7 @@ export function ReceiveForm({
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+            <div className="p-4 border-t border-[var(--line)] flex items-center justify-end gap-3">
               <button
                 type="button"
                 className="button button-secondary text-xs"

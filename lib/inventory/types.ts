@@ -132,10 +132,15 @@ export interface InventoryStorageLocation {
   revision: string | number;
 }
 
+export type AcquisitionSourceKind = "purchase" | "donation";
+
 export interface AcquisitionRecord {
   id: string;
   source_reference: string;
-  supplier_id: string;
+  /** Older reads may omit it; treat missing as "purchase". */
+  source_kind?: AcquisitionSourceKind;
+  /** Null only for a donation recorded without a supplier. */
+  supplier_id: string | null;
   supplier_name?: string;
   reference_date: string;
   funding_source: string | null;
@@ -153,6 +158,9 @@ export interface AcquisitionRecordLine {
   catalog_item_id: string;
   item_code?: string;
   item_name?: string;
+  /** Names the source_lines read returns. */
+  catalog_item_code?: string;
+  catalog_item_name?: string;
   expected_purchase_quantity: string;
   purchase_uom_code: string;
   purchase_uom_name?: string;
@@ -275,6 +283,9 @@ export interface InventoryTransactionLine {
   catalog_item_id: string;
   item_code?: string;
   item_name?: string;
+  /** Names the source_lines read returns. */
+  catalog_item_code?: string;
+  catalog_item_name?: string;
   location_id: string;
   location_code?: string;
   location_name?: string;

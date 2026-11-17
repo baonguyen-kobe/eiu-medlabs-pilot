@@ -22,7 +22,7 @@ import {
   verifyStocktakeSurplusAction,
 } from "@/app/inventory/actions";
 import { readInventoryOptions } from "@/app/inventory/read-actions";
-import { formatDisplayQuantity } from "@/lib/inventory/decimal";
+import { formatDisplayQuantity, uomLabel } from "@/lib/inventory/decimal";
 import { normalizeExpiryInput } from "@/lib/inventory/dates";
 import {
   ConditionBadge,
@@ -535,8 +535,7 @@ export function SurplusManagementView({
                         />
                       </td>
                       <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
-                        {formatDisplayQuantity(row.quantity)}{" "}
-                        {row.base_uom_code || ""}
+                        {formatDisplayQuantity(row.quantity)} {uomLabel(row)}
                       </td>
                       <td className="py-3 px-3 text-slate-600">
                         {row.expiry_date ||
@@ -668,7 +667,7 @@ export function SurplusManagementView({
                 <span className="text-slate-500">{uiText("Số lượng:")}</span>
                 <span className="font-bold text-slate-900">
                   {formatDisplayQuantity(selectedOrigin.quantity)}{" "}
-                  {selectedOrigin.base_uom_code}
+                  {uomLabel(selectedOrigin)}
                 </span>
               </div>
               {selectedOrigin.hold_reason ? (

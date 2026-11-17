@@ -55,7 +55,7 @@ async function loginAsRoot(page: Page) {
   );
 }
 
-test("historical Root shift stays readable but Root is absent from reassignment picker", async ({
+test("historical Root shift stays readable and read-only on the calendar", async ({
   page,
 }) => {
   const shiftId = crypto.randomUUID();
@@ -89,11 +89,12 @@ test("historical Root shift stays readable but Root is absent from reassignment 
       expect(page.getByLabel("Chi tiết lịch")).toBeVisible({ timeout: 1_000 }),
     );
 
-    const picker = page.getByLabel("Chọn người trực");
-    await expect(picker).toBeVisible();
-    expect(await picker.locator("option").allTextContents()).not.toContain(
-      rootName,
-    );
+    // The calendar detail no longer reassigns shifts (roster page only), so
+    // the shift is read-only here. The database trigger
+    // staff_shift_operational_assignee still keeps Root out of new shifts.
+    const detail = page.getByLabel("Chi tiết lịch");
+    await expect(detail).toContainText(rootName);
+    await expect(detail.locator("select")).toHaveCount(0);
   } finally {
     localSql(`delete from public.staff_shifts where id = '${shiftId}';`);
   }

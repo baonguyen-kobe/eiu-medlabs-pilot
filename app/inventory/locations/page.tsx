@@ -3,9 +3,7 @@ import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { createClient } from "@/lib/supabase/server";
 import { LocationsView } from "@/components/inventory/locations-view";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type { InventoryStorageLocation } from "@/lib/inventory/types";
-import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface LocationsPageProps {
   searchParams: Promise<{
@@ -53,21 +51,6 @@ export default async function LocationsPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text={"Vị trí lưu kho & Phân cấp / Storage Locations"}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Quản lý cấu trúc vị trí kho cây phân cấp không chu trình và liên kết phòng thực hành"
-            }
-          />
-        }
-      />
-
       <LocationsView
         initialLocations={locationsRes.rows}
         total={locationsRes.total}

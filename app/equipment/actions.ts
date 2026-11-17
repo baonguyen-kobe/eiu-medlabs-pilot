@@ -237,7 +237,7 @@ export async function deleteEquipmentRequest(
     if (cancelErr || !isCancelled) {
       return {
         ok: false,
-        message: "Không thể hủy hoặc xóa phiếu thiết bị.",
+        message: cancelErr?.hint || "Không thể hủy hoặc xóa phiếu thiết bị.",
       };
     }
     actionMessage = "Đã hủy phiếu thiết bị.";
@@ -284,7 +284,8 @@ export async function updateEquipmentRequestStatus(
   if (error || !data) {
     return {
       ok: false,
-      message: error?.message || "Không thể cập nhật trạng thái phiếu.",
+      message:
+        error?.hint || error?.message || "Không thể cập nhật trạng thái phiếu.",
     };
   }
 

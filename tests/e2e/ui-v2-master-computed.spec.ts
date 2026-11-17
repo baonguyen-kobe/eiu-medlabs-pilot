@@ -312,24 +312,22 @@ test("form-table controls and text retain the Master visible 16px safe inset", a
     const cells = row.locator("td");
     const measurements = await Promise.all([
       measureTableCellInset(row.locator('input[type="date"]'), "Date"),
+      // The time picker is a custom control; its input carries the insets.
       measureTableCellInset(
-        row.locator(".time-picker-control").first(),
+        row.locator(".time-picker-input").first(),
         "Start time",
       ),
       measureTableCellInset(
-        row.locator(".time-picker-control").nth(1),
+        row.locator(".time-picker-input").nth(1),
         "End time",
       ),
-      measureTableCellInset(row.locator("select").first(), "Room select"),
+      measureTableCellInset(cells.nth(4).locator("select"), "Room select"),
       measureTableCellInset(
         row.locator('input[type="number"]'),
         "Student count",
       ),
-      measureTableCellInset(
-        cells.nth(2).locator("strong"),
-        "Course code",
-        true,
-      ),
+      // Editable rows show the course code as a select, not plain text.
+      measureTableCellInset(cells.nth(2).locator("select"), "Course code"),
       measureTableCellInset(cells.nth(3), "Course name", true),
     ]);
 
@@ -339,6 +337,7 @@ test("form-table controls and text retain the Master visible 16px safe inset", a
       expect(
         measurement.childMaxInlineSize === "100%" ||
           measurement.childMaxWidth === "100%",
+        `${measurement.label} is capped to its cell`,
       ).toBe(true);
       if (measurement.wrapperWidth !== null) {
         expect(measurement.wrapperWidth).toBeLessThanOrEqual(
@@ -346,21 +345,21 @@ test("form-table controls and text retain the Master visible 16px safe inset", a
         );
       }
     }
-    const nativeAffordances = new Set([
-      "Date",
-      "Start time",
-      "End time",
-      "Room select",
-    ]);
+    const nativeAffordances = new Set(["Date", "Room select"]);
+    // The custom time picker keeps its clock button outside the input, so the
+    // input itself needs no end clearance.
+    const customPickers = new Set(["Start time", "End time"]);
     for (const measurement of controls) {
       expect(
         Number.parseFloat(measurement.childPaddingInlineStart),
         `${measurement.label} has an internal start inset`,
       ).toBeGreaterThanOrEqual(10);
-      expect(
-        Number.parseFloat(measurement.childPaddingInlineEnd),
-        `${measurement.label} has an internal end inset`,
-      ).toBeGreaterThanOrEqual(10);
+      if (!customPickers.has(measurement.label)) {
+        expect(
+          Number.parseFloat(measurement.childPaddingInlineEnd),
+          `${measurement.label} has an internal end inset`,
+        ).toBeGreaterThanOrEqual(10);
+      }
       if (nativeAffordances.has(measurement.label)) {
         expect(
           Number.parseFloat(measurement.childPaddingInlineEnd),
@@ -524,7 +523,10 @@ test("Basic Medical registrations and sessions use shared master-grid anchors", 
         sessionLecturerHeading,
         sessionStatusHeading,
       ] = sessionHeadings;
-      const sessionAction = actionStack?.querySelector<HTMLElement>("button");
+      // Skip the lecturer-edit button that sits beside the status badge.
+      const sessionAction = [
+        ...(actionStack?.querySelectorAll<HTMLElement>("button") ?? []),
+      ].find((button) => !button.closest(".basic-medical-session-status-row"));
       const sessionStatus =
         actionStack?.querySelector<HTMLElement>(".request-status");
       if (

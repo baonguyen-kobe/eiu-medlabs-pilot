@@ -11313,6 +11313,29 @@ time,
   .equipment-catalog-search {
     grid-column: span 2;
   }
+
+  /* At this width the base minimums leave no room for the reset button and
+     the result count, which was pushed 8px past the page edge and clipped. */
+  .equipment-request-filters {
+    grid-template-columns:
+      minmax(200px, 1.4fr) repeat(2, minmax(150px, 0.75fr))
+      repeat(2, minmax(180px, 0.8fr)) auto auto;
+  }
+
+  .equipment-request-filters .equipment-filter-count-slot {
+    min-width: max-content;
+  }
+}
+
+/* Seven controls do not fit one row beside the sidebar below this width. */
+@media (max-width: 1360px) {
+  .equipment-request-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .equipment-request-filters .equipment-filter-count-slot {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 1080px) {
@@ -11613,4 +11636,402 @@ time,
   .inventory-operations > .workspace-topbar.page-header {
     display: flex;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared list building blocks (UI Master 0A.2-0A.4, DEC-UI-20261117).
+   Introduced with the Inventory refactor; any list page may use them.
+   --------------------------------------------------------------------------- */
+
+/* 0A.3 status tones: text-only pill, same tone for the same status. */
+.badge[data-tone] {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+.badge[data-tone="info"] {
+  color: #144069;
+  background: #f0f4f8;
+  border-color: #d5e1eb;
+}
+.badge[data-tone="warning"] {
+  color: #765a0d;
+  background: #fff8e8;
+  border-color: #eadbb2;
+}
+.badge[data-tone="success"] {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.badge[data-tone="danger"] {
+  color: #8c301b;
+  background: #fff1ed;
+  border-color: #eed6cc;
+}
+.badge[data-tone="neutral"] {
+  color: #68686b;
+  background: #eef2f2;
+  border-color: #dde3e3;
+}
+
+/* KPI cards that act as quick filters. */
+a.kpi-card {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+a.kpi-card:hover,
+a.kpi-card:focus-visible {
+  border-color: var(--card-tone);
+}
+a.kpi-card[aria-current="true"] {
+  border-color: var(--card-tone);
+  box-shadow: inset 0 0 0 1px var(--card-tone);
+}
+.kpi-navy {
+  --card-tone: var(--eiu-blue);
+}
+.kpi-gold {
+  --card-tone: #a78656;
+}
+.kpi-danger {
+  --card-tone: #8c301b;
+}
+.kpi-neutral {
+  --card-tone: var(--ink-600);
+}
+
+/* Filter toolbar: labelled controls, then actions and the result count. */
+.list-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(
+      auto-fit,
+      minmax(160px, 1fr)
+    );
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.list-filters label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--ink-600);
+  font-size: 14px;
+  font-weight: 700;
+}
+.list-filters input,
+.list-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--ink-950);
+  font-size: 14px;
+  font-weight: 500;
+  background: white;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+}
+.list-filters-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+.list-filters-actions .inline-toolbar-count {
+  margin-left: auto;
+  color: var(--ink-600);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* A table cell with a main value and a quieter second line. */
+.cell-stack {
+  display: grid;
+  gap: 2px;
+}
+.cell-stack small {
+  color: var(--ink-600);
+  font-size: 14px;
+}
+.data-table td.num,
+.data-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.data-table tr.row-link {
+  cursor: pointer;
+}
+.data-table tr.row-link:hover td,
+.data-table tr.row-link[aria-selected="true"] td {
+  background: var(--surface-soft);
+}
+
+/* Tables become labelled records at the phone breakpoint (0A.4 rule 3). */
+@media (max-width: 920px) {
+  .data-table.records-on-phone,
+  .data-table.records-on-phone tbody,
+  .data-table.records-on-phone tr,
+  .data-table.records-on-phone td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .data-table.records-on-phone thead {
+    display: none;
+  }
+  .data-table.records-on-phone tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .data-table.records-on-phone td {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 12px;
+    text-align: left;
+    border: 0;
+  }
+  .data-table.records-on-phone td::before {
+    content: attr(data-label);
+    color: var(--ink-600);
+    font-weight: 700;
+  }
+}
+
+/* 520px record drawer: sticky header and footer, scrolling body (0A.2, §36). */
+.detail-drawer.record-drawer {
+  width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.record-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.record-drawer-head h2 {
+  margin: 0;
+  color: var(--eiu-blue);
+  font-family: var(--font-heading);
+  font-size: 20px;
+  line-height: 1.3;
+}
+.record-drawer-head p {
+  margin: 4px 0 0;
+  color: var(--ink-600);
+}
+.record-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 24px 24px;
+}
+.record-drawer-body h3 {
+  margin: 20px 0 8px;
+  color: var(--ink-950);
+  font-size: 16px;
+}
+.record-drawer-body .detail-list {
+  margin: 0;
+}
+.record-drawer-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+}
+.record-drawer-foot .button-secondary:last-child {
+  margin-left: auto;
+}
+.record-drawer-body .detail-list > div {
+  grid-template-columns: minmax(140px, 2fr) 3fr;
+  padding: 10px 0;
+}
+
+/* A button that reads as a link, e.g. the record name that opens its drawer. */
+.link-button {
+  padding: 0;
+  color: var(--eiu-blue);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.link-button:hover {
+  text-decoration: underline;
+}
+
+/* Compact KPI used as a quick filter: no icon column, label above value. */
+.workspace-content .kpi-card.kpi-filter {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 14px 16px;
+}
+.workspace-content .kpi-card.kpi-filter > span,
+.workspace-content .kpi-card.kpi-filter > strong,
+.workspace-content .kpi-card.kpi-filter > small {
+  grid-column: 1;
+}
+.kpi-card.kpi-filter > span {
+  margin: 0;
+  color: var(--ink-600);
+  font-size: 14px;
+  font-weight: 700;
+}
+.kpi-card.kpi-filter > strong {
+  margin: 6px 0 2px;
+  font-size: 28px;
+}
+.kpi-card.kpi-filter > small {
+  color: var(--ink-600);
+  font-size: 14px;
+}
+
+/* A labelled filter field that is not a native control (e.g. a lookup). */
+.list-filters-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--ink-600);
+  font-size: 14px;
+  font-weight: 700;
+}
+.list-filters .inventory-lookup-trigger {
+  min-height: 44px;
+  font-size: 14px;
+  border-color: var(--line-strong);
+  border-radius: 10px;
+}
+
+@media (max-width: 920px) {
+  .list-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .list-filters-actions .inline-toolbar-count {
+    margin-left: 0;
+  }
+}
+
+/* Up to six quick-filter cards stay on one row on desktop. */
+.kpi-grid:has(> .kpi-filter) {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+/* Inventory entry forms (receive, opening): one readable field style until
+   their markup is moved onto .schedule-form. 14px floor, 44px controls. */
+.kho-form label {
+  color: var(--ink-800);
+  font-size: 14px;
+  font-weight: 700;
+}
+.kho-form :is(.text-xs, .text-\[11px\], .text-\[10px\]) {
+  font-size: 14px;
+}
+.kho-form input:not([type="checkbox"]):not([type="radio"]),
+.kho-form select,
+.kho-form .inventory-lookup-trigger {
+  min-height: 44px;
+  padding-inline: 12px;
+  color: var(--ink-950);
+  font-size: 14px;
+  border-color: var(--line-strong);
+  border-radius: 10px;
+}
+.kho-form textarea {
+  font-size: 14px;
+  border-color: var(--line-strong);
+  border-radius: 10px;
+}
+.kho-form input:disabled {
+  color: var(--ink-600);
+  background: var(--surface-soft);
+}
+.kho-form .form-section-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* Read-only result of a calculation, shown as text, not as a control. */
+.kho-derived {
+  display: grid;
+  align-content: center;
+  min-height: 44px;
+  padding-inline: 4px;
+  color: var(--ink-600);
+  font-size: 14px;
+}
+.kho-derived strong {
+  color: var(--eiu-blue);
+  font-size: 16px;
+}
+
+/* Search row inside a record drawer (input, then buttons). */
+.drawer-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.drawer-search input {
+  flex: 1 1 180px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+}
+.record-drawer-body .field-note {
+  margin: 8px 0 0;
+  color: var(--ink-600);
+  font-size: 14px;
+}
+
+/* Lookups and other custom controls must not push into the next column. */
+.list-filters-field > *,
+.list-filters-field .inventory-lookup-trigger {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* UI Master 0A.3 status tones as variables, for markup that cannot use
+   .badge[data-tone] (alerts, outlined panels). */
+:root {
+  --tone-info-bg: #f0f4f8;
+  --tone-info-fg: #144069;
+  --tone-info-line: #d5e1eb;
+  --tone-warning-bg: #fff8e8;
+  --tone-warning-fg: #765a0d;
+  --tone-warning-line: #eadbb2;
+  --tone-success-bg: #f0fdf4;
+  --tone-success-fg: #15803d;
+  --tone-success-line: #bbf7d0;
+  --tone-danger-bg: #fff1ed;
+  --tone-danger-fg: #8c301b;
+  --tone-danger-line: #eed6cc;
+}
+
+/* Section description sits apart from the first row of fields. */
+.kho-form .form-section-title p {
+  margin-bottom: 14px;
 }

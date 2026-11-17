@@ -1,5 +1,7 @@
 "use client";
 
+import type { CustodianOption } from "./asset-form-fields";
+
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -55,7 +57,7 @@ const initialFormState: FormState = {
   occurred_at: "",
 };
 
-export function AssetReceiveForm() {
+export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
   const { text: uiText } = useLanguage();
 
   const router = useRouter();
@@ -324,6 +326,7 @@ export function AssetReceiveForm() {
               setForm((prev) => ({ ...prev, model: val }))
             }
             custodianId={form.custodian_id}
+            people={people}
             onCustodianIdChange={(val) =>
               setForm((prev) => ({ ...prev, custodian_id: val }))
             }

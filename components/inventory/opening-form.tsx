@@ -18,7 +18,7 @@ import {
 } from "@/components/icons";
 import { confirmOpeningBalanceAction } from "@/app/inventory/actions";
 import { businessTodayString } from "@/lib/business-time";
-import { validateSplit } from "@/lib/inventory/decimal";
+import { validateSplit, uomLabel } from "@/lib/inventory/decimal";
 import { normalizeExpiryInput } from "@/lib/inventory/dates";
 import { InventoryLookup } from "@/components/inventory/inventory-lookup";
 import type {
@@ -92,6 +92,8 @@ export function OpeningForm({
   ]);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Line problems are shown only after the first review attempt, not on load.
+  const [attempted, setAttempted] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; message: string } | null>(
     null,
   );
@@ -285,6 +287,7 @@ export function OpeningForm({
     lines.length > 0;
 
   function handleOpenReview() {
+    setAttempted(true);
     setValidationError(null);
     if (!canSubmit) {
       setValidationError(
@@ -364,15 +367,21 @@ export function OpeningForm({
           aria-live="polite"
           className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
             notice.ok
-              ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-              : "bg-red-50 text-red-900 border-red-200"
+              ? "bg-[var(--tone-success-bg)] text-[var(--tone-success-fg)] border-[var(--tone-success-line)]"
+              : "bg-[var(--tone-danger-bg)] text-[var(--tone-danger-fg)] border-[var(--tone-danger-line)]"
           }`}
         >
           <div className="flex items-center gap-2 text-xs font-semibold">
             {notice.ok ? (
-              <Check className="text-emerald-600 shrink-0" size={18} />
+              <Check
+                className="text-[var(--tone-success-fg)] shrink-0"
+                size={18}
+              />
             ) : (
-              <AlertTriangle className="text-red-600 shrink-0" size={18} />
+              <AlertTriangle
+                className="text-[var(--tone-danger-fg)] shrink-0"
+                size={18}
+              />
             )}
             <span>
               <LocalizedText text={notice.message ?? ""} />
@@ -398,7 +407,7 @@ export function OpeningForm({
           ) : (
             <button
               type="button"
-              className="text-slate-400 hover:text-slate-600 p-1"
+              className="text-[var(--ink-600)] hover:text-[var(--ink-800)] p-1"
               onClick={() => setNotice(null)}
               aria-label={uiText("Đóng thông báo")}
             >
@@ -412,17 +421,20 @@ export function OpeningForm({
         <div
           role="alert"
           aria-live="polite"
-          className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xl flex items-center justify-between"
+          className="p-3 bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)] text-xs rounded-xl flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
-            <AlertTriangle size={16} className="text-red-600 shrink-0" />
+            <AlertTriangle
+              size={16}
+              className="text-[var(--tone-danger-fg)] shrink-0"
+            />
             <span>
               <LocalizedText text={validationError ?? ""} />
             </span>
           </div>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600 p-1"
+            className="text-[var(--ink-600)] hover:text-[var(--ink-800)] p-1"
             onClick={() => setValidationError(null)}
             aria-label={uiText("Đóng lỗi")}
           >
@@ -432,37 +444,39 @@ export function OpeningForm({
       ) : null}
 
       {/* Main Form Container */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-6 dark:bg-slate-900 dark:border-slate-800">
-        <div>
-          <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            {uiText("Biên bản Chốt kiểm kê ban đầu / Opening Cutover")}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+      <div className="kho-form bg-white rounded-xl border border-[var(--line)] p-6 shadow-xs space-y-6">
+        <div className="form-section-title">
+          <div className="form-section-title-line">
+            <span className="form-section-number">01</span>
+            <h2 className="standard-section-heading">
+              {uiText("Biên bản chốt tồn đầu kỳ")}
+            </h2>
+          </div>
+          <p>
             {uiText(
-              "Dành riêng cho Quản trị viên (Admin). Xác lập số dư kiểm kê ban đầu có giá trị pháp lý, không suy diễn lịch sử mua sắm.",
+              "Chỉ Quản trị viên. Ghi số dư kiểm kê có sẵn khi bắt đầu dùng hệ thống.",
             )}
           </p>
         </div>
 
         {/* Header Fields Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200/80 dark:bg-slate-800/40 dark:border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label
               htmlFor="opening-cutover-key"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Mã đợt chốt (Cutover Key) ")}
-              <span className="text-red-500">*</span>
+              {uiText("Mã đợt chốt (Cutover Key) ")}*
             </label>
             <input
               id="opening-cutover-key"
               type="text"
-              className="w-full text-xs font-mono uppercase border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs font-mono uppercase border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               value={cutoverKey}
               onChange={(e) => setCutoverKey(e.target.value)}
               required
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
               {uiText("Khóa duy nhất của đợt khởi tạo")}
             </span>
           </div>
@@ -470,41 +484,39 @@ export function OpeningForm({
           <div>
             <label
               htmlFor="opening-count-cutoff"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Thời điểm chốt kiểm kê ")}
-              <span className="text-red-500">*</span>
+              {uiText("Thời điểm chốt kiểm kê ")}*
             </label>
             <input
               id="opening-count-cutoff"
               type="datetime-local"
-              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               value={countCutoff}
               onChange={(e) => setCountCutoff(e.target.value)}
               required
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
-              {uiText("Giờ và ngày chốt sổ (Asia/Ho_Chi_Minh)")}
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
+              {uiText("Giờ Việt Nam, lúc chốt số liệu")}
             </span>
           </div>
 
           <div className="sm:col-span-2">
             <label
               htmlFor="opening-scope"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Phạm vi kiểm kê ")}
-              <span className="text-red-500">*</span>
+              {uiText("Phạm vi kiểm kê ")}*
             </label>
             <input
               id="opening-scope"
               type="text"
-              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               value={scopeDescription}
               onChange={(e) => setScopeDescription(e.target.value)}
               required
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
+            <span className="text-[11px] text-[var(--ink-600)] block mt-1">
               {uiText("Mô tả ngắn phạm vi kho/khu vực kiểm kê")}
             </span>
           </div>
@@ -512,15 +524,14 @@ export function OpeningForm({
           <div className="sm:col-span-4">
             <label
               htmlFor="opening-provenance-note"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-[var(--ink-800)] mb-1"
             >
-              {uiText("Căn cứ pháp lý & Ghi chú xuất xứ")}{" "}
-              <span className="text-red-500">*</span>
+              {uiText("Căn cứ pháp lý & Ghi chú xuất xứ")} *
             </label>
             <input
               id="opening-provenance-note"
               type="text"
-              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+              className="w-full text-xs border border-[var(--line-strong)] rounded-lg p-2.5 focus:ring-2 focus:ring-[var(--eiu-blue)] bg-white"
               value={provenanceNote}
               onChange={(e) => setProvenanceNote(e.target.value)}
               required
@@ -531,10 +542,12 @@ export function OpeningForm({
         {/* Multi-line Count Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-              {uiText("Danh sách các dòng kiểm đếm thực tế (")}
-              {lines.length})
-            </h3>
+            <div className="form-section-title-line">
+              <span className="form-section-number">02</span>
+              <h2 className="standard-section-heading">
+                {uiText("Các dòng kiểm đếm ({0})", [lines.length])}
+              </h2>
+            </div>
             <button
               type="button"
               className="button button-secondary text-xs"
@@ -554,22 +567,22 @@ export function OpeningForm({
                 <div
                   key={idx}
                   className={`p-4 rounded-xl border transition-colors ${
-                    calc?.isValid
-                      ? "bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-                      : "bg-red-50/20 border-red-200 dark:bg-red-950/20 dark:border-red-900/40"
+                    calc?.isValid || !attempted
+                      ? "bg-white border-[var(--line)]"
+                      : "bg-[var(--tone-danger-bg)] border-[var(--tone-danger-line)]"
                   }`}
                 >
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--line)]">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-xs font-bold flex items-center justify-center">
+                      <span className="w-6 h-6 rounded-full bg-[var(--tone-info-bg)] text-[var(--eiu-blue)] text-xs font-bold flex items-center justify-center">
                         {idx + 1}
                       </span>
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
+                      <span className="text-xs font-bold text-[var(--ink-950)] font-mono">
                         {uiText("Dòng ")}
                         {line.lineKey}
                       </span>
                       {item ? (
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-xs text-[var(--ink-600)]">
                           {uiText("&bull; ")}
                           {item.name} ({item.code})
                         </span>
@@ -579,7 +592,7 @@ export function OpeningForm({
                     {lines.length > 1 ? (
                       <button
                         type="button"
-                        className="text-slate-400 hover:text-red-600 p-1 rounded"
+                        className="text-[var(--ink-600)] hover:text-[var(--tone-danger-fg)] p-1 rounded"
                         title={uiText("Xóa dòng")}
                         aria-label={uiText("Xóa dòng {0}", [idx + 1])}
                         onClick={() => removeLine(idx)}
@@ -629,15 +642,14 @@ export function OpeningForm({
                     <div>
                       <label
                         htmlFor={`opening-group-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Nhóm bằng chứng / Biên bản")}{" "}
-                        <span className="text-red-500">*</span>
+                        {uiText("Số biên bản")} *
                       </label>
                       <input
                         id={`opening-group-${idx}`}
                         type="text"
-                        className="w-full text-xs font-mono border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                        className="w-full text-xs font-mono border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                         value={line.provenanceGroup}
                         onChange={(e) =>
                           updateLine(idx, { provenanceGroup: e.target.value })
@@ -651,17 +663,16 @@ export function OpeningForm({
                     <div>
                       <label
                         htmlFor={`opening-base-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {uiText("Tổng SL kiểm đếm (")}
-                        {item?.base_uom_code || uiText("Cơ sở")}){" "}
-                        <span className="text-red-500">*</span>
+                        {item ? uomLabel(item) : uiText("Cơ sở")}) *
                       </label>
                       <input
                         id={`opening-base-qty-${idx}`}
                         type="text"
                         inputMode="decimal"
-                        className="w-full text-xs font-mono font-bold text-indigo-700 border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-indigo-300"
+                        className="w-full text-xs font-mono font-bold text-[var(--eiu-blue)] border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                         value={line.baseQuantity}
                         onChange={(e) =>
                           updateLine(idx, { baseQuantity: e.target.value })
@@ -672,21 +683,20 @@ export function OpeningForm({
                   </div>
 
                   {/* Second row: Split & Expiry */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mt-3 pt-3 border-t border-[var(--line)]">
                     {/* Good Quantity */}
                     <div>
                       <label
                         htmlFor={`opening-good-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--tone-success-fg)] mb-1"
                       >
-                        {uiText("SL Tốt / Đạt chuẩn")}{" "}
-                        <span className="text-red-500">*</span>
+                        {uiText("SL tốt")} *
                       </label>
                       <input
                         id={`opening-good-qty-${idx}`}
                         type="text"
                         inputMode="decimal"
-                        className="w-full text-xs font-mono border border-emerald-300 rounded p-2 focus:ring-1 focus:ring-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20 dark:border-emerald-800 dark:text-emerald-200"
+                        className="w-full text-xs font-mono border border-[var(--tone-success-line)] rounded p-2 focus:ring-1 focus:ring-[var(--tone-success-line)] bg-[var(--tone-success-bg)]"
                         value={line.goodQuantity}
                         onChange={(e) =>
                           updateLine(idx, { goodQuantity: e.target.value })
@@ -699,16 +709,15 @@ export function OpeningForm({
                     <div>
                       <label
                         htmlFor={`opening-damaged-qty-${idx}`}
-                        className="block text-[11px] font-semibold text-amber-800 dark:text-amber-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--tone-warning-fg)] mb-1"
                       >
-                        {uiText("SL Hỏng / Lỗi ")}
-                        <span className="text-red-500">*</span>
+                        {uiText("SL hỏng ")}*
                       </label>
                       <input
                         id={`opening-damaged-qty-${idx}`}
                         type="text"
                         inputMode="decimal"
-                        className="w-full text-xs font-mono border border-amber-300 rounded p-2 focus:ring-1 focus:ring-amber-500 bg-amber-50/30 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-200"
+                        className="w-full text-xs font-mono border border-[var(--tone-warning-line)] rounded p-2 focus:ring-1 focus:ring-[var(--tone-warning-line)] bg-[var(--tone-warning-bg)]"
                         value={line.damagedQuantity}
                         onChange={(e) =>
                           updateLine(idx, { damagedQuantity: e.target.value })
@@ -721,14 +730,13 @@ export function OpeningForm({
                     <div>
                       <label
                         htmlFor={`opening-expiry-precision-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Độ chính xác HSD ")}
-                        <span className="text-red-500">*</span>
+                        {uiText("Độ chính xác HSD ")}*
                       </label>
                       <select
                         id={`opening-expiry-precision-${idx}`}
-                        className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                        className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)] bg-white"
                         value={line.expiryPrecision}
                         onChange={(e) =>
                           updateLine(idx, {
@@ -759,7 +767,7 @@ export function OpeningForm({
                     <div>
                       <label
                         htmlFor={`opening-expiry-input-${idx}`}
-                        className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                        className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {line.expiryPrecision === "not_required"
                           ? uiText("Trạng thái HSD")
@@ -772,7 +780,7 @@ export function OpeningForm({
                           id={`opening-expiry-input-${idx}`}
                           type="text"
                           disabled
-                          className="w-full text-xs border border-slate-200 rounded p-2 bg-slate-100 text-slate-400 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500"
+                          className="w-full text-xs border border-[var(--line)] rounded p-2 bg-[var(--surface-soft)] text-[var(--ink-600)]"
                           value="Không áp dụng"
                         />
                       ) : line.expiryPrecision === "unknown" ? (
@@ -780,14 +788,14 @@ export function OpeningForm({
                           id={`opening-expiry-input-${idx}`}
                           type="text"
                           disabled
-                          className="w-full text-xs border border-amber-200 rounded p-2 bg-amber-50 text-amber-800 font-medium dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-300"
+                          className="w-full text-xs border border-[var(--tone-warning-line)] rounded p-2 bg-[var(--tone-warning-bg)] text-[var(--tone-warning-fg)] font-medium"
                           value="Chưa rõ (Sẽ cần Admin xác minh)"
                         />
                       ) : line.expiryPrecision === "day" ? (
                         <input
                           id={`opening-expiry-input-${idx}`}
                           type="date"
-                          className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.expiryInput}
                           onChange={(e) =>
                             updateLine(idx, { expiryInput: e.target.value })
@@ -798,7 +806,7 @@ export function OpeningForm({
                         <input
                           id={`opening-expiry-input-${idx}`}
                           type="month"
-                          className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
+                          className="w-full text-xs border border-[var(--line-strong)] rounded p-2 focus:ring-1 focus:ring-[var(--eiu-blue)]"
                           value={line.expiryInput}
                           onChange={(e) =>
                             updateLine(idx, { expiryInput: e.target.value })
@@ -809,11 +817,11 @@ export function OpeningForm({
                     </div>
                   </div>
 
-                  {!calc?.isValid ? (
+                  {attempted && !calc?.isValid ? (
                     <div
                       role="alert"
                       aria-live="polite"
-                      className="mt-3 p-2 text-xs rounded bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-900 dark:text-red-300"
+                      className="mt-3 p-2 text-xs rounded bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)]"
                     >
                       {!calc?.hasItem
                         ? uiText(
@@ -835,21 +843,21 @@ export function OpeningForm({
         </div>
 
         {/* Action Button Footer */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="pt-4 border-t border-[var(--line)] flex items-center justify-between">
+          <div className="text-xs text-[var(--ink-600)]">
             {allLinesValid && lines.length > 0 ? (
-              <span className="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5">
+              <span className="text-[var(--tone-success-fg)] font-semibold inline-flex items-center gap-1.5">
                 <Check size={16} />
                 {uiText(" Toàn bộ các dòng kiểm kê đã hợp lệ")}
               </span>
-            ) : (
-              <span className="text-amber-700 dark:text-amber-400 font-medium inline-flex items-center gap-1.5">
+            ) : attempted ? (
+              <span className="text-[var(--tone-warning-fg)] font-medium inline-flex items-center gap-1.5">
                 <AlertTriangle size={16} />
                 {uiText(
                   " Vui lòng kiểm tra lại các trường vật tư, vị trí, số lượng và HSD",
                 )}
               </span>
-            )}
+            ) : null}
           </div>
 
           <button
@@ -869,25 +877,25 @@ export function OpeningForm({
       {/* Review & Confirmation Modal */}
       {confirmOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgb(20 64 105 / 45%)] backdrop-blur-xs"
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-opening-title"
         >
           <div
             ref={modalRef}
-            className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] dark:bg-slate-900 dark:border-slate-800"
+            className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-[var(--line)] overflow-hidden flex flex-col max-h-[85vh]"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--surface-soft)]">
               <h3
                 id="confirm-opening-title"
-                className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
+                className="text-sm font-bold text-[var(--ink-950)] uppercase tracking-wider"
               >
                 {uiText("Xác nhận chốt tồn đầu kỳ / Confirm Opening Cutover")}
               </h3>
               <button
                 type="button"
-                className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
+                className="text-[var(--ink-600)] hover:text-[var(--ink-800)] rounded-lg p-1"
                 onClick={() => setConfirmOpen(false)}
                 aria-label={uiText("Đóng / Close")}
                 disabled={isPending}
@@ -897,62 +905,62 @@ export function OpeningForm({
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto text-xs">
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 grid grid-cols-2 gap-2 dark:bg-slate-800/50 dark:border-slate-800">
+              <div className="p-3 bg-[var(--surface-soft)] rounded-lg border border-[var(--line)] grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">
+                  <span className="text-[var(--ink-600)] block text-[11px]">
                     {uiText("Mã chốt:")}
                   </span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                  <span className="font-mono font-bold text-[var(--ink-950)]">
                     {cutoverKey}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">
+                  <span className="text-[var(--ink-600)] block text-[11px]">
                     {uiText("Thời điểm chốt:")}
                   </span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="font-semibold text-[var(--ink-950)]">
                     {countCutoff.replace("T", " ")}
                   </span>
                 </div>
               </div>
 
-              <div className="border border-slate-200 rounded-lg overflow-hidden dark:border-slate-800">
+              <div className="border border-[var(--line)] rounded-lg overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] dark:bg-slate-800/50 dark:border-slate-800 dark:text-slate-300">
+                    <tr className="bg-[var(--surface-soft)] border-b border-[var(--line)] text-[var(--ink-800)] font-semibold uppercase text-[10px]">
                       <th className="p-2">{uiText("Dòng")}</th>
                       <th className="p-2">{uiText("Vật tư")}</th>
                       <th className="p-2 text-right">{uiText("SL Cơ sở")}</th>
-                      <th className="p-2 text-right text-emerald-700 dark:text-emerald-400">
+                      <th className="p-2 text-right text-[var(--tone-success-fg)]">
                         {uiText("Tốt")}
                       </th>
-                      <th className="p-2 text-right text-amber-700 dark:text-amber-400">
+                      <th className="p-2 text-right text-[var(--tone-warning-fg)]">
                         {uiText("Hỏng")}
                       </th>
                       <th className="p-2">{uiText("Hạn sử dụng")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                  <tbody className="divide-y divide-[var(--line)] font-mono text-[11px]">
                     {lines.map((l, i) => {
                       const item = resolvedItems[l.catalogItemId];
                       return (
                         <tr key={i}>
                           <td className="p-2">{l.lineKey}</td>
-                          <td className="p-2 font-sans font-medium text-slate-800 dark:text-slate-200">
+                          <td className="p-2 font-sans font-medium text-[var(--ink-950)]">
                             {item?.name || l.catalogItemId}
                           </td>
-                          <td className="p-2 text-right font-bold text-slate-900 dark:text-slate-100">
-                            {l.baseQuantity} {item?.base_uom_code}
+                          <td className="p-2 text-right font-bold text-[var(--ink-950)]">
+                            {l.baseQuantity} {item ? uomLabel(item) : ""}
                           </td>
-                          <td className="p-2 text-right text-emerald-700 dark:text-emerald-400">
+                          <td className="p-2 text-right text-[var(--tone-success-fg)]">
                             {l.goodQuantity}
                           </td>
-                          <td className="p-2 text-right text-amber-700 dark:text-amber-400">
+                          <td className="p-2 text-right text-[var(--tone-warning-fg)]">
                             {l.damagedQuantity}
                           </td>
                           <td className="p-2 font-sans">
                             {l.expiryPrecision === "unknown" ? (
-                              <span className="text-amber-800 dark:text-amber-300 font-semibold">
+                              <span className="text-[var(--tone-warning-fg)] font-semibold">
                                 {uiText("Chưa rõ (Unknown)")}
                               </span>
                             ) : l.expiryPrecision === "not_required" ? (
@@ -969,7 +977,7 @@ export function OpeningForm({
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+            <div className="p-4 border-t border-[var(--line)] flex items-center justify-end gap-3">
               <button
                 type="button"
                 className="button button-secondary text-xs"

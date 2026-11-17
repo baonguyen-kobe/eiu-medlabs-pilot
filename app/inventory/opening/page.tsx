@@ -1,7 +1,6 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { OpeningForm } from "@/components/inventory/opening-form";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { AlertTriangle } from "@/components/icons";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
@@ -12,20 +11,6 @@ export default async function OpeningPage() {
   if (!viewer.isAdmin) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={
-            <LocalizedText
-              text={"Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"}
-            />
-          }
-          description={
-            <LocalizedText
-              text={
-                "Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
-              }
-            />
-          }
-        />
         <div
           role="alert"
           aria-live="polite"
@@ -60,21 +45,6 @@ export default async function OpeningPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text={"Khởi tạo Số dư đầu kỳ / Opening Balance (Admin Only)"}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Nghiệp vụ xác nhận số dư kiểm kê ban đầu có lưu vết pháp lý dành riêng cho Quản trị viên"
-            }
-          />
-        }
-      />
-
       <OpeningForm />
     </div>
   );

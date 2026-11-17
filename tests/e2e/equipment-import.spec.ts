@@ -26,6 +26,8 @@ type Fixture = {
   adminName: string;
   adminEmail: string;
   adminPhone: string;
+  lecturerName: string;
+  lecturerEmail: string;
   catalogIds: string[];
   requestId?: string;
 };
@@ -47,25 +49,52 @@ test.beforeAll(async () => {
     .limit(1)
     .single();
   if (adminError || !admin) throw adminError ?? new Error("Missing admin");
+  // The seeded admin is the Root account, which may not teach a class.
+  const { data: lecturer } = await serviceDb
+    .from("profiles")
+    .select("id,full_name,email")
+    .eq("email", "giangvien@campus.local")
+    .single();
+  if (!lecturer) throw new Error("Missing lecturer");
 
-  const { data: schedules, error: scheduleError } = await serviceDb
-    .from("class_schedules")
-    .select(
-      "id,course_code_snapshot,schedule_date,start_time,rooms!inner(room_code,building_code,room_type_id),equipment_requests(id)",
-    )
-    .eq("rooms.room_type_id", "40000000-0000-0000-0000-000000000001")
-    .neq("schedule_status", "cancelled")
-    .order("schedule_date")
-    .limit(100);
-  if (scheduleError) throw scheduleError;
-  const schedule = schedules?.find(
-    (row) => !row.equipment_requests?.length && row.rooms,
+  // Own schedule: the import needs a semester on the class, and seeded demo
+  // schedules have none.
+  const skillsRoomType = "40000000-0000-0000-0000-000000000001";
+  const [{ data: course }, { data: room }] = await Promise.all([
+    serviceDb
+      .from("courses")
+      .select("id")
+      .eq("is_active", true)
+      .eq("room_type_id", skillsRoomType)
+      .limit(1)
+      .single(),
+    serviceDb
+      .from("rooms")
+      .select("id,room_code,building_code")
+      .eq("is_active", true)
+      .eq("room_type_id", skillsRoomType)
+      .limit(1)
+      .single(),
+  ]);
+  if (!course || !room) throw new Error("Missing course or room fixture");
+  const { data: schedule, error: scheduleError } = await adminDb.rpc(
+    "create_manual_class_schedule",
+    {
+      target_course_id: course.id,
+      target_room_id: room.id,
+      target_lecturer_id: lecturer.id,
+      target_lecturer_2_id: null,
+      target_schedule_date: `2047-03-${String(1 + (Date.now() % 28)).padStart(2, "0")}`,
+      target_start_time: "13:00",
+      target_end_time: "16:30",
+      target_note: "E2E equipment import",
+      target_student_count: 20,
+      target_semester: "HK1",
+    },
   );
-  if (!schedule || !schedule.rooms) throw new Error("Missing empty schedule");
-  const room = schedule.rooms as unknown as {
-    room_code: string;
-    building_code: string;
-  };
+  if (scheduleError || !schedule) {
+    throw scheduleError ?? new Error("Cannot create schedule fixture");
+  }
 
   const marker = `E2E-${Date.now()}`;
   const { data: catalog, error: catalogError } = await adminDb
@@ -98,6 +127,8 @@ test.beforeAll(async () => {
     adminName: admin.full_name,
     adminEmail: admin.email,
     adminPhone: admin.phone,
+    lecturerName: lecturer.full_name,
+    lecturerEmail: lecturer.email,
     catalogIds: catalog.map(({ id }) => id),
   };
 });
@@ -116,9 +147,14 @@ test.afterAll(async () => {
       .eq("class_schedule_id", fixture.scheduleId);
   }
   await adminDb.from("equipment_catalog").delete().in("id", fixture.catalogIds);
+  await serviceDb.from("class_schedules").delete().eq("id", fixture.scheduleId);
 });
 
-test("admin imports one historical equipment request with two items", async ({
+// Parked: the import page is hidden (owner decision, 2026-11-17). Since the S4
+// line guard, the database rejects lines for a request that is not "new"
+// (S4_USE_QUANTITY_ADJUSTMENT), and the inventory pilot lists privileged_import
+// as a forbidden writer, so importing a finished request cannot succeed.
+test.fixme("admin imports one historical equipment request with two items", async ({
   page,
 }) => {
   const templateResponse = await page.request.get(
@@ -150,8 +186,8 @@ test("admin imports one historical equipment request with two items", async ({
     "Người đăng ký": fixture.adminName,
     "Email người đăng ký": fixture.adminEmail,
     "Số điện thoại": fixture.adminPhone,
-    "Giảng viên phụ trách": fixture.adminName,
-    "Email giảng viên phụ trách": fixture.adminEmail,
+    "Giảng viên phụ trách": fixture.lecturerName,
+    "Email giảng viên phụ trách": fixture.lecturerEmail,
     "Mã môn học": fixture.courseCode,
     "Học kỳ": "HK1",
     "Ngày học": displayDate,

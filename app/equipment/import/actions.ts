@@ -317,10 +317,12 @@ async function prepareEquipmentImport(
       profile,
     );
   }
+  // list_scoped_lecturers returns no email, so take it from the profile rows.
+  const lecturerIds = new Set(lecturers.map(({ id }) => id));
   const lecturerByEmail = new Map<string, Profile>();
-  for (const profile of lecturers) {
+  for (const profile of profiles) {
     const normalized = profile.email?.trim().toLowerCase();
-    if (normalized) {
+    if (normalized && lecturerIds.has(profile.id)) {
       lecturerByEmail.set(normalized, profile);
     }
   }

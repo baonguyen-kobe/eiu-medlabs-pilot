@@ -21,7 +21,6 @@ export default async function MyEquipmentRequestsPage({
   const {
     supabase,
     userId,
-    email,
     fullName,
     roles,
     roomTypes,
@@ -80,7 +79,6 @@ export default async function MyEquipmentRequestsPage({
         canAddItems={canAddItems}
         catalog={catalog ?? []}
         viewerId={userId}
-        viewerEmail={email}
         viewerRoles={roles}
         initialRequestId={
           isEquipmentRequestId(query.request) ? query.request : undefined

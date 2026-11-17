@@ -8,6 +8,10 @@ import {
 import { formatEquipmentRequestCode } from "../../lib/equipment-request-code";
 import { equipmentHandoverSelect } from "../../lib/equipment-requests";
 import {
+  cleanupLegacyRequest,
+  legacyItemFixture,
+} from "../helpers/legacy-equipment-fixture.mjs";
+import {
   assertLocalDestructiveTestTarget,
   resolveEffectiveSupabaseTestConfig,
 } from "../helpers/local-test-safety.mjs";
@@ -166,17 +170,16 @@ test("equipment handover PDF separates missing, authorization, and query failure
         })
       ).error,
     ).toBeNull();
-    expect(
-      (
-        await databaseClient.from("equipment_request_items").insert({
-          id: itemId,
-          request_id: requestId,
-          skill_name: "Kỹ năng PDF regression",
-          catalog_item_id: catalogId,
-          quantity: 2,
-        })
-      ).error,
-    ).toBeNull();
+    await legacyItemFixture(
+      {
+        id: itemId,
+        request_id: requestId,
+        skill_name: "Kỹ năng PDF regression",
+        catalog_item_id: catalogId,
+        quantity: 2,
+      },
+      { staged: true },
+    );
 
     await login(page, "admin@campus.local", "LocalAdmin123!");
 
@@ -300,9 +303,10 @@ test("equipment handover PDF separates missing, authorization, and query failure
     const queryFailure = await page.request.get(
       "/api/equipment-requests/not-a-uuid/handover",
     );
-    expect(queryFailure.status()).toBe(500);
+    // The route now rejects a malformed id before it queries.
+    expect(queryFailure.status()).toBe(400);
     expect(await queryFailure.json()).toEqual({
-      error: "Không thể tải phiếu giao nhận thiết bị.",
+      error: "Mã phiếu không hợp lệ.",
     });
 
     const lecturerContext = await browser.newContext();
@@ -328,14 +332,7 @@ test("equipment handover PDF separates missing, authorization, and query failure
       await anonymousContext.close();
     }
   } finally {
-    await databaseClient
-      .from("equipment_request_items")
-      .delete()
-      .eq("id", itemId);
-    await databaseClient
-      .from("equipment_requests")
-      .delete()
-      .eq("id", requestId);
+    await cleanupLegacyRequest(requestId);
     await databaseClient.from("class_schedules").delete().eq("id", scheduleId);
     await databaseClient.from("equipment_catalog").delete().eq("id", catalogId);
   }

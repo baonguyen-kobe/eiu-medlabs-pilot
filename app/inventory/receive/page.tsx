@@ -2,12 +2,10 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { ReceiveForm } from "@/components/inventory/receive-form";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type {
   AcquisitionRecord,
   AcquisitionRecordLine,
 } from "@/lib/inventory/types";
-import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function ReceivePage({
   searchParams,
@@ -48,17 +46,6 @@ export default async function ReceivePage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={<LocalizedText text={"Nhận kho thực tế / Receive Stock"} />}
-        description={
-          <LocalizedText
-            text={
-              "Ghi nhận hàng hóa thực tế nhập kho, quy đổi chính xác số lượng theo ĐVT cơ sở và phân loại chất lượng"
-            }
-          />
-        }
-      />
-
       <ReceiveForm
         initialSources={initialSources}
         initialSourceLines={initialSourceLines}

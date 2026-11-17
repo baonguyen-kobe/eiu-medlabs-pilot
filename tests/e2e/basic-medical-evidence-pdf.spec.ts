@@ -73,7 +73,10 @@ async function login(page: Page, email: string, password: string) {
   await page.goto("/login");
   await clickUntilState(
     page.locator('button[type="submit"]'),
-    () => expect(page).toHaveURL(/\/dashboard$/, { timeout: 1_500 }),
+    () =>
+      expect(page).toHaveURL(/\/(dashboard|basic-medical\/schedules)$/, {
+        timeout: 1_500,
+      }),
     async () => {
       // Hydration can replace the server-rendered form and clear an early fill.
       // Refill on every bounded retry before submitting the React-owned form.
@@ -81,7 +84,6 @@ async function login(page: Page, email: string, password: string) {
       await page.locator('input[name="password"]').fill(password);
     },
   );
-  await expect(page).toHaveURL(/\/dashboard$/);
 }
 
 function evidenceCounts(confirmationId: string) {

@@ -1,30 +1,16 @@
 import React from "react";
+import { createClient } from "@/lib/supabase/server";
 import { requireInventoryAdmin } from "@/lib/inventory/auth";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { AssetOpeningForm } from "@/components/inventory/assets/asset-opening-form";
-import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function AssetOpeningPage() {
   await requireInventoryAdmin();
+  const supabase = await createClient();
+  const { data: people } = await supabase.rpc("list_active_people");
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text={"Ghi nhận Tồn đầu kỳ Thiết bị / Opening Balance Asset"}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Khởi tạo thực thể thiết bị cá thể từ biên bản kiểm kê đầu kỳ (Admin-only)."
-            }
-          />
-        }
-      />
-
-      <AssetOpeningForm />
+      <AssetOpeningForm people={people ?? []} />
     </div>
   );
 }

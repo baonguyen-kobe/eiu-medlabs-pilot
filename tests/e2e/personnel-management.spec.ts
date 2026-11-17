@@ -71,6 +71,9 @@ test("personnel drawer saves role, import capability and lock atomically", async
       .check();
     await createForm.locator('input[name="can_import_schedules"]').check();
     await createForm.getByRole("button", { name: "Tạo tài khoản" }).click();
+    // The list shows 50 people a page; search so the new row is on screen.
+    await expect(page).toHaveURL(/[?&]notice=/);
+    await page.goto(`/admin/personnel?q=${encodeURIComponent(email)}`);
 
     const row = page
       .locator(".personnel-table tbody tr")
@@ -121,7 +124,7 @@ test("Root và Bảo thấy Personnel, Admin thường bị ẩn menu và redire
   const rootRow = page
     .locator(".personnel-table tbody tr")
     .filter({ hasText: e2eAdminProfileEmail });
-  await expect(rootRow).toContainText("Root Administrator");
+  await expect(rootRow).toContainText("Quản trị viên gốc");
   await expect(rootRow.getByRole("button", { name: "Xem" })).toBeVisible();
   const managerRow = page
     .locator(".personnel-table tbody tr")

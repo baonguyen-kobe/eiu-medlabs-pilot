@@ -361,7 +361,7 @@ test("template và import danh mục môn học, phòng, thiết bị, nhân s�
     await page.goto("/basic-medical/import");
     await expectDownload(
       page,
-      "Template XLSX",
+      "Mẫu XLSX",
       "basic-medical-import-template.xlsx",
     );
     const scheduleTemplateText = await workbookText(

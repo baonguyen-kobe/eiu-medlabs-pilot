@@ -67,7 +67,8 @@ or bulk-format unrelated files to conceal the baseline.
 
 The update includes
 `supabase/migrations/20261028070607_inventory_operational_readiness.sql` and its
-declarative schemas. **The new migration has only been applied locally.** A
+declarative schemas. **Applied to the pilot Supabase project on 2026-11-17 with
+owner approval; local and pilot migration histories match (140/140).** A
 Git push or successful Vercel build does not apply it to cloud Supabase. New
 Inventory endpoints require the corresponding backend contract before online
 workflow acceptance. Do not apply it to another backend implicitly.
