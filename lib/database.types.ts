@@ -5521,6 +5521,17 @@ export type Database = {
         Args: { target_item_id: string }
         Returns: boolean
       }
+      basic_medical_cutover_preview: { Args: never; Returns: Json }
+      basic_medical_mapping_read: { Args: never; Returns: Json }
+      map_basic_medical_inventory_item: {
+        Args: {
+          p_base_units_per_unit: string
+          p_basic_medical_catalog_item_id: string
+          p_inventory_item_id: string
+          p_reason: string
+        }
+        Returns: string
+      }
       room_equipment_read: {
         Args: { p_room_id: string }
         Returns: Json

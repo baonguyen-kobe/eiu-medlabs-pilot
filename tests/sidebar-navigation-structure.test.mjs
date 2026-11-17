@@ -134,6 +134,8 @@ test("Inventory navigation exposes intake to Admin/Staff and opening only to Adm
   assert.ok(staff.includes("/inventory/transactions"));
   assert.ok(staff.includes("/inventory/rooms"));
   assert.ok(!staff.includes("/inventory/opening"));
+  assert.ok(admin.includes("/inventory/basic-medical-mapping"));
+  assert.ok(!staff.includes("/inventory/basic-medical-mapping"));
   for (const roles of [[], ["lecturer"], ["teaching_assistant"], ["viewer"]]) {
     assert.deepEqual(inventoryDestinations(roles), []);
   }

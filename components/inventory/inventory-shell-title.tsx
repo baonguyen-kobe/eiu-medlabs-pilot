@@ -17,6 +17,11 @@ const pages: Array<[RegExp, string, string]> = [
     "Số lượng theo vật tư, vị trí và tình trạng.",
   ],
   [
+    /^\/inventory\/basic-medical-mapping$/,
+    "Ghép danh mục Y cơ sở",
+    "Nối từng thiết bị Y cơ sở với một mã hàng trong kho chung.",
+  ],
+  [
     /^\/inventory\/rooms$/,
     "Thiết bị theo phòng",
     "Thiết bị cố định và đang mượn tại từng phòng học.",
