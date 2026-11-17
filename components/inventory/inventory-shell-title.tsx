@@ -18,7 +18,7 @@ const pages: Array<[RegExp, string, string]> = [
   ],
   [
     /^\/inventory\/rooms$/,
-    "Thiết bị theo phòng",
+    "Kho theo phòng",
     "Thiết bị cố định và đang mượn tại từng phòng học.",
   ],
   [

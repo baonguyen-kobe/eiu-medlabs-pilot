@@ -37,7 +37,7 @@ for (const width of [1440, 390]) {
 
     await page.goto("/inventory/rooms", { waitUntil: "networkidle" });
     await expect(
-      page.getByRole("heading", { name: "Thiết bị theo phòng" }),
+      page.getByRole("heading", { name: "Kho theo phòng" }),
     ).toBeVisible();
     await expect(page.locator(".data-table tbody tr").first()).toBeVisible();
     await noHorizontalScroll(page);
