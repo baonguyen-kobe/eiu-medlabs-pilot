@@ -154,7 +154,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               id="state-location-lookup"
               resource="locations"
               value={locationId}
-              label={uiText("Vị trí lưu trữ hiện tại *")}
+              label={uiText("Vị trí lưu trữ hiện tại")}
               selectedLabel={locationName}
               onSelect={(loc: Record<string, unknown>) => {
                 const code = String(loc.code || "");

@@ -65,7 +65,7 @@ export function AssetLifecycleForm({
     return (
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs text-slate-500">
         {uiText(
-          "[Quản trị] Thao tác chuyển đổi vòng đời tài sản (Lifecycle) chỉ dành riêng cho Quản trị viên (Admin).",
+          "[Quản trị] Thao tác chuyển đổi vòng đời tài sản chỉ dành riêng cho Quản trị viên.",
         )}
       </div>
     );
@@ -139,7 +139,7 @@ export function AssetLifecycleForm({
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-              {uiText("Quản trị viên (Admin)")}
+              {uiText("Quản trị viên")}
             </span>
           </div>
           <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mt-1">
@@ -157,7 +157,7 @@ export function AssetLifecycleForm({
       {isTerminal ? (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
           {uiText("[Trạng thái kết thúc] ")}
-          <strong>{uiText("Tài sản đã thanh lý (Disposed):")}</strong>{" "}
+          <strong>{uiText("Tài sản đã thanh lý:")}</strong>{" "}
           {uiText(
             "Theo quy chế quản lý tài sản S3, tài sản đã thanh lý không thể tái kích hoạt hay chuyển trạng thái thông thường.",
           )}
@@ -198,9 +198,8 @@ export function AssetLifecycleForm({
               {uiText(
                 "[Quy chế phục hồi tài sản ngừng sử dụng] Quản trị viên có thể đưa tài sản từ ",
               )}
-              <em>{uiText("Ngừng sử dụng (Retired)")}</em>
-              {uiText(" trở lại")}{" "}
-              <em>{uiText("Đang vận hành (In Service)")}</em>
+              <em>{uiText("Ngừng sử dụng")}</em>
+              {uiText(" trở lại")} <em>{uiText("Đang vận hành")}</em>
               {uiText(
                 " khi có lý do chính đáng và văn bản bằng chứng nghiệm thu tái sử dụng.",
               )}
@@ -308,7 +307,7 @@ export function AssetLifecycleForm({
                 />
                 <span className="text-slate-700 text-[11px] leading-relaxed">
                   {uiText(
-                    "Tôi xác nhận với tư cách Quản trị viên (Admin) rằng quyết định thay đổi trạng thái vòng đời này là chính xác và chịu trách nhiệm về tính pháp lý của hồ sơ.",
+                    "Tôi xác nhận với tư cách Quản trị viên rằng quyết định thay đổi trạng thái vòng đời này là chính xác và chịu trách nhiệm về tính pháp lý của hồ sơ.",
                   )}
                 </span>
               </label>

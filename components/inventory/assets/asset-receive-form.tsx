@@ -130,19 +130,6 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-4xl mx-auto space-y-6">
-      <div className="border-b pb-4 border-slate-200">
-        <h2 className="text-lg font-bold text-slate-900">
-          {uiText("Tiếp nhận Thiết bị Cá thể")}
-        </h2>
-        <p className="text-xs text-slate-500 mt-1">
-          {uiText(
-            "Ghi nhận chính xác một thực thể vật lý vào hệ thống. Mã tài sản",
-          )}{" "}
-          <code>{uiText("EIU-AST-XXXXXXXX")}</code>
-          {uiText(" sẽ được máy chủ khởi tạo bất biến.")}
-        </p>
-      </div>
-
       {serverError && (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
           <div className="font-semibold">
@@ -196,7 +183,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
           {/* Section 1: Catalog & Source Line */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("1. Thông tin Danh mục & Hồ sơ nguồn (Item & Source)")}
+              {uiText("Thông tin Danh mục & Hồ sơ nguồn")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -204,9 +191,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   id="receive-item-lookup"
                   resource="items"
                   value={form.catalog_item_id}
-                  label={uiText(
-                    "Vật tư danh mục (Theo dõi cá thể / Serialized) *",
-                  )}
+                  label={uiText("Vật tư danh mục (Theo dõi cá thể)")}
                   selectedLabel={form.catalog_item_name}
                   onSelect={(item: Record<string, unknown>) => {
                     const code = String(item.code || "");
@@ -225,7 +210,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   id="receive-source-line-lookup"
                   resource="source_lines"
                   value={form.source_line_id}
-                  label={uiText("Dòng hồ sơ nguồn (Source Line) *")}
+                  label={uiText("Dòng hồ sơ nguồn")}
                   selectedLabel={form.source_line_label}
                   onSelect={(line: Record<string, unknown>) => {
                     setForm((prev) => ({
@@ -243,7 +228,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
           {/* Section 2: Intake Reference & Location */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("2. Chứng từ tiếp nhận & Vị trí kho (Intake & Location)")}
+              {uiText("Chứng từ tiếp nhận & Vị trí kho")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -251,7 +236,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   htmlFor="intake-reference-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  {uiText("Số chứng từ nhận (Intake Reference) *")}
+                  {uiText("Số chứng từ nhận *")}
                 </label>
                 <input
                   id="intake-reference-input"
@@ -274,7 +259,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   htmlFor="row-key-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  {uiText("Định danh dòng chứng từ (Row Key) *")}
+                  {uiText("Định danh dòng chứng từ *")}
                 </label>
                 <input
                   id="row-key-input"
@@ -294,7 +279,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   id="receive-location-lookup"
                   resource="locations"
                   value={form.location_id}
-                  label={uiText("Vị trí lưu trữ ban đầu *")}
+                  label={uiText("Vị trí lưu trữ ban đầu")}
                   selectedLabel={form.location_name}
                   onSelect={(loc: Record<string, unknown>) => {
                     const code = String(loc.code || "");
@@ -345,7 +330,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
           {/* Section 4: Expiry */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("4. Hạn sử dụng (Expiry)")}
+              {uiText("Hạn sử dụng")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

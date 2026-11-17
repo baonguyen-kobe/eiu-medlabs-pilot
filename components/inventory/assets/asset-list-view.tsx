@@ -77,7 +77,7 @@ export function AssetListView({
     <>
       <div className="list-filters-actions">
         <Link
-          href="/inventory/assets/receive"
+          href="/inventory/receive?kind=asset"
           className="button button-primary"
         >
           <Plus size={16} aria-hidden="true" />
@@ -85,7 +85,7 @@ export function AssetListView({
         </Link>
         {isAdmin ? (
           <Link
-            href="/inventory/assets/opening"
+            href="/inventory/opening?kind=asset"
             className="button button-secondary"
           >
             {text("Tồn đầu kỳ thiết bị")}

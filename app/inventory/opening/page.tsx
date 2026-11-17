@@ -1,47 +1,46 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { OpeningForm } from "@/components/inventory/opening-form";
-import { AlertTriangle } from "@/components/icons";
-import { LocalizedText } from "@/components/i18n/language-provider";
+import { AssetOpeningForm } from "@/components/inventory/assets/asset-opening-form";
+import {
+  IntakeKindSwitch,
+  intakeKind,
+} from "@/components/inventory/intake-kind-switch";
+import { getInterfaceText } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function OpeningPage() {
+export default async function OpeningPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ kind?: string }>;
+}) {
   const viewer = await requireInventoryViewer();
+  const text = await getInterfaceText();
 
-  // Explicit permission-denied surface for Staff (no generic DB loading error)
   if (!viewer.isAdmin) {
     return (
-      <div className="space-y-6">
-        <div
-          role="alert"
-          aria-live="polite"
-          className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200 shadow-xs"
-        >
-          <div className="flex items-start gap-3">
-            <AlertTriangle
-              className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
-              size={20}
-            />
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-amber-900 dark:text-amber-100">
-                <LocalizedText text={"Quyền truy cập bị từ chối"} />
-              </h3>
-              <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-                <LocalizedText
-                  text={
-                    "Nghiệp vụ khởi tạo số dư đầu kỳ (Opening Balance) chỉ dành riêng cho tài khoản có vai trò Quản trị viên (Admin). Bạn hiện đang đăng nhập với quyền Nhân viên (Staff)."
-                  }
-                />
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <p className="form-error" role="alert">
+        {text("Chỉ Admin được khai báo tồn đầu kỳ.")}
+      </p>
     );
+  }
+
+  const kind = intakeKind((await searchParams)?.kind);
+  let people: Array<{ id: string; full_name: string; title: string | null }> =
+    [];
+  if (kind === "asset") {
+    const supabase = await createClient();
+    people = (await supabase.rpc("list_active_people")).data ?? [];
   }
 
   return (
     <div className="space-y-6">
-      <OpeningForm />
+      <IntakeKindSwitch path="/inventory/opening" kind={kind} />
+      {kind === "asset" ? (
+        <AssetOpeningForm people={people} />
+      ) : (
+        <OpeningForm />
+      )}
     </div>
   );
 }
