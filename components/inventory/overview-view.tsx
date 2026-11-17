@@ -11,7 +11,11 @@ import {
   Plus,
   Settings,
 } from "@/components/icons";
-import { formatDisplayQuantity, isPositive } from "@/lib/inventory/decimal";
+import {
+  formatDisplayQuantity,
+  isPositive,
+  uomLabel,
+} from "@/lib/inventory/decimal";
 import { ConditionBadge } from "./status-badge";
 import type { InventoryStockBalance } from "@/lib/inventory/types";
 import { useLanguage } from "@/components/i18n/language-provider";
@@ -304,7 +308,7 @@ export function OverviewView({
                         )}
                       </td>
                       <td className="py-3 px-4 text-slate-500 font-medium">
-                        {bal.base_uom_code}
+                        {uomLabel(bal)}
                       </td>
                     </tr>
                   );

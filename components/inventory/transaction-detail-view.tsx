@@ -29,6 +29,7 @@ import {
   isPositive,
   multiplyExact,
   validateSplit,
+  uomLabel,
 } from "@/lib/inventory/decimal";
 import {
   formatInventoryDateTime,
@@ -512,7 +513,7 @@ export function TransactionDetailView({
                           {formatDisplayQuantity(
                             orig.original_fact.base_quantity,
                           )}{" "}
-                          {orig.base_uom_code}
+                          {uomLabel(orig)}
                         </span>
                       </div>
                       <div>
@@ -685,7 +686,7 @@ export function TransactionDetailView({
                           {formatDisplayQuantity(
                             orig.current_fact.base_quantity,
                           )}{" "}
-                          {orig.base_uom_code}
+                          {uomLabel(orig)}
                         </span>
                       </div>
                       <div>

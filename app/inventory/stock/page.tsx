@@ -1,9 +1,7 @@
 import React from "react";
-import Link from "next/link";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
-import { StockTable } from "@/components/inventory/stock-table";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
+import { StockView } from "@/components/inventory/stock-view";
 import { normalizePage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
   InventoryCohortDetail,
@@ -11,7 +9,6 @@ import type {
   InventoryStorageLocation,
   StockCondition,
 } from "@/lib/inventory/types";
-import { LocalizedText } from "@/components/i18n/language-provider";
 
 interface StockPageProps {
   searchParams: Promise<{
@@ -62,7 +59,24 @@ export default async function StockPage({ searchParams }: StockPageProps) {
       ? (query.condition as StockCondition)
       : undefined;
 
-  const [balancesRes, selectedLocRes, cohortsRes] = await Promise.all([
+  // Whole-stock counts for the KPI row; each is a one-row bounded read.
+  const count = (filters: Record<string, string>) =>
+    inventoryRead<InventoryStockBalance>("balances", {
+      ...filters,
+      page: 1,
+      page_size: 1,
+    }).then((res) => res.total);
+
+  const [
+    balancesRes,
+    selectedLocRes,
+    cohortsRes,
+    allCount,
+    eligibleCount,
+    expiredCount,
+    unknownCount,
+    damagedCount,
+  ] = await Promise.all([
     inventoryRead<InventoryStockBalance>("balances", {
       q: query.q?.trim() || undefined,
       location_id: query.location_id || undefined,
@@ -86,6 +100,11 @@ export default async function StockPage({ searchParams }: StockPageProps) {
           page_size: 20,
         })
       : null,
+    count({}),
+    count({ expiry_state: "eligible" }),
+    count({ expiry_state: "expired" }),
+    count({ expiry_state: "unknown" }),
+    count({ condition: "damaged" }),
   ]);
 
   const selectedLoc = selectedLocRes?.rows[0];
@@ -102,53 +121,31 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     : null;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text={"Tồn kho thực tế & Đủ điều kiện / Stock Balances"}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Số dư tồn kho phân tách theo vị trí lưu trữ, tình trạng tốt/hỏng và tính đủ điều kiện cấp phát"
-            }
-          />
-        }
-        actions={
-          <div className="flex items-center gap-2">
-            <Link
-              href="/inventory/operations"
-              className="button button-primary text-xs flex items-center gap-1.5"
-            >
-              <span>
-                <LocalizedText text={"Nghiệp vụ kho S2 / Operations →"} />
-              </span>
-            </Link>
-          </div>
-        }
-      />
-
-      <StockTable
-        balances={balancesRes.rows}
-        totalBalances={balancesRes.total}
-        currentPage={page}
-        pageSize={pageSize}
-        currentFilters={{
-          q: query.q || "",
-          location_id: query.location_id || "",
-          condition: query.condition || "all",
-          expiry_state: expiryState || "all",
-          active: query.active || "all",
-          sort: query.sort || "",
-        }}
-        selectedLocationLabel={selectedLocationLabel}
-        selectedDimensions={selectedDimensions}
-        cohorts={cohortsRes?.rows ?? []}
-        totalCohorts={cohortsRes?.total ?? 0}
-        cohortPage={normalizePage(query.cohort_page)}
-      />
-    </div>
+    <StockView
+      balances={balancesRes.rows}
+      totalBalances={balancesRes.total}
+      currentPage={page}
+      pageSize={pageSize}
+      filters={{
+        q: query.q || "",
+        location_id: query.location_id || "",
+        condition: query.condition || "all",
+        expiry_state: expiryState || "all",
+        active: query.active || "all",
+        sort: query.sort || "",
+      }}
+      counts={{
+        all: allCount,
+        eligible: eligibleCount,
+        expired: expiredCount,
+        unknown: unknownCount,
+        damaged: damagedCount,
+      }}
+      selectedLocationLabel={selectedLocationLabel}
+      selectedDimensions={selectedDimensions}
+      cohorts={cohortsRes?.rows ?? []}
+      totalCohorts={cohortsRes?.total ?? 0}
+      cohortPage={normalizePage(query.cohort_page)}
+    />
   );
 }

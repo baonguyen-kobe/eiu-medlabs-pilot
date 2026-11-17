@@ -14,7 +14,7 @@ import { TransferForm } from "./transfer-form";
 import { ConditionChangeForm } from "./condition-change-form";
 import { StocktakeReconcileForm } from "./stocktake-reconcile-form";
 import { SurplusManagementView } from "./surplus-management-view";
-import { formatDisplayQuantity } from "@/lib/inventory/decimal";
+import { formatDisplayQuantity, uomLabel } from "@/lib/inventory/decimal";
 import {
   ConditionBadge,
   HoldStatusBadge,
@@ -230,7 +230,7 @@ export function OperationsHub({
               <tbody className="divide-y divide-slate-100">
                 {initialStock.map((row) => (
                   <tr
-                    key={`${row.origin_id}-${row.condition}`}
+                    key={`${row.origin_id}-${row.location_id}-${row.condition}`}
                     className="hover:bg-slate-50/80 transition-colors"
                   >
                     <td className="py-2.5 px-3">
@@ -257,11 +257,11 @@ export function OperationsHub({
                       />
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
-                      {formatDisplayQuantity(row.quantity)} {row.base_uom_code}
+                      {formatDisplayQuantity(row.quantity)} {uomLabel(row)}
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono font-semibold text-emerald-700">
                       {formatDisplayQuantity(row.available_quantity)}{" "}
-                      {row.base_uom_code}
+                      {uomLabel(row)}
                     </td>
                     <td className="py-2.5 px-3">
                       <ProvenanceBadge provenance={row.provenance_group} />

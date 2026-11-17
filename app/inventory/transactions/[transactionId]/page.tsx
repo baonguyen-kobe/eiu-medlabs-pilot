@@ -6,7 +6,6 @@ import type { EquipmentAssetEvent } from "@/lib/inventory/asset-types";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { TransactionDetailView } from "@/components/inventory/transaction-detail-view";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import type {
   InventoryStorageLocation,
   InventoryUom,
@@ -53,14 +52,6 @@ export default async function TransactionDetailPage({
   if (queryError) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={
-            <LocalizedText text={"Chi tiết giao dịch / Transaction Detail"} />
-          }
-          description={
-            <LocalizedText text={"Lỗi khi truy xuất dữ liệu sổ cái"} />
-          }
-        />
         <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
           <p className="font-semibold">
             <LocalizedText text={"Không thể tải thông tin giao dịch:"} />
@@ -82,12 +73,6 @@ export default async function TransactionDetailPage({
   if (!detail || !detail.transaction) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={
-            <LocalizedText text={"Chi tiết giao dịch / Transaction Detail"} />
-          }
-          description={<LocalizedText text={"Không tìm thấy bản ghi"} />}
-        />
         <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm">
           <p className="font-semibold">
             <LocalizedText text={"Giao dịch không tồn tại"} />
@@ -124,22 +109,6 @@ export default async function TransactionDetailPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text="Chi tiết giao dịch: {0}"
-            values={[detail.transaction.business_key]}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Lịch sử dịch chuyển số dư và đối chiếu bằng chứng sự thật nguồn gốc"
-            }
-          />
-        }
-      />
-
       <TransactionDetailView
         detail={detail}
         locations={locations}

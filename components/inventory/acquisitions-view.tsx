@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ClipboardList, Plus, Search, Settings, X } from "@/components/icons";
+import { Plus, X } from "@/components/icons";
 import {
   createSourceAction,
   createSourceLineAction,
@@ -14,11 +14,13 @@ import {
 import {
   formatCurrencyAmount,
   formatDisplayQuantity,
+  isPositive,
   validateDecimalString,
 } from "@/lib/inventory/decimal";
 import { formatInventoryDate } from "@/lib/inventory/dates";
 import { businessTodayString } from "@/lib/business-time";
 import { ConfirmActionModal } from "./confirm-action-modal";
+import { RecordDrawer } from "./record-drawer";
 import { PaginationControls } from "@/components/pagination-controls";
 import { InventoryLookup } from "./inventory-lookup";
 import { TABLE_PAGE_SIZE } from "@/lib/pagination";
@@ -204,6 +206,20 @@ export function AcquisitionsView({
     [router, pathname, searchParams],
   );
 
+  function openSource(id: string) {
+    updateParams({ sourceId: id, line_page: undefined, line_q: undefined });
+  }
+
+  const closeSource = useCallback(
+    () =>
+      updateParams({
+        sourceId: undefined,
+        line_page: undefined,
+        line_q: undefined,
+      }),
+    [updateParams],
+  );
+
   // Modals
   const [createSourceOpen, setCreateSourceOpen] = useState(false);
   const [editSource, setEditSource] = useState<AcquisitionRecord | null>(null);
@@ -289,615 +305,268 @@ export function AcquisitionsView({
         </div>
       ) : null}
 
-      {/* S1 Immutable Policy Notice Banner */}
-      <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-start gap-2.5">
-        <ClipboardList size={18} className="text-blue-600 shrink-0 mt-0.5" />
-        <div className="leading-relaxed">
-          <span className="font-semibold block mb-0.5">
-            {uiText(
-              "Quy định bất biến hồ sơ nguồn (Invariants D09 / PAGE-004):",
-            )}
-          </span>
-          {uiText(
-            "Lưu hồ sơ nguồn có biến động tồn kho bằng 0 (Delta = 0). Dữ liệu này ghi nhận bằng chứng mua sắm / hợp đồng / tài trợ. Hàng hóa thực tế chỉ được ghi nhận vào sổ cái khi hoàn tất thủ tục",
-          )}{" "}
-          <strong>{uiText("Nhận kho (Receive Stock)")}</strong>.
+      <form className="list-filters" onSubmit={handleSourceSearchSubmit}>
+        <label>
+          {uiText("Tìm kiếm")}
+          <input
+            id="acquisitions-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={uiText("Mã hồ sơ hoặc nhà cung cấp")}
+          />
+        </label>
+        <div className="list-filters-field">
+          <span>{uiText("Nhà cung cấp")}</span>
+          <InventoryLookup<InventorySupplier>
+            resource="suppliers"
+            filters={{ active: true }}
+            value={supplierFilter}
+            valueKey="id"
+            label={uiText("Nhà cung cấp")}
+            id="acquisitions-supplier-filter"
+            selectedLabel={selectedSupplierFilterLabel}
+            placeholder={uiText("Tất cả nhà cung cấp")}
+            hideLabel
+            onSelect={(sup) => {
+              setSupplierFilter(sup.id);
+              setSelectedSupplierFilterLabel(sup.name);
+              updateParams({ supplier_id: sup.id, page: undefined });
+            }}
+          />
         </div>
-      </div>
-
-      {/* Main Grid: Left Sources List, Right Source Detail & Lines */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Sources List */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              {uiText("Danh sách hồ sơ nguồn (")}
-              {sourcesTotal})
-            </h2>
+        <label>
+          {uiText("Trạng thái")}
+          <select
+            id="acquisitions-status-filter"
+            value={statusFilter}
+            onChange={(e) => handleStatusChange(e.target.value)}
+          >
+            <option value="all">{uiText("Tất cả")}</option>
+            <option value="active">{uiText("Hiệu lực")}</option>
+            <option value="voided">{uiText("Đã hủy")}</option>
+          </select>
+        </label>
+        <div className="list-filters-actions">
+          <button type="submit" className="button button-primary">
+            {uiText("Lọc")}
+          </button>
+          {search || supplierFilter || statusFilter !== "all" ? (
             <button
               type="button"
-              className="button button-primary text-xs"
-              onClick={() => setCreateSourceOpen(true)}
+              className="button button-secondary"
+              onClick={() => {
+                setSupplierFilter("");
+                setSelectedSupplierFilterLabel("");
+                updateParams({
+                  q: undefined,
+                  supplier_id: undefined,
+                  status: undefined,
+                  page: undefined,
+                });
+              }}
             >
-              <Plus size={14} />
-              {uiText(" Tạo hồ sơ mới")}
+              {uiText("Xóa bộ lọc")}
             </button>
-          </div>
+          ) : null}
+          <button
+            type="button"
+            className="button button-secondary"
+            onClick={() => setCreateSourceOpen(true)}
+          >
+            <Plus size={16} />
+            {uiText("Tạo hồ sơ")}
+          </button>
+          <span className="inline-toolbar-count">
+            {uiText("{0} hồ sơ", [sourcesTotal])}
+          </span>
+        </div>
+      </form>
 
-          {/* Search & Filters */}
-          <div className="space-y-2 p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <form
-              onSubmit={handleSourceSearchSubmit}
-              className="relative flex items-center gap-1.5"
-            >
-              <div className="relative flex-1">
-                <Search
-                  className="absolute left-2.5 top-2 text-slate-400"
-                  size={14}
-                />
-                <input
-                  id="acquisitions-search"
-                  aria-label={uiText(
-                    "Tìm mã hồ sơ, nhà cung cấp / Search Source or Supplier",
-                  )}
-                  type="text"
-                  placeholder={uiText("Tìm mã hồ sơ, nhà cung cấp...")}
-                  className="w-full text-xs pl-8 pr-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <button
-                type="submit"
-                className="button button-secondary text-xs px-2.5 py-1.5"
-              >
-                {uiText("Tìm")}
-              </button>
-            </form>
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-1">
-                <div className="flex-1">
-                  <InventoryLookup<InventorySupplier>
-                    resource="suppliers"
-                    filters={{ active: true }}
-                    value={supplierFilter}
-                    valueKey="id"
-                    label={uiText("Lọc theo nhà cung cấp")}
-                    id="acquisitions-supplier-filter"
-                    selectedLabel={selectedSupplierFilterLabel}
-                    placeholder={uiText("Tất cả NCC / All Suppliers")}
-                    hideLabel={true}
-                    onSelect={(sup) => {
-                      setSupplierFilter(sup.id);
-                      setSelectedSupplierFilterLabel(sup.name);
-                      updateParams({ supplier_id: sup.id, page: undefined });
-                    }}
-                  />
-                </div>
-                {supplierFilter ? (
-                  <button
-                    type="button"
-                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
-                    onClick={() => {
-                      setSupplierFilter("");
-                      setSelectedSupplierFilterLabel("");
-                      updateParams({ supplier_id: undefined, page: undefined });
-                    }}
-                    title={uiText("Bỏ lọc NCC")}
-                    aria-label={uiText("Bỏ lọc NCC")}
-                  >
-                    <X size={14} />
-                  </button>
-                ) : null}
-              </div>
-
-              <div>
-                <select
-                  id="acquisitions-status-filter"
-                  aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
-                  className="w-full text-[11px] p-1.5 border border-slate-300 rounded-lg bg-white"
-                  value={statusFilter}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                >
-                  <option value="all">
-                    {uiText("Tất cả TT / All Statuses")}
-                  </option>
-                  <option value="active">
-                    {uiText("Đang hiệu lực / Active")}
-                  </option>
-                  <option value="voided">{uiText("Đã hủy / Voided")}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Sources List Box */}
-          <div className="space-y-2">
-            {sources.length === 0 ? (
-              <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-xs text-slate-400">
-                {uiText("Chưa có hồ sơ nguồn nào phù hợp.")}
-              </div>
-            ) : (
-              sources.map((source) => {
-                const isSelected = source.id === selectedSourceId;
-                return (
-                  <div
+      {sources.length === 0 ? (
+        <p className="panel-empty">
+          {uiText("Chưa có hồ sơ nguồn nào phù hợp.")}
+        </p>
+      ) : (
+        <div className="data-panel">
+          <div className="responsive-table">
+            <table className="data-table records-on-phone">
+              <thead>
+                <tr>
+                  <th>{uiText("Mã hồ sơ")}</th>
+                  <th>{uiText("Nhà cung cấp")}</th>
+                  <th>{uiText("Ngày hồ sơ")}</th>
+                  <th>{uiText("Nguồn kinh phí")}</th>
+                  <th>{uiText("Trạng thái")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sources.map((source) => (
+                  <tr
                     key={source.id}
-                    onClick={() =>
-                      updateParams({
-                        sourceId: source.id,
-                        line_page: undefined,
-                        line_q: undefined,
-                      })
-                    }
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                      isSelected
-                        ? "bg-blue-50/70 border-blue-500 shadow-xs ring-1 ring-blue-500/20"
-                        : "bg-white border-slate-200 hover:border-slate-300"
-                    }`}
+                    className="row-link"
+                    aria-selected={source.id === selectedSourceId}
+                    onClick={() => openSource(source.id)}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-mono font-bold text-xs text-slate-900">
+                    <td data-label={uiText("Mã hồ sơ")}>
+                      <button
+                        type="button"
+                        className="link-button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openSource(source.id);
+                        }}
+                      >
                         {source.source_reference}
-                      </span>
-                      {source.status === "voided" ? (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-700">
-                          {uiText("Đã hủy / Voided")}
-                        </span>
-                      ) : (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700">
-                          {uiText("Hiệu lực / Active")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-slate-600 mb-1 line-clamp-1">
+                      </button>
+                    </td>
+                    <td data-label={uiText("Nhà cung cấp")}>
                       {source.supplier_name ||
                         uiText("Nhà cung cấp chưa đặt tên")}
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span>
-                        {uiText("Ngày: ")}
-                        {formatInventoryDate(source.reference_date)}
-                      </span>
-                      <span className="font-mono">
-                        {uiText("r")}
-                        {String(source.revision)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-
-            <PaginationControls
-              currentPage={currentSourcePage}
-              totalItems={sourcesTotal}
-              onPageChange={(p) =>
-                updateParams({ page: p > 1 ? p : undefined })
-              }
-              pageSize={sourcePageSize}
-            />
+                    </td>
+                    <td data-label={uiText("Ngày hồ sơ")}>
+                      {formatInventoryDate(source.reference_date)}
+                    </td>
+                    <td data-label={uiText("Nguồn kinh phí")}>
+                      {source.funding_source || "—"}
+                    </td>
+                    <td data-label={uiText("Trạng thái")}>
+                      <SourceStatus status={source.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+      )}
+      <PaginationControls
+        currentPage={currentSourcePage}
+        totalItems={sourcesTotal}
+        onPageChange={(p) => updateParams({ page: p > 1 ? p : undefined })}
+        pageSize={sourcePageSize}
+      />
 
-        {/* Right Column: Selected Source Detail & Lines */}
-        <div className="lg:col-span-2 space-y-4">
-          {selectedSource ? (
-            <>
-              {/* Header Card */}
-              <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-slate-900 font-mono">
-                        {selectedSource.source_reference}
-                      </h3>
-                      {selectedSource.status === "voided" ? (
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700">
-                          {uiText("Đã hủy / Voided")}
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-700">
-                          {uiText("Đang hiệu lực / Active")}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {uiText("Nhà cung cấp:")}{" "}
-                      <strong className="text-slate-700">
-                        {selectedSource.supplier_name ||
-                          uiText("Nhà cung cấp chưa đặt tên")}
-                      </strong>
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {selectedSource.status !== "voided" ? (
-                      <>
-                        <Link
-                          href={`/inventory/receive?sourceId=${selectedSource.id}`}
-                          className="button button-primary text-xs"
-                        >
-                          <Plus size={14} />
-                          {uiText(" Nhận hàng từ hồ sơ này")}
-                        </Link>
-                        <button
-                          type="button"
-                          className="button button-secondary text-xs"
-                          onClick={() => setEditSource(selectedSource)}
-                        >
-                          <Settings size={14} />
-                          {uiText(" Sửa thông tin")}
-                        </button>
-                        {isAdmin ? (
-                          <button
-                            type="button"
-                            className="button button-danger text-xs"
-                            onClick={() => setVoidSource(selectedSource)}
-                          >
-                            {uiText("Hủy hồ sơ")}
-                          </button>
-                        ) : null}
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">
-                      {uiText("Ngày hồ sơ:")}
-                    </span>
-                    <span className="font-semibold text-slate-800">
-                      {formatInventoryDate(selectedSource.reference_date)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">
-                      {uiText("Nguồn kinh phí:")}
-                    </span>
-                    <span className="font-semibold text-slate-800">
-                      {selectedSource.funding_source || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">
-                      {uiText("Mã tham chiếu ngoài:")}
-                    </span>
-                    <span className="font-mono text-slate-800">
-                      {selectedSource.external_reference || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">
-                      {uiText("Phiên bản:")}
-                    </span>
-                    <span className="font-mono text-slate-800">
-                      {uiText("r")}
-                      {String(selectedSource.revision)}
-                    </span>
-                  </div>
-                </div>
-
-                {selectedSource.notes ? (
-                  <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="font-semibold text-slate-700">
-                      {uiText("Ghi chú:")}
-                    </span>{" "}
-                    {selectedSource.notes}
-                  </div>
+      {selectedSource ? (
+        <RecordDrawer
+          title={selectedSource.source_reference}
+          subtitle={
+            selectedSource.supplier_name || uiText("Nhà cung cấp chưa đặt tên")
+          }
+          onClose={closeSource}
+          actions={
+            selectedSource.status !== "voided" ? (
+              <>
+                <Link
+                  href={`/inventory/receive?sourceId=${selectedSource.id}`}
+                  className="button button-primary"
+                >
+                  {uiText("Nhận hàng")}
+                </Link>
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  onClick={() => setEditSource(selectedSource)}
+                >
+                  {uiText("Sửa")}
+                </button>
+                {isAdmin ? (
+                  <button
+                    type="button"
+                    className="button button-danger"
+                    onClick={() => setVoidSource(selectedSource)}
+                  >
+                    {uiText("Hủy hồ sơ")}
+                  </button>
                 ) : null}
-              </div>
-
-              {/* Source Lines Card */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                      {uiText("Các dòng vật tư cam kết (")}
-                      {linesTotal})
-                    </h4>
-                    <form
-                      onSubmit={handleLineSearchSubmit}
-                      className="flex items-center gap-1.5"
-                    >
-                      <div className="relative">
-                        <Search
-                          className="absolute left-2 top-1.5 text-slate-400"
-                          size={13}
-                        />
-                        <input
-                          id="search-source-lines"
-                          aria-label={uiText("Tìm dòng vật tư")}
-                          type="text"
-                          placeholder={uiText("Tìm SKU, tên...")}
-                          className="text-[11px] pl-6 pr-2 py-1 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500 w-36 sm:w-48"
-                          value={lineSearch}
-                          onChange={(e) => setLineSearch(e.target.value)}
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="button button-secondary text-[11px] px-2 py-1"
-                      >
-                        {uiText("Tìm")}
-                      </button>
-                    </form>
-                  </div>
-                  {selectedSource.status !== "voided" ? (
-                    <button
-                      type="button"
-                      className="button button-primary text-xs"
-                      onClick={() => setCreateLineOpen(true)}
-                    >
-                      <Plus size={14} />
-                      {uiText(" Thêm dòng vật tư")}
-                    </button>
-                  ) : null}
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                        <th className="py-2.5 px-3">{uiText("Dòng / Key")}</th>
-                        <th className="py-2.5 px-3">
-                          {uiText("Vật tư / Item")}
-                        </th>
-                        <th className="py-2.5 px-3">{uiText("SL Cam kết")}</th>
-                        <th className="py-2.5 px-3">
-                          {uiText("So sánh SL cơ sở")}
-                        </th>
-                        <th className="py-2.5 px-3">
-                          {uiText("Đóng gói thực nhận")}
-                        </th>
-                        <th className="py-2.5 px-3">
-                          {uiText("Phiếu nhận thực tế")}
-                        </th>
-                        <th className="py-2.5 px-3 text-right">
-                          {uiText("Đơn giá (INV-018)")}
-                        </th>
-                        <th className="py-2.5 px-3 text-right">
-                          {uiText("Thao tác")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {lines.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={8}
-                            className="py-8 text-center text-slate-400"
-                          >
-                            {uiText(
-                              "Hồ sơ này chưa có dòng vật tư cam kết nào.",
-                            )}
-                          </td>
-                        </tr>
-                      ) : (
-                        lines.map((line) => {
-                          const lineReceipts = receipts.filter(
-                            (r) => r.source_line_id === line.id,
-                          );
-                          const hasFactor = Boolean(
-                            line.expected_conversion_factor,
-                          );
-                          const discrepancyNum =
-                            line.base_discrepancy !== null &&
-                            line.base_discrepancy !== undefined
-                              ? Number(line.base_discrepancy)
-                              : null;
-
-                          return (
-                            <tr
-                              key={line.id}
-                              className="hover:bg-slate-50/80 transition-colors"
-                            >
-                              <td className="py-2.5 px-3 font-mono font-semibold text-slate-800">
-                                {line.line_key}
-                              </td>
-                              <td className="py-2.5 px-3">
-                                <span className="font-semibold text-slate-900 block">
-                                  {line.item_code}
-                                </span>
-                                <span className="text-[11px] text-slate-500">
-                                  {line.item_name}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-3 font-mono">
-                                <span className="font-bold text-slate-900">
-                                  {formatDisplayQuantity(
-                                    line.expected_purchase_quantity,
-                                  )}
-                                </span>{" "}
-                                <span className="text-slate-600 font-medium">
-                                  {line.purchase_uom_code}
-                                </span>
-                                {hasFactor ? (
-                                  <span className="text-[11px] text-slate-400 block font-normal">
-                                    {uiText("QĐ: ×")}
-                                    {formatDisplayQuantity(
-                                      line.expected_conversion_factor!,
-                                    )}
-                                  </span>
-                                ) : null}
-                              </td>
-                              <td className="py-2.5 px-3">
-                                <div className="space-y-0.5 text-[11px]">
-                                  <div>
-                                    <span className="text-slate-400">
-                                      {uiText("Dự kiến:")}{" "}
-                                    </span>
-                                    <span className="font-mono font-medium">
-                                      {line.expected_base_quantity
-                                        ? formatDisplayQuantity(
-                                            line.expected_base_quantity,
-                                          )
-                                        : "—"}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400">
-                                      {uiText("Thực nhận:")}{" "}
-                                    </span>
-                                    <span className="font-mono font-bold text-slate-900">
-                                      {formatDisplayQuantity(
-                                        line.actual_base_quantity || "0",
-                                      )}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400">
-                                      {uiText("Lệch:")}{" "}
-                                    </span>
-                                    {hasFactor && discrepancyNum !== null ? (
-                                      <span
-                                        className={`font-mono font-bold px-1.5 py-0.5 rounded text-[10px] ${
-                                          discrepancyNum === 0
-                                            ? "bg-emerald-100 text-emerald-800"
-                                            : discrepancyNum > 0
-                                              ? "bg-blue-100 text-blue-800"
-                                              : "bg-amber-100 text-amber-800"
-                                        }`}
-                                      >
-                                        {discrepancyNum > 0
-                                          ? `+${formatDisplayQuantity(line.base_discrepancy!)}`
-                                          : formatDisplayQuantity(
-                                              line.base_discrepancy!,
-                                            )}
-                                      </span>
-                                    ) : (
-                                      <span className="text-slate-400 italic">
-                                        {uiText("Không xác định")}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-2.5 px-3">
-                                {line.packaging && line.packaging.length > 0 ? (
-                                  <div className="space-y-1 text-[11px] font-mono">
-                                    {line.packaging.map((pkg, idx) => (
-                                      <div key={idx}>
-                                        <span className="font-semibold text-slate-900">
-                                          {formatDisplayQuantity(
-                                            pkg.purchase_quantity,
-                                          )}{" "}
-                                          {pkg.purchase_uom_code}
-                                        </span>{" "}
-                                        <span className="text-slate-500">
-                                          {uiText("(×")}
-                                          {formatDisplayQuantity(
-                                            pkg.conversion_factor,
-                                          )}{" "}
-                                          ={" "}
-                                          {formatDisplayQuantity(
-                                            pkg.base_quantity,
-                                          )}
-                                          )
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <span className="text-slate-400 text-[11px] italic">
-                                    {uiText("Chưa nhận")}
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-2.5 px-3">
-                                {lineReceipts.length > 0 ? (
-                                  <div className="space-y-1">
-                                    {lineReceipts.map((rcpt, idx) => (
-                                      <Link
-                                        key={idx}
-                                        href={`/inventory/transactions/${rcpt.transaction_id}?origin=${rcpt.origin_id}`}
-                                        className="block text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-mono"
-                                        title={uiText(
-                                          "Xem chứng từ nhận kho {0}",
-                                          [rcpt.receipt_reference],
-                                        )}
-                                      >
-                                        {rcpt.receipt_reference} (
-                                        {formatDisplayQuantity(
-                                          rcpt.purchase_quantity,
-                                        )}{" "}
-                                        {rcpt.purchase_uom_code})
-                                      </Link>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <span className="text-slate-400 text-[11px]">
-                                    —
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                <span className="font-mono text-slate-800 block">
-                                  {line.unit_cost
-                                    ? formatCurrencyAmount(
-                                        line.unit_cost,
-                                        line.currency_code || "VND",
-                                      )
-                                    : "—"}
-                                </span>
-                                <span className="text-slate-400 text-[10px] block">
-                                  {[
-                                    line.country_of_origin,
-                                    line.manufacturer,
-                                    line.model,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" / ") || ""}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                {selectedSource.status !== "voided" ? (
-                                  <button
-                                    type="button"
-                                    className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
-                                    onClick={() => setEditLine(line)}
-                                  >
-                                    {uiText("Sửa")}
-                                  </button>
-                                ) : null}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="p-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
-                    {uiText("Hiển thị ")}
-                    {lines.length}
-                    {uiText(" trên tổng số ")}
-                    {linesTotal}
-                    {uiText(" dòng")}
-                  </span>
-                  <PaginationControls
-                    currentPage={currentLinePage}
-                    totalItems={linesTotal}
-                    onPageChange={(p) =>
-                      updateParams({ line_page: p > 1 ? p : undefined })
-                    }
-                    pageSize={linePageSize}
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400 text-xs">
-              {uiText(
-                "Vui lòng chọn hoặc tạo một hồ sơ nguồn để xem chi tiết.",
-              )}
+              </>
+            ) : null
+          }
+        >
+          <dl className="detail-list">
+            <div>
+              <dt>{uiText("Trạng thái")}</dt>
+              <dd>
+                <SourceStatus status={selectedSource.status} />
+              </dd>
             </div>
+            <div>
+              <dt>{uiText("Ngày hồ sơ")}</dt>
+              <dd>{formatInventoryDate(selectedSource.reference_date)}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Nguồn kinh phí")}</dt>
+              <dd>{selectedSource.funding_source || "—"}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Mã tham chiếu ngoài")}</dt>
+              <dd>{selectedSource.external_reference || "—"}</dd>
+            </div>
+            {selectedSource.notes ? (
+              <div>
+                <dt>{uiText("Ghi chú")}</dt>
+                <dd>{selectedSource.notes}</dd>
+              </div>
+            ) : null}
+          </dl>
+          <p className="field-note">
+            {uiText(
+              "Hồ sơ đã có hàng nhận vào kho thì không sửa số lượng được; mọi thay đổi được ghi lịch sử.",
+            )}
+          </p>
+
+          <h3>{uiText("Các dòng cam kết ({0})", [linesTotal])}</h3>
+          <form className="drawer-search" onSubmit={handleLineSearchSubmit}>
+            <input
+              id="search-source-lines"
+              aria-label={uiText("Tìm dòng vật tư")}
+              placeholder={uiText("Mã hoặc tên vật tư")}
+              value={lineSearch}
+              onChange={(e) => setLineSearch(e.target.value)}
+            />
+            <button type="submit" className="button button-secondary">
+              {uiText("Tìm")}
+            </button>
+            {selectedSource.status !== "voided" ? (
+              <button
+                type="button"
+                className="button button-secondary"
+                onClick={() => setCreateLineOpen(true)}
+              >
+                <Plus size={16} />
+                {uiText("Thêm dòng")}
+              </button>
+            ) : null}
+          </form>
+          {lines.length === 0 ? (
+            <p className="panel-empty">
+              {uiText("Hồ sơ này chưa có dòng vật tư cam kết nào.")}
+            </p>
+          ) : (
+            lines.map((line) => (
+              <SourceLineFacts
+                key={line.id}
+                line={line}
+                receipts={receipts.filter((r) => r.source_line_id === line.id)}
+                onEdit={
+                  selectedSource.status !== "voided"
+                    ? () => setEditLine(line)
+                    : undefined
+                }
+              />
+            ))
           )}
-        </div>
-      </div>
+          {linesTotal > linePageSize ? (
+            <PaginationControls
+              currentPage={currentLinePage}
+              totalItems={linesTotal}
+              onPageChange={(p) =>
+                updateParams({ line_page: p > 1 ? p : undefined })
+              }
+              pageSize={linePageSize}
+            />
+          ) : null}
+        </RecordDrawer>
+      ) : null}
 
       {/* ========================================================================= */}
       {/* Modal 1: Create Source */}
@@ -2282,5 +1951,114 @@ function EditSourceLineDialog({
         </form>
       </div>
     </div>
+  );
+}
+
+function SourceStatus({ status }: { status: string }) {
+  const { text } = useLanguage();
+  return status === "voided" ? (
+    <span className="badge" data-tone="neutral">
+      {text("Đã hủy")}
+    </span>
+  ) : (
+    <span className="badge" data-tone="success">
+      {text("Hiệu lực")}
+    </span>
+  );
+}
+
+/** One committed line, shown as a labelled record inside the drawer. */
+function SourceLineFacts({
+  line,
+  receipts,
+  onEdit,
+}: {
+  line: AcquisitionRecordLine;
+  receipts: InventorySourceReceipt[];
+  onEdit?: () => void;
+}) {
+  const { text } = useLanguage();
+  const hasFactor = Boolean(line.expected_conversion_factor);
+  const discrepancy =
+    hasFactor && line.base_discrepancy != null
+      ? Number(line.base_discrepancy)
+      : null;
+  return (
+    <dl className="detail-list">
+      <div>
+        <dt>{text("Dòng {0}", [line.line_key])}</dt>
+        <dd>
+          <span className="cell-stack">
+            <strong>{line.item_name ?? line.catalog_item_name}</strong>
+            <small>{line.item_code ?? line.catalog_item_code}</small>
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt>{text("Cam kết")}</dt>
+        <dd>
+          {formatDisplayQuantity(line.expected_purchase_quantity)}{" "}
+          {line.purchase_uom_name || line.purchase_uom_code}
+          {hasFactor
+            ? ` × ${formatDisplayQuantity(line.expected_conversion_factor!)}`
+            : ""}
+        </dd>
+      </div>
+      <div>
+        <dt>{text("Đã nhận / dự kiến")}</dt>
+        <dd>
+          {formatDisplayQuantity(line.actual_base_quantity || "0")} /{" "}
+          {line.expected_base_quantity
+            ? formatDisplayQuantity(line.expected_base_quantity)
+            : "—"}{" "}
+          {!isPositive(line.actual_base_quantity || "0") ? (
+            <span className="badge" data-tone="neutral">
+              {text("Chưa nhận")}
+            </span>
+          ) : discrepancy !== null && discrepancy !== 0 ? (
+            <span className="badge" data-tone="warning">
+              {text("Lệch {0}", [
+                `${discrepancy > 0 ? "+" : ""}${formatDisplayQuantity(line.base_discrepancy!)}`,
+              ])}
+            </span>
+          ) : null}
+        </dd>
+      </div>
+      {receipts.length ? (
+        <div>
+          <dt>{text("Phiếu nhận")}</dt>
+          <dd className="cell-stack">
+            {receipts.map((rcpt) => (
+              <Link
+                key={`${rcpt.transaction_id}-${rcpt.origin_id}`}
+                href={`/inventory/transactions/${rcpt.transaction_id}?origin=${rcpt.origin_id}`}
+              >
+                {rcpt.receipt_reference} (
+                {formatDisplayQuantity(rcpt.purchase_quantity)}{" "}
+                {rcpt.purchase_uom_code})
+              </Link>
+            ))}
+          </dd>
+        </div>
+      ) : null}
+      {line.unit_cost ? (
+        <div>
+          <dt>{text("Đơn giá")}</dt>
+          <dd>
+            {formatCurrencyAmount(line.unit_cost, line.currency_code || "VND")}
+          </dd>
+        </div>
+      ) : null}
+      {onEdit ? (
+        <div>
+          <dt />
+          <dd>
+            <button type="button" className="link-button" onClick={onEdit}>
+              {text("Sửa dòng")}
+            </button>
+          </dd>
+        </div>
+      ) : null}
+    </dl>
   );
 }

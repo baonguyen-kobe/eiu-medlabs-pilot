@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const operationPhases = {
-  all: "Tất cả cần xử lý",
+  all: "Tất cả",
   prepare: "Cần chuẩn bị",
   handover: "Chờ giao",
   signature: "Chờ chữ ký",
   return: "Còn phải trả",
-  hold: "Chờ đối soát hold",
+  hold: "Chờ đối soát",
 } as const;
 export const equipmentOperationsSchema = z.object({
   rows: z.array(

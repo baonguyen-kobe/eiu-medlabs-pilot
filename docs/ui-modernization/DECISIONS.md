@@ -2,6 +2,31 @@
 
 This file records durable accepted and pending decisions. Do not silently rewrite accepted history. Add a new decision or explicitly supersede an existing decision when direction changes.
 
+## DEC-UI-20261117 — Inventory layout refactor
+
+**Status:** ACCEPTED owner direction (2026-11-17); rollout in reviewed batches.
+
+The owner authorized refactoring the Quản lý Kho & Thiết bị pages freely, with
+one constraint: colors stay consistent with the existing tokens and status
+tones (Section 0A). Layout, grouping and navigation inside Inventory may change
+to be clearer and easier to use. For Inventory layout this supersedes the
+Kho VTTB prototype / Figma V2026 approval gate in `AGENTS.md`; business rules,
+permissions and database contracts are unchanged.
+
+Direction, from the review of `thienchi2109/qltbyt-nam-phong`, OpenBoxes,
+InvenTree and Snipe-IT:
+
+- The shell h1 names the current page (same label as its menu item); no second
+  page title inside the content.
+- Every list page uses the 0A.4 recipe: KPI row, filter toolbar, table,
+  pagination. Few default columns; row click opens a 520px detail drawer;
+  rare actions move into the drawer instead of every row.
+- Quantities show without trailing zeros and with the unit name, never a code.
+  Zero is plain text, not a warning tone.
+- Internal phase names (S1, S2, P1) never appear in user-facing text.
+
+Each batch stays VERIFY until the owner accepts it on localhost.
+
 ## DEC-UI-20261104 — Workflow skill refinement
 
 **Status:** APPLIED FOR DESIGN REVIEW — owner requested the skill; visual

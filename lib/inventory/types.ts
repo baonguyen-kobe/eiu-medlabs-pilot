@@ -153,6 +153,9 @@ export interface AcquisitionRecordLine {
   catalog_item_id: string;
   item_code?: string;
   item_name?: string;
+  /** Names the source_lines read returns. */
+  catalog_item_code?: string;
+  catalog_item_name?: string;
   expected_purchase_quantity: string;
   purchase_uom_code: string;
   purchase_uom_name?: string;
@@ -275,6 +278,9 @@ export interface InventoryTransactionLine {
   catalog_item_id: string;
   item_code?: string;
   item_name?: string;
+  /** Names the source_lines read returns. */
+  catalog_item_code?: string;
+  catalog_item_name?: string;
   location_id: string;
   location_code?: string;
   location_name?: string;

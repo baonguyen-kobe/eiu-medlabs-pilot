@@ -1,14 +1,12 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { assetRead } from "@/lib/inventory/asset-client";
-import { InventoryPageHeader as PageHeader } from "@/components/inventory/inventory-page-header";
 import { AssetListView } from "@/components/inventory/assets/asset-list-view";
 import type {
   AssetLifecycleStatus,
   AssetOperationalStatus,
   EquipmentAsset,
 } from "@/lib/inventory/asset-types";
-import { LocalizedText } from "@/components/i18n/language-provider";
 
 const PAGE_SIZE = 25;
 
@@ -48,21 +46,6 @@ export default async function AssetsPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={
-          <LocalizedText
-            text={"Quản lý Thiết bị Cá thể / Serialized Equipment Assets"}
-          />
-        }
-        description={
-          <LocalizedText
-            text={
-              "Theo dõi danh tính vật lý, tem nhãn QR, tình trạng vận hành và lịch sử vòng đời thiết bị y tế theo chuẩn S3."
-            }
-          />
-        }
-      />
-
       <AssetListView
         assets={result.rows}
         total={result.total}

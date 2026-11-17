@@ -361,16 +361,27 @@ export function validateSplit(
 }
 
 /**
- * Formats a decimal string for display, optionally with thousand separators.
+ * Formats a decimal string for display with thousand separators. Trailing
+ * fractional zeros are dropped ("10.000000" -> "10", "2.500000" -> "2.5");
+ * the stored value stays exact.
  */
 export function formatDisplayQuantity(
   value: string | number | null | undefined,
 ): string {
   if (value === null || value === undefined || value === "") return "0";
   const str = String(value).trim();
-  const [intPart, fracPart] = str.split(".");
+  const [intPart, rawFrac] = str.split(".");
+  const fracPart = rawFrac?.replace(/0+$/, "");
   const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return fracPart ? `${formattedInt}.${fracPart}` : formattedInt;
+}
+
+/** Unit shown to people: its name, or the code when the read has no name. */
+export function uomLabel(row: {
+  base_uom_code?: string | null;
+  base_uom_name?: string | null;
+}): string {
+  return row.base_uom_name || row.base_uom_code || "";
 }
 
 /** Exact signed preview; incomplete/invalid input must not appear as zero. */
