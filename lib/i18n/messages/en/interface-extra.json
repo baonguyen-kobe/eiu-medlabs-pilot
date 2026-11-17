@@ -937,5 +937,9 @@
   "Chưa nhận": "Not received",
   "Tổng quan Skills lab": "Skills lab overview",
   "Vận hành kho": "Inventory operations",
-  "Thiết lập kho": "Inventory setup"
+  "Thiết lập kho": "Inventory setup",
+  "Người quản lý (tùy chọn)": "Custodian (optional)",
+  "Chọn người quản lý thiết bị": "Choose the asset custodian",
+  "Chưa giao cho ai": "Not assigned",
+  "Gõ tên nhân sự…": "Type a staff name…"
 }
