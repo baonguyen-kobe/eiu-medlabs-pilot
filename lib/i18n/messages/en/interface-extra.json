@@ -981,5 +981,6 @@
   "Đang dùng": "In use",
   "Đang bảo trì": "Under maintenance",
   "Không được cấp": "Not issuable",
-  "Phòng chưa có thiết bị có mã.": "The room has no coded assets."
+  "Phòng chưa có thiết bị có mã.": "The room has no coded assets.",
+  "Giữ lại cho phòng: {0}": "Keep in room: {0}"
 }
