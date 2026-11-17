@@ -421,7 +421,7 @@ test("UI V2 personnel structure follows the approved table and drawer order", as
   assert.doesNotMatch(personnel, /person-avatar initials-avatar/);
   assert.doesNotMatch(personnel, /employee_code\?\.trim\(\)/);
   assert.doesNotMatch(personnel, /item\.id\.slice\(/);
-  assert.match(personnelPage, /select\("can_manage_email_notifications"\)/);
+  assert.match(personnelPage, /select\("id,can_manage_email_notifications"\)/);
   assert.doesNotMatch(personnelPage, /employee_code/);
   assert.match(
     master,

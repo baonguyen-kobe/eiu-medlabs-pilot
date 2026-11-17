@@ -5521,6 +5521,14 @@ export type Database = {
         Args: { target_item_id: string }
         Returns: boolean
       }
+      room_equipment_read: {
+        Args: { p_room_id: string }
+        Returns: Json
+      }
+      room_equipment_summary: {
+        Args: { p_page?: number; p_page_size?: number; p_query?: string }
+        Returns: Json
+      }
       reschedule_class: {
         Args: { target_schedule_date: string; target_schedule_id: string }
         Returns: {

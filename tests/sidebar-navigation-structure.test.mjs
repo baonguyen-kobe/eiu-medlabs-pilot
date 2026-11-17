@@ -48,6 +48,8 @@ function extractBuildNavigation() {
     const GraduationCapSolid = "GraduationCapSolid";
     const PackageCheck = "PackageCheck";
     const PackageCheckSolid = "PackageCheckSolid";
+    const DoorOpen = "DoorOpen";
+    const DoorOpenSolid = "DoorOpenSolid";
     const Users = "Users";
     const UsersSolid = "UsersSolid";
     const Settings = "Settings";
@@ -130,6 +132,7 @@ test("Inventory navigation exposes intake to Admin/Staff and opening only to Adm
   assert.ok(admin.includes("/inventory/opening"));
   assert.ok(staff.includes("/inventory/receive"));
   assert.ok(staff.includes("/inventory/transactions"));
+  assert.ok(staff.includes("/inventory/rooms"));
   assert.ok(!staff.includes("/inventory/opening"));
   for (const roles of [[], ["lecturer"], ["teaching_assistant"], ["viewer"]]) {
     assert.deepEqual(inventoryDestinations(roles), []);

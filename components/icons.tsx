@@ -38,6 +38,7 @@ import {
   AcademicCapIcon as AcademicCapSolidIcon,
   ArchiveBoxIcon as ArchiveBoxSolidIcon,
   ArrowDownTrayIcon as ArrowDownTraySolidIcon,
+  BuildingOffice2Icon as BuildingOffice2SolidIcon,
   CalendarDaysIcon as CalendarDaysSolidIcon,
   ClipboardDocumentListIcon as ClipboardDocumentListSolidIcon,
   ClockIcon as ClockSolidIcon,
@@ -118,6 +119,7 @@ export const GraduationCapSolid = createIcon(AcademicCapSolidIcon);
 export const ClipboardListSolid = createIcon(ClipboardDocumentListSolidIcon);
 export const PackageCheckSolid = createIcon(ArchiveBoxSolidIcon);
 export const PlusSolid = createIcon(PlusSolidIcon);
+export const DoorOpenSolid = createIcon(BuildingOffice2SolidIcon);
 export const ImportSolid = createIcon(ArrowDownTraySolidIcon);
 export const FileClockSolid = createIcon(ClockSolidIcon);
 export const UsersSolid = createIcon(UserGroupSolidIcon);

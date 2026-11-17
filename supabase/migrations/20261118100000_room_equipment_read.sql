@@ -72,3 +72,58 @@ $$;
 
 revoke all on function public.room_equipment_read(uuid) from public, anon;
 grant execute on function public.room_equipment_read(uuid) to authenticated;
+
+-- One page of rooms with their counts for the room list. Counts reuse
+-- room_equipment_read so both screens always agree.
+create or replace function public.room_equipment_summary(
+  p_query text default null,
+  p_page integer default 1,
+  p_page_size integer default 50
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  size integer := greatest(1, least(coalesce(p_page_size, 50), 100));
+  page integer := greatest(1, coalesce(p_page, 1));
+  total bigint;
+  rows jsonb;
+begin
+  if not (select private.can_access_inventory()) then
+    raise exception 'AUTH_DENIED: Access denied to inventory read models' using errcode = '42501';
+  end if;
+
+  select count(*) into total from public.rooms ro
+  where ro.is_active and (nullif(btrim(p_query), '') is null
+    or concat_ws(' ', ro.building_code, ro.room_code, ro.room_name) ilike '%' || btrim(p_query) || '%');
+
+  -- shortcut: one room_equipment_read per listed room (at most 100 per page);
+  -- move to a set-based query if the room list gets slow.
+  select coalesce(jsonb_agg(jsonb_build_object(
+      'room_id', ro.id, 'room_code', ro.room_code, 'building_code', ro.building_code,
+      'room_name', ro.room_name, 'room_type', rt.name,
+      'fixed', jsonb_array_length(d->'fixed') + jsonb_array_length(d->'assets'),
+      'temporary', jsonb_array_length(d->'temporary'),
+      'damaged', (select count(*) from jsonb_array_elements(d->'fixed') f where coalesce((f->>'damaged')::numeric, 0) > 0)
+        + (select count(*) from jsonb_array_elements(d->'assets') a where a->>'operational_status' = 'damaged')
+    ) order by ro.building_code, ro.room_code), '[]'::jsonb)
+  into rows
+  from (
+    select * from public.rooms ro
+    where ro.is_active and (nullif(btrim(p_query), '') is null
+      or concat_ws(' ', ro.building_code, ro.room_code, ro.room_name) ilike '%' || btrim(p_query) || '%')
+    order by ro.building_code, ro.room_code
+    limit size offset (page - 1) * size
+  ) ro
+  left join public.room_types rt on rt.id = ro.room_type_id
+  cross join lateral (select public.room_equipment_read(ro.id) as d) detail;
+
+  return jsonb_build_object('total', total, 'page', page, 'page_size', size, 'rows', rows);
+end;
+$$;
+
+revoke all on function public.room_equipment_summary(text, integer, integer) from public, anon;
+grant execute on function public.room_equipment_summary(text, integer, integer) to authenticated;
