@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useTransition } from "react";
+import React, { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, X } from "@/components/icons";
@@ -27,6 +27,7 @@ import { TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
   AcquisitionRecord,
   AcquisitionRecordLine,
+  AcquisitionSourceKind,
   InventoryCatalogItem,
   InventorySourceReceipt,
   InventorySupplier,
@@ -420,8 +421,7 @@ export function AcquisitionsView({
                       </button>
                     </td>
                     <td data-label={uiText("Nhà cung cấp")}>
-                      {source.supplier_name ||
-                        uiText("Nhà cung cấp chưa đặt tên")}
+                      {sourceSupplierLabel(source, uiText)}
                     </td>
                     <td data-label={uiText("Ngày hồ sơ")}>
                       {formatInventoryDate(source.reference_date)}
@@ -449,9 +449,7 @@ export function AcquisitionsView({
       {selectedSource ? (
         <RecordDrawer
           title={selectedSource.source_reference}
-          subtitle={
-            selectedSource.supplier_name || uiText("Nhà cung cấp chưa đặt tên")
-          }
+          subtitle={sourceSupplierLabel(selectedSource, uiText)}
           onClose={closeSource}
           actions={
             selectedSource.status !== "voided" ? (
@@ -707,6 +705,9 @@ function CreateSourceDialog({
   const { text: uiText } = useLanguage();
 
   const [sourceRef, setSourceRef] = useState("");
+  const [sourceKind, setSourceKind] =
+    useState<AcquisitionSourceKind>("purchase");
+  const isDonation = sourceKind === "donation";
   const [supplierId, setSupplierId] = useState("");
   const [selectedSupplierLabel, setSelectedSupplierLabel] = useState("");
   const [referenceDate, setReferenceDate] = useState(businessTodayString());
@@ -718,14 +719,19 @@ function CreateSourceDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!sourceRef.trim() || !supplierId || !referenceDate) {
+    if (!sourceRef.trim() || (!supplierId && !isDonation) || !referenceDate) {
       setError("Vui lòng điền đủ mã hồ sơ, nhà cung cấp và ngày hồ sơ");
+      return;
+    }
+    if (isDonation && !notes.trim()) {
+      setError("Hàng tặng cần ghi rõ nguồn gốc (ai tặng, khi nào)");
       return;
     }
 
     startTransition(async () => {
       const res = await createSourceAction({
         source_reference: sourceRef.trim(),
+        source_kind: sourceKind,
         supplier_id: supplierId,
         reference_date: referenceDate,
         funding_source: fundingSource.trim() || undefined,
@@ -737,7 +743,8 @@ function CreateSourceDialog({
         onCreated({
           id: res.data.id,
           source_reference: sourceRef.trim().toUpperCase(),
-          supplier_id: supplierId,
+          source_kind: sourceKind,
+          supplier_id: supplierId || null,
           reference_date: referenceDate,
           funding_source: fundingSource.trim() || null,
           external_reference: externalRef.trim() || null,
@@ -777,6 +784,29 @@ function CreateSourceDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div
+            className="segmented-control"
+            role="radiogroup"
+            aria-label={uiText("Loại hồ sơ nguồn")}
+          >
+            {(
+              [
+                ["purchase", "Hợp đồng / Hóa đơn"],
+                ["donation", "Tặng / Không chứng từ"],
+              ] as const
+            ).map(([kind, label]) => (
+              <button
+                key={kind}
+                type="button"
+                role="radio"
+                aria-checked={sourceKind === kind}
+                className={sourceKind === kind ? "selected" : ""}
+                onClick={() => setSourceKind(kind)}
+              >
+                {uiText(label)}
+              </button>
+            ))}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label
@@ -820,8 +850,9 @@ function CreateSourceDialog({
               htmlFor="create-source-supplier"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              {uiText("Nhà cung cấp ")}
-              <span className="text-red-500">*</span>
+              {isDonation
+                ? uiText("Nhà cung cấp / người tặng (tùy chọn)")
+                : uiText("Nhà cung cấp *")}
             </label>
             <InventoryLookup<InventorySupplier>
               resource="suppliers"
@@ -833,7 +864,7 @@ function CreateSourceDialog({
               selectedLabel={selectedSupplierLabel}
               placeholder={uiText("Chọn hoặc tìm kiếm nhà cung cấp…")}
               hideLabel={true}
-              required={true}
+              required={!isDonation}
               onSelect={(sup) => {
                 setSupplierId(sup.id);
                 setSelectedSupplierLabel(sup.name);
@@ -881,13 +912,18 @@ function CreateSourceDialog({
               htmlFor="create-source-notes"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              {uiText("Ghi chú")}
+              {isDonation ? uiText("Nguồn gốc hàng tặng *") : uiText("Ghi chú")}
             </label>
             <textarea
               id="create-source-notes"
               className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500"
               rows={2}
-              placeholder={uiText("Ghi chú chi tiết về hồ sơ...")}
+              required={isDonation}
+              placeholder={
+                isDonation
+                  ? uiText("Ai tặng, khi nào, kèm giấy tờ gì (nếu có)")
+                  : uiText("Ghi chú chi tiết về hồ sơ...")
+              }
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -937,7 +973,7 @@ function EditSourceDialog({
   const { text: uiText } = useLanguage();
 
   const [sourceRef, setSourceRef] = useState(source.source_reference);
-  const [supplierId, setSupplierId] = useState(source.supplier_id);
+  const [supplierId, setSupplierId] = useState(source.supplier_id ?? "");
   const [selectedSupplierLabel, setSelectedSupplierLabel] = useState(
     source.supplier_name || "",
   );
@@ -2061,4 +2097,14 @@ function SourceLineFacts({
       ) : null}
     </dl>
   );
+}
+
+function sourceSupplierLabel(
+  source: AcquisitionRecord,
+  uiText: (key: string) => string,
+) {
+  if (source.supplier_name) return source.supplier_name;
+  return source.source_kind === "donation"
+    ? uiText("Tặng / Không chứng từ")
+    : uiText("Nhà cung cấp chưa đặt tên");
 }

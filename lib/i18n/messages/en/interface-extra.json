@@ -941,5 +941,13 @@
   "Người quản lý (tùy chọn)": "Custodian (optional)",
   "Chọn người quản lý thiết bị": "Choose the asset custodian",
   "Chưa giao cho ai": "Not assigned",
-  "Gõ tên nhân sự…": "Type a staff name…"
+  "Gõ tên nhân sự…": "Type a staff name…",
+  "Loại hồ sơ nguồn": "Source type",
+  "Hợp đồng / Hóa đơn": "Contract / Invoice",
+  "Tặng / Không chứng từ": "Donation / No documents",
+  "Nhà cung cấp / người tặng (tùy chọn)": "Supplier / donor (optional)",
+  "Nhà cung cấp *": "Supplier *",
+  "Nguồn gốc hàng tặng *": "Donation origin *",
+  "Ai tặng, khi nào, kèm giấy tờ gì (nếu có)": "Who donated, when, and any papers",
+  "Hàng tặng cần ghi rõ nguồn gốc (ai tặng, khi nào)": "A donation needs its origin (who donated, when)"
 }

@@ -2832,3 +2832,53 @@ test("S1 Inventory: Source actuals 6x50+4x20=380 with optional factor unknown di
   assert.ok(fact1);
   assertDecimalEqual(fact1.source_snapshot.unit_cost, "100000.0000");
 });
+
+test("S1 Inventory: donation sources need no supplier but need an origin note (t2c)", async () => {
+  const service = getServiceClient();
+  const admin = await createTestUser(service, "admin", true);
+  const staff = await createTestUser(service, "staff", true);
+  const ns = "s1_" + crypto.randomUUID().slice(0, 8);
+  const fx = await setupMasterFixtures(admin, staff, ns);
+  const create = (payload) =>
+    staff.client.rpc("inventory_command", {
+      p_operation: "create_acquisition_source",
+      p_payload: { reference_date: "2026-11-17", ...payload },
+      p_retry_key: crypto.randomUUID(),
+    });
+
+  const noSupplier = await create({ source_reference: `PO_${ns}` });
+  assert.match(noSupplier.error?.message ?? "", /INACTIVE_REFERENCE/);
+
+  const noNote = await create({
+    source_reference: `TANG_A_${ns}`,
+    source_kind: "donation",
+  });
+  assert.match(noNote.error?.message ?? "", /DONATION_NOTE_REQUIRED/);
+
+  const donation = await create({
+    source_reference: `TANG_B_${ns}`,
+    source_kind: "donation",
+    notes: "Bệnh viện đối tác tặng, không kèm hóa đơn",
+  });
+  assert.ifError(donation.error);
+
+  const purchase = await create({
+    source_reference: `PO_B_${ns}`,
+    supplier_id: fx.supplierId,
+  });
+  assert.ifError(purchase.error);
+
+  const { data: rows, error } = await staff.client.rpc("inventory_read", {
+    p_resource: "sources",
+    p_filters: { q: ns, page_size: 50 },
+  });
+  assert.ifError(error);
+  const byRef = Object.fromEntries(
+    (rows.rows ?? rows.items ?? []).map((row) => [row.source_reference, row]),
+  );
+  const donated = byRef[`TANG_B_${ns}`.toUpperCase()] ?? byRef[`TANG_B_${ns}`];
+  assert.equal(donated?.source_kind, "donation");
+  assert.equal(donated?.supplier_id, null);
+  const bought = byRef[`PO_B_${ns}`.toUpperCase()] ?? byRef[`PO_B_${ns}`];
+  assert.equal(bought?.source_kind, "purchase");
+});

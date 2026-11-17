@@ -132,10 +132,15 @@ export interface InventoryStorageLocation {
   revision: string | number;
 }
 
+export type AcquisitionSourceKind = "purchase" | "donation";
+
 export interface AcquisitionRecord {
   id: string;
   source_reference: string;
-  supplier_id: string;
+  /** Older reads may omit it; treat missing as "purchase". */
+  source_kind?: AcquisitionSourceKind;
+  /** Null only for a donation recorded without a supplier. */
+  supplier_id: string | null;
   supplier_name?: string;
   reference_date: string;
   funding_source: string | null;

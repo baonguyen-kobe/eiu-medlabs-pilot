@@ -715,6 +715,7 @@ export async function reactivateLocationAction(input: {
 
 export async function createSourceAction(input: {
   source_reference: string;
+  source_kind?: "purchase" | "donation";
   supplier_id: string;
   reference_date: string;
   funding_source?: string;
@@ -731,10 +732,18 @@ export async function createSourceAction(input: {
         error: "Mã hồ sơ nguồn là bắt buộc / Source reference is required",
       };
     }
-    if (!input.supplier_id) {
+    const isDonation = input.source_kind === "donation";
+    if (!input.supplier_id && !isDonation) {
       return {
         ok: false,
         error: "Vui lòng chọn nhà cung cấp / Supplier is required",
+      };
+    }
+    if (isDonation && !input.notes?.trim()) {
+      return {
+        ok: false,
+        error:
+          "Hàng tặng cần ghi rõ nguồn gốc / A donation needs an origin note",
       };
     }
     if (!input.reference_date) {
@@ -746,7 +755,8 @@ export async function createSourceAction(input: {
 
     const result = await inventoryCommand("create_acquisition_source", {
       source_reference: sourceRef,
-      supplier_id: input.supplier_id,
+      source_kind: isDonation ? "donation" : "purchase",
+      supplier_id: input.supplier_id || null,
       reference_date: input.reference_date,
       funding_source: input.funding_source?.trim() || null,
       external_reference: input.external_reference?.trim() || null,
@@ -786,7 +796,7 @@ export async function updateSourceAction(input: {
       id: input.id,
       expected_revision: input.expected_revision,
       source_reference: sourceRef,
-      supplier_id: input.supplier_id,
+      supplier_id: input.supplier_id || null,
       reference_date: input.reference_date,
       funding_source: input.funding_source?.trim() || null,
       external_reference: input.external_reference?.trim() || null,
