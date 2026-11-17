@@ -1229,10 +1229,23 @@ test("Staff ngoài room-type scope không quản lý được phiếu thiết b�
   }
 });
 
+// Tests that switch the email mode put back what they found: CI runs the E2E
+// suite on this same database afterwards and expects the seeded "off" mode.
+async function currentDeliveryMode(service) {
+  const { data, error } = await service
+    .from("email_delivery_settings")
+    .select("delivery_mode")
+    .eq("setting_key", "primary")
+    .single();
+  assert.ifError(error);
+  return data.delivery_mode;
+}
+
 test("chuyển email Off chỉ suppress pending, không đổi row đang processing", async () => {
   const service = serviceClient();
   const admin = await signIn("admin@campus.local", "LocalAdmin123!");
   const id = crypto.randomUUID();
+  const modeBefore = await currentDeliveryMode(service);
   try {
     assert.ifError(
       (
@@ -1284,7 +1297,7 @@ test("chuyển email Off chỉ suppress pending, không đổi row đang process
   } finally {
     await service.from("email_notifications").delete().eq("id", id);
     await admin.supabase.rpc("set_email_delivery_mode", {
-      target_mode: "test",
+      target_mode: modeBefore,
     });
   }
 });
@@ -2774,6 +2787,7 @@ test("email giữ snapshot Live khi setting đổi sang Test và suppress khi t�
   const admin = await signIn("admin@campus.local", "LocalAdmin123!");
   const liveId = crypto.randomUUID();
   const offId = crypto.randomUUID();
+  const modeBefore = await currentDeliveryMode(service);
   try {
     assert.ifError(
       (
@@ -2849,7 +2863,7 @@ test("email giữ snapshot Live khi setting đổi sang Test và suppress khi t�
       .in("id", [liveId, offId]);
     await service
       .from("email_delivery_settings")
-      .update({ delivery_mode: "live" })
+      .update({ delivery_mode: modeBefore })
       .eq("setting_key", "primary");
   }
 });

@@ -156,11 +156,14 @@ test("Basic Medical calendar uses confirmation-aware cancellation and invalidati
       .fill("Calendar cancellation reason");
     await cancelDialog.getByRole("button", { name: "Hủy buổi học" }).click();
     await expect(cancelDialog).toHaveCount(0);
-    expect(
-      localSql(
-        `select schedule_status from public.class_schedules where id = '${ids.unconfirmedSchedule}';`,
-      ),
-    ).toBe("cancelled");
+    // The dialog can close before the save commits; wait for the stored status.
+    await expect
+      .poll(() =>
+        localSql(
+          `select schedule_status from public.class_schedules where id = '${ids.unconfirmedSchedule}';`,
+        ),
+      )
+      .toBe("cancelled");
     expect(
       localSql(
         `select schedule_status from public.class_schedules where id = '${ids.confirmedSchedule}';`,
