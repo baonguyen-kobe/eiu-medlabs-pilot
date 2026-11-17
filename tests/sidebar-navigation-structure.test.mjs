@@ -200,7 +200,7 @@ test("Sidebar Navigation: Viewer (Basic Medical only) sees conditional 'Thiết 
     ],
   );
 
-  // Ensure 'Danh mục TB Y cơ sở' is NOT present
+  // Ensure the Basic Medical catalog entry is NOT present
   const allHrefs = nav.flatMap((g) => g.items.map((i) => i.href));
   assert.ok(!allHrefs.includes("/basic-medical/equipment"));
   assert.ok(
@@ -237,7 +237,7 @@ test("Sidebar Navigation: Basic Medical-only lecturer enters the Basic Medical e
   assert.ok(!items.some((item) => item.label === "Phiếu thiết bị của tôi"));
 });
 
-test("Sidebar Navigation: Staff with Basic Medical scope sees 'Danh mục TB Y cơ sở' under Quản trị", () => {
+test("Sidebar Navigation: Staff with Basic Medical scope sees one Danh mục entry under Quản trị", () => {
   const nav = buildNavigation(
     ["staff"],
     ["basic_medical"],
@@ -254,7 +254,7 @@ test("Sidebar Navigation: Staff with Basic Medical scope sees 'Danh mục TB Y c
   const quanTriGroup = nav.find((g) => g.label === "Quản trị");
   assert.deepEqual(
     quanTriGroup.items.map((i) => ({ label: i.label, href: i.href })),
-    [{ label: "Danh mục TB Y cơ sở", href: "/basic-medical/equipment" }],
+    [{ label: "Danh mục", href: "/basic-medical/equipment" }],
   );
 });
 

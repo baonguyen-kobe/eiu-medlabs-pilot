@@ -120,7 +120,7 @@ test("Chuyên viên ngoài scope không thấy và không mở được thiết 
 }) => {
   await loginAsStaff(page);
   await expect(
-    page.getByRole("link", { name: "Danh mục TB Y cơ sở" }),
+    page.getByRole("link", { name: "Danh mục", exact: true }),
   ).toHaveCount(0);
   await page.goto("/basic-medical/equipment");
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -207,7 +207,7 @@ test("Người xem Y cơ sở không truy cập Danh sách thiết bị Y cơ s�
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
     await expect(page).toHaveURL(/\/basic-medical\/schedules$/);
     await expect(
-      page.getByRole("link", { name: "Danh mục TB Y cơ sở" }),
+      page.getByRole("link", { name: "Danh mục", exact: true }),
     ).toHaveCount(0);
     await page.goto("/basic-medical/equipment");
     await expect(

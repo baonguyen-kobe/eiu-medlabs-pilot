@@ -1,3 +1,6 @@
+import { CatalogTabs } from "@/components/catalog-tabs";
+import { getViewer } from "@/lib/viewer";
+import { canManageBasicMedicalWorkspace } from "@/lib/workspace-access";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
@@ -17,6 +20,8 @@ interface CatalogPageProps {
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const viewer = await requireInventoryViewer();
+  const { roomTypes } = await getViewer();
+  const roomTypeCodes = roomTypes.map(({ code }) => code);
   const params = await searchParams;
 
   const q = (params.q ?? "").trim();
@@ -44,6 +49,14 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   return (
     <div className="space-y-6">
+      <CatalogTabs
+        active="/inventory/catalog"
+        canAdmin={viewer.isAdmin}
+        canBasicMedical={
+          viewer.isAdmin ||
+          canManageBasicMedicalWorkspace(viewer.roles, roomTypeCodes)
+        }
+      />
       <CatalogView
         initialItems={itemsRes.rows}
         total={itemsRes.total}

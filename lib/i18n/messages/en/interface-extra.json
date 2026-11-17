@@ -1250,5 +1250,8 @@
   "Đang bận": "Busy",
   "Không cấp được": "Not issuable",
   "{0} giao dịch": "{0} transactions",
-  "{0} thiết bị": "{0} assets"
+  "{0} thiết bị": "{0} assets",
+  "Danh mục": "Catalogs",
+  "Thiết bị Skills lab": "Skills lab equipment",
+  "Vật tư kho": "Inventory items"
 }
