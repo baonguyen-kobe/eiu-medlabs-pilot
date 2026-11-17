@@ -950,7 +950,6 @@
   "Nguồn gốc hàng tặng *": "Donation origin *",
   "Ai tặng, khi nào, kèm giấy tờ gì (nếu có)": "Who donated, when, and any papers",
   "Hàng tặng cần ghi rõ nguồn gốc (ai tặng, khi nào)": "A donation needs its origin (who donated, when)",
-  "Thiết bị theo phòng": "Room equipment",
   "Thiết bị cố định và đang mượn tại từng phòng học.": "Fixed and borrowed equipment in each room.",
   "Thiết bị của phòng": "Room equipment detail",
   "Cố định, tạm mượn và tài sản có mã của một phòng.": "Fixed, borrowed and coded assets of one room.",
@@ -1010,5 +1009,6 @@
   "Cần ghi lý do ghép.": "A reason is required.",
   "Chọn mã hàng trong kho.": "Choose an inventory SKU.",
   "Hệ số quy đổi phải là số dương.": "The conversion factor must be positive.",
-  "Đã ghép.": "Mapped."
+  "Đã ghép.": "Mapped.",
+  "Kho theo phòng": "Room stock"
 }
