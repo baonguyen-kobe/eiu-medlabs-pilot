@@ -43,10 +43,14 @@ import type { AppRole } from "@/lib/viewer";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
-const EARLY_HANDOVER_ADMIN_EMAILS = new Set([
-  "admin@campus.local",
-  "bao.nguyen@eiu.edu.vn",
-]);
+// Mirrors the rank order in manager_confirm_equipment_status.
+const STATUS_RANK: Record<string, number> = {
+  new: 0,
+  preparing: 1,
+  handed_over: 2,
+  returned: 3,
+  completed: 4,
+};
 
 const dateTimeFormatter = new Intl.DateTimeFormat("vi-VN", {
   day: "2-digit",
@@ -771,7 +775,6 @@ export function EquipmentRequestList({
   canAddItems = false,
   catalog = [],
   viewerId,
-  viewerEmail = "",
   viewerRoles = [],
   manageableDomains = [],
   initialRequestId,
@@ -782,7 +785,6 @@ export function EquipmentRequestList({
   canAddItems?: boolean;
   catalog?: EquipmentCatalogListItem[];
   viewerId?: string;
-  viewerEmail?: string;
   viewerRoles?: AppRole[];
   manageableDomains?: EquipmentRequestDomain[];
   initialRequestId?: string;
@@ -825,9 +827,8 @@ export function EquipmentRequestList({
     phase: "handover" | "return";
   } | null>(null);
   const [isPending, startTransition] = useTransition();
-  const canConfirmHandoverEarly =
-    viewerRoles.includes("admin") &&
-    EARLY_HANDOVER_ADMIN_EMAILS.has(viewerEmail.trim().toLowerCase());
+  // Only an Admin may move a request back (t2b).
+  const canRollBack = viewerRoles.includes("admin");
   const [currentStatuses, setCurrentStatuses] = useState<
     Record<string, EquipmentRequestStatus>
   >(() => Object.fromEntries(items.map((item) => [item.id, item.status])));
@@ -941,12 +942,8 @@ export function EquipmentRequestList({
     )
       return;
     if (
-      status === "handed_over" &&
-      currentStatuses[requestId] === "new" &&
-      canConfirmHandoverEarly &&
-      !window.confirm(
-        "Phiếu chưa chuyển sang Đã soạn. Tài khoản quản trị này được phép xác nhận giao trước. Bạn có chắc muốn tiếp tục?",
-      )
+      !canRollBack &&
+      STATUS_RANK[status] < STATUS_RANK[currentStatuses[requestId]]
     )
       return;
     setUpdatingId(requestId);
@@ -1527,8 +1524,10 @@ export function EquipmentRequestList({
                                             (isPending &&
                                               updatingId === request.id) ||
                                             (option.value === "handed_over" &&
-                                              status === "new" &&
-                                              !canConfirmHandoverEarly) ||
+                                              status === "new") ||
+                                            (!canRollBack &&
+                                              STATUS_RANK[option.value] <
+                                                STATUS_RANK[status]) ||
                                             (option.value === "completed" &&
                                               status !== "completed") ||
                                             (

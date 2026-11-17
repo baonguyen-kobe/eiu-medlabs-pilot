@@ -3892,6 +3892,24 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
     assert.ifError(responsibleEarlySign.error);
     assert.equal(responsibleEarlySign.data.status, "handed_over");
 
+    // t2b: a handed-over request cannot be cancelled, and only an Admin
+    // may move it back (no reason required); the rollback is audited.
+    const cancelAfterHandover = await staff.supabase.rpc(
+      "soft_cancel_equipment_request",
+      { target_request_id: requestId },
+    );
+    assert.match(
+      cancelAfterHandover.error?.message ?? "",
+      /EQUIPMENT_REQUEST_CANCEL_AFTER_HANDOVER/,
+    );
+    const staffRollback = await staff.supabase.rpc(
+      "manager_confirm_equipment_status",
+      { target_request_id: requestId, target_status: "new" },
+    );
+    assert.match(
+      staffRollback.error?.message ?? "",
+      /EQUIPMENT_REQUEST_ROLLBACK_ADMIN_ONLY/,
+    );
     assert.ifError(
       (
         await admin.supabase.rpc("manager_confirm_equipment_status", {
@@ -3900,6 +3918,15 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
         })
       ).error,
     );
+    const { data: rollbackAudit } = await admin.supabase
+      .from("audit_logs")
+      .select("metadata")
+      .eq("entity_id", requestId)
+      .eq("action", "equipment_request.status_rolled_back");
+    assert.deepEqual(rollbackAudit?.at(-1)?.metadata, {
+      from: "handed_over",
+      to: "new",
+    });
     assert.match(
       (
         await staff.supabase.rpc("manager_confirm_equipment_status", {
