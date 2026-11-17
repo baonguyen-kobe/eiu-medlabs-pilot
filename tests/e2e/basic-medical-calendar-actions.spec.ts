@@ -194,11 +194,13 @@ test("Basic Medical calendar uses confirmation-aware cancellation and invalidati
       .fill("Calendar invalidation reason");
     await invalidateDialog.getByRole("button", { name: "Vô hiệu hóa" }).click();
     await expect(invalidateDialog).toHaveCount(0);
-    expect(
-      localSql(
-        `select count(*) from public.basic_medical_session_confirmations where id = '${ids.confirmation}' and invalidated_at is not null;`,
-      ),
-    ).toBe("1");
+    await expect
+      .poll(() =>
+        localSql(
+          `select count(*) from public.basic_medical_session_confirmations where id = '${ids.confirmation}' and invalidated_at is not null;`,
+        ),
+      )
+      .toBe("1");
     expect(
       localSql(
         `select count(*) from public.basic_medical_session_equipment_checks where confirmation_id = '${ids.confirmation}';`,
