@@ -5523,6 +5523,7 @@ export type Database = {
       }
       basic_medical_cutover_preview: { Args: never; Returns: Json }
       basic_medical_mapping_read: { Args: never; Returns: Json }
+      list_equipment_skill_suggestions: { Args: never; Returns: string[] }
       map_basic_medical_inventory_item: {
         Args: {
           p_base_units_per_unit: string
