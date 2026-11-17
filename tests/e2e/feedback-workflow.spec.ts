@@ -408,12 +408,14 @@ test("sidebar logo stays complete on narrow screens", async ({
     logoPresentation.frameHeight * 3,
   );
   expect(logoPresentation.objectFit).toBe("contain");
+  // 4% band (owner decision, 2026-11-17): Linux renders the title 3.2% wider
+  // than Windows, which the earlier 3% band could not absorb.
   expect(
     logoPresentation.titleWidth / logoPresentation.frameWidth,
-  ).toBeGreaterThan(0.97);
+  ).toBeGreaterThan(0.96);
   expect(
     logoPresentation.titleWidth / logoPresentation.frameWidth,
-  ).toBeLessThan(1.03);
+  ).toBeLessThan(1.04);
   await sidebarLogo.screenshot({
     path: testInfo.outputPath("sidebar-logo-mobile.png"),
   });
