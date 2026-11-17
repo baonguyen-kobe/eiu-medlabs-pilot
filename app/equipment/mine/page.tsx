@@ -1,10 +1,10 @@
 import { EquipmentRequestList } from "@/components/equipment-request-list";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { canManageEquipmentRequestItems } from "@/lib/equipment-requests";
 import {
-  canManageEquipmentRequestItems,
-  equipmentRequestSelect,
-} from "@/lib/equipment-requests";
-import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
+  loadEquipmentRequestPage,
+  type EquipmentRequestSearchParams,
+} from "@/lib/equipment-request-page";
 import { getViewer } from "@/lib/viewer";
 import { redirect } from "next/navigation";
 import {
@@ -16,7 +16,7 @@ import { LocalizedText } from "@/components/i18n/language-provider";
 export default async function MyEquipmentRequestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ request?: string }>;
+  searchParams: Promise<EquipmentRequestSearchParams>;
 }) {
   const {
     supabase,
@@ -35,13 +35,13 @@ export default async function MyEquipmentRequestsPage({
   }
   const canAddItems = canManageEquipmentRequestItems(roles);
 
-  const [query, { data, error }, { data: catalog }] = await Promise.all([
-    searchParams,
-    supabase
-      .from("equipment_requests")
-      .select(equipmentRequestSelect)
-      .or(`registrant_id.eq.${userId},responsible_lecturer_id.eq.${userId}`)
-      .order("created_at", { ascending: false }),
+  const params = await searchParams;
+  const [{ requests, paging, focusId }, { data: catalog }] = await Promise.all([
+    loadEquipmentRequestPage(supabase, {
+      params,
+      domains: ["nursing_skills", "basic_medical"],
+      mine: true,
+    }),
     canAddItems
       ? supabase
           .from("equipment_catalog")
@@ -52,7 +52,6 @@ export default async function MyEquipmentRequestsPage({
           .order("item_name")
       : Promise.resolve({ data: [] }),
   ]);
-  if (error) throw new Error(`My equipment requests: ${error.message}`);
 
   return (
     <WorkspaceShell
@@ -71,7 +70,8 @@ export default async function MyEquipmentRequestsPage({
       }
     >
       <EquipmentRequestList
-        requests={data ?? []}
+        requests={requests}
+        paging={paging}
         emptyMessage="Bạn chưa có phiếu thiết bị liên quan."
         canManageStatus={roles.some((role) =>
           ["admin", "staff"].includes(role),
@@ -80,9 +80,7 @@ export default async function MyEquipmentRequestsPage({
         catalog={catalog ?? []}
         viewerId={userId}
         viewerRoles={roles}
-        initialRequestId={
-          isEquipmentRequestId(query.request) ? query.request : undefined
-        }
+        initialRequestId={focusId}
       />
     </WorkspaceShell>
   );

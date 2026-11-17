@@ -32,12 +32,3 @@ export function isEquipmentRequestId(value: string | undefined) {
     ),
   );
 }
-
-export function equipmentRequestTargetPage(
-  requestIds: string[],
-  requestId: string | undefined,
-  pageSize: number,
-) {
-  const index = requestId ? requestIds.indexOf(requestId) : -1;
-  return index < 0 ? 1 : Math.floor(index / pageSize) + 1;
-}

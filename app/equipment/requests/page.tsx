@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { EquipmentRequestList } from "@/components/equipment-request-list";
 import { WorkspaceShell } from "@/components/workspace-shell";
-import { equipmentRequestSelect } from "@/lib/equipment-requests";
-import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
+import {
+  loadEquipmentRequestPage,
+  type EquipmentRequestSearchParams,
+} from "@/lib/equipment-request-page";
 import { getViewer } from "@/lib/viewer";
 import {
   canUseEquipmentOperations,
@@ -13,7 +15,7 @@ import { LocalizedText } from "@/components/i18n/language-provider";
 export default async function EquipmentRequestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ request?: string }>;
+  searchParams: Promise<EquipmentRequestSearchParams>;
 }) {
   const {
     supabase,
@@ -32,13 +34,12 @@ export default async function EquipmentRequestsPage({
     redirect("/equipment/mine");
   }
 
-  const [query, { data, error }, { data: catalog }] = await Promise.all([
-    searchParams,
-    supabase
-      .from("equipment_requests")
-      .select(equipmentRequestSelect)
-      .in("request_domain", manageableDomains)
-      .order("created_at", { ascending: false }),
+  const params = await searchParams;
+  const [{ requests, paging, focusId }, { data: catalog }] = await Promise.all([
+    loadEquipmentRequestPage(supabase, {
+      params,
+      domains: manageableDomains,
+    }),
     supabase
       .from("equipment_catalog")
       .select(
@@ -47,7 +48,6 @@ export default async function EquipmentRequestsPage({
       .eq("is_active", true)
       .order("item_name"),
   ]);
-  if (error) throw new Error(`Equipment requests: ${error.message}`);
 
   return (
     <WorkspaceShell
@@ -68,7 +68,8 @@ export default async function EquipmentRequestsPage({
       }
     >
       <EquipmentRequestList
-        requests={data ?? []}
+        requests={requests}
+        paging={paging}
         emptyMessage="Chưa có phiếu đăng ký thiết bị."
         canManageStatus
         canAddItems
@@ -76,9 +77,7 @@ export default async function EquipmentRequestsPage({
         catalog={catalog ?? []}
         viewerId={userId}
         viewerRoles={roles}
-        initialRequestId={
-          isEquipmentRequestId(query.request) ? query.request : undefined
-        }
+        initialRequestId={focusId}
       />
     </WorkspaceShell>
   );

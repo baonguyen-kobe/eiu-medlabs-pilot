@@ -37,15 +37,3 @@ test("calendar uses role-aware exact-request deep links", () => {
     `/equipment/mine?request=${id}`,
   );
 });
-
-test("deep link target page uses the request index and does not expose unknown ids", () => {
-  const ids = Array.from({ length: 31 }, (_, index) => `request-${index}`);
-  assert.equal(
-    calendarRequest.equipmentRequestTargetPage(ids, "request-30", 20),
-    2,
-  );
-  assert.equal(
-    calendarRequest.equipmentRequestTargetPage(ids, "not-visible", 20),
-    1,
-  );
-});
