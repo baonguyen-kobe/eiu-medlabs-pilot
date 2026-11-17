@@ -286,7 +286,7 @@ export function AssetCorrectionForm({
               className="input-field text-xs w-full"
             >
               <option value="not_required">
-                {uiText("Không yêu cầu hạn dùng / Not Required")}
+                {uiText("Không yêu cầu hạn dùng")}
               </option>
               <option value="day">{uiText("Theo ngày (YYYY-MM-DD)")}</option>
               <option value="month">{uiText("Theo tháng (YYYY-MM)")}</option>

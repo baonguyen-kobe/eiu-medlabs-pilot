@@ -41,43 +41,43 @@ export async function receiveAssetAction(input: {
     if (!input.catalog_item_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn vật tư / Catalog item is required",
+        error: "Vui lòng chọn vật tư",
       };
     }
     if (!input.source_line_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn dòng hồ sơ nguồn / Source line is required",
+        error: "Vui lòng chọn dòng hồ sơ nguồn",
       };
     }
     if (!input.location_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn vị trí lưu trữ / Location is required",
+        error: "Vui lòng chọn vị trí lưu trữ",
       };
     }
     if (!input.intake_reference?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập số chứng từ nhận / Intake reference is required",
+        error: "Vui lòng nhập số chứng từ nhận",
       };
     }
     if (!input.row_key?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập định danh dòng (Row key) / Row key is required",
+        error: "Vui lòng nhập định danh dòng (Row key)",
       };
     }
     if (!input.reason?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do nhận / Reason is required",
+        error: "Vui lòng nhập lý do nhận",
       };
     }
     if (!input.evidence_note?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập ghi chú bằng chứng / Evidence note is required",
+        error: "Vui lòng nhập ghi chú bằng chứng",
       };
     }
 
@@ -160,38 +160,37 @@ export async function openAssetAction(input: {
     if (!input.catalog_item_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn vật tư / Catalog item is required",
+        error: "Vui lòng chọn vật tư",
       };
     }
     if (!input.location_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn vị trí lưu trữ / Location is required",
+        error: "Vui lòng chọn vị trí lưu trữ",
       };
     }
     if (!input.intake_reference?.trim()) {
       return {
         ok: false,
-        error:
-          "Vui lòng nhập mã biên bản kiểm kê đầu kỳ / Opening manifest reference is required",
+        error: "Vui lòng nhập mã biên bản kiểm kê đầu kỳ",
       };
     }
     if (!input.row_key?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập định danh dòng (Row key) / Row key is required",
+        error: "Vui lòng nhập định danh dòng (Row key)",
       };
     }
     if (!input.reason?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do ghi nhận tồn đầu kỳ / Reason is required",
+        error: "Vui lòng nhập lý do ghi nhận tồn đầu kỳ",
       };
     }
     if (!input.evidence_note?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập ghi chú bằng chứng / Evidence note is required",
+        error: "Vui lòng nhập ghi chú bằng chứng",
       };
     }
 

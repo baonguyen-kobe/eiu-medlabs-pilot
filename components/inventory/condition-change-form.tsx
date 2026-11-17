@@ -480,9 +480,7 @@ export function ConditionChangeForm({
         <div className="font-bold flex items-center gap-1.5 text-amber-950">
           <AlertTriangle size={16} className="text-amber-600 shrink-0" />
           <span>
-            {uiText(
-              "Quy tắc nghiệp vụ: Chỉ cho phép Hạ phẩm cấp (Tốt → Hỏng) / Deterioration Only",
-            )}
+            {uiText("Quy tắc nghiệp vụ: Chỉ cho phép Hạ phẩm cấp (Tốt → Hỏng)")}
           </span>
         </div>
         <p className="text-slate-700 leading-relaxed">
@@ -506,11 +504,7 @@ export function ConditionChangeForm({
       {/* Header form card */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span>
-            {uiText(
-              "Thông tin Ghi nhận Hạ phẩm cấp / Condition Deterioration Details",
-            )}
-          </span>
+          <span>{uiText("Thông tin Ghi nhận Hạ phẩm cấp")}</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 min-w-0">
@@ -572,7 +566,7 @@ export function ConditionChangeForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                {uiText("Chọn lô hàng tốt tại kho / Available Good Stock (")}
+                {uiText("Chọn lô hàng tốt tại kho")}
                 {totalStock} {uiText("lô)")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -728,7 +722,7 @@ export function ConditionChangeForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              {uiText("Danh sách vật tư báo hỏng / Items to Mark Damaged (")}
+              {uiText("Danh sách vật tư báo hỏng")}
               {lines.length})
             </h3>
             <p className="text-xs text-slate-500">
@@ -911,14 +905,14 @@ export function ConditionChangeForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                {uiText("Hủy bỏ / Cancel")}
+                {uiText("Hủy bỏ")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold py-2 px-4 rounded-lg"
               >
-                {uiText("Ghi sổ báo hỏng / Confirm Deterioration")}
+                {uiText("Ghi sổ báo hỏng")}
               </button>
             </div>
           </div>

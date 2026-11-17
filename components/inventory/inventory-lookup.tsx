@@ -239,11 +239,7 @@ export function InventoryLookup<T = Record<string, unknown>>({
         setTotal(res.total);
       } catch (err: unknown) {
         if (requestId !== latestRequest.current) return;
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Lỗi tải dữ liệu / Failed to load options",
-        );
+        setError(err instanceof Error ? err.message : "Lỗi tải dữ liệu");
       } finally {
         if (requestId === latestRequest.current) setLoading(false);
       }
@@ -478,14 +474,12 @@ export function InventoryLookup<T = Record<string, unknown>>({
                     onClick={() => fetchOptions(q, page)}
                     className="text-xs text-[var(--eiu-blue)] underline font-medium"
                   >
-                    {uiText("Thử lại / Retry")}
+                    {uiText("Thử lại")}
                   </button>
                 </div>
               ) : rows.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[var(--ink-600)]">
-                  {uiText(
-                    "Không tìm thấy kết quả phù hợp / No matching results",
-                  )}
+                  {uiText("Không tìm thấy kết quả phù hợp")}
                 </div>
               ) : (
                 rows.map((row, idx) => {

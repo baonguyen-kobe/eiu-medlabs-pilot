@@ -150,15 +150,11 @@ export function AssetManufacturerFields({
             }
             className="input-field text-xs w-full"
           >
-            <option value="ready">{uiText("Sẵn sàng / Ready")}</option>
-            <option value="under_maintenance">
-              {uiText("Bảo trì / Under Maintenance")}
-            </option>
-            <option value="damaged">{uiText("Hư hỏng / Damaged")}</option>
-            <option value="in_use">{uiText("Đang sử dụng / In Use")}</option>
-            <option value="prohibited">
-              {uiText("Cấm lưu hành / Prohibited")}
-            </option>
+            <option value="ready">{uiText("Sẵn sàng")}</option>
+            <option value="under_maintenance">{uiText("Bảo trì")}</option>
+            <option value="damaged">{uiText("Hư hỏng")}</option>
+            <option value="in_use">{uiText("Đang sử dụng")}</option>
+            <option value="prohibited">{uiText("Cấm lưu hành")}</option>
           </select>
         </div>
 

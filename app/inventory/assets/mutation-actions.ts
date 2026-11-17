@@ -36,7 +36,7 @@ export async function setAssetStateAction(input: {
     if (!input.id?.trim()) {
       return {
         ok: false,
-        error: "Mã định danh tài sản không hợp lệ / Asset ID is required",
+        error: "Mã định danh tài sản không hợp lệ",
       };
     }
     if (
@@ -45,20 +45,19 @@ export async function setAssetStateAction(input: {
     ) {
       return {
         ok: false,
-        error: "Phiên bản kỳ vọng không hợp lệ / Invalid expected revision",
+        error: "Phiên bản kỳ vọng không hợp lệ",
       };
     }
     if (!input.location_id?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng chọn vị trí lưu trữ / Location is required",
+        error: "Vui lòng chọn vị trí lưu trữ",
       };
     }
     if (!input.operational_status) {
       return {
         ok: false,
-        error:
-          "Vui lòng chọn trạng thái vận hành / Operational status is required",
+        error: "Vui lòng chọn trạng thái vận hành",
       };
     }
     if (!Object.prototype.hasOwnProperty.call(input, "custodian_id")) {
@@ -71,13 +70,13 @@ export async function setAssetStateAction(input: {
     if (!input.reason?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do thay đổi trạng thái / Reason is required",
+        error: "Vui lòng nhập lý do thay đổi trạng thái",
       };
     }
     if (!input.evidence_note?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập ghi chú bằng chứng / Evidence note is required",
+        error: "Vui lòng nhập ghi chú bằng chứng",
       };
     }
 
@@ -131,7 +130,7 @@ export async function setAssetLifecycleAction(input: {
     if (!input.id?.trim()) {
       return {
         ok: false,
-        error: "Mã định danh tài sản không hợp lệ / Asset ID is required",
+        error: "Mã định danh tài sản không hợp lệ",
       };
     }
     if (
@@ -140,26 +139,25 @@ export async function setAssetLifecycleAction(input: {
     ) {
       return {
         ok: false,
-        error: "Phiên bản kỳ vọng không hợp lệ / Invalid expected revision",
+        error: "Phiên bản kỳ vọng không hợp lệ",
       };
     }
     if (!input.lifecycle_status) {
       return {
         ok: false,
-        error:
-          "Vui lòng chọn trạng thái vòng đời / Lifecycle status is required",
+        error: "Vui lòng chọn trạng thái vòng đời",
       };
     }
     if (!input.reason?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do thay đổi vòng đời / Reason is required",
+        error: "Vui lòng nhập lý do thay đổi vòng đời",
       };
     }
     if (!input.evidence_note?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập ghi chú bằng chứng / Evidence note is required",
+        error: "Vui lòng nhập ghi chú bằng chứng",
       };
     }
 
@@ -212,7 +210,7 @@ export async function correctAssetAction(input: {
     if (!input.id?.trim()) {
       return {
         ok: false,
-        error: "Mã định danh tài sản không hợp lệ / Asset ID is required",
+        error: "Mã định danh tài sản không hợp lệ",
       };
     }
     if (
@@ -221,14 +219,13 @@ export async function correctAssetAction(input: {
     ) {
       return {
         ok: false,
-        error: "Phiên bản kỳ vọng không hợp lệ / Invalid expected revision",
+        error: "Phiên bản kỳ vọng không hợp lệ",
       };
     }
     if (!input.corrects_event_id?.trim()) {
       return {
         ok: false,
-        error:
-          "Vui lòng chọn sự kiện cần đính chính / Event to correct is required",
+        error: "Vui lòng chọn sự kiện cần đính chính",
       };
     }
 
@@ -253,13 +250,13 @@ export async function correctAssetAction(input: {
     if (!input.reason?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do đính chính / Reason is required",
+        error: "Vui lòng nhập lý do đính chính",
       };
     }
     if (!input.evidence_note?.trim()) {
       return {
         ok: false,
-        error: "Vui lòng nhập ghi chú bằng chứng / Evidence note is required",
+        error: "Vui lòng nhập ghi chú bằng chứng",
       };
     }
 

@@ -190,7 +190,7 @@ export function SuppliersView({
             onClick={() => setCreateOpen(true)}
           >
             <Plus size={15} />
-            {uiText(" Thêm nhà cung cấp mới / Add Supplier")}
+            {uiText(" Thêm nhà cung cấp mới")}
           </button>
         </div>
         <span className="text-xs text-slate-500">
@@ -214,9 +214,7 @@ export function SuppliersView({
               />
               <input
                 id="suppliers-search"
-                aria-label={uiText(
-                  "Tìm theo tên, mã số thuế, liên hệ / Search Supplier",
-                )}
+                aria-label={uiText("Tìm theo tên, mã số thuế, liên hệ")}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 placeholder={uiText("Tìm theo tên, mã số thuế, liên hệ...")}
@@ -235,20 +233,14 @@ export function SuppliersView({
           <div>
             <select
               id="suppliers-active-filter"
-              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
+              aria-label={uiText("Lọc theo trạng thái")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">
-                {uiText("Tất cả trạng thái / All Statuses")}
-              </option>
-              <option value="active">
-                {uiText("Đang hoạt động / Active")}
-              </option>
-              <option value="inactive">
-                {uiText("Đã ngừng hoạt động / Inactive")}
-              </option>
+              <option value="all">{uiText("Tất cả trạng thái")}</option>
+              <option value="active">{uiText("Đang hoạt động")}</option>
+              <option value="inactive">{uiText("Đã ngừng hoạt động")}</option>
             </select>
           </div>
         </div>
@@ -259,16 +251,12 @@ export function SuppliersView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">
-                  {uiText("Tên nhà cung cấp / Name")}
-                </th>
-                <th className="py-3 px-4">{uiText("Mã số thuế / Tax")}</th>
-                <th className="py-3 px-4">
-                  {uiText("Thông tin liên hệ / Contact")}
-                </th>
-                <th className="py-3 px-4">{uiText("Ghi chú / Notes")}</th>
-                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
-                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
+                <th className="py-3 px-4">{uiText("Tên nhà cung cấp")}</th>
+                <th className="py-3 px-4">{uiText("Mã số thuế")}</th>
+                <th className="py-3 px-4">{uiText("Thông tin liên hệ")}</th>
+                <th className="py-3 px-4">{uiText("Ghi chú")}</th>
+                <th className="py-3 px-4">{uiText("Trạng thái")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản")}</th>
                 <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
@@ -515,7 +503,7 @@ function CreateSupplierDialog({
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -684,13 +672,13 @@ function EditSupplierDialog({
             id="edit-supplier-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Sửa nhà cung cấp / Edit Supplier")}
+            {uiText("Sửa nhà cung cấp")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>

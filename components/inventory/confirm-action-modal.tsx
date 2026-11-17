@@ -106,7 +106,7 @@ export function ConfirmActionModal({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!reason.trim()) {
-      setError("Vui lòng nhập lý do thực hiện thao tác / Reason is required");
+      setError("Vui lòng nhập lý do thực hiện thao tác");
       textareaRef.current?.focus();
       return;
     }
@@ -234,7 +234,7 @@ export function ConfirmActionModal({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"

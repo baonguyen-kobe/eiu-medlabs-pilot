@@ -32,7 +32,7 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-          {uiText("Nhãn mã phản hồi nhanh / QR Asset Label")}
+          {uiText("Nhãn mã phản hồi nhanh")}
         </h3>
         <div className="flex items-center gap-2 print:hidden">
           <button

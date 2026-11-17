@@ -78,9 +78,7 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "transfer" ? "text-sky-600" : "text-slate-400"}`}
           />
-          <span className="truncate">
-            {uiText("Điều chuyển kho / Transfer")}
-          </span>
+          <span className="truncate">{uiText("Điều chuyển kho")}</span>
         </button>
 
         <button
@@ -96,9 +94,7 @@ export function OperationsHub({
             size={16}
             className={`shrink-0 ${activeTab === "condition" ? "text-amber-600" : "text-slate-400"}`}
           />
-          <span className="truncate">
-            {uiText("Hạ phẩm cấp / Deterioration")}
-          </span>
+          <span className="truncate">{uiText("Hạ phẩm cấp")}</span>
         </button>
 
         <button
@@ -117,7 +113,7 @@ export function OperationsHub({
           <span className="truncate">
             {uiText("Kiểm kê ")}
             {"&"}
-            {uiText(" Đối soát / Stocktake")}
+            {uiText(" Đối soát")}
           </span>
         </button>
 
@@ -178,7 +174,7 @@ export function OperationsHub({
               <span>
                 {uiText("Tra cứu Bách phân vị Số dư Lô ")}
                 {"&"}
-                {uiText(" Phiên bản / Bounded Operation Stock Preview")}
+                {uiText(" Phiên bản")}
               </span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">

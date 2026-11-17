@@ -119,7 +119,7 @@ export function AssetListView({
             className="button button-primary text-xs"
           >
             <Plus size={14} />
-            <span>{uiText("Tiếp nhận Thiết bị / Receive Asset")}</span>
+            <span>{uiText("Tiếp nhận Thiết bị")}</span>
           </Link>
 
           {isAdmin && (

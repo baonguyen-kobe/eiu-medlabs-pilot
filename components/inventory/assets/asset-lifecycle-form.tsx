@@ -143,7 +143,7 @@ export function AssetLifecycleForm({
             </span>
           </div>
           <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide mt-1">
-            {uiText("Quyết định Vòng đời Thiết bị / Lifecycle Transition")}
+            {uiText("Quyết định Vòng đời Thiết bị")}
           </h3>
         </div>
         <div className="flex items-center gap-2 text-xs">

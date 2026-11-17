@@ -64,7 +64,7 @@ export function AssetQrLookup() {
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div>
         <h3 className="text-base font-semibold text-slate-900">
-          {uiText("Tra cứu & Quét mã QR Thiết bị / Asset QR Lookup")}
+          {uiText("Tra cứu & Quét mã QR Thiết bị")}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">
           {uiText("Nhập mã hoặc dùng máy quét phần cứng 2D/QR (chuẩn")}{" "}
@@ -76,7 +76,7 @@ export function AssetQrLookup() {
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <label htmlFor="asset-scanner-input" className="sr-only">
-            {uiText("Mã tài sản hoặc quét QR / Asset Code")}
+            {uiText("Mã tài sản hoặc quét QR")}
           </label>
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
             <Search size={16} />
@@ -100,7 +100,7 @@ export function AssetQrLookup() {
             disabled={isPending || !code.trim()}
             className="button button-primary text-xs px-4 whitespace-nowrap"
           >
-            {isPending ? uiText("Đang tra cứu...") : uiText("Tra cứu / Lookup")}
+            {isPending ? uiText("Đang tra cứu...") : uiText("Tra cứu")}
           </button>
           {result && (
             <button
@@ -128,7 +128,7 @@ export function AssetQrLookup() {
         {result && !result.error && !result.found && (
           <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
             <div className="font-semibold">
-              {uiText("Không tìm thấy tài sản / Asset Not Found")}
+              {uiText("Không tìm thấy tài sản")}
             </div>
             <div className="mt-1">
               {uiText("Không có tài sản nào khớp với mã ")}

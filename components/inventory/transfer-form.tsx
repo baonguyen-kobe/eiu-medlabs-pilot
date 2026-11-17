@@ -276,9 +276,7 @@ export function TransferForm({
       (l) => l.originId === stock.origin_id && l.condition === stock.condition,
     );
     if (existing) {
-      setValidationError(
-        "Lô vật tư này đã có trong danh sách điều chuyển / Line already added",
-      );
+      setValidationError("Lô vật tư này đã có trong danh sách điều chuyển");
       return;
     }
 
@@ -500,9 +498,7 @@ export function TransferForm({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <ArrowRight className="text-sky-600" size={18} />
-          <span>
-            {uiText("Thông tin Điều chuyển kho / Stock Transfer Details")}
-          </span>
+          <span>{uiText("Thông tin Điều chuyển kho")}</span>
         </h2>
         <p className="text-xs text-slate-500">
           {uiText(
@@ -589,9 +585,7 @@ export function TransferForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                {uiText(
-                  "Chọn vật tư từ kho nguồn / Available Stock in Source (",
-                )}
+                {uiText("Chọn vật tư từ kho nguồn")}
                 {totalStock}
                 {uiText(" lô)")}
               </h3>
@@ -757,7 +751,7 @@ export function TransferForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              {uiText("Danh sách vật tư điều chuyển / Lines to Transfer (")}
+              {uiText("Danh sách vật tư điều chuyển")}
               {lines.length})
             </h3>
             <p className="text-xs text-slate-500">
@@ -948,14 +942,14 @@ export function TransferForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                {uiText("Hủy bỏ / Cancel")}
+                {uiText("Hủy bỏ")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button button-primary text-xs"
               >
-                {uiText("Ghi sổ điều chuyển / Confirm Transfer")}
+                {uiText("Ghi sổ điều chuyển")}
               </button>
             </div>
           </div>

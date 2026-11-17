@@ -615,7 +615,7 @@ export function AcquisitionsView({
       {voidSource ? (
         <ConfirmActionModal
           open={Boolean(voidSource)}
-          title={uiText("Hủy hồ sơ nguồn / Void Acquisition Source")}
+          title={uiText("Hủy hồ sơ nguồn")}
           description={uiText(
             "Hồ sơ nguồn sẽ chuyển sang trạng thái đã hủy (voided) và không thể tiếp tục nhận hàng. Lưu ý: Thao tác này có biến động tồn kho bằng 0 (Delta = 0) và không làm xóa hay thay đổi các phiếu nhận hàng thực tế đã ghi nhận trước đó.",
           )}
@@ -771,13 +771,13 @@ function CreateSourceDialog({
             id="create-source-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Tạo hồ sơ nguồn mới / Create Acquisition Source")}
+            {uiText("Tạo hồ sơ nguồn mới")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -942,7 +942,7 @@ function CreateSourceDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -1033,13 +1033,13 @@ function EditSourceDialog({
             id="edit-source-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Sửa hồ sơ nguồn / Edit Source")}
+            {uiText("Sửa hồ sơ nguồn")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1170,7 +1170,7 @@ function EditSourceDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -1248,7 +1248,7 @@ function CreateSourceLineDialog({
         return;
       }
       if (cCheck.normalized.startsWith("-")) {
-        setError("Đơn giá không được là số âm / Unit cost cannot be negative");
+        setError("Đơn giá không được là số âm");
         return;
       }
       validatedCost = cCheck.normalized;
@@ -1256,9 +1256,7 @@ function CreateSourceLineDialog({
     }
 
     if (warrantyStart && warrantyEnd && warrantyEnd < warrantyStart) {
-      setError(
-        "Ngày kết thúc bảo hành phải sau hoặc bằng ngày bắt đầu / Warranty end date must be on or after start date",
-      );
+      setError("Ngày kết thúc bảo hành phải sau hoặc bằng ngày bắt đầu");
       return;
     }
 
@@ -1325,13 +1323,13 @@ function CreateSourceLineDialog({
             id="create-source-line-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Thêm dòng vật tư cam kết / Add Source Line")}
+            {uiText("Thêm dòng vật tư cam kết")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1600,7 +1598,7 @@ function CreateSourceLineDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -1683,7 +1681,7 @@ function EditSourceLineDialog({
         return;
       }
       if (cCheck.normalized.startsWith("-")) {
-        setError("Đơn giá không được là số âm / Unit cost cannot be negative");
+        setError("Đơn giá không được là số âm");
         return;
       }
       validatedCost = cCheck.normalized;
@@ -1691,9 +1689,7 @@ function EditSourceLineDialog({
     }
 
     if (warrantyStart && warrantyEnd && warrantyEnd < warrantyStart) {
-      setError(
-        "Ngày kết thúc bảo hành phải sau hoặc bằng ngày bắt đầu / Warranty end date must be on or after start date",
-      );
+      setError("Ngày kết thúc bảo hành phải sau hoặc bằng ngày bắt đầu");
       return;
     }
 
@@ -1754,14 +1750,14 @@ function EditSourceLineDialog({
             id="edit-source-line-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Sửa dòng vật tư / Edit Line (")}
+            {uiText("Sửa dòng vật tư")}
             {line.line_key})
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1974,7 +1970,7 @@ function EditSourceLineDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"

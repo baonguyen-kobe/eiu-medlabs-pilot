@@ -59,7 +59,7 @@ export async function lookupAssetAction(
     if (!assetCode) {
       return {
         ok: false,
-        error: "Vui lòng nhập hoặc quét mã tài sản / Asset code is required",
+        error: "Vui lòng nhập hoặc quét mã tài sản",
       };
     }
 
@@ -82,9 +82,7 @@ export async function lookupAssetAction(
           found: false,
           eligible: false,
           available: false,
-          ineligibility_reasons: [
-            "Không tìm thấy tài sản trong hệ thống / Asset not found",
-          ],
+          ineligibility_reasons: ["Không tìm thấy tài sản trong hệ thống"],
         },
       };
     }

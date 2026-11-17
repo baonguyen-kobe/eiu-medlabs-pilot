@@ -83,7 +83,7 @@ export function StocktakeCountTable({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900">
-            {uiText("1. Đối chiếu Lô tồn kho hiện có / Existing Cohorts (")}
+            {uiText("1. Đối chiếu Lô tồn kho hiện có")}
             {totalStockCount}
             {uiText(" lô tại kho)")}
           </h3>
@@ -241,7 +241,7 @@ export function StocktakeCountTable({
                               }
                               className="button button-secondary text-[10px] py-0 px-1.5 text-amber-800 bg-amber-50 border-amber-200 font-semibold"
                             >
-                              {uiText("Đếm lại / Recount")}
+                              {uiText("Đếm lại")}
                             </button>
                           ) : null}
                         </div>

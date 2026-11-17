@@ -344,8 +344,7 @@ export function ReceiveForm({
       if (item?.expiry_required && line.expiryPrecision === "not_required") {
         expiryCheck = {
           valid: false,
-          error:
-            "Vật tư này bắt buộc phải có Hạn sử dụng (O01) / Expiry required",
+          error: "Vật tư này bắt buộc phải có Hạn sử dụng (O01)",
         };
       } else {
         const norm = normalizeExpiryInput(
@@ -393,7 +392,7 @@ export function ReceiveForm({
     setValidationError(null);
     if (!canSubmit) {
       setValidationError(
-        "Vui lòng hoàn thiện đúng các trường dữ liệu bắt buộc trên từng dòng hàng / Please fill all required fields.",
+        "Vui lòng hoàn thiện đúng các trường dữ liệu bắt buộc trên từng dòng hàng",
       );
       setTimeout(() => {
         focusFirstInvalidControl();
@@ -457,8 +456,7 @@ export function ReceiveForm({
       } else {
         setNotice({
           ok: false,
-          message:
-            res.error || "Giao dịch nhận kho thất bại / Receive stock failed",
+          message: res.error || "Giao dịch nhận kho thất bại",
         });
       }
     });
@@ -638,7 +636,7 @@ export function ReceiveForm({
               onClick={addLine}
             >
               <Plus size={14} />
-              {uiText(" Thêm dòng hàng / Add Line")}
+              {uiText(" Thêm dòng hàng")}
             </button>
           </div>
 
@@ -930,23 +928,13 @@ export function ReceiveForm({
                       className="mt-3 p-2 text-xs rounded bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)] space-y-1"
                     >
                       {!calc?.hasSourceLine ? (
-                        <div>
-                          {uiText(
-                            "Vui lòng chọn dòng cam kết nguồn / Source line is required",
-                          )}
-                        </div>
+                        <div>{uiText("Vui lòng chọn dòng cam kết nguồn")}</div>
                       ) : null}
                       {!calc?.hasLocation ? (
-                        <div>
-                          {uiText(
-                            "Vui lòng chọn vị trí kho / Location is required",
-                          )}
-                        </div>
+                        <div>{uiText("Vui lòng chọn vị trí kho")}</div>
                       ) : null}
                       {!calc?.hasUom ? (
-                        <div>
-                          {uiText("Vui lòng chọn ĐVT nhập / UOM is required")}
-                        </div>
+                        <div>{uiText("Vui lòng chọn ĐVT nhập")}</div>
                       ) : null}
                       {!calc?.mult.valid ? <div>{calc?.mult.error}</div> : null}
                       {!calc?.split.valid ? (
@@ -1014,13 +1002,13 @@ export function ReceiveForm({
                 id="receive-confirmation-dialog-title"
                 className="text-sm font-bold text-[var(--ink-950)] uppercase tracking-wider"
               >
-                {uiText("Xác nhận ghi sổ nhận kho / Post Receipt Confirmation")}
+                {uiText("Xác nhận ghi sổ nhận kho")}
               </h3>
               <button
                 type="button"
                 className="text-[var(--ink-600)] hover:text-[var(--ink-800)] rounded-lg p-1"
                 onClick={() => setConfirmOpen(false)}
-                aria-label={uiText("Đóng / Close")}
+                aria-label={uiText("Đóng")}
                 disabled={isPending}
               >
                 <X size={18} />

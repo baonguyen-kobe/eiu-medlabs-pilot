@@ -19,7 +19,7 @@ export function ActiveBadge({ active }: { active: boolean }) {
       <span className="badge badge-success inline-flex items-center gap-1 font-medium">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
         <span>
-          <LocalizedText text={"Hoạt động / Active"} />
+          <LocalizedText text={"Hoạt động"} />
         </span>
       </span>
     );
@@ -28,7 +28,7 @@ export function ActiveBadge({ active }: { active: boolean }) {
     <span className="badge badge-neutral inline-flex items-center gap-1 font-medium text-slate-500 bg-slate-100">
       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
       <span>
-        <LocalizedText text={"Ngừng HĐ / Inactive"} />
+        <LocalizedText text={"Ngừng HĐ"} />
       </span>
     </span>
   );
@@ -39,7 +39,7 @@ export function ConditionBadge({ condition }: { condition: StockCondition }) {
     return (
       <span className="badge badge-teal inline-flex items-center gap-1">
         <span>
-          <LocalizedText text={"Tốt / Good"} />
+          <LocalizedText text={"Tốt"} />
         </span>
       </span>
     );
@@ -47,7 +47,7 @@ export function ConditionBadge({ condition }: { condition: StockCondition }) {
   return (
     <span className="badge badge-warning inline-flex items-center gap-1 bg-amber-50 text-amber-800 border-amber-200">
       <span>
-        <LocalizedText text={"Hỏng / Damaged"} />
+        <LocalizedText text={"Hỏng"} />
       </span>
     </span>
   );
@@ -92,13 +92,13 @@ export function MaterialKindBadge({ kind }: { kind: MaterialKind }) {
   if (kind === "chemical") {
     return (
       <span className="badge badge-indigo font-medium">
-        <LocalizedText text={"Hóa chất / Chemical"} />
+        <LocalizedText text={"Hóa chất"} />
       </span>
     );
   }
   return (
     <span className="badge badge-neutral text-slate-600">
-      <LocalizedText text={"Thông thường / Standard"} />
+      <LocalizedText text={"Thông thường"} />
     </span>
   );
 }
@@ -111,20 +111,20 @@ export function ReturnSemanticsBadge({
   if (semantics === "returnable") {
     return (
       <span className="badge badge-teal">
-        <LocalizedText text={"Hoàn trả / Returnable"} />
+        <LocalizedText text={"Hoàn trả"} />
       </span>
     );
   }
   if (semantics === "nonreturnable") {
     return (
       <span className="badge badge-amber">
-        <LocalizedText text={"Tiêu hao / Consumable"} />
+        <LocalizedText text={"Tiêu hao"} />
       </span>
     );
   }
   return (
     <span className="badge badge-neutral">
-      <LocalizedText text={"Tại chỗ / In-place"} />
+      <LocalizedText text={"Tại chỗ"} />
     </span>
   );
 }
@@ -138,25 +138,25 @@ export function OperationBadge({
     case "RECEIVE":
       return (
         <span className="badge badge-success">
-          <LocalizedText text={"Nhận kho / RECEIVE"} />
+          <LocalizedText text={"Nhận kho"} />
         </span>
       );
     case "OPENING":
       return (
         <span className="badge badge-indigo">
-          <LocalizedText text={"Tồn đầu kỳ / OPENING"} />
+          <LocalizedText text={"Tồn đầu kỳ"} />
         </span>
       );
     case "CORRECT_RECEIPT":
       return (
         <span className="badge badge-amber">
-          <LocalizedText text={"Điều chỉnh nhận / CORRECT"} />
+          <LocalizedText text={"Điều chỉnh nhận"} />
         </span>
       );
     case "REVERSE_RECEIPT":
       return (
         <span className="badge badge-danger">
-          <LocalizedText text={"Hủy phiếu nhận / REVERSE"} />
+          <LocalizedText text={"Hủy phiếu nhận"} />
         </span>
       );
     case "CORRECT_OPENING":
@@ -168,13 +168,13 @@ export function OperationBadge({
     case "TRANSFER":
       return (
         <span className="badge badge-info bg-sky-50 text-sky-800 border-sky-200">
-          <LocalizedText text={"Điều chuyển / TRANSFER"} />
+          <LocalizedText text={"Điều chuyển"} />
         </span>
       );
     case "CONDITION_CHANGE":
       return (
         <span className="badge badge-warning bg-orange-50 text-orange-800 border-orange-200">
-          <LocalizedText text={"Hạ phẩm cấp / DETERIORATION"} />
+          <LocalizedText text={"Hạ phẩm cấp"} />
         </span>
       );
     case "STOCKTAKE_ADJUST":
@@ -198,31 +198,31 @@ export function OperationBadge({
     case "ASSET_RECEIVE":
       return (
         <span className="badge badge-success">
-          <LocalizedText text={"Nhận tài sản / Asset receipt"} />
+          <LocalizedText text={"Nhận tài sản"} />
         </span>
       );
     case "ASSET_OPEN":
       return (
         <span className="badge badge-indigo">
-          <LocalizedText text={"Tài sản đầu kỳ / Asset opening"} />
+          <LocalizedText text={"Tài sản đầu kỳ"} />
         </span>
       );
     case "ASSET_SET_STATE":
       return (
         <span className="badge badge-info">
-          <LocalizedText text={"Hiện trạng tài sản / Asset state"} />
+          <LocalizedText text={"Hiện trạng tài sản"} />
         </span>
       );
     case "ASSET_SET_LIFECYCLE":
       return (
         <span className="badge badge-warning">
-          <LocalizedText text={"Vòng đời tài sản / Asset lifecycle"} />
+          <LocalizedText text={"Vòng đời tài sản"} />
         </span>
       );
     case "ASSET_CORRECT":
       return (
         <span className="badge badge-amber">
-          <LocalizedText text={"Đính chính tài sản / Asset correction"} />
+          <LocalizedText text={"Đính chính tài sản"} />
         </span>
       );
     default:
@@ -245,7 +245,7 @@ export function HoldStatusBadge({
       <span className="badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-semibold">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         <span>
-          <LocalizedText text={"Đã giải tỏa / RELEASED"} />
+          <LocalizedText text={"Đã giải tỏa"} />
         </span>
       </span>
     );
@@ -253,15 +253,12 @@ export function HoldStatusBadge({
   if (isHeld || status === "held" || status === "active") {
     return (
       <span
-        title={
-          holdReason ||
-          uiText("Tạm giữ chờ thẩm định / Held awaiting admin verification")
-        }
+        title={holdReason || uiText("Tạm giữ chờ thẩm định")}
         className="badge inline-flex items-center gap-1 bg-rose-50 text-rose-800 border-rose-200 text-xs font-semibold"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
         <span>
-          <LocalizedText text={"TẠM GIỮ / HELD"} />
+          <LocalizedText text={"TẠM GIỮ"} />
         </span>
       </span>
     );
@@ -286,19 +283,19 @@ export function ProvenanceBadge({
     case "STOCKTAKE_SURPLUS":
       return (
         <span className="badge inline-flex items-center gap-1 bg-purple-50 text-purple-800 border-purple-200 text-xs font-medium">
-          <LocalizedText text={"Dư thừa kiểm kê / SURPLUS"} />
+          <LocalizedText text={"Dư thừa kiểm kê"} />
         </span>
       );
     case "RECEIVE":
       return (
         <span className="badge inline-flex items-center gap-1 bg-blue-50 text-blue-800 border-blue-200 text-xs font-medium">
-          <LocalizedText text={"Tiếp nhận mua / RECEIPT"} />
+          <LocalizedText text={"Tiếp nhận mua"} />
         </span>
       );
     case "OPENING":
       return (
         <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-800 border-slate-300 text-xs font-medium">
-          <LocalizedText text={"Tồn đầu kỳ / OPENING"} />
+          <LocalizedText text={"Tồn đầu kỳ"} />
         </span>
       );
     default:
