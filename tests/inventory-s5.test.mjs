@@ -179,6 +179,18 @@ test("S5: physical fulfillment serializes stock, exact assets, retries and revis
         );
         assert.equal(Number(targetIssues[0].issued), 1);
         assert.equal(Number(targetIssues[0].due), 1);
+        // t4r1: the room page lists the borrowed asset under Tạm mượn.
+        const room = await db.read(
+          db.actors[2],
+          `public.room_equipment_read(${sqlLiteral(db.id(10))}::uuid)`,
+        );
+        assert.ok(room.room.location_id, "the room has a root location");
+        const borrowed = room.temporary.filter(
+          ({ asset_id }) => asset_id === targetAsset,
+        );
+        assert.equal(borrowed.length, 1);
+        assert.equal(borrowed[0].request_id, fixture[`request${4 + winner}`]);
+        assert.equal(Number(borrowed[0].outstanding), 1);
         assert.equal(after[winner].revision, before[winner].revision + 1);
         assert.deepEqual(
           after[loser],
