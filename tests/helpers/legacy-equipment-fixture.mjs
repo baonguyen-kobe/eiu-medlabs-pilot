@@ -19,13 +19,15 @@ export async function legacyRequestFixture(payload) {
   );
   return { error: null };
 }
-export async function legacyItemFixture(payload) {
+// staged: the request already left "new" (a pre-S4 request mid-workflow), so
+// the line guard also needs the command context to accept the fixture rows.
+export async function legacyItemFixture(payload, { staged = false } = {}) {
   const rows = Array.isArray(payload) ? payload : [payload];
   assert.ok(rows.length > 0);
   const requestId = rows[0].request_id;
   assert.ok(rows.every((row) => row.request_id === requestId));
   await createP1LocalClient().sql(
-    `begin; select set_config('request.jwt.claims',jsonb_build_object('sub',(select registrant_id from public.equipment_requests where id=${sqlLiteral(requestId)}::uuid),'role','authenticated')::text,true); select set_config('app.s4_registration',${sqlLiteral(requestId)},true); ${rows.map((row) => insertSql("equipment_request_items", row)).join("\n")} commit;`,
+    `begin; select set_config('request.jwt.claims',jsonb_build_object('sub',(select registrant_id from public.equipment_requests where id=${sqlLiteral(requestId)}::uuid),'role','authenticated')::text,true); select set_config('app.s4_registration',${sqlLiteral(requestId)},true); ${staged ? "select set_config('app.s4_command','true',true);" : ""} ${rows.map((row) => insertSql("equipment_request_items", row)).join("\n")} commit;`,
   );
   return { error: null };
 }

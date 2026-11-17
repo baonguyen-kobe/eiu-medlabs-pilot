@@ -12,6 +12,8 @@ export async function generateMetadata() {
   return { title: text("Import Phiếu thiết bị") };
 }
 
+const equipmentImportEnabled = false;
+
 export default async function EquipmentImportPage() {
   const {
     fullName,
@@ -25,6 +27,8 @@ export default async function EquipmentImportPage() {
   if (!roles.some((role) => ["admin", "staff"].includes(role))) {
     redirect("/equipment/mine");
   }
+  // Hidden for now (owner decision, 2026-11-17); see workspace-shell.tsx.
+  if (!equipmentImportEnabled) redirect("/equipment/requests");
 
   return (
     <WorkspaceShell

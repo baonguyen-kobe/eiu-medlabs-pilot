@@ -92,15 +92,24 @@ export function BasicMedicalEquipmentRequestForm({
     initialState,
   );
   const nextKey = useRef((initialData?.items.length ?? 1) + 1);
-  const [items, setItems] = useState<DraftItem[]>(
+  const draftItems = (): DraftItem[] =>
     initialData?.items.length
       ? initialData.items.map((item, index) => ({
           ...item,
           id: isEditMode ? item.id : undefined,
           key: index + 1,
         }))
-      : [{ key: 1, itemName: "", catalogItemId: "", quantity: 1, note: "" }],
+      : [{ key: 1, itemName: "", catalogItemId: "", quantity: 1, note: "" }];
+  const [items, setItems] = useState<DraftItem[]>(draftItems);
+  // A save bumps the revision and gives new lines their ids. Reload the lines
+  // here instead of remounting the form, which would drop the saved message.
+  const [itemsRevision, setItemsRevision] = useState(
+    initialData?.requestRevision,
   );
+  if (itemsRevision !== initialData?.requestRevision) {
+    setItemsRevision(initialData?.requestRevision);
+    setItems(draftItems());
+  }
   const [receiveDate, setReceiveDate] = useState(
     initialData?.receiveDate || today,
   );

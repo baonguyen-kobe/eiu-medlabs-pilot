@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
           {error}
         </p>
       ) : null}
-      <span className="sr-only" role="status">
+      <span className="sr-only" aria-live="polite">
         {pending
           ? language === "vi"
             ? "Đang chuyển ngôn ngữ…"

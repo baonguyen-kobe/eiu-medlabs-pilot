@@ -139,7 +139,15 @@ test("UI V2 preserves approved production masters and local table containment", 
         const header = element.querySelector<HTMLElement>("thead th");
         return {
           overflowX: style.overflowX,
-          radius: Number.parseFloat(style.borderTopLeftRadius),
+          // Inside a card the card owns the rounded shell (see globals.css:
+          // "its card parent owns the single visual table shell").
+          radius: Math.max(
+            Number.parseFloat(style.borderTopLeftRadius),
+            Number.parseFloat(
+              getComputedStyle(element.parentElement ?? element)
+                .borderTopLeftRadius,
+            ),
+          ),
           headerBackground: header
             ? getComputedStyle(header).backgroundColor
             : "",

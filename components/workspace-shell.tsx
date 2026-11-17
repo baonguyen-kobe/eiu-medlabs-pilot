@@ -238,14 +238,9 @@ function buildNavigation(
       icon: FileClock,
       activeIcon: FileClockSolid,
     });
-    if (canManageSkillsEquipment) {
-      quanLyPhongItems.push({
-        label: "Import Phiếu thiết bị",
-        href: "/equipment/import",
-        icon: Import,
-        activeIcon: ImportSolid,
-      });
-    }
+    // "Import Phiếu thiết bị" is hidden (owner decision, 2026-11-17): the
+    // inventory line guard rejects finished requests, so the import cannot
+    // succeed. Its page redirects until the feature is reopened.
     if (canManageSkillsEquipment && canManageEmailNotifications) {
       quanLyPhongItems.push({
         label: "Email thông báo",

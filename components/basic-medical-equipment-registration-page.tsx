@@ -514,7 +514,7 @@ export async function BasicMedicalEquipmentRegistrationPage({
         </>
       ) : canEditSelected && initialData ? (
         <BasicMedicalEquipmentRequestForm
-          key={`${initialData.sourceRequestId}:${initialData.requestRevision}`}
+          key={initialData.sourceRequestId}
           registration={selected.registration}
           session={selected.session}
           catalog={

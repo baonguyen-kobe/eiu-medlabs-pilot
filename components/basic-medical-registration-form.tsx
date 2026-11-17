@@ -257,9 +257,11 @@ export function BasicMedicalRegistrationForm({
             <LocalizedText text={(clientError || state.message) ?? ""} />
           </p>
           {state.ok && !clientError ? (
-            <Link className="button button-primary" href="/basic-medical/new">
+            // A client-side link to the page already open keeps the filled
+            // form and this message on screen; a full load starts clean.
+            <a className="button button-primary" href="/basic-medical/new">
               {uiText("Tạo mới")}
-            </Link>
+            </a>
           ) : null}
         </div>
       ) : null}

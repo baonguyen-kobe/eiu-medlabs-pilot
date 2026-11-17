@@ -11313,6 +11313,29 @@ time,
   .equipment-catalog-search {
     grid-column: span 2;
   }
+
+  /* At this width the base minimums leave no room for the reset button and
+     the result count, which was pushed 8px past the page edge and clipped. */
+  .equipment-request-filters {
+    grid-template-columns:
+      minmax(200px, 1.4fr) repeat(2, minmax(150px, 0.75fr))
+      repeat(2, minmax(180px, 0.8fr)) auto auto;
+  }
+
+  .equipment-request-filters .equipment-filter-count-slot {
+    min-width: max-content;
+  }
+}
+
+/* Seven controls do not fit one row beside the sidebar below this width. */
+@media (max-width: 1360px) {
+  .equipment-request-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .equipment-request-filters .equipment-filter-count-slot {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 1080px) {
