@@ -6,6 +6,8 @@ import {
   ChevronRight,
   ClipboardList,
   ClipboardListSolid,
+  DoorOpen,
+  DoorOpenSolid,
   FileClock,
   FileClockSolid,
   GraduationCap,
@@ -395,6 +397,12 @@ function buildNavigation(
           href: "/inventory/stock",
           icon: PackageCheck,
           activeIcon: PackageCheckSolid,
+        },
+        {
+          label: "Kho theo phòng",
+          href: "/inventory/rooms",
+          icon: DoorOpen,
+          activeIcon: DoorOpenSolid,
         },
         {
           label: "Nhận kho",

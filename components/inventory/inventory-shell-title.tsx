@@ -17,6 +17,16 @@ const pages: Array<[RegExp, string, string]> = [
     "Số lượng theo vật tư, vị trí và tình trạng.",
   ],
   [
+    /^\/inventory\/rooms$/,
+    "Kho theo phòng",
+    "Thiết bị cố định và đang mượn tại từng phòng học.",
+  ],
+  [
+    /^\/inventory\/rooms\/[^/]+$/,
+    "Thiết bị của phòng",
+    "Cố định, tạm mượn và tài sản có mã của một phòng.",
+  ],
+  [
     /^\/inventory\/assets$/,
     "Thiết bị cá thể",
     "Thiết bị theo dõi từng cái: mã, vị trí và tình trạng.",

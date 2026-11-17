@@ -80,16 +80,19 @@ export default async function PersonnelPage({
       }),
     ),
   );
+  // One query for the page, not one per person (t4b).
+  const { data: emailCapabilities } = rows.length
+    ? await authAdmin
+        .from("profiles")
+        .select("id,can_manage_email_notifications")
+        .in(
+          "id",
+          rows.map((row) => row.id),
+        )
+    : { data: [] };
   const emailCapabilityById = new Map(
-    await Promise.all(
-      rows.map(async (row) => {
-        const { data } = await authAdmin
-          .from("profiles")
-          .select("can_manage_email_notifications")
-          .eq("id", row.id)
-          .maybeSingle();
-        return [row.id, Boolean(data?.can_manage_email_notifications)] as const;
-      }),
+    (emailCapabilities ?? []).map(
+      (row) => [row.id, Boolean(row.can_manage_email_notifications)] as const,
     ),
   );
 

@@ -21,7 +21,13 @@ export const fulfillmentSchema = z.object({
     }),
   ),
   locations: z.array(
-    z.object({ id: z.guid(), name: z.string(), active: z.boolean() }),
+    z.object({
+      id: z.guid(),
+      name: z.string(),
+      active: z.boolean(),
+      // The request's room location: receiving there keeps the item (t4r2).
+      room: z.boolean().optional(),
+    }),
   ),
   issues: z.array(
     z.object({

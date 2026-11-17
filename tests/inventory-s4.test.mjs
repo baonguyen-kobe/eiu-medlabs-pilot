@@ -300,6 +300,55 @@ test("S4: Tab lock, exact decimal multi-source reservation, adjustment and stric
   );
   assert.match(lockConflict?.message || "", /S4_LOCK_HELD/);
 
+  // 11b. A room's root location is fixed equipment, never an issue source (t4r1).
+  const { data: fixtureRoom } = await service
+    .from("rooms")
+    .select("room_code")
+    .eq("id", fixture.roomId)
+    .single();
+  const { data: roomLocations, error: roomRootErr } =
+    await adminActor.client.rpc("inventory_read", {
+      p_resource: "locations",
+      p_filters: { q: fixtureRoom.room_code },
+    });
+  assert.ifError(roomRootErr);
+  const roomRoot = roomLocations.rows.find(
+    (row) => row.room_id === fixture.roomId,
+  );
+  assert.ok(roomRoot, "every new room gets a root storage location");
+  const { error: roomSourceError } = await scopedStaff.client.rpc(
+    "equipment_preparation_command",
+    {
+      p_request_id: reqId,
+      p_operation: "confirm",
+      p_payload: {
+        expected_revision: wsBeforeStart.request.revision,
+        lock_token: lockToken1,
+        draft_revision: 1,
+        plan: {
+          lines: [
+            {
+              line_id: lineId,
+              planned_quantity: "10",
+              reviewed_revision: 1,
+              shortage_reason: "",
+              allocations: [
+                {
+                  mapping_id: mappingId,
+                  location_id: roomRoot.id,
+                  base_quantity: "1.000000",
+                  asset_ids: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      p_retry_key: crypto.randomUUID(),
+    },
+  );
+  assert.match(roomSourceError?.message || "", /S4_INVALID_SOURCE/);
+
   // 12. Staff confirms preparation: allocates 0.4 ml from locA and 0.6 ml from locB
   const planPayload = {
     lines: [

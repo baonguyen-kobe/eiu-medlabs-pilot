@@ -108,6 +108,17 @@ export function EquipmentFulfillmentWorkspace({
     effectiveOperation === "initial_return" || effectiveOperation === "recover";
   const administrative =
     effectiveOperation === "consequence" || effectiveOperation === "reconcile";
+  // Only an Admin may keep borrowed equipment in the session's room (t4r2).
+  const receiveLocations = workspace.locations
+    .filter((location) => !location.room || workspace.admin)
+    .map((location) =>
+      location.room
+        ? {
+            ...location,
+            name: uiText("Giữ lại cho phòng: {0}", [location.name]),
+          }
+        : location,
+    );
   const selectableIssues = workspace.issues.filter(
     (issue) => !receiving || issue.return_required,
   );
@@ -690,7 +701,7 @@ export function EquipmentFulfillmentWorkspace({
             ) : returning ? (
               <FulfillmentReturnTable
                 issues={returnIssues}
-                locations={workspace.locations}
+                locations={receiveLocations}
                 locationId={locationId}
                 entries={returnEntries}
                 onLocationChange={setLocationId}
@@ -727,7 +738,7 @@ export function EquipmentFulfillmentWorkspace({
                         value={locationId}
                         onChange={(event) => setLocationId(event.target.value)}
                       >
-                        {workspace.locations.map((location) => (
+                        {receiveLocations.map((location) => (
                           <option key={location.id} value={location.id}>
                             {location.name}
                             {location.active
