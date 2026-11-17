@@ -1,3 +1,4 @@
+import { readAllRows } from "@/lib/supabase/read-all";
 import { redirect } from "next/navigation";
 import {
   ClassRegistrationList,
@@ -54,21 +55,26 @@ export default async function OpenClassesPage({
     { data: courses },
     scopedLecturerResults,
   ] = await Promise.all([
-    supabase
-      .from("class_schedules")
-      .select(
-        `
+    // Up to 6 months of classes can pass the 1,000-row API cap (t4a).
+    readAllRows((from, to) =>
+      supabase
+        .from("class_schedules")
+        .select(
+          `
       id, room_id, course_id, schedule_date, start_time, end_time, course_code_snapshot,
       course_name_snapshot, lecturer_id, lecturer_2_id, student_count, created_by,
       rooms!inner (room_code, building_code, room_type_id, room_types (name))
     `,
-      )
-      .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-      .neq("schedule_status", "cancelled")
-      .gte("schedule_date", range.from)
-      .lte("schedule_date", range.to)
-      .order("schedule_date")
-      .order("start_time"),
+        )
+        .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+        .neq("schedule_status", "cancelled")
+        .gte("schedule_date", range.from)
+        .lte("schedule_date", range.to)
+        .order("schedule_date")
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
     supabase.rpc("list_active_people"),
     supabase
       .from("rooms")
