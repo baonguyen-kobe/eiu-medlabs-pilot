@@ -176,7 +176,7 @@ export async function addEquipmentRequestItem({
   const { data: inserted } = await supabase
     .from("equipment_request_items")
     .select(
-      "id,quantity,skill_name,note,equipment_catalog(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit)",
+      "id,quantity,skill_name,note,equipment_catalog!equipment_request_items_catalog_item_id_fkey(id,item_name,commercial_name,item_type,country_of_origin,manufacturer,model,unit)",
     )
     .eq("id", newItemId as string)
     .single();

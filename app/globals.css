@@ -12084,3 +12084,15 @@ a.kpi-card[aria-current="true"] {
   height: 18px;
   flex: none;
 }
+
+/* Phạm vi thiết bị (t4e): inline scope checkboxes. */
+.scope-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scope-check input {
+  width: 18px;
+  height: 18px;
+}

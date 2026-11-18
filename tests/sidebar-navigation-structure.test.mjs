@@ -234,9 +234,10 @@ test("Sidebar Navigation: Basic Medical-only lecturer enters the Basic Medical e
   assert.deepEqual(equipmentEntries, [
     {
       label: "Đăng ký thiết bị",
-      href: "/basic-medical/equipment-requests",
+      href: "/equipment/register?scope=basic_medical",
       icon: "ClipboardList",
       activeIcon: "ClipboardListSolid",
+      activeHrefs: ["/equipment/register", "/basic-medical/equipment-requests"],
     },
   ]);
   assert.ok(!items.some((item) => item.label === "Tạo lịch Skills lab"));

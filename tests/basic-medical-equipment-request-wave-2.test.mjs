@@ -18,7 +18,7 @@ test("Wave 2 creates Basic Medical requests through the shared guarded RPC", asy
   assert.match(actions, /after\(\(\) => processPendingEmailOutbox\(\)\)/);
 });
 
-test("Wave 2 uses a separate page-based Basic Medical registration form", async () => {
+test("Basic Medical registration is a page-based form on the shared register screen (t4e)", async () => {
   const [
     registerPage,
     workspacePage,
@@ -41,11 +41,16 @@ test("Wave 2 uses a separate page-based Basic Medical registration form", async 
   assert.match(list, /Phiếu thiết bị đã hủy/);
   assert.match(list, /Xem phiếu thiết bị/);
   assert.match(list, /Đăng ký thiết bị/);
-  assert.doesNotMatch(registerPage, /BasicMedicalEquipmentRegistrationPage/);
+  assert.match(registerPage, /BasicMedicalEquipmentRegistrationPage/);
+  assert.match(registerPage, /canUseBasicMedicalEquipmentRegistration/);
+  assert.match(registerPage, /query\.scope === "basic_medical"/);
+  assert.match(registerPage, /RegisterScopeSwitch/);
   assert.doesNotMatch(registerPage, /query\.domain/);
-  assert.doesNotMatch(registerPage, /EquipmentRegistrationDomainSwitch/);
-  assert.match(workspacePage, /BasicMedicalEquipmentRegistrationPage/);
-  assert.match(workspacePage, /canUseBasicMedicalEquipmentRegistration/);
+  assert.match(
+    workspacePage,
+    /redirect\(`\/equipment\/register\?\$\{params\}`\)/,
+  );
+  assert.match(workspacePage, /scope: "basic_medical"/);
   assert.match(basicMedicalPage, /\.in\("source_identity_id", sourceIds\)/);
   assert.match(basicMedicalPage, /requestsBySession/);
   assert.match(basicMedicalPage, /function sessionCanCreateEquipmentRequest/);
@@ -78,7 +83,7 @@ test("Wave 2 uses a separate page-based Basic Medical registration form", async 
   assert.match(list, /session\.class_schedules\.schedule_date >=\s*today/);
 });
 
-test("equipment registration route preserves Skills default and adds Basic Medical access", async () => {
+test("one equipment registration screen keeps Skills as default and adds the Basic Medical scope", async () => {
   const [page, shell, access] = await Promise.all([
     source("app/equipment/register/page.tsx"),
     source("components/workspace-shell.tsx"),
@@ -86,11 +91,13 @@ test("equipment registration route preserves Skills default and adds Basic Medic
   ]);
 
   assert.doesNotMatch(page, /query\.domain/);
-  assert.doesNotMatch(page, /basic_medical/);
-  assert.doesNotMatch(page, /BasicMedicalEquipmentRegistrationPage/);
+  assert.match(
+    page,
+    /canUseBasicMedical &&\s*\(query\.scope === "basic_medical" \|\| !canUseSkills\)/,
+  );
   assert.match(access, /canUseBasicMedicalEquipmentRegistration/);
   assert.match(shell, /canUseBasicMedicalEquipmentRegistration/);
-  assert.match(shell, /href: "\/basic-medical\/equipment-requests"/);
+  assert.match(shell, /href: "\/equipment\/register\?scope=basic_medical"/);
   assert.equal((shell.match(/label: "Đăng ký thiết bị"/g) ?? []).length, 2);
 });
 

@@ -4,6 +4,8 @@ import {
   type EquipmentRequestInitialData,
 } from "@/components/equipment-request-form";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { BasicMedicalEquipmentRegistrationPage } from "@/components/basic-medical-equipment-registration-page";
+import { RegisterScopeSwitch } from "@/components/register-scope-switch";
 import { businessTodayString } from "@/lib/business-time";
 import {
   equipmentRequestCodeBounds,
@@ -14,6 +16,7 @@ import { getViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { EquipmentLateApprovalStatus } from "@/lib/equipment-requests";
 import {
+  canUseBasicMedicalEquipmentRegistration,
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
@@ -23,6 +26,8 @@ import { LocalizedElement } from "@/components/i18n/localized-element";
 type RequestMode = "copy" | "edit";
 
 type RegisterSearchParams = {
+  scope?: string;
+  session?: string;
   schedule?: string;
   mode?: string;
   request?: string;
@@ -69,7 +74,7 @@ type SourceRequest = {
 };
 
 const requestDraftSelect =
-  "id,preparation_revision,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(id,skill_name,quantity,note,equipment_catalog(id,item_name))";
+  "id,preparation_revision,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(id,skill_name,quantity,note,equipment_catalog!equipment_request_items_catalog_item_id_fkey(id,item_name))";
 
 const dateTimeInputFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Ho_Chi_Minh",
@@ -277,6 +282,27 @@ export default async function EquipmentRegisterPage({
   } = viewer;
   const roomTypeCodes = roomTypes.map(({ code }) => code);
   const canUseSkills = canUseSkillsWorkspace(roles, roomTypeCodes);
+  const canUseBasicMedical = canUseBasicMedicalEquipmentRegistration(
+    roles,
+    roomTypeCodes,
+  );
+  // One screen for both sides (t4e); each viewer sees only their scopes.
+  if (
+    canUseBasicMedical &&
+    (query.scope === "basic_medical" || !canUseSkills)
+  ) {
+    return (
+      <BasicMedicalEquipmentRegistrationPage
+        viewer={viewer}
+        sessionId={query.session}
+        mode={query.mode}
+        requestKey={query.request}
+        scopeSwitch={
+          canUseSkills ? <RegisterScopeSwitch scope="basic_medical" /> : null
+        }
+      />
+    );
+  }
   if (!canUseSkills) {
     redirect(defaultWorkspacePath(roles, roomTypeCodes));
   }
@@ -478,6 +504,7 @@ export default async function EquipmentRegisterPage({
         />
       }
     >
+      {canUseBasicMedical ? <RegisterScopeSwitch scope="skills" /> : null}
       <RequestModePicker
         mode={mode}
         activeRequestId={rawRequestId}

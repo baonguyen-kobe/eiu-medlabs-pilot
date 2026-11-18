@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   BasicMedicalEquipmentRequestForm,
   type BasicMedicalEquipmentRequestInitialData,
@@ -276,11 +277,13 @@ export async function BasicMedicalEquipmentRegistrationPage({
   sessionId,
   mode: rawMode,
   requestKey,
+  scopeSwitch,
 }: {
   viewer: Viewer;
   sessionId?: string;
   mode?: string;
   requestKey?: string;
+  scopeSwitch?: ReactNode;
 }) {
   const {
     supabase,
@@ -477,6 +480,7 @@ export async function BasicMedicalEquipmentRegistrationPage({
         />
       }
     >
+      {scopeSwitch}
       <BasicMedicalRequestModePicker
         mode={mode}
         activeRequestKey={activeRequestKey}

@@ -125,9 +125,10 @@ export type Database = {
           notes: string | null
           reference_date: string
           revision: number
+          source_kind: string
           source_reference: string
           status: string
-          supplier_id: string
+          supplier_id: string | null
           updated_at: string
         }
         Insert: {
@@ -138,9 +139,10 @@ export type Database = {
           notes?: string | null
           reference_date: string
           revision?: number
+          source_kind?: string
           source_reference: string
           status?: string
-          supplier_id: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -151,9 +153,10 @@ export type Database = {
           notes?: string | null
           reference_date?: string
           revision?: number
+          source_kind?: string
           source_reference?: string
           status?: string
-          supplier_id?: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -209,48 +212,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      basic_medical_equipment_catalog: {
-        Row: {
-          commercial_name: string
-          country_of_origin: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          item_name: string
-          item_type: string | null
-          manufacturer: string | null
-          model: string | null
-          unit: string
-          updated_at: string
-        }
-        Insert: {
-          commercial_name: string
-          country_of_origin?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          item_name: string
-          item_type?: string | null
-          manufacturer?: string | null
-          model?: string | null
-          unit: string
-          updated_at?: string
-        }
-        Update: {
-          commercial_name?: string
-          country_of_origin?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          item_name?: string
-          item_type?: string | null
-          manufacturer?: string | null
-          model?: string | null
-          unit?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       basic_medical_equipment_condition_logs: {
         Row: {
@@ -526,6 +487,8 @@ export type Database = {
         Row: {
           catalog_item_id: string
           created_at: string
+          cutover_at: string | null
+          cutover_transaction_id: string | null
           damaged_quantity: number
           good_quantity: number
           id: string
@@ -539,6 +502,8 @@ export type Database = {
         Insert: {
           catalog_item_id: string
           created_at?: string
+          cutover_at?: string | null
+          cutover_transaction_id?: string | null
           damaged_quantity?: number
           good_quantity?: number
           id?: string
@@ -552,6 +517,8 @@ export type Database = {
         Update: {
           catalog_item_id?: string
           created_at?: string
+          cutover_at?: string | null
+          cutover_transaction_id?: string | null
           damaged_quantity?: number
           good_quantity?: number
           id?: string
@@ -568,6 +535,20 @@ export type Database = {
             columns: ["catalog_item_id"]
             isOneToOne: false
             referencedRelation: "basic_medical_equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "basic_medical_room_inventory_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "basic_medical_room_inventory_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_items"
             referencedColumns: ["id"]
           },
           {
@@ -1303,48 +1284,6 @@ export type Database = {
           },
         ]
       }
-      equipment_catalog: {
-        Row: {
-          commercial_name: string
-          country_of_origin: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          item_name: string
-          item_type: string | null
-          manufacturer: string | null
-          model: string | null
-          unit: string
-          updated_at: string
-        }
-        Insert: {
-          commercial_name: string
-          country_of_origin?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          item_name: string
-          item_type?: string | null
-          manufacturer?: string | null
-          model?: string | null
-          unit: string
-          updated_at?: string
-        }
-        Update: {
-          commercial_name?: string
-          country_of_origin?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          item_name?: string
-          item_type?: string | null
-          manufacturer?: string | null
-          model?: string | null
-          unit?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       equipment_fulfillment_effects: {
         Row: {
           classification: string | null
@@ -1537,7 +1476,8 @@ export type Database = {
         Row: {
           base_units_per_requested_unit: number
           base_uom_code: string
-          catalog_item_id: string
+          basic_medical_catalog_item_id: string | null
+          catalog_item_id: string | null
           created_at: string
           created_by: string
           demand_unit: string
@@ -1548,7 +1488,8 @@ export type Database = {
         Insert: {
           base_units_per_requested_unit: number
           base_uom_code: string
-          catalog_item_id: string
+          basic_medical_catalog_item_id?: string | null
+          catalog_item_id?: string | null
           created_at?: string
           created_by: string
           demand_unit: string
@@ -1559,7 +1500,8 @@ export type Database = {
         Update: {
           base_units_per_requested_unit?: number
           base_uom_code?: string
-          catalog_item_id?: string
+          basic_medical_catalog_item_id?: string | null
+          catalog_item_id?: string | null
           created_at?: string
           created_by?: string
           demand_unit?: string
@@ -1576,10 +1518,45 @@ export type Database = {
             referencedColumns: ["code"]
           },
           {
+            foreignKeyName: "equipment_inventory_mappings_basic_medical_catalog_item_id_fkey"
+            columns: ["basic_medical_catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "basic_medical_equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_basic_medical_catalog_item_id_fkey"
+            columns: ["basic_medical_catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_basic_medical_catalog_item_id_fkey"
+            columns: ["basic_medical_catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "basic_medical_equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "equipment_inventory_mappings_catalog_item_id_fkey"
             columns: ["catalog_item_id"]
             isOneToOne: false
             referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_inventory_mappings_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_items"
             referencedColumns: ["id"]
           },
           {
@@ -1689,6 +1666,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      equipment_items: {
+        Row: {
+          commercial_name: string
+          country_of_origin: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          item_name: string
+          item_type: string | null
+          manufacturer: string | null
+          model: string | null
+          unit: string
+          updated_at: string
+          usage_scopes: string[]
+        }
+        Insert: {
+          commercial_name: string
+          country_of_origin?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          item_name: string
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit: string
+          updated_at?: string
+          usage_scopes?: string[]
+        }
+        Update: {
+          commercial_name?: string
+          country_of_origin?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          item_name?: string
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit?: string
+          updated_at?: string
+          usage_scopes?: string[]
+        }
+        Relationships: []
       }
       equipment_preparation_allocations: {
         Row: {
@@ -2203,10 +2225,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "equipment_request_items_basic_medical_catalog_item_id_fkey"
+            columns: ["basic_medical_catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_request_items_basic_medical_catalog_item_id_fkey"
+            columns: ["basic_medical_catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_request_items_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "basic_medical_equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "equipment_request_items_catalog_item_id_fkey"
             columns: ["catalog_item_id"]
             isOneToOne: false
             referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_request_items_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_items"
             referencedColumns: ["id"]
           },
           {
@@ -3629,9 +3679,11 @@ export type Database = {
       inventory_storage_locations: {
         Row: {
           active: boolean
+          allow_issue: boolean
           code: string
           created_at: string
           id: string
+          is_room_root: boolean
           name: string
           parent_location_id: string | null
           revision: number
@@ -3640,9 +3692,11 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          allow_issue?: boolean
           code: string
           created_at?: string
           id?: string
+          is_room_root?: boolean
           name: string
           parent_location_id?: string | null
           revision?: number
@@ -3651,9 +3705,11 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          allow_issue?: boolean
           code?: string
           created_at?: string
           id?: string
+          is_room_root?: boolean
           name?: string
           parent_location_id?: string | null
           revision?: number
@@ -4445,6 +4501,51 @@ export type Database = {
       }
     }
     Views: {
+      basic_medical_equipment_catalog: {
+        Row: {
+          commercial_name: string | null
+          country_of_origin: string | null
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          item_name: string | null
+          item_type: string | null
+          manufacturer: string | null
+          model: string | null
+          unit: string | null
+          updated_at: string | null
+          usage_scopes: string[] | null
+        }
+        Insert: {
+          commercial_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          item_name?: string | null
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          usage_scopes?: string[] | null
+        }
+        Update: {
+          commercial_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          item_name?: string | null
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          usage_scopes?: string[] | null
+        }
+        Relationships: []
+      }
       basic_medical_registration_completion: {
         Row: {
           confirmed_session_count: number | null
@@ -4489,6 +4590,51 @@ export type Database = {
           },
         ]
       }
+      equipment_catalog: {
+        Row: {
+          commercial_name: string | null
+          country_of_origin: string | null
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          item_name: string | null
+          item_type: string | null
+          manufacturer: string | null
+          model: string | null
+          unit: string | null
+          updated_at: string | null
+          usage_scopes: string[] | null
+        }
+        Insert: {
+          commercial_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          item_name?: string | null
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          usage_scopes?: string[] | null
+        }
+        Update: {
+          commercial_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          item_name?: string | null
+          item_type?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          usage_scopes?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_equipment_request_item: {
@@ -4511,6 +4657,8 @@ export type Database = {
         Returns: {
           catalog_item_id: string
           created_at: string
+          cutover_at: string | null
+          cutover_transaction_id: string | null
           damaged_quantity: number
           good_quantity: number
           id: string
@@ -4686,6 +4834,9 @@ export type Database = {
         Args: { target_row_count: number }
         Returns: boolean
       }
+      basic_medical_cutover_apply: { Args: { p_reason: string }; Returns: Json }
+      basic_medical_cutover_preview: { Args: never; Returns: Json }
+      basic_medical_mapping_read: { Args: never; Returns: Json }
       begin_personnel_password_auth_update: {
         Args: { target_operation_id: string }
         Returns: undefined
@@ -4997,6 +5148,7 @@ export type Database = {
         Args: { p_filters?: Json; p_resource: string }
         Returns: Json
       }
+      equipment_catalog_scope_duplicates: { Args: never; Returns: Json }
       equipment_fulfillment_command: {
         Args: {
           p_operation: string
@@ -5144,6 +5296,22 @@ export type Database = {
           old_status: string
         }[]
       }
+      list_equipment_request_page: {
+        Args: {
+          p_date_from?: string
+          p_date_to?: string
+          p_domain?: string
+          p_domains: string[]
+          p_focus_id?: string
+          p_mine?: boolean
+          p_page?: number
+          p_page_size?: number
+          p_query?: string
+          p_status?: string
+        }
+        Returns: Json
+      }
+      list_equipment_skill_suggestions: { Args: never; Returns: string[] }
       list_import_lecturers: {
         Args: never
         Returns: {
@@ -5388,6 +5556,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      map_basic_medical_inventory_item: {
+        Args: {
+          p_base_units_per_unit: string
+          p_basic_medical_catalog_item_id: string
+          p_inventory_item_id: string
+          p_reason: string
+        }
+        Returns: string
+      }
       mark_personnel_auth_updated: {
         Args: { target_operation_id: string }
         Returns: boolean
@@ -5518,26 +5695,6 @@ export type Database = {
         Args: { target_item_id: string }
         Returns: boolean
       }
-      basic_medical_cutover_preview: { Args: never; Returns: Json }
-      basic_medical_mapping_read: { Args: never; Returns: Json }
-      list_equipment_skill_suggestions: { Args: never; Returns: string[] }
-      map_basic_medical_inventory_item: {
-        Args: {
-          p_base_units_per_unit: string
-          p_basic_medical_catalog_item_id: string
-          p_inventory_item_id: string
-          p_reason: string
-        }
-        Returns: string
-      }
-      room_equipment_read: {
-        Args: { p_room_id: string }
-        Returns: Json
-      }
-      room_equipment_summary: {
-        Args: { p_page?: number; p_page_size?: number; p_query?: string }
-        Returns: Json
-      }
       reschedule_class: {
         Args: { target_schedule_date: string; target_schedule_id: string }
         Returns: {
@@ -5630,6 +5787,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      room_equipment_read: { Args: { p_room_id: string }; Returns: Json }
+      room_equipment_summary: {
+        Args: { p_page?: number; p_page_size?: number; p_query?: string }
+        Returns: Json
+      }
       save_basic_medical_registration: {
         Args: {
           target_academic_year?: string
@@ -5692,6 +5854,8 @@ export type Database = {
         Returns: {
           catalog_item_id: string
           created_at: string
+          cutover_at: string | null
+          cutover_transaction_id: string | null
           damaged_quantity: number
           good_quantity: number
           id: string
@@ -5731,6 +5895,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_equipment_item_scopes: {
+        Args: { p_item_id: string; p_scopes: string[] }
+        Returns: string[]
       }
       set_personnel_email_notification_capability: {
         Args: { target_enabled: boolean; target_user_id: string }
@@ -6224,3 +6392,4 @@ export const Constants = {
     },
   },
 } as const
+

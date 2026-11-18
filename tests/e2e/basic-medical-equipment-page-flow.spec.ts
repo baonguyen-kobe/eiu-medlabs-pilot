@@ -180,12 +180,18 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
   test.setTimeout(60_000);
   await loginAsAdmin(page);
 
-  const equipmentRegisterLink = page.locator(
-    'a[href="/basic-medical/equipment-requests"]',
-  );
+  // t4e: one Đăng ký thiết bị screen; a dual-scope Admin switches to Y cơ sở.
+  const equipmentRegisterLink = page.getByRole("link", {
+    name: "Đăng ký thiết bị",
+    exact: true,
+  });
   await expect(equipmentRegisterLink).toHaveCount(1);
   await equipmentRegisterLink.click();
-  await expect(page).toHaveURL(/\/basic-medical\/equipment-requests$/);
+  await page
+    .getByRole("navigation", { name: "Phạm vi đăng ký" })
+    .getByRole("link", { name: "Y cơ sở" })
+    .click();
+  await expect(page).toHaveURL(/\/equipment\/register\?scope=basic_medical$/);
   await expect(page.locator('a[href*="domain="]')).toHaveCount(0);
 
   const sessionPicker = page.getByRole("combobox", {
@@ -197,9 +203,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
       name: new RegExp(`${sourceDateLabel}.*${courseCode}`),
     })
     .click();
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
 
   await page.goto("/basic-medical/registrations?status=all");
   const registrationRow = page
@@ -215,9 +219,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
   await sessionRow
     .getByRole("link", { name: "Đăng ký thiết bị", exact: true })
     .click();
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
   await expect(page.getByRole("dialog")).toHaveCount(0);
 
   for (const heading of [
@@ -234,9 +236,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
     "",
   );
   await page.waitForTimeout(3_000);
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
   await expect(
     page.getByRole("heading", { name: "Thông tin môn học" }),
   ).toBeVisible();
@@ -277,9 +277,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
 
   await page.locator('input[name="receive_date"]').fill(sourceDate);
   await page.getByRole("button", { name: "Gửi đăng ký", exact: true }).click();
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
   await expect(
     page.getByRole("button", { name: "Gửi đăng ký", exact: true }),
   ).toHaveCount(0);
@@ -295,9 +293,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
   await expect(detailTable.locator("tbody tr").first()).toContainText("1");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.waitForTimeout(3_000);
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
 
   await page.goto("/basic-medical/registrations?status=all");
   const persistedRegistrationRow = page
@@ -325,9 +321,7 @@ test("Basic Medical equipment registration stays on a stable page flow", async (
   await persistedSessionRow
     .getByRole("link", { name: "Xem phiếu thiết bị", exact: true })
     .click();
-  await expect(page).toHaveURL(
-    new RegExp(`equipment-requests\\?session=${fixture.session}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`[?&]session=${fixture.session}`));
   await expect(page.locator(".equipment-detail-table")).toContainText(
     catalogName,
   );

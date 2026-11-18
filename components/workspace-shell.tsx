@@ -290,12 +290,17 @@ function buildNavigation(
         activeIcon: ClipboardListSolid,
       });
     }
-    if (canUseBasicMedicalEquipment) {
+    // One shared registration screen (t4e); dual-scope users switch there.
+    if (canUseBasicMedicalEquipment && !canUseSkillsEquipment) {
       yItems.push({
         label: "Đăng ký thiết bị",
-        href: "/basic-medical/equipment-requests",
+        href: "/equipment/register?scope=basic_medical",
         icon: ClipboardList,
         activeIcon: ClipboardListSolid,
+        activeHrefs: [
+          "/equipment/register",
+          "/basic-medical/equipment-requests",
+        ],
       });
     }
     if (
@@ -351,6 +356,7 @@ function buildNavigation(
         "/admin/equipment",
         "/admin/courses",
         "/admin/rooms",
+        "/admin/equipment-scopes",
         "/admin/audit",
         "/basic-medical/equipment",
       ],
