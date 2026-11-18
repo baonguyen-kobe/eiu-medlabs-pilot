@@ -12642,3 +12642,17 @@ tr[data-open] > :is(th, td) {
   color: var(--ink-600);
   font-size: 14px;
 }
+
+/* Kho lists scroll inside their frame: filters and paging stay in reach. */
+@media (min-width: 761px) {
+  .kho-list {
+    max-height: calc(100vh - 200px);
+    overflow: auto;
+  }
+
+  .kho-list thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+}

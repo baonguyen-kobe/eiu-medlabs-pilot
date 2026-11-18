@@ -135,7 +135,7 @@ export function OperationsQueue({
         </p>
       ) : (
         <div className="data-panel">
-          <div className="responsive-table">
+          <div className="responsive-table kho-list">
             <table className="data-table records-on-phone">
               <thead>
                 <tr>
@@ -166,7 +166,9 @@ export function OperationsQueue({
                           >
                             {row.course_code} · {row.course_name}
                           </Link>
-                          <small>{row.class_code ?? "—"}</small>
+                          {row.class_code ? (
+                            <small>{row.class_code}</small>
+                          ) : null}
                         </span>
                       </td>
                       <td data-label={text("Phụ trách")}>
