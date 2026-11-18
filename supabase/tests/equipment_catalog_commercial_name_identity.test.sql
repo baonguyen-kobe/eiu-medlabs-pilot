@@ -7,7 +7,8 @@ select ok(
   (
     select attnotnull
     from pg_attribute
-    where attrelid = 'public.equipment_catalog'::regclass
+    -- t4e: equipment_catalog is now a view over equipment_items.
+    where attrelid = 'public.equipment_items'::regclass
       and attname = 'commercial_name'
       and not attisdropped
   ),
@@ -105,7 +106,7 @@ select ok(
     from pg_constraint
     where contype = 'f'
       and conrelid = 'public.equipment_request_items'::regclass
-      and confrelid = 'public.equipment_catalog'::regclass
+      and confrelid = 'public.equipment_items'::regclass
   ),
   'equipment request items retain a foreign key to immutable catalog UUIDs'
 );
