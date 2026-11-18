@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { mapBasicMedicalItem } from "@/app/inventory/basic-medical-mapping/actions";
+import {
+  cutoverBasicMedical,
+  mapBasicMedicalItem,
+} from "@/app/inventory/basic-medical-mapping/actions";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { InventoryLookup } from "@/components/inventory/inventory-lookup";
 import type { InventoryCatalogItem } from "@/lib/inventory/types";
@@ -65,6 +68,47 @@ export function BasicMedicalMapForm({
           disabled={pending || !inventoryItemId}
         >
           {text("Ghép")}
+        </button>
+        {state ? (
+          <span
+            role="status"
+            className={state.ok ? "form-success" : "form-error"}
+          >
+            {text(state.message)}
+          </span>
+        ) : null}
+      </div>
+    </form>
+  );
+}
+
+/** Step B: one audited button moves every ready room row into Kho. */
+export function BasicMedicalCutoverForm({ ready }: { ready: number }) {
+  const { text } = useLanguage();
+  const [state, action, pending] = useActionState(cutoverBasicMedical, null);
+  return (
+    <form action={action} className="list-filters">
+      <label>
+        {text("Lý do")}
+        <input
+          name="reason"
+          required
+          placeholder={text("VD: chốt số kiểm kê ngày 20/11")}
+        />
+      </label>
+      <label className="confirm-check">
+        <input type="checkbox" name="confirm" required />
+        {text(
+          "Tôi đã kiểm số tốt / hỏng ở bảng dưới. Sau khi chuyển, số lượng chỉ đổi qua Kho.",
+        )}
+      </label>
+      <div className="list-filters-actions">
+        <button
+          type="submit"
+          className="button button-primary"
+          disabled={pending || ready === 0}
+        >
+          {text("Chuyển {0} dòng sang kho chung", [ready])}
         </button>
         {state ? (
           <span

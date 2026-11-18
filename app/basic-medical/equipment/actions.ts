@@ -304,7 +304,8 @@ export async function saveBasicMedicalRoomInventory(input: {
     target_is_active: true,
     target_note: input.note.trim(),
   });
-  if (error) return { ok: false, message: error.message };
+  // A row moved into Kho (t4r3) explains itself through its hint.
+  if (error) return { ok: false, message: error.hint || error.message };
   revalidatePath("/basic-medical/equipment");
   revalidatePath("/basic-medical/registrations");
   return { ok: true, message: "Đã cập nhật thiết bị trong phòng." };
@@ -341,7 +342,7 @@ export async function adjustBasicMedicalInventoryCondition(input: {
       target_note: input.note.trim(),
     },
   );
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: error.hint || error.message };
   revalidatePath("/basic-medical/equipment");
   revalidatePath("/basic-medical/registrations");
   return { ok: true, message: "Đã điều chỉnh số lượng Tốt/Hư." };

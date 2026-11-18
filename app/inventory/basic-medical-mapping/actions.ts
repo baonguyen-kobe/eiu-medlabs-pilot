@@ -41,3 +41,33 @@ export async function mapBasicMedicalItem(
   revalidatePath("/inventory/basic-medical-mapping");
   return { ok: true, message: "Đã ghép." };
 }
+
+/** Step B: move every ready room row into the shared ledger (audited). */
+export async function cutoverBasicMedical(
+  _previous: MapResult | null,
+  form: FormData,
+): Promise<MapResult> {
+  await requireInventoryAdmin();
+  if (form.get("confirm") !== "on") {
+    return { ok: false, message: "Xác nhận đã kiểm số trước khi chuyển." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("basic_medical_cutover_apply", {
+    p_reason: String(form.get("reason") ?? ""),
+  });
+  if (error) {
+    const code = Object.keys(messages).find((key) =>
+      error.message.includes(key),
+    );
+    return { ok: false, message: code ? messages[code] : error.message };
+  }
+  revalidatePath("/inventory/basic-medical-mapping");
+  revalidatePath("/inventory/rooms");
+  const moved = (data as { moved: number }).moved;
+  return {
+    ok: true,
+    message: moved
+      ? `Đã chuyển ${moved} dòng sang kho chung.`
+      : "Không còn dòng nào để chuyển.",
+  };
+}

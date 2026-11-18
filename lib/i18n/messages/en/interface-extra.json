@@ -1331,5 +1331,13 @@
   "Thêm hoặc cập nhật tài khoản và phạm vi.": "Add or update accounts and scopes.",
   "Tải mẫu": "Download template",
   "Import": "Import",
-  "Người import": "Imported by"
+  "Người import": "Imported by",
+  "VD: chốt số kiểm kê ngày 20/11": "e.g. count closed on 20/11",
+  "Tôi đã kiểm số tốt / hỏng ở bảng dưới. Sau khi chuyển, số lượng chỉ đổi qua Kho.": "I have checked the good / damaged counts below. After the move, quantities change only through Kho.",
+  "Chuyển {0} dòng sang kho chung": "Move {0} rows into shared stock",
+  "Xác nhận đã kiểm số trước khi chuyển.": "Confirm you checked the counts before moving.",
+  "Đã chuyển {0} dòng sang kho chung.": "Moved {0} rows into shared stock.",
+  "Không còn dòng nào để chuyển.": "No rows left to move.",
+  "Thiết bị này đã chuyển sang kho chung; đổi số lượng tại Kho.": "This item moved into shared stock; change its quantity in Kho.",
+  "Không còn dòng tồn phòng nào chờ chuyển sang kho chung.": "No room stock rows are waiting to move into shared stock."
 }
