@@ -12035,3 +12035,36 @@ a.kpi-card[aria-current="true"] {
 .kho-form .form-section-title p {
   margin-bottom: 14px;
 }
+
+/* Import dữ liệu (t4d): one card per data type. */
+.import-kinds {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.import-kinds article {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--eiu-blue);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.import-kinds strong {
+  font-size: 15px;
+}
+
+.import-kinds small {
+  color: var(--ink-600);
+  font-size: 13px;
+}
+
+.import-kinds .list-filters-actions {
+  margin-top: 8px;
+}

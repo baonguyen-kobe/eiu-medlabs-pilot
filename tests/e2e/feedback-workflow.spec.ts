@@ -486,7 +486,7 @@ test("staff sees separate shift views and can only self-register", async ({
     }),
   ).toHaveCount(0);
   await expect(
-    navigation.getByRole("link", { name: "Lịch sử import", exact: true }),
+    navigation.getByRole("link", { name: "Import dữ liệu", exact: true }),
   ).toBeVisible();
 
   await page.goto("/class-schedules?view=week&date=2026-07-31");

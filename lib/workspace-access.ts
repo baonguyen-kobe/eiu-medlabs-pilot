@@ -123,6 +123,19 @@ export function canCreateBasicMedicalSchedules(
   );
 }
 
+export function canImportSkillsSchedules(
+  roles: AppRole[],
+  roomTypeCodes: string[],
+  canImportSchedules: boolean,
+) {
+  return (
+    roles.includes("admin") ||
+    (canImportSchedules &&
+      roomTypeCodes.includes(nursingSkillsRoomTypeCode) &&
+      hasAnyRole(roles, ["staff", "lecturer", "teaching_assistant"]))
+  );
+}
+
 export function canImportBasicMedicalSchedules(
   roles: AppRole[],
   roomTypeCodes: string[],

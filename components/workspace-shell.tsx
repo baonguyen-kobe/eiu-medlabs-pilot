@@ -42,6 +42,7 @@ import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   canCreateBasicMedicalSchedules,
   canImportBasicMedicalSchedules,
+  canImportSkillsSchedules,
   canManageBasicMedicalWorkspace,
   canUseEquipmentOperations,
   canUseBasicMedicalEquipmentRegistration,
@@ -103,13 +104,11 @@ function buildNavigation(
     roomTypeCodes,
   );
   const canManageSkillsEquipment = isAdmin || (isStaff && hasSkillsScope);
-  const canImport =
-    isAdmin ||
-    (canImportSchedules &&
-      hasSkillsScope &&
-      roles.some((role) =>
-        ["staff", "lecturer", "teaching_assistant"].includes(role),
-      ));
+  const canImport = canImportSkillsSchedules(
+    roles,
+    roomTypeCodes,
+    canImportSchedules,
+  );
   const canCreateSkills =
     isAdmin ||
     isStaff ||
@@ -172,7 +171,7 @@ function buildNavigation(
   }
   if (canCreateSkills && (isAdmin || isStaff || canImport)) {
     taoPhieuItems.push({
-      label: "Lịch sử import",
+      label: "Import dữ liệu",
       href: "/imports",
       icon: FileClock,
       activeIcon: FileClockSolid,

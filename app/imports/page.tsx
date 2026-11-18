@@ -1,4 +1,4 @@
-import { FileClock, Import, Plus } from "@/components/icons";
+import { Download, FileClock, Import } from "@/components/icons";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace-shell";
@@ -7,6 +7,11 @@ import { PaginationLinks } from "@/components/pagination-links";
 import { normalizePage, paginationRange } from "@/lib/pagination";
 import { LocalizedText } from "@/components/i18n/language-provider";
 import { LocalizedElement } from "@/components/i18n/localized-element";
+import {
+  canImportBasicMedicalSchedules,
+  canImportSkillsSchedules,
+  canManageBasicMedicalWorkspace,
+} from "@/lib/workspace-access";
 
 const importStatusLabels: Record<string, string> = {
   uploaded: "Đã tải lên",
@@ -19,6 +24,14 @@ const importStatusLabels: Record<string, string> = {
   failed: "Thất bại",
 };
 
+type ImportKind = {
+  label: string;
+  note: string;
+  href: string;
+  template: string;
+};
+
+/** One Import page (t4d): pick a data type, get its template, open its import. */
 export default async function ImportsPage({
   searchParams,
 }: {
@@ -34,28 +47,99 @@ export default async function ImportsPage({
     canManagePersonnel,
     canManageEmailNotifications,
   } = await getViewer();
-  if (
-    !roles.includes("admin") &&
-    !(
-      canImportSchedules &&
-      roles.some((role) =>
-        ["staff", "lecturer", "teaching_assistant"].includes(role),
-      )
-    )
-  ) {
-    redirect("/dashboard");
-  }
+  const roomTypeCodes = roomTypes.map(({ code }) => code);
+  const isAdmin = roles.includes("admin");
+  const isStaff = roles.includes("staff");
+  const canSkills = canImportSkillsSchedules(
+    roles,
+    roomTypeCodes,
+    canImportSchedules,
+  );
+
+  const kinds: ImportKind[] = [
+    ...(canSkills
+      ? [
+          {
+            label: "Lịch Skills lab",
+            note: "Tạo nhiều buổi học Skills lab từ một file.",
+            href: "/schedule-entry/import",
+            template: "/api/import-template/xlsx?scope=skills_lab",
+          },
+        ]
+      : []),
+    ...(canImportBasicMedicalSchedules(roles, roomTypeCodes, canImportSchedules)
+      ? [
+          {
+            label: "Lịch Y cơ sở",
+            note: "Tạo phiếu Y cơ sở và các buổi học từ một file.",
+            href: "/basic-medical/import",
+            template: "/api/import-template/xlsx?scope=basic_medical",
+          },
+        ]
+      : []),
+    ...(isAdmin || (isStaff && roomTypeCodes.includes("nursing_skills"))
+      ? [
+          {
+            label: "Danh mục thiết bị Skills lab",
+            note: "Thêm hoặc cập nhật thiết bị trong danh mục.",
+            href: "/admin/equipment",
+            template: "/api/admin-catalog-template/equipment",
+          },
+        ]
+      : []),
+    ...((isAdmin || isStaff) &&
+    canManageBasicMedicalWorkspace(roles, roomTypeCodes)
+      ? [
+          {
+            label: "Danh mục thiết bị Y cơ sở",
+            note: "Thêm hoặc cập nhật thiết bị Y cơ sở theo phòng.",
+            href: "/basic-medical/equipment",
+            template: "/api/basic-medical-equipment-template",
+          },
+        ]
+      : []),
+    ...(isAdmin
+      ? [
+          {
+            label: "Môn học",
+            note: "Thêm hoặc cập nhật danh mục môn học.",
+            href: "/admin/courses",
+            template: "/api/admin-catalog-template/courses",
+          },
+          {
+            label: "Phòng",
+            note: "Thêm hoặc cập nhật danh mục phòng.",
+            href: "/admin/rooms",
+            template: "/api/admin-catalog-template/rooms",
+          },
+        ]
+      : []),
+    ...(isAdmin && canManagePersonnel
+      ? [
+          {
+            label: "Nhân sự",
+            note: "Thêm hoặc cập nhật tài khoản và phạm vi.",
+            href: "/admin/personnel",
+            template: "/api/admin-catalog-template/personnel",
+          },
+        ]
+      : []),
+  ];
+  if (!kinds.length) redirect("/dashboard");
 
   const query = await searchParams;
   const currentPage = normalizePage(query.page);
   const { from, to } = paginationRange(currentPage);
+  // shortcut: history lists schedule imports (import_batches) only; catalog
+  // and personnel imports keep no batch rows yet. Add them when they do.
   const { data: batches, count } = await supabase
     .from("import_batches")
     .select(
       `
       id, original_file_name, status, total_rows, valid_rows, warning_rows,
       error_rows, imported_rows, duplicate_rows, conflict_rows, created_at, completed_at,
-      room_types (name)
+      room_types (name),
+      creator:profiles!import_batches_created_by_fkey (full_name)
     `,
       { count: "exact" },
     )
@@ -66,32 +150,60 @@ export default async function ImportsPage({
     <WorkspaceShell
       fullName={fullName}
       roles={roles}
-      roomTypeCodes={roomTypes.map(({ code }) => code)}
+      roomTypeCodes={roomTypeCodes}
       allowBasicMedicalAccess={allowBasicMedicalAccess}
       canImportSchedules={canImportSchedules}
       canManagePersonnel={canManagePersonnel}
       canManageEmailNotifications={canManageEmailNotifications}
-      title={<LocalizedText text={"Lịch sử import"} />}
+      title={<LocalizedText text={"Import dữ liệu"} />}
       description={
         <LocalizedText
-          text={"Theo dõi số dòng đã tạo, cảnh báo, lỗi và dữ liệu trùng."}
+          text={
+            "Chọn loại dữ liệu, tải mẫu, rồi mở trang import để xem trước và áp dụng."
+          }
         />
       }
-      actions={
-        <Link className="button button-primary" href="/schedule-entry/import">
-          <Plus size={17} />
-          <LocalizedText text={" Import mới"} />
-        </Link>
-      }
     >
+      <LocalizedElement
+        as="section"
+        textAttributes={["aria-label"]}
+        className="import-kinds"
+        aria-label="Loại dữ liệu"
+      >
+        {kinds.map((kind) => (
+          <article key={kind.href}>
+            <strong>
+              <LocalizedText text={kind.label} />
+            </strong>
+            <small>
+              <LocalizedText text={kind.note} />
+            </small>
+            <div className="list-filters-actions">
+              <Link
+                className="button button-secondary"
+                href={kind.template}
+                download
+                prefetch={false}
+              >
+                <Download size={16} aria-hidden="true" />
+                <LocalizedText text={"Tải mẫu"} />
+              </Link>
+              <Link className="button button-primary" href={kind.href}>
+                <LocalizedText text={"Import"} />
+              </Link>
+            </div>
+          </article>
+        ))}
+      </LocalizedElement>
+
       <section className="data-panel">
         <div className="data-toolbar">
           <Import size={20} />
           <h2 className="standard-section-heading">
-            <LocalizedText text={"Các phiên import gần đây"} />
+            <LocalizedText text={"Lịch sử import"} />
           </h2>
           <span>
-            {batches?.length ?? 0}
+            {count ?? 0}
             <LocalizedText text={" phiên"} />
           </span>
         </div>
@@ -111,6 +223,9 @@ export default async function ImportsPage({
                 </th>
                 <th>
                   <LocalizedText text={"Thời điểm"} />
+                </th>
+                <th>
+                  <LocalizedText text={"Người import"} />
                 </th>
                 <th>
                   <LocalizedText text={"Trạng thái"} />
@@ -155,6 +270,10 @@ export default async function ImportsPage({
                     }).format(new Date(batch.created_at))}
                   </td>
                   <td>
+                    {(batch.creator as unknown as { full_name: string } | null)
+                      ?.full_name ?? "—"}
+                  </td>
+                  <td>
                     <span className="status-pill">
                       <LocalizedText
                         text={importStatusLabels[batch.status] ?? batch.status}
@@ -170,7 +289,15 @@ export default async function ImportsPage({
                   <td>{batch.total_rows}</td>
                   <td>{batch.imported_rows}</td>
                   <td>{batch.warning_rows}</td>
-                  <td>{batch.error_rows}</td>
+                  <td>
+                    {batch.error_rows > 0 ? (
+                      <a href={`/api/import-errors/${batch.id}`}>
+                        {batch.error_rows}
+                      </a>
+                    ) : (
+                      batch.error_rows
+                    )}
+                  </td>
                   <td>{batch.duplicate_rows}</td>
                   <td>{batch.conflict_rows}</td>
                 </tr>

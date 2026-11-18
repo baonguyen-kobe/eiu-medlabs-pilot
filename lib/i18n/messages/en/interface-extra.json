@@ -1316,5 +1316,20 @@
   "Hệ số quy đổi phải là số dương.": "The conversion factor must be positive.",
   "Đã ghép.": "Mapped.",
   "Chỉ xem": "View only",
-  "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.": "Skills lab requests are recorded through Preparation and Handover / return."
+  "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.": "Skills lab requests are recorded through Preparation and Handover / return.",
+  "Import dữ liệu": "Data import",
+  "Chọn loại dữ liệu, tải mẫu, rồi mở trang import để xem trước và áp dụng.": "Pick a data type, download its template, then open its import page to preview and apply.",
+  "Loại dữ liệu": "Data type",
+  "Tạo nhiều buổi học Skills lab từ một file.": "Create many Skills lab sessions from one file.",
+  "Tạo phiếu Y cơ sở và các buổi học từ một file.": "Create Basic Medical registrations and sessions from one file.",
+  "Danh mục thiết bị Skills lab": "Skills lab equipment catalog",
+  "Thêm hoặc cập nhật thiết bị trong danh mục.": "Add or update equipment in the catalog.",
+  "Danh mục thiết bị Y cơ sở": "Basic Medical equipment catalog",
+  "Thêm hoặc cập nhật thiết bị Y cơ sở theo phòng.": "Add or update Basic Medical equipment by room.",
+  "Thêm hoặc cập nhật danh mục môn học.": "Add or update the course catalog.",
+  "Thêm hoặc cập nhật danh mục phòng.": "Add or update the room catalog.",
+  "Thêm hoặc cập nhật tài khoản và phạm vi.": "Add or update accounts and scopes.",
+  "Tải mẫu": "Download template",
+  "Import": "Import",
+  "Người import": "Imported by"
 }
