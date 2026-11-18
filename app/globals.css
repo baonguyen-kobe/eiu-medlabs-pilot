@@ -12617,3 +12617,28 @@ tr[data-open] > :is(th, td) {
   background: transparent;
   box-shadow: none;
 }
+
+.kho-delta {
+  font-weight: 700;
+}
+
+.kho-delta[data-sign="plus"] {
+  color: var(--eiu-green);
+}
+
+.kho-delta[data-sign="minus"] {
+  color: var(--eiu-red);
+}
+
+.kho-section-title {
+  margin: 8px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--eiu-blue);
+}
+
+.kho-section-sub {
+  margin: 2px 0 0;
+  color: var(--ink-600);
+  font-size: 14px;
+}

@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ClipboardList,
   FileClock,
   Settings,
@@ -114,79 +113,76 @@ export function TransactionDetailView({
   }, [selectedOriginId]);
 
   return (
-    <div className="space-y-6">
-      {/* Back button & Title */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/inventory/transactions"
-            className="button button-secondary text-xs inline-flex items-center gap-1.5"
-          >
-            <ArrowLeft size={14} />
-            {uiText(" Quay lại lịch sử")}
-          </Link>
-          <span className="text-slate-300">/</span>
-          <span className="font-mono text-xs text-slate-500 font-semibold dark:text-slate-400">
-            {transaction.business_key}
-          </span>
-        </div>
+    <div className="kho-record">
+      <header className="kho-record-header">
+        <div className="kho-record-head">
+          <div className="kho-record-title">
+            <Link href="/inventory/transactions">
+              ← {uiText("Lịch sử giao dịch")}
+            </Link>
+            <OperationBadge operation={transaction.operation} />
+            <h2 className="mono">{transaction.business_key}</h2>
+            <span className="kho-record-sub">
+              {transaction.actor_name || uiText("Hệ thống")} ·{" "}
+              {formatInventoryDateTime(transaction.occurred_at)}
+            </span>
+          </div>
+          <div className="kho-record-actions">
+            {isOriginalReceive ? (
+              <>
+                <button
+                  ref={correctReceiptBtnRef}
+                  type="button"
+                  className="button button-secondary text-xs"
+                  onClick={() => setCorrectReceiptOpen(true)}
+                >
+                  <Settings size={14} />
+                  {uiText(" Điều chỉnh phiếu nhận (O09)")}
+                </button>
+                <button
+                  ref={reverseReceiptBtnRef}
+                  type="button"
+                  className="button button-danger text-xs"
+                  onClick={() => setReverseReceiptOpen(true)}
+                >
+                  {uiText("Hủy phiếu nhận (Về 0)")}
+                </button>
+              </>
+            ) : null}
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          {isOriginalReceive ? (
-            <>
+            {isOriginalOpening && isAdmin ? (
               <button
-                ref={correctReceiptBtnRef}
+                ref={correctOpeningBtnRef}
                 type="button"
-                className="button button-secondary text-xs"
-                onClick={() => setCorrectReceiptOpen(true)}
+                className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-300 dark:bg-indigo-950/40"
+                onClick={() => setCorrectOpeningOpen(true)}
               >
                 <Settings size={14} />
-                {uiText(" Điều chỉnh phiếu nhận (O09)")}
+                {uiText(" Điều chỉnh tồn đầu (Admin O10)")}
               </button>
-              <button
-                ref={reverseReceiptBtnRef}
-                type="button"
-                className="button button-danger text-xs"
-                onClick={() => setReverseReceiptOpen(true)}
+            ) : null}
+
+            {isCorrectionOrReversal && transaction.corrects_transaction_id ? (
+              <Link
+                href={`/inventory/transactions/${transaction.corrects_transaction_id}`}
+                className="button button-secondary text-xs inline-flex items-center gap-1.5"
               >
-                {uiText("Hủy phiếu nhận (Về 0)")}
-              </button>
-            </>
-          ) : null}
+                <FileClock size={14} />
+                {uiText(" Xem giao dịch gốc")}
+              </Link>
+            ) : null}
 
-          {isOriginalOpening && isAdmin ? (
-            <button
-              ref={correctOpeningBtnRef}
-              type="button"
-              className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-300 dark:bg-indigo-950/40"
-              onClick={() => setCorrectOpeningOpen(true)}
-            >
-              <Settings size={14} />
-              {uiText(" Điều chỉnh tồn đầu (Admin O10)")}
-            </button>
-          ) : null}
-
-          {isCorrectionOrReversal && transaction.corrects_transaction_id ? (
-            <Link
-              href={`/inventory/transactions/${transaction.corrects_transaction_id}`}
-              className="button button-secondary text-xs inline-flex items-center gap-1.5"
-            >
-              <FileClock size={14} />
-              {uiText(" Xem giao dịch gốc")}
-            </Link>
-          ) : null}
-
-          {isS2Operation ? (
-            <Link
-              href="/inventory/operations"
-              className="button button-primary text-xs inline-flex items-center gap-1.5"
-            >
-              {uiText("Nghiệp vụ kho S2 / Operations →")}
-            </Link>
-          ) : null}
+            {isS2Operation ? (
+              <Link
+                href="/inventory/operations"
+                className="button button-primary text-xs inline-flex items-center gap-1.5"
+              >
+                {uiText("Nghiệp vụ kho S2 / Operations →")}
+              </Link>
+            ) : null}
+          </div>
         </div>
-      </div>
+      </header>
 
       {notice ? (
         <div
@@ -212,551 +208,494 @@ export function TransactionDetailView({
         </div>
       ) : null}
 
-      {/* Header Info Panel */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4 dark:bg-slate-900 dark:border-slate-800">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3">
-            <OperationBadge operation={transaction.operation} />
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-mono">
-              {transaction.business_key}
-            </h2>
-          </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-            {uiText("ID: ")}
-            {transaction.id}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div>
-            <span className="text-slate-400 block text-[11px]">
-              {uiText("Người thực hiện:")}
-            </span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              {transaction.actor_name || uiText("Hệ thống")}
-            </span>
-          </div>
-          <div>
-            <span className="text-slate-400 block text-[11px]">
-              {uiText("Thời điểm phát sinh:")}
-            </span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              {formatInventoryDateTime(transaction.occurred_at)}
-            </span>
-          </div>
-          <div>
-            <span className="text-slate-400 block text-[11px]">
-              {uiText("Thời điểm ghi sổ:")}
-            </span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              {formatInventoryDateTime(transaction.posted_at)}
-            </span>
-          </div>
-          <div>
-            <span className="text-slate-400 block text-[11px]">
-              {uiText("Giao dịch gốc điều chỉnh:")}
-            </span>
-            {transaction.corrects_transaction_id ? (
-              <Link
-                href={`/inventory/transactions/${transaction.corrects_transaction_id}`}
-                className="font-mono text-indigo-600 font-semibold hover:underline dark:text-indigo-400"
-              >
-                {transaction.corrects_transaction_id.slice(0, 10)}…
-              </Link>
+      <div className="kho-record-grid">
+        <div className="kho-record-main">
+          <section className="kho-card" aria-labelledby="tx-lines">
+            <div className="kho-card-head">
+              <h3 id="tx-lines">
+                {uiText("Dòng sổ cái")}{" "}
+                <small>{uiText("· {0} dòng", [lines.length])}</small>
+              </h3>
+            </div>
+            {lines.length === 0 ? (
+              <p className="kho-card-body">
+                {uiText(
+                  "Giao dịch chỉ đính chính chứng từ hoặc hạn dùng; số lượng tồn kho không đổi.",
+                )}
+              </p>
             ) : (
-              <span className="text-slate-400">
-                {uiText("Giao dịch gốc (None)")}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {transaction.reason ? (
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs dark:bg-slate-800/50 dark:border-slate-800">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {uiText("Lý do điều chỉnh / ghi chú:")}
-            </span>{" "}
-            <span className="text-slate-800 dark:text-slate-200">
-              {transaction.reason}
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      {/* Signed Ledger Delta Lines */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs dark:bg-slate-900 dark:border-slate-800">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
-          <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            {uiText("Các dòng dịch chuyển sổ cái thực tế (Ledger Lines: ")}
-            {lines.length})
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {uiText(
-              "Dòng phát sinh ghi sổ bất biến, thể hiện số lượng thay đổi có dấu (+/-) trên từng vị trí và tình trạng hàng",
-            )}
-          </p>
-        </div>
-
-        {/* Zero-line corrections say stock delta0 */}
-        {lines.length === 0 ? (
-          <div className="p-6 text-center text-xs text-slate-500 bg-slate-50/30 dark:bg-slate-900/30 dark:text-slate-400 space-y-1">
-            <p className="font-semibold text-slate-700 dark:text-slate-300">
-              {uiText("Biến động tồn kho: 0 (Delta = 0) / Stock delta: 0")}
-            </p>
-            <p className="text-[11px] text-slate-500">
-              {uiText(
-                "Đây là giao dịch hiệu chỉnh thông tin chứng từ hoặc xác minh hạn dùng; số lượng tồn kho vật lý không thay đổi (Stock delta = 0).",
-              )}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px] dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
-                  <th className="py-2.5 px-4">{uiText("Dòng")}</th>
-                  <th className="py-2.5 px-4">{uiText("Mã SKU / Vật tư")}</th>
-                  <th className="py-2.5 px-4">{uiText("Vị trí kho")}</th>
-                  <th className="py-2.5 px-4">{uiText("Tình trạng")}</th>
-                  <th className="py-2.5 px-4 text-right">
-                    {uiText("Biến động số lượng (Delta)")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono dark:divide-slate-800 dark:text-slate-300">
-                {lines.map((l) => {
-                  const isZero = l.quantity_delta === "0";
-                  const isPositiveDelta =
-                    !l.quantity_delta.startsWith("-") && !isZero;
-                  return (
-                    <tr
-                      key={l.line_no}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
-                    >
-                      <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-200">
-                        #{l.line_no}
-                      </td>
-                      <td className="py-2.5 px-4 font-sans font-medium text-slate-900 dark:text-slate-100">
-                        {l.item_code} - {l.item_name}
-                      </td>
-                      <td className="py-2.5 px-4 font-sans text-slate-600 dark:text-slate-400">
-                        {l.location_name}
-                      </td>
-                      <td className="py-2.5 px-4 font-sans">
-                        <ConditionBadge
-                          condition={l.condition as StockCondition}
-                        />
-                      </td>
-                      <td
-                        className={`py-2.5 px-4 text-right font-bold text-sm ${
-                          isZero
-                            ? "text-slate-500"
-                            : isPositiveDelta
-                              ? "text-emerald-700 dark:text-emerald-400"
-                              : "text-red-700 dark:text-red-400"
-                        }`}
-                      >
-                        {isZero
-                          ? "0 (Delta = 0)"
-                          : isPositiveDelta
-                            ? `+${formatDisplayQuantity(l.quantity_delta)}`
-                            : formatDisplayQuantity(l.quantity_delta)}
-                      </td>
+              <div className="kho-scroll">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">{uiText("Vật tư")}</th>
+                      <th scope="col">{uiText("Vị trí kho")}</th>
+                      <th scope="col">{uiText("Tình trạng")}</th>
+                      <th scope="col" className="num">
+                        {uiText("Biến động")}
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Side-by-Side Fact Evidence Comparison */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            {uiText(
-              "Đối chiếu chứng từ nguồn gốc & Phiên bản (Origins & Evidence:",
-            )}{" "}
-            {origins.length})
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {uiText(
-              "Bảo lưu nguyên vẹn bằng chứng mua sắm ban đầu (Fact v0) đối chiếu cùng sự thật hiệu chỉnh hiện thời (Current Fact)",
-            )}
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {origins.map((orig) => {
-            const hasUnknown = orig.current_fact.expiry_precision === "unknown";
-            const isSelected = selectedOriginId === orig.origin_id;
-            const snapshot = orig.original_fact.source_snapshot as
-              Record<string, unknown> | undefined;
-
-            return (
-              <div
-                key={orig.origin_id}
-                id={`cohort-section-${orig.origin_id}`}
-                tabIndex={-1}
-                className={`bg-white rounded-xl border overflow-hidden shadow-xs transition-all dark:bg-slate-900 ${
-                  isSelected
-                    ? "ring-2 ring-indigo-500 border-indigo-400 bg-indigo-50/10 dark:border-indigo-600"
-                    : "border-slate-200 dark:border-slate-800"
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-100 bg-slate-50/60 text-xs dark:border-slate-800 dark:bg-slate-800/40">
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono mr-2">
-                        [{orig.line_key}]
-                      </span>
-                      <strong className="text-slate-900 dark:text-slate-100">
-                        {orig.item_code} - {orig.item_name}
-                      </strong>
-                      <span className="text-slate-400 text-[11px] block mt-0.5 font-mono">
-                        {uiText("Origin ID: ")}
-                        {orig.origin_id}
-                      </span>
-                    </div>
-
-                    {isSelected ? (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
-                        {uiText("Đang xem lô này")}
-                      </span>
-                    ) : null}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEvidenceOrigin({
-                          id: orig.origin_id,
-                          code: orig.item_code,
-                          name: orig.item_name,
-                        })
-                      }
-                      className="button button-secondary text-xs inline-flex items-center gap-1.5 text-purple-700 hover:bg-purple-50"
-                      title={uiText(
-                        "Xem nhật ký bằng chứng kiểm kê / thẩm định",
-                      )}
-                    >
-                      <ClipboardList size={13} />
-                      <span>{uiText("Nhật ký bằng chứng")}</span>
-                    </button>
-                  </div>
-
-                  {hasUnknown && isAdmin && isOriginalOpening ? (
-                    <button
-                      ref={(el) => {
-                        verifyExpiryBtnRefs.current[orig.origin_id] = el;
-                      }}
-                      type="button"
-                      className="button button-secondary text-xs border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200 dark:bg-amber-950/40"
-                      onClick={() =>
-                        setVerifyExpiryOrigin({
-                          originId: orig.origin_id,
-                          expectedVersion: orig.current_fact.version,
-                          itemName: `${orig.item_code} - ${orig.item_name}`,
-                        })
-                      }
-                    >
-                      <ShieldCheck size={14} className="text-amber-600" />
-                      {uiText("Xác minh hạn dùng (Admin O14)")}
-                    </button>
-                  ) : null}
-                </div>
-
-                {/* Side-by-side grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-xs dark:divide-slate-800">
-                  {/* Left: Original Fact */}
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                      <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[11px]">
-                        {uiText("Bằng chứng gốc ban đầu")}
-                        {String(orig.original_fact.version)})
-                      </span>
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {orig.original_fact.id.slice(0, 8)}…
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("SL Nhập ban đầu:")}
-                        </span>
-                        <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
-                          {orig.original_fact.purchase_quantity
-                            ? `${formatDisplayQuantity(orig.original_fact.purchase_quantity)} ${orig.original_fact.purchase_uom_code}`
-                            : uiText("— (Tồn đầu)")}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Hệ số quy đổi:")}
-                        </span>
-                        <span className="font-mono text-slate-800 dark:text-slate-200">
-                          {orig.original_fact.conversion_factor
-                            ? uiText("×{0}", [
-                                orig.original_fact.conversion_factor,
-                              ])
-                            : "—"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("SL Quy đổi cơ sở:")}
-                        </span>
-                        <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300">
-                          {formatDisplayQuantity(
-                            orig.original_fact.base_quantity,
-                          )}{" "}
-                          {uomLabel(orig)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Tốt / Hỏng ban đầu:")}
-                        </span>
-                        <span className="font-mono">
-                          <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-                            {formatDisplayQuantity(
-                              orig.original_fact.good_quantity,
-                            )}
-                          </span>{" "}
-                          /{" "}
-                          <span className="text-amber-700 dark:text-amber-400 font-semibold">
-                            {formatDisplayQuantity(
-                              orig.original_fact.damaged_quantity,
-                            )}
-                          </span>
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Hạn dùng ban đầu:")}
-                        </span>
-                        <ExpiryBadge
-                          precision={orig.original_fact.expiry_precision}
-                          expiryDate={orig.original_fact.expiry_date}
-                        />
-                        <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                          {orig.original_fact.expiry_input ?? "—"} (
-                          {orig.original_fact.expiry_precision})
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Vị trí tiếp nhận:")}
-                        </span>
-                        <span className="text-slate-800 dark:text-slate-200">
-                          {orig.original_fact.location_name ||
-                            orig.original_fact.location_id}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Immutable Source Snapshot evidence */}
-                    {snapshot && Object.keys(snapshot).length > 0 ? (
-                      <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
-                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/60 dark:border-slate-700/60">
-                          <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider">
-                            {uiText("Bằng chứng hồ sơ nguồn gốc bất biến")}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            {uiText("Snapshot v0")}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                          {Boolean(snapshot.source_reference) && (
-                            <div>
-                              <span className="text-slate-400 block text-[10px]">
-                                {uiText("Mã hồ sơ nguồn:")}
-                              </span>
-                              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                                {String(snapshot.source_reference)}
-                              </span>
-                            </div>
-                          )}
-                          {Boolean(snapshot.supplier_name) && (
-                            <div>
-                              <span className="text-slate-400 block text-[10px]">
-                                {uiText("Nhà cung cấp:")}
-                              </span>
-                              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                                {String(snapshot.supplier_name)}
-                              </span>
-                            </div>
-                          )}
-                          {Boolean(snapshot.unit_cost) && (
-                            <div>
-                              <span className="text-slate-400 block text-[10px]">
-                                {uiText("Đơn giá cam kết (INV-018):")}
-                              </span>
-                              <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
-                                {formatDisplayQuantity(
-                                  String(snapshot.unit_cost),
-                                )}{" "}
-                                {String(snapshot.currency_code || "VND")}
-                              </span>
-                            </div>
-                          )}
-                          {Boolean(
-                            snapshot.manufacturer ||
-                            snapshot.model ||
-                            snapshot.country_of_origin,
-                          ) && (
-                            <div>
-                              <span className="text-slate-400 block text-[10px]">
-                                {uiText("Hãng SX / Model / Xuất xứ:")}
-                              </span>
-                              <span className="text-slate-700 dark:text-slate-300">
-                                {[
-                                  snapshot.manufacturer,
-                                  snapshot.model,
-                                  snapshot.country_of_origin,
-                                ]
-                                  .filter(Boolean)
-                                  .map(String)
-                                  .join(" • ")}
-                              </span>
-                            </div>
-                          )}
-                          {Boolean(snapshot.notes) && (
-                            <div className="sm:col-span-2">
-                              <span className="text-slate-400 block text-[10px]">
-                                {uiText("Ghi chú nguồn cam kết:")}
-                              </span>
-                              <span className="text-slate-700 dark:text-slate-300 italic">
-                                {String(snapshot.notes)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* Right: Current Fact */}
-                  <div className="p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/40">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                      <span className="font-bold text-indigo-900 dark:text-indigo-300 uppercase text-[11px]">
-                        {uiText("Sự thật hiệu chỉnh hiện thời")}
-                        {String(orig.current_fact.version)})
-                      </span>
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {orig.current_fact.id.slice(0, 8)}…
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("SL Nhập hiện tại:")}
-                        </span>
-                        <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
-                          {orig.current_fact.purchase_quantity
-                            ? `${formatDisplayQuantity(orig.current_fact.purchase_quantity)} ${orig.current_fact.purchase_uom_code}`
-                            : "—"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Hệ số quy đổi:")}
-                        </span>
-                        <span className="font-mono text-slate-800 dark:text-slate-200">
-                          {orig.current_fact.conversion_factor
-                            ? uiText("×{0}", [
-                                orig.current_fact.conversion_factor,
-                              ])
-                            : "—"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("SL Cơ sở hiện tại:")}
-                        </span>
-                        <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300">
-                          {formatDisplayQuantity(
-                            orig.current_fact.base_quantity,
-                          )}{" "}
-                          {uomLabel(orig)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Tốt / Hỏng hiện thời:")}
-                        </span>
-                        <span className="font-mono">
-                          <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-                            {formatDisplayQuantity(
-                              orig.current_fact.good_quantity,
-                            )}
-                          </span>{" "}
-                          /{" "}
-                          <span className="text-amber-700 dark:text-amber-400 font-semibold">
-                            {formatDisplayQuantity(
-                              orig.current_fact.damaged_quantity,
-                            )}
-                          </span>
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Hạn dùng hiện thời:")}
-                        </span>
-                        <ExpiryBadge
-                          precision={orig.current_fact.expiry_precision}
-                          expiryDate={orig.current_fact.expiry_date}
-                        />
-                        <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                          {orig.current_fact.expiry_input ?? "—"} (
-                          {orig.current_fact.expiry_precision})
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[11px]">
-                          {uiText("Vị trí kho hiện tại:")}
-                        </span>
-                        <span className="text-slate-800 dark:text-slate-200">
-                          {orig.current_fact.location_name ||
-                            orig.current_fact.location_id}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cohort Remaining stock */}
-                {orig.balances && orig.balances.length > 0 ? (
-                  <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs dark:bg-slate-800/40 dark:border-slate-800">
-                    <span className="text-slate-500 dark:text-slate-400 font-medium">
-                      {uiText(
-                        "Tồn kho thực tế còn lại của lô này (Remaining Balance):",
-                      )}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      {orig.balances.map((b, bi) => (
-                        <span key={bi} className="font-mono">
-                          <strong className="text-slate-900 dark:text-slate-100">
-                            {formatDisplayQuantity(b.quantity)}
-                          </strong>{" "}
-                          <span className="text-slate-500 dark:text-slate-400 font-sans">
-                            (
-                            {b.condition === "good"
-                              ? uiText("Tốt")
-                              : uiText("Hỏng")}
-                            {uiText(" tại")} {b.location_name})
-                          </span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
+                  </thead>
+                  <tbody>
+                    {lines.map((l) => {
+                      const isZero = l.quantity_delta === "0";
+                      const isPositiveDelta =
+                        !l.quantity_delta.startsWith("-") && !isZero;
+                      return (
+                        <tr key={l.line_no}>
+                          <td>{l.line_no}</td>
+                          <th scope="row">
+                            <span className="cell-stack">
+                              <strong>{l.item_name}</strong>
+                              <small>{l.item_code}</small>
+                            </span>
+                          </th>
+                          <td>{l.location_name}</td>
+                          <td>
+                            <ConditionBadge
+                              condition={l.condition as StockCondition}
+                            />
+                          </td>
+                          <td
+                            className="num kho-delta"
+                            data-sign={
+                              isZero
+                                ? "zero"
+                                : isPositiveDelta
+                                  ? "plus"
+                                  : "minus"
+                            }
+                          >
+                            {isZero
+                              ? "0"
+                              : isPositiveDelta
+                                ? `+${formatDisplayQuantity(l.quantity_delta)}`
+                                : formatDisplayQuantity(l.quantity_delta)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            );
-          })}
+            )}
+          </section>
+
+          {/* Side-by-Side Fact Evidence Comparison */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="kho-section-title">
+                {uiText(
+                  "Đối chiếu chứng từ nguồn gốc & Phiên bản (Origins & Evidence:",
+                )}{" "}
+                {origins.length})
+              </h3>
+              <p className="kho-section-sub">
+                {uiText(
+                  "Bảo lưu nguyên vẹn bằng chứng mua sắm ban đầu (Fact v0) đối chiếu cùng sự thật hiệu chỉnh hiện thời (Current Fact)",
+                )}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {origins.map((orig) => {
+                const hasUnknown =
+                  orig.current_fact.expiry_precision === "unknown";
+                const isSelected = selectedOriginId === orig.origin_id;
+                const snapshot = orig.original_fact.source_snapshot as
+                  Record<string, unknown> | undefined;
+
+                return (
+                  <div
+                    key={orig.origin_id}
+                    id={`cohort-section-${orig.origin_id}`}
+                    tabIndex={-1}
+                    className={`bg-white rounded-xl border overflow-hidden shadow-xs transition-all dark:bg-slate-900 ${
+                      isSelected
+                        ? "ring-2 ring-indigo-500 border-indigo-400 bg-indigo-50/10 dark:border-indigo-600"
+                        : "border-slate-200 dark:border-slate-800"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-100 bg-slate-50/60 text-xs dark:border-slate-800 dark:bg-slate-800/40">
+                      <div className="flex items-center gap-2">
+                        <div>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono mr-2">
+                            [{orig.line_key}]
+                          </span>
+                          <strong className="text-slate-900 dark:text-slate-100">
+                            {orig.item_code} - {orig.item_name}
+                          </strong>
+                          <span className="text-slate-400 text-[11px] block mt-0.5 font-mono">
+                            {uiText("Origin ID: ")}
+                            {orig.origin_id}
+                          </span>
+                        </div>
+
+                        {isSelected ? (
+                          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+                            {uiText("Đang xem lô này")}
+                          </span>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEvidenceOrigin({
+                              id: orig.origin_id,
+                              code: orig.item_code,
+                              name: orig.item_name,
+                            })
+                          }
+                          className="button button-secondary text-xs inline-flex items-center gap-1.5 text-purple-700 hover:bg-purple-50"
+                          title={uiText(
+                            "Xem nhật ký bằng chứng kiểm kê / thẩm định",
+                          )}
+                        >
+                          <ClipboardList size={13} />
+                          <span>{uiText("Nhật ký bằng chứng")}</span>
+                        </button>
+                      </div>
+
+                      {hasUnknown && isAdmin && isOriginalOpening ? (
+                        <button
+                          ref={(el) => {
+                            verifyExpiryBtnRefs.current[orig.origin_id] = el;
+                          }}
+                          type="button"
+                          className="button button-secondary text-xs border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200 dark:bg-amber-950/40"
+                          onClick={() =>
+                            setVerifyExpiryOrigin({
+                              originId: orig.origin_id,
+                              expectedVersion: orig.current_fact.version,
+                              itemName: `${orig.item_code} - ${orig.item_name}`,
+                            })
+                          }
+                        >
+                          <ShieldCheck size={14} className="text-amber-600" />
+                          {uiText("Xác minh hạn dùng (Admin O14)")}
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {/* Side-by-side grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-xs dark:divide-slate-800">
+                      {/* Left: Original Fact */}
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                          <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[11px]">
+                            {uiText("Bằng chứng gốc ban đầu")}
+                            {String(orig.original_fact.version)})
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {orig.original_fact.id.slice(0, 8)}…
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("SL Nhập ban đầu:")}
+                            </span>
+                            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+                              {orig.original_fact.purchase_quantity
+                                ? `${formatDisplayQuantity(orig.original_fact.purchase_quantity)} ${orig.original_fact.purchase_uom_code}`
+                                : uiText("— (Tồn đầu)")}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Hệ số quy đổi:")}
+                            </span>
+                            <span className="font-mono text-slate-800 dark:text-slate-200">
+                              {orig.original_fact.conversion_factor
+                                ? uiText("×{0}", [
+                                    orig.original_fact.conversion_factor,
+                                  ])
+                                : "—"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("SL Quy đổi cơ sở:")}
+                            </span>
+                            <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300">
+                              {formatDisplayQuantity(
+                                orig.original_fact.base_quantity,
+                              )}{" "}
+                              {uomLabel(orig)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Tốt / Hỏng ban đầu:")}
+                            </span>
+                            <span className="font-mono">
+                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                                {formatDisplayQuantity(
+                                  orig.original_fact.good_quantity,
+                                )}
+                              </span>{" "}
+                              /{" "}
+                              <span className="text-amber-700 dark:text-amber-400 font-semibold">
+                                {formatDisplayQuantity(
+                                  orig.original_fact.damaged_quantity,
+                                )}
+                              </span>
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Hạn dùng ban đầu:")}
+                            </span>
+                            <ExpiryBadge
+                              precision={orig.original_fact.expiry_precision}
+                              expiryDate={orig.original_fact.expiry_date}
+                            />
+                            <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                              {orig.original_fact.expiry_input ?? "—"} (
+                              {orig.original_fact.expiry_precision})
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Vị trí tiếp nhận:")}
+                            </span>
+                            <span className="text-slate-800 dark:text-slate-200">
+                              {orig.original_fact.location_name ||
+                                orig.original_fact.location_id}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Immutable Source Snapshot evidence */}
+                        {snapshot && Object.keys(snapshot).length > 0 ? (
+                          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/60 dark:border-slate-700/60">
+                              <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider">
+                                {uiText("Bằng chứng hồ sơ nguồn gốc bất biến")}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                {uiText("Snapshot v0")}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                              {Boolean(snapshot.source_reference) && (
+                                <div>
+                                  <span className="text-slate-400 block text-[10px]">
+                                    {uiText("Mã hồ sơ nguồn:")}
+                                  </span>
+                                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                    {String(snapshot.source_reference)}
+                                  </span>
+                                </div>
+                              )}
+                              {Boolean(snapshot.supplier_name) && (
+                                <div>
+                                  <span className="text-slate-400 block text-[10px]">
+                                    {uiText("Nhà cung cấp:")}
+                                  </span>
+                                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                    {String(snapshot.supplier_name)}
+                                  </span>
+                                </div>
+                              )}
+                              {Boolean(snapshot.unit_cost) && (
+                                <div>
+                                  <span className="text-slate-400 block text-[10px]">
+                                    {uiText("Đơn giá cam kết (INV-018):")}
+                                  </span>
+                                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                                    {formatDisplayQuantity(
+                                      String(snapshot.unit_cost),
+                                    )}{" "}
+                                    {String(snapshot.currency_code || "VND")}
+                                  </span>
+                                </div>
+                              )}
+                              {Boolean(
+                                snapshot.manufacturer ||
+                                snapshot.model ||
+                                snapshot.country_of_origin,
+                              ) && (
+                                <div>
+                                  <span className="text-slate-400 block text-[10px]">
+                                    {uiText("Hãng SX / Model / Xuất xứ:")}
+                                  </span>
+                                  <span className="text-slate-700 dark:text-slate-300">
+                                    {[
+                                      snapshot.manufacturer,
+                                      snapshot.model,
+                                      snapshot.country_of_origin,
+                                    ]
+                                      .filter(Boolean)
+                                      .map(String)
+                                      .join(" • ")}
+                                  </span>
+                                </div>
+                              )}
+                              {Boolean(snapshot.notes) && (
+                                <div className="sm:col-span-2">
+                                  <span className="text-slate-400 block text-[10px]">
+                                    {uiText("Ghi chú nguồn cam kết:")}
+                                  </span>
+                                  <span className="text-slate-700 dark:text-slate-300 italic">
+                                    {String(snapshot.notes)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {/* Right: Current Fact */}
+                      <div className="p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/40">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                          <span className="font-bold text-indigo-900 dark:text-indigo-300 uppercase text-[11px]">
+                            {uiText("Sự thật hiệu chỉnh hiện thời")}
+                            {String(orig.current_fact.version)})
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {orig.current_fact.id.slice(0, 8)}…
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("SL Nhập hiện tại:")}
+                            </span>
+                            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+                              {orig.current_fact.purchase_quantity
+                                ? `${formatDisplayQuantity(orig.current_fact.purchase_quantity)} ${orig.current_fact.purchase_uom_code}`
+                                : "—"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Hệ số quy đổi:")}
+                            </span>
+                            <span className="font-mono text-slate-800 dark:text-slate-200">
+                              {orig.current_fact.conversion_factor
+                                ? uiText("×{0}", [
+                                    orig.current_fact.conversion_factor,
+                                  ])
+                                : "—"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("SL Cơ sở hiện tại:")}
+                            </span>
+                            <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300">
+                              {formatDisplayQuantity(
+                                orig.current_fact.base_quantity,
+                              )}{" "}
+                              {uomLabel(orig)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Tốt / Hỏng hiện thời:")}
+                            </span>
+                            <span className="font-mono">
+                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                                {formatDisplayQuantity(
+                                  orig.current_fact.good_quantity,
+                                )}
+                              </span>{" "}
+                              /{" "}
+                              <span className="text-amber-700 dark:text-amber-400 font-semibold">
+                                {formatDisplayQuantity(
+                                  orig.current_fact.damaged_quantity,
+                                )}
+                              </span>
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Hạn dùng hiện thời:")}
+                            </span>
+                            <ExpiryBadge
+                              precision={orig.current_fact.expiry_precision}
+                              expiryDate={orig.current_fact.expiry_date}
+                            />
+                            <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                              {orig.current_fact.expiry_input ?? "—"} (
+                              {orig.current_fact.expiry_precision})
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">
+                              {uiText("Vị trí kho hiện tại:")}
+                            </span>
+                            <span className="text-slate-800 dark:text-slate-200">
+                              {orig.current_fact.location_name ||
+                                orig.current_fact.location_id}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Cohort Remaining stock */}
+                    {orig.balances && orig.balances.length > 0 ? (
+                      <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs dark:bg-slate-800/40 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">
+                          {uiText(
+                            "Tồn kho thực tế còn lại của lô này (Remaining Balance):",
+                          )}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          {orig.balances.map((b, bi) => (
+                            <span key={bi} className="font-mono">
+                              <strong className="text-slate-900 dark:text-slate-100">
+                                {formatDisplayQuantity(b.quantity)}
+                              </strong>{" "}
+                              <span className="text-slate-500 dark:text-slate-400 font-sans">
+                                (
+                                {b.condition === "good"
+                                  ? uiText("Tốt")
+                                  : uiText("Hỏng")}
+                                {uiText(" tại")} {b.location_name})
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
+
+        <aside className="kho-record-aside">
+          <dl className="kho-summary">
+            <dt>{uiText("Người thực hiện")}</dt>
+            <dd>{transaction.actor_name || uiText("Hệ thống")}</dd>
+            <dt>{uiText("Phát sinh")}</dt>
+            <dd>{formatInventoryDateTime(transaction.occurred_at)}</dd>
+            <dt>{uiText("Ghi sổ")}</dt>
+            <dd>{formatInventoryDateTime(transaction.posted_at)}</dd>
+            <dt>{uiText("Đính chính cho")}</dt>
+            <dd>
+              {transaction.corrects_transaction_id ? (
+                <Link
+                  href={`/inventory/transactions/${transaction.corrects_transaction_id}`}
+                >
+                  {uiText("Giao dịch gốc")}
+                </Link>
+              ) : (
+                "—"
+              )}
+            </dd>
+            <dt>{uiText("Lý do")}</dt>
+            <dd>{transaction.reason || "—"}</dd>
+          </dl>
+        </aside>
       </div>
 
       {/* ========================================================================= */}

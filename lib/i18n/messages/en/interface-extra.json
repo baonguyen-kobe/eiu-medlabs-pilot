@@ -1424,5 +1424,12 @@
   "Cập nhật thiết bị": "Update asset",
   "Loại cập nhật": "Update type",
   "Vị trí & vận hành": "Location & operation",
-  "Đính chính": "Correction"
+  "Đính chính": "Correction",
+  "Dòng sổ cái": "Ledger lines",
+  "Giao dịch chỉ đính chính chứng từ hoặc hạn dùng; số lượng tồn kho không đổi.": "This transaction only corrects documents or expiry; stock quantity is unchanged.",
+  "Biến động": "Change",
+  "Phát sinh": "Occurred",
+  "Ghi sổ": "Posted",
+  "Đính chính cho": "Corrects",
+  "Giao dịch gốc": "Original transaction"
 }
