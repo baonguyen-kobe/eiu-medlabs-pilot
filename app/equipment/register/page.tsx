@@ -350,11 +350,7 @@ export default async function EquipmentRegisterPage({
       .select("phone,email")
       .eq("id", userId)
       .maybeSingle(),
-    supabase
-      .from("equipment_request_items")
-      .select("skill_name")
-      .order("skill_name")
-      .limit(1000),
+    supabase.rpc("list_equipment_skill_suggestions"),
     supabase
       .from("equipment_requests")
       .select(
@@ -464,11 +460,7 @@ export default async function EquipmentRegisterPage({
     editingAnotherRegistrant && source
       ? source.phone_snapshot
       : (profile?.phone ?? "");
-  const skillSuggestions = [
-    ...new Set(
-      (priorItems ?? []).map(({ skill_name }) => skill_name).filter(Boolean),
-    ),
-  ];
+  const skillSuggestions = (priorItems ?? []) as string[];
 
   return (
     <WorkspaceShell

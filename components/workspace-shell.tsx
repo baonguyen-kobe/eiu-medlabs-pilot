@@ -436,12 +436,20 @@ function buildNavigation(
       },
     ];
     if (isAdmin) {
-      setupItems.push({
-        label: "Tồn đầu kỳ",
-        href: "/inventory/opening",
-        icon: Import,
-        activeIcon: ImportSolid,
-      });
+      setupItems.push(
+        {
+          label: "Tồn đầu kỳ",
+          href: "/inventory/opening",
+          icon: Import,
+          activeIcon: ImportSolid,
+        },
+        {
+          label: "Ghép danh mục Y cơ sở",
+          href: "/inventory/basic-medical-mapping",
+          icon: ClipboardList,
+          activeIcon: ClipboardListSolid,
+        },
+      );
     }
     setupItems.push(
       {
