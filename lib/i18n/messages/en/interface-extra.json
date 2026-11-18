@@ -1339,5 +1339,7 @@
   "Đã chuyển {0} dòng sang kho chung.": "Moved {0} rows into shared stock.",
   "Không còn dòng nào để chuyển.": "No rows left to move.",
   "Thiết bị này đã chuyển sang kho chung; đổi số lượng tại Kho.": "This item moved into shared stock; change its quantity in Kho.",
-  "Không còn dòng tồn phòng nào chờ chuyển sang kho chung.": "No room stock rows are waiting to move into shared stock."
+  "Không còn dòng tồn phòng nào chờ chuyển sang kho chung.": "No room stock rows are waiting to move into shared stock.",
+  "Phạm vi đăng ký": "Registration scope",
+  "Skills lab": "Skills lab"
 }

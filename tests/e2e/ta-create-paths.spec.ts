@@ -433,8 +433,15 @@ test("Basic Medical-only Teaching Assistant lands in Basic Medical and cannot en
 
     await page.goto("/schedule-entry/new");
     await expect(page).toHaveURL(/\/basic-medical\/schedules$/);
+    // t4e: the shared registration screen shows only the Basic Medical scope.
     await page.goto("/equipment/register");
-    await expect(page).toHaveURL(/\/basic-medical\/schedules$/);
+    await expect(page).toHaveURL(/\/equipment\/register$/);
+    await expect(
+      page.getByRole("navigation", { name: "Phạm vi đăng ký" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByText("Phiếu trang thiết bị thực hành cho buổi học Y cơ sở."),
+    ).toBeVisible();
     await page.goto("/class-schedules");
     await expect(page).toHaveURL(/\/basic-medical\/schedules$/);
     await page.goto("/imports");

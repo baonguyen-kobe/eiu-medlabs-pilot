@@ -4,6 +4,8 @@ import {
   type EquipmentRequestInitialData,
 } from "@/components/equipment-request-form";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { BasicMedicalEquipmentRegistrationPage } from "@/components/basic-medical-equipment-registration-page";
+import { RegisterScopeSwitch } from "@/components/register-scope-switch";
 import { businessTodayString } from "@/lib/business-time";
 import {
   equipmentRequestCodeBounds,
@@ -14,6 +16,7 @@ import { getViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { EquipmentLateApprovalStatus } from "@/lib/equipment-requests";
 import {
+  canUseBasicMedicalEquipmentRegistration,
   canUseSkillsWorkspace,
   defaultWorkspacePath,
 } from "@/lib/workspace-access";
@@ -23,6 +26,8 @@ import { LocalizedElement } from "@/components/i18n/localized-element";
 type RequestMode = "copy" | "edit";
 
 type RegisterSearchParams = {
+  scope?: string;
+  session?: string;
   schedule?: string;
   mode?: string;
   request?: string;
@@ -277,6 +282,27 @@ export default async function EquipmentRegisterPage({
   } = viewer;
   const roomTypeCodes = roomTypes.map(({ code }) => code);
   const canUseSkills = canUseSkillsWorkspace(roles, roomTypeCodes);
+  const canUseBasicMedical = canUseBasicMedicalEquipmentRegistration(
+    roles,
+    roomTypeCodes,
+  );
+  // One screen for both sides (t4e); each viewer sees only their scopes.
+  if (
+    canUseBasicMedical &&
+    (query.scope === "basic_medical" || !canUseSkills)
+  ) {
+    return (
+      <BasicMedicalEquipmentRegistrationPage
+        viewer={viewer}
+        sessionId={query.session}
+        mode={query.mode}
+        requestKey={query.request}
+        scopeSwitch={
+          canUseSkills ? <RegisterScopeSwitch scope="basic_medical" /> : null
+        }
+      />
+    );
+  }
   if (!canUseSkills) {
     redirect(defaultWorkspacePath(roles, roomTypeCodes));
   }
@@ -478,6 +504,7 @@ export default async function EquipmentRegisterPage({
         />
       }
     >
+      {canUseBasicMedical ? <RegisterScopeSwitch scope="skills" /> : null}
       <RequestModePicker
         mode={mode}
         activeRequestId={rawRequestId}
