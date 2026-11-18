@@ -12571,3 +12571,49 @@ tr[data-open] > :is(th, td) {
 .kho-scroll .data-table {
   min-width: 640px;
 }
+
+.kho-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.kho-facts dt {
+  color: var(--ink-600);
+  font-size: 13px;
+}
+
+.kho-facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.kho-facts dd small {
+  color: var(--ink-600);
+  font-weight: 400;
+}
+
+.kho-alert-line {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--rose-100);
+  color: var(--rose-700);
+  font-size: 14px;
+}
+
+.kho-aside-plain {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Forms that bring their own card sit flat inside a Kho card: one frame only. */
+.kho-flat > div:first-child {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}

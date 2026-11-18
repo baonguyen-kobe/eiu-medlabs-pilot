@@ -1410,5 +1410,19 @@
   "Đề nghị": "Propose",
   "{0}/{1} dòng đã rà · chỉ giữ hàng khi bấm Xác nhận": "{0}/{1} lines reviewed · stock is held only on Confirm",
   "Chuyển kho vật lý trước khi giao (khi lấy hàng từ tủ khác)": "Physical transfer before handover (when taking stock from another cabinet)",
-  "Chi tiết kỹ thuật": "Technical details"
+  "Chi tiết kỹ thuật": "Technical details",
+  "Chưa cấp phát được:": "Cannot be issued:",
+  "Hiện trạng": "Current state",
+  "Người chịu trách nhiệm": "Custodian",
+  "Định danh": "Identity",
+  "Model": "Model",
+  "Số sê-ri NSX": "Manufacturer serial",
+  "Tiếp nhận": "Intake",
+  "Chứng từ": "Document",
+  "Mã vật tư": "Item code",
+  "Các thiết bị cùng dòng hồ sơ nguồn": "Assets from the same source line",
+  "Cập nhật thiết bị": "Update asset",
+  "Loại cập nhật": "Update type",
+  "Vị trí & vận hành": "Location & operation",
+  "Đính chính": "Correction"
 }
