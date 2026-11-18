@@ -1276,5 +1276,17 @@
   "Chờ ký": "Awaiting signature",
   "Mở trang chi tiết": "Open detail page",
   "Admin lùi trạng thái phiếu": "Admin rolled back request status",
-  "GV phụ trách": "Responsible lecturer"
+  "GV phụ trách": "Responsible lecturer",
+  "Chi tiết phiếu Y cơ sở": "Basic Medical registration detail",
+  "Hủy phiếu: {0}": "Cancelled: {0}",
+  "Hủy buổi {0}: {1}": "Session {0} cancelled: {1}",
+  "Xác nhận buổi {0}": "Session {0} confirmed",
+  "Vô hiệu xác nhận buổi {0}: {1}": "Session {0} confirmation voided: {1}",
+  "Đã xác nhận {0}/{1} buổi": "{0}/{1} sessions confirmed",
+  "Sĩ số": "Students",
+  "Xác nhận buổi / sửa / hủy trên danh sách": "Confirm, edit or cancel on the list",
+  "Đã hủy buổi": "Session cancelled",
+  "Bằng chứng": "Evidence",
+  "Chưa có buổi nào được xác nhận.": "No session confirmed yet.",
+  "Chưa có phiếu thiết bị nào gắn với các buổi này.": "No equipment request is linked to these sessions."
 }

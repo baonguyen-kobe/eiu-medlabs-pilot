@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { BasicMedicalRegistrationList } from "@/components/basic-medical-registration-list";
 import { Search } from "@/components/icons";
 import { PaginationLinks } from "@/components/pagination-links";
 import { WorkspaceShell } from "@/components/workspace-shell";
-import type {
-  BasicMedicalRegistrationListItem,
-  BasicMedicalRoomInventoryItem,
+import {
+  basicMedicalRegistrationSelect,
+  type BasicMedicalRegistrationListItem,
+  type BasicMedicalRoomInventoryItem,
 } from "@/lib/basic-medical-equipment";
 import { businessTodayString } from "@/lib/business-time";
 import {
@@ -94,9 +96,7 @@ export default async function BasicMedicalRegistrationsPage({
     registrationIds.length
       ? await supabase
           .from("basic_medical_registrations")
-          .select(
-            "id,registration_code,created_at,created_by,registrant_id,academic_year,semester,start_date,end_date,student_count,note,cancelled_at,cancelled_by,cancel_reason,courses(course_code,course_name),rooms(id,room_code,building_code,room_name),registrant:profiles!basic_medical_registrations_registrant_id_fkey(full_name),responsible:profiles!basic_medical_registrations_responsible_lecturer_id_fkey(full_name),basic_medical_registration_sessions(id,session_number,lesson_title,teaching_lecturer_id,cancelled_at,cancelled_by,cancellation_reason,teaching:profiles!basic_medical_registration_sessions_teaching_lecturer_id_fkey(full_name),class_schedules(id,schedule_date,start_time,end_time,schedule_status),confirmations:basic_medical_session_confirmations(id,signer_id,signed_at,invalidated_at,invalidated_reason))",
-          )
+          .select(basicMedicalRegistrationSelect)
           .in("id", registrationIds)
       : { data: [], error: null };
 
@@ -255,12 +255,12 @@ export default async function BasicMedicalRegistrationsPage({
         <button type="submit" className="button button-primary">
           <LocalizedText text={"Lọc"} />
         </button>
-        <a
+        <Link
           className="button button-secondary"
           href="/basic-medical/registrations"
         >
           <LocalizedText text={"Xóa bộ lọc"} />
-        </a>
+        </Link>
         <span className="equipment-filter-count">
           {count ?? 0}
           <LocalizedText text={" phiếu"} />
