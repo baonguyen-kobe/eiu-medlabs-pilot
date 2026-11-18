@@ -1,3 +1,4 @@
+import { importsEnabled } from "@/lib/feature-flags";
 import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import {
   CalendarDays,
@@ -140,7 +141,7 @@ export default async function DashboardPage() {
       actions={
         canCreate ? (
           <>
-            {canImport ? (
+            {importsEnabled() && canImport ? (
               <Link
                 className="button button-secondary"
                 href="/schedule-entry/import"

@@ -1,4 +1,5 @@
 "use client";
+import { importsEnabled } from "@/lib/feature-flags";
 
 import { useDeferredValue, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
@@ -295,20 +296,24 @@ export function EquipmentCatalogManager({
     <div className="equipment-catalog-workspace">
       <section className="data-panel equipment-catalog-import">
         <div className="equipment-import-actions">
-          <Link
-            className="button equipment-template-download"
-            download
-            href="/api/admin-catalog-template/equipment"
-            prefetch={false}
-          >
-            <Download size={17} />
-            {uiText(" Tải template")}
-          </Link>
-          <CatalogImportNew action={importEquipmentCatalog} />
-          <CatalogReconciliationImport
-            preview={previewEquipmentCatalogReconciliation}
-            apply={applyEquipmentCatalogReconciliation}
-          />
+          {importsEnabled() ? (
+            <>
+              <Link
+                className="button equipment-template-download"
+                download
+                href="/api/admin-catalog-template/equipment"
+                prefetch={false}
+              >
+                <Download size={17} />
+                {uiText(" Tải template")}
+              </Link>
+              <CatalogImportNew action={importEquipmentCatalog} />
+              <CatalogReconciliationImport
+                preview={previewEquipmentCatalogReconciliation}
+                apply={applyEquipmentCatalogReconciliation}
+              />
+            </>
+          ) : null}
           <a
             className="button equipment-export-all"
             href="/api/equipment-catalog/export"

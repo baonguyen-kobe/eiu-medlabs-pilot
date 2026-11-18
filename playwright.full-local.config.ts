@@ -28,6 +28,8 @@ export default defineConfig({
           ...process.env,
           BASIC_MEDICAL_CONFIRMATION_EVIDENCE_ENABLED:
             process.env.BASIC_MEDICAL_CONFIRMATION_EVIDENCE_ENABLED ?? "true",
+          NEXT_PUBLIC_IMPORTS_ENABLED:
+            process.env.NEXT_PUBLIC_IMPORTS_ENABLED ?? "true",
           CRON_SECRET: process.env.CRON_SECRET ?? "local-e2e-cron-secret",
         },
         reuseExistingServer: true,

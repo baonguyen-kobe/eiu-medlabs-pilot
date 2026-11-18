@@ -17,6 +17,7 @@ export default defineConfig({
     env: {
       ...process.env,
       BASIC_MEDICAL_CONFIRMATION_EVIDENCE_ENABLED: "false",
+      NEXT_PUBLIC_IMPORTS_ENABLED: "true",
       CRON_SECRET: process.env.CRON_SECRET ?? "local-e2e-cron-secret",
     },
     reuseExistingServer: false,

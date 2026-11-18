@@ -1,4 +1,5 @@
 "use client";
+import { importsEnabled } from "@/lib/feature-flags";
 
 import { useRef, useState } from "react";
 import { Download, UploadCloud } from "@/components/icons";
@@ -17,6 +18,7 @@ export function CatalogImportActions({
   const inputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  if (!importsEnabled()) return null;
   return (
     <form action={action} className="catalog-import-actions" ref={formRef}>
       <a

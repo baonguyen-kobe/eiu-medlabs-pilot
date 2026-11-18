@@ -109,6 +109,9 @@ function extractBuildNavigation() {
       return Boolean(canImportSchedules && roomTypeCodes.includes("basic_medical") && roles.some(r => ["staff", "lecturer", "teaching_assistant"].includes(r)));
     }
 
+    // Imports are hidden in the app but stay on for these navigation checks.
+    function importsEnabled() { return true; }
+
     function canManageBasicMedicalWorkspace(roles, roomTypeCodes) {
       if (roles.includes("admin")) return true;
       return Boolean(roles.includes("staff") && roomTypeCodes.includes("basic_medical"));

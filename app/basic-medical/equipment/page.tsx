@@ -1,3 +1,4 @@
+import { importsEnabled } from "@/lib/feature-flags";
 import { CatalogTabs } from "@/components/catalog-tabs";
 import {
   applyBasicMedicalCatalogReconciliation,
@@ -306,18 +307,22 @@ export default async function BasicMedicalEquipmentPage({
 
           <section className="data-panel equipment-catalog-import">
             <div className="equipment-import-actions">
-              <a
-                className="button equipment-template-download"
-                href="/api/basic-medical-equipment-template"
-              >
-                <Download size={17} aria-hidden="true" />
-                <LocalizedText text={" Tải template"} />
-              </a>
-              <CatalogImportNew action={importBasicMedicalEquipment} />
-              <CatalogReconciliationImport
-                preview={previewBasicMedicalCatalogReconciliation}
-                apply={applyBasicMedicalCatalogReconciliation}
-              />
+              {importsEnabled() ? (
+                <>
+                  <a
+                    className="button equipment-template-download"
+                    href="/api/basic-medical-equipment-template"
+                  >
+                    <Download size={17} aria-hidden="true" />
+                    <LocalizedText text={" Tải template"} />
+                  </a>
+                  <CatalogImportNew action={importBasicMedicalEquipment} />
+                  <CatalogReconciliationImport
+                    preview={previewBasicMedicalCatalogReconciliation}
+                    apply={applyBasicMedicalCatalogReconciliation}
+                  />
+                </>
+              ) : null}
               <a
                 className="button equipment-export-all"
                 href="/api/basic-medical-equipment-export"
