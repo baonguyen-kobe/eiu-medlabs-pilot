@@ -1604,7 +1604,19 @@ export function EquipmentRequestList({
                             <div className="equipment-request-code-detail">
                               <dt>{uiText("Mã phiếu")}</dt>
                               <dd className="mono">
-                                {formatEquipmentRequestCode(request.created_at)}
+                                <Link
+                                  href={`/equipment/requests/${request.id}`}
+                                >
+                                  {formatEquipmentRequestCode(
+                                    request.created_at,
+                                  )}
+                                </Link>{" "}
+                                <Link
+                                  className="text-link"
+                                  href={`/equipment/requests/${request.id}`}
+                                >
+                                  {uiText("Mở trang chi tiết")}
+                                </Link>
                               </dd>
                             </div>
                             <div className="equipment-note-detail-row">
