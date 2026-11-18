@@ -4,6 +4,7 @@ import { EquipmentPreparationWorkspace } from "@/components/equipment-preparatio
 import { preparationWorkspaceSchema } from "@/lib/equipment-preparation";
 import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
 import { getViewer } from "@/lib/viewer";
+import { loadRequestSummary } from "@/lib/equipment-request-summary";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
 export default async function PreparationPage({
@@ -42,7 +43,10 @@ export default async function PreparationPage({
         />
       }
     >
-      <EquipmentPreparationWorkspace initial={workspace} />
+      <EquipmentPreparationWorkspace
+        initial={workspace}
+        summary={await loadRequestSummary(viewer.supabase, requestId)}
+      />
     </WorkspaceShell>
   );
 }

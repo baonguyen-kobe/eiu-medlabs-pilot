@@ -12461,3 +12461,113 @@ a.kpi-card[aria-current="true"] {
     max-height: 70vh;
   }
 }
+
+.kho-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kho-card-pad h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--eiu-blue);
+}
+
+.kho-alert {
+  border-color: var(--eiu-orange);
+  background: #fdf3e6;
+}
+
+.kho-subcard {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.kho-summary-toggle {
+  cursor: pointer;
+  min-height: 32px;
+  font-weight: 700;
+  color: var(--eiu-blue);
+}
+
+.kho-lock-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: #e8f0e2;
+  color: #3d6a28;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kho-lock-chip[data-tone="busy"] {
+  background: var(--amber-100);
+  color: #5c4320;
+}
+
+.kho-record .kho-cell-field,
+.kho-record .kho-cell-check {
+  margin: 0;
+}
+
+.kho-cell-field input {
+  max-width: 120px;
+  text-align: right;
+}
+
+.kho-cell-check input {
+  width: 22px;
+  height: 22px;
+}
+
+.kho-row-toggle {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.kho-row-detail > td {
+  background: var(--surface-soft);
+  padding: 4px 20px 16px;
+}
+
+tr[data-open] > :is(th, td) {
+  background: var(--teal-100);
+}
+
+.kho-record-footer-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding-block: 12px;
+}
+
+.kho-side-section {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.kho-pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+.kho-source-cell {
+  white-space: nowrap;
+}
+
+.kho-source-cell .kho-row-toggle {
+  margin-left: 8px;
+}
+
+/* Record tables fit their card; the card scrolls only when it must. */
+.kho-scroll .data-table {
+  min-width: 640px;
+}
