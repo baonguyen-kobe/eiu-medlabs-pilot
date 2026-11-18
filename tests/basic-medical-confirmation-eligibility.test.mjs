@@ -99,9 +99,20 @@ const [
   confirmationRpc,
   confirmationMigration,
 ] = await Promise.all([
-  readFile(
-    new URL("../app/basic-medical/registrations/page.tsx", import.meta.url),
-    "utf8",
+  // The page reads basicMedicalRegistrationSelect from the shared lib.
+  Promise.all([
+    readFile(
+      new URL("../app/basic-medical/registrations/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../lib/basic-medical-equipment.ts", import.meta.url),
+      "utf8",
+    ),
+  ]).then(
+    ([page, lib]) =>
+      `${page}
+${lib.match(/basicMedicalRegistrationSelect =\s*("[^"]+")/)[1]}`,
   ),
   readFile(
     new URL(

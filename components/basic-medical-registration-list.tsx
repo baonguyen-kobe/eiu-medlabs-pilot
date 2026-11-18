@@ -1045,9 +1045,13 @@ export function BasicMedicalRegistrationList({
                             <div className="basic-medical-registration-detail-code">
                               <span>{uiText("Mã phiếu")}</span>
                               <strong className="mono">
-                                {formatBasicMedicalRegistrationCode(
-                                  registration.registration_code,
-                                )}
+                                <Link
+                                  href={`/basic-medical/registrations/${registration.id}`}
+                                >
+                                  {formatBasicMedicalRegistrationCode(
+                                    registration.registration_code,
+                                  )}
+                                </Link>
                               </strong>
                             </div>
                             <div className="basic-medical-registration-detail-registrant">

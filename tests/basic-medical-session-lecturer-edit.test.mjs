@@ -162,7 +162,13 @@ test("Basic Medical Lecturer Edit: Server action enforces auth, input validation
 });
 
 test("Basic Medical Lecturer Edit: Page query selects created_by and fetches active instructors", async () => {
-  const pageSource = await fs.readFile(pagePath, "utf8");
+  const pageSource =
+    (await fs.readFile(pagePath, "utf8")) +
+    // basicMedicalRegistrationSelect lives in the shared lib.
+    (await fs.readFile(
+      path.resolve(__dirname, "../lib/basic-medical-equipment.ts"),
+      "utf8",
+    ));
 
   assert.match(pageSource, /select\([\s\S]*created_by/);
   assert.match(pageSource, /list_basic_medical_instructors/);

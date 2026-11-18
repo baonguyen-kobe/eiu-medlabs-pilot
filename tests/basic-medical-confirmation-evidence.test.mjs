@@ -33,9 +33,20 @@ const [
     ),
     "utf8",
   ),
-  readFile(
-    new URL("../app/basic-medical/registrations/page.tsx", import.meta.url),
-    "utf8",
+  // The page reads basicMedicalRegistrationSelect from the shared lib.
+  Promise.all([
+    readFile(
+      new URL("../app/basic-medical/registrations/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../lib/basic-medical-equipment.ts", import.meta.url),
+      "utf8",
+    ),
+  ]).then(
+    ([page, lib]) =>
+      `${page}
+${lib.match(/basicMedicalRegistrationSelect =\s*("[^"]+")/)[1]}`,
   ),
   readFile(
     new URL(
@@ -120,7 +131,7 @@ test("registration list requests only confirmation columns available to authenti
     '"id,registration_code,created_at',
   );
   assert.notEqual(selectStart, -1);
-  const selectEnd = registrationsPage.indexOf('",', selectStart);
+  const selectEnd = registrationsPage.indexOf('"', selectStart + 1);
   const select = registrationsPage.slice(selectStart, selectEnd);
   assert.doesNotMatch(select, /signature_data/);
   assert.match(
