@@ -287,7 +287,7 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
     exact: true,
   });
   const statusButton = completedRequest
-    .locator(".equipment-status-actions .request-status-button")
+    .locator(".equipment-status-actions > *")
     .first();
   const [statusButtonBox, exportBox] = await Promise.all([
     statusButton.boundingBox(),

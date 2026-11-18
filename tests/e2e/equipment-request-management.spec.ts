@@ -243,18 +243,17 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
       .getByRole("button", { name: "Đóng danh sách trang thiết bị" })
       .click();
 
-    await requestRow
-      .getByRole("button", { name: "Đã giao", exact: true })
-      .click();
+    // t2h: a Skills lab request has no manual status buttons; it opens the
+    // inventory handover instead.
     await expect(
-      requestRow.locator(".equipment-request-detail-row"),
-    ).toBeVisible();
+      requestRow.getByRole("button", { name: "Đã giao", exact: true }),
+    ).toHaveCount(0);
     await expect(
-      requestRow.getByRole("button", {
-        name: "Ký xác nhận Đã giao",
+      requestRow.getByRole("link", {
+        name: "Bàn giao, thu hồi và ký xác nhận",
         exact: true,
       }),
-    ).toBeVisible();
+    ).toHaveAttribute("href", `/equipment/fulfillment/${requestId}`);
     await expect(page.locator(".form-success")).toHaveCount(0);
   } finally {
     await cleanupLegacyRequest(requestId);
