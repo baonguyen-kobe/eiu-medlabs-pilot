@@ -152,7 +152,7 @@ async function saveBasicMedicalRegistration(
         .select("id")
         .eq("id", draft.roomId)
         .eq("is_active", true)
-        .eq("room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+        .contains("usage_scopes", ["basic_medical"])
         .maybeSingle(),
       supabase.rpc("list_basic_medical_instructors"),
       supabase.from("user_roles").select("role").eq("user_id", userId),

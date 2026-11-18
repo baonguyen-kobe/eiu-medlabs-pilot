@@ -357,6 +357,7 @@ export default async function EquipmentRegisterPage({
         "id,schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,student_count,semester,rooms!inner(room_code,building_code,room_type_id)",
       )
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .gte("schedule_date", businessTodayString())
       .neq("schedule_status", "cancelled")
       .order("schedule_date")
@@ -435,6 +436,7 @@ export default async function EquipmentRegisterPage({
       )
       .eq("id", source.class_schedule_id)
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .neq("schedule_status", "cancelled")
       .maybeSingle();
     if (currentSchedule) scheduleRows = [currentSchedule, ...scheduleRows];

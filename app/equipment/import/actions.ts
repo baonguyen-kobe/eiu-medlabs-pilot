@@ -265,6 +265,7 @@ async function prepareEquipmentImport(
       "id,course_code_snapshot,schedule_date,start_time,schedule_status,semester,rooms!inner(room_code,building_code,room_type_id)",
     )
     .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+    .is("basic_medical_registration_id", null)
     .neq("schedule_status", "cancelled");
   if (validDates.length) {
     scheduleQuery

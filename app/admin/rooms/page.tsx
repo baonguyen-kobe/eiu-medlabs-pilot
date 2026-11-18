@@ -3,6 +3,7 @@ import {
   createRoom,
   createRoomType,
   importRooms,
+  setRoomSharedWithBasicMedical,
   toggleRoomType,
 } from "@/app/admin/actions";
 import { CatalogTabs } from "@/components/catalog-tabs";
@@ -23,21 +24,32 @@ export default async function RoomsPage({
   const query = await searchParams;
   const currentPage = normalizePage(query.page);
   const { from, to } = paginationRange(currentPage);
-  const [{ data: rooms, count }, { data: roomTypes }] = await Promise.all([
-    supabase
-      .from("rooms")
-      .select(
-        "id, room_code, building_code, room_name, room_type_id, capacity, is_active, room_types (name)",
-        { count: "exact" },
-      )
-      .order("building_code")
-      .order("room_code")
-      .range(from, to),
-    supabase
-      .from("room_types")
-      .select("id, code, name, is_active")
-      .order("name"),
-  ]);
+  const [{ data: rooms, count }, { data: roomTypes }, { data: skillsRooms }] =
+    await Promise.all([
+      supabase
+        .from("rooms")
+        .select(
+          "id, room_code, building_code, room_name, room_type_id, capacity, is_active, room_types (name)",
+          { count: "exact" },
+        )
+        .order("building_code")
+        .order("room_code")
+        .range(from, to),
+      supabase
+        .from("room_types")
+        .select("id, code, name, is_active")
+        .order("name"),
+      supabase
+        .from("rooms")
+        .select("id, room_code, building_code, room_name, usage_scopes")
+        .eq("room_type_id", "40000000-0000-0000-0000-000000000001")
+        .eq("is_active", true)
+        .order("building_code")
+        .order("room_code"),
+    ]);
+  const sharedRooms = (skillsRooms ?? []).filter((room) =>
+    (room.usage_scopes as string[]).includes("basic_medical"),
+  );
   return (
     <AdminShell
       title={<LocalizedText text={"Danh mục phòng"} />}
@@ -108,6 +120,64 @@ export default async function RoomsPage({
             <LocalizedText text={"Thêm phòng"} />
           </button>
         </form>
+      </details>
+      <details className="catalog-manual-add">
+        <summary>
+          <LocalizedText
+            text={"Phòng dùng chung với Y cơ sở ({0})"}
+            values={[sharedRooms.length]}
+          />
+        </summary>
+        <p>
+          <LocalizedText
+            text={
+              "Phòng Skills lab được Y cơ sở dùng chung sẽ hiện ở cả hai bên khi đăng ký; một khung giờ chỉ một bên đặt được."
+            }
+          />
+        </p>
+        <form action={setRoomSharedWithBasicMedical} className="list-filters">
+          <input type="hidden" name="shared" value="true" />
+          <label>
+            <LocalizedText text={"Phòng Skills lab"} />
+            <select name="id" required defaultValue="">
+              <option value="" disabled>
+                —
+              </option>
+              {(skillsRooms ?? [])
+                .filter((room) => !sharedRooms.includes(room))
+                .map((room) => (
+                  <option key={room.id} value={room.id}>
+                    {room.building_code}-{room.room_code}
+                    {room.room_name ? ` · ${room.room_name}` : ""}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <div className="list-filters-actions">
+            <button type="submit" className="button button-primary">
+              <LocalizedText text={"Cho Y cơ sở dùng chung"} />
+            </button>
+          </div>
+        </form>
+        {sharedRooms.length ? (
+          <ul>
+            {sharedRooms.map((room) => (
+              <li key={room.id}>
+                <form action={setRoomSharedWithBasicMedical}>
+                  <input type="hidden" name="id" value={room.id} />
+                  <input type="hidden" name="shared" value="false" />
+                  <strong>
+                    {room.building_code}-{room.room_code}
+                  </strong>
+                  {room.room_name ? ` · ${room.room_name}` : ""}{" "}
+                  <button type="submit" className="button button-secondary">
+                    <LocalizedText text={"Bỏ dùng chung"} />
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </details>
       <CatalogBatchManager
         kind="rooms"

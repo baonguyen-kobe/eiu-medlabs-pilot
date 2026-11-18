@@ -331,7 +331,7 @@ export default async function NewBasicMedicalSchedulePage({
       .from("rooms")
       .select("id, room_code, building_code, room_name, room_type_id")
       .eq("is_active", true)
-      .eq("room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+      .contains("usage_scopes", ["basic_medical"])
       .order("building_code")
       .order("room_code"),
     supabase.rpc("list_basic_medical_instructors"),

@@ -504,6 +504,7 @@ export async function updateEquipmentRequest(
       .select("id,schedule_date,semester,rooms!inner(room_type_id)")
       .eq("id", scheduleId)
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .neq("schedule_status", "cancelled")
       .maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", userId),
@@ -740,6 +741,7 @@ export async function createEquipmentRequest(
       .select("id,schedule_date,semester,rooms!inner(room_type_id)")
       .eq("id", scheduleId)
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .neq("schedule_status", "cancelled")
       .maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", userId),

@@ -15,7 +15,6 @@ import type {
   BasicMedicalEquipmentCatalogItem,
   BasicMedicalRoomInventoryItem,
 } from "@/lib/basic-medical-equipment";
-import { BASIC_MEDICAL_ROOM_TYPE_ID } from "@/lib/room-types";
 import { getViewer } from "@/lib/viewer";
 import { canManageBasicMedicalWorkspace } from "@/lib/workspace-access";
 import { canViewBasicMedicalSchedules } from "@/lib/workspace-access";
@@ -91,7 +90,7 @@ export default async function BasicMedicalEquipmentPage({
       ? supabase
           .from("rooms")
           .select("id,room_code,building_code,room_name")
-          .eq("room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+          .contains("usage_scopes", ["basic_medical"])
           .eq("is_active", true)
           .order("building_code")
           .order("room_code")

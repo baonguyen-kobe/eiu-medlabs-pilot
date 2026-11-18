@@ -1355,5 +1355,15 @@
   "Bên này đã có thiết bị cùng tên thương mại.": "That side already has an item with the same commercial name.",
   "Chọn ít nhất một phạm vi.": "Pick at least one scope.",
   "Thiết bị đang được phiếu hoặc kho Skills lab dùng; không bỏ phạm vi này được.": "Skills lab requests or stock use this item; this scope cannot be removed.",
-  "Thiết bị đang được phòng hoặc phiếu Y cơ sở dùng; không bỏ phạm vi này được.": "Basic Medical rooms or requests use this item; this scope cannot be removed."
+  "Thiết bị đang được phòng hoặc phiếu Y cơ sở dùng; không bỏ phạm vi này được.": "Basic Medical rooms or requests use this item; this scope cannot be removed.",
+  "Phòng dùng chung với Y cơ sở ({0})": "Rooms shared with Basic Medical ({0})",
+  "Phòng Skills lab được Y cơ sở dùng chung sẽ hiện ở cả hai bên khi đăng ký; một khung giờ chỉ một bên đặt được.": "A Skills lab room shared with Basic Medical shows on both sides when booking; each time slot can be booked by one side only.",
+  "Phòng Skills lab": "Skills lab room",
+  "Cho Y cơ sở dùng chung": "Share with Basic Medical",
+  "Bỏ dùng chung": "Stop sharing",
+  "Đã cho Y cơ sở dùng chung phòng.": "Room shared with Basic Medical.",
+  "Đã bỏ dùng chung phòng.": "Room no longer shared.",
+  "Không thể cập nhật phòng dùng chung.": "Could not update room sharing.",
+  "Chỉ phòng Skills lab mới dùng chung với Y cơ sở được.": "Only Skills lab rooms can be shared with Basic Medical.",
+  "Phòng đang có buổi Y cơ sở sắp tới hoặc tồn thiết bị Y cơ sở; chưa bỏ dùng chung được.": "The room has upcoming Basic Medical sessions or Basic Medical stock; sharing cannot be stopped yet."
 }
