@@ -87,6 +87,17 @@ export const fulfillmentSchema = z.object({
   event_count: z.number().int(),
 });
 export type Fulfillment = z.infer<typeof fulfillmentSchema>;
+
+/** Request facts for the record header and summary (read by the page). */
+export type FulfillmentSummary = {
+  code: string;
+  course: string;
+  room: string;
+  session: string;
+  handover: string;
+  registrant: string;
+  responsible: string;
+};
 export type FulfillmentOperation =
   | "add_supplemental_line"
   | "handover"

@@ -12096,3 +12096,368 @@ a.kpi-card[aria-current="true"] {
   width: 18px;
   height: 18px;
 }
+
+/* Kho record pages (owner-approved layout 2026-11-18): sticky record header,
+   two columns, long line lists scroll inside their card. */
+.kho-record {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kho-record-header {
+  position: sticky;
+  top: 82px;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.kho-record-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kho-record-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.kho-record-title h2 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--eiu-blue);
+}
+
+.kho-record-sub {
+  color: var(--ink-800);
+  font-size: 14px;
+}
+
+.kho-record-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kho-record-actions .kho-sign-alert {
+  background: var(--amber-100);
+  border-color: var(--line-strong);
+  color: #5c4320;
+  font-weight: 700;
+}
+
+.kho-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 12px;
+}
+
+.kho-steps li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink-600);
+}
+
+.kho-steps li::before {
+  content: "";
+  height: 5px;
+  border-radius: 5px;
+  background: var(--line);
+}
+
+.kho-steps li[data-state="done"] {
+  color: var(--eiu-green);
+  font-weight: 600;
+}
+
+.kho-steps li[data-state="done"]::before {
+  background: var(--eiu-green);
+}
+
+.kho-steps li[data-state="current"] {
+  color: var(--eiu-blue);
+  font-weight: 700;
+}
+
+.kho-steps li[data-state="current"]::before {
+  background: var(--eiu-blue);
+}
+
+.kho-record-message:empty {
+  display: none;
+}
+
+.kho-record-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kho-record-main {
+  flex: 999 1 640px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kho-record-aside {
+  flex: 1 1 300px;
+  min-width: 0;
+  position: sticky;
+  top: 230px;
+  max-height: calc(100vh - 250px);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.kho-card {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.kho-card-pad {
+  padding: 14px 20px;
+}
+
+.kho-card > fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kho-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.kho-card-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--eiu-blue);
+}
+
+.kho-scroll input {
+  min-width: 84px;
+}
+
+.kho-card-head h3 small {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-600);
+}
+
+.kho-card-head p {
+  margin: 0;
+}
+
+.kho-card-body {
+  padding: 4px 20px 14px;
+}
+
+.kho-filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.kho-filter-bar .kho-search {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.kho-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.kho-chips button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-950);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.kho-chips button[aria-pressed="true"] {
+  border-color: var(--eiu-blue);
+  background: var(--eiu-blue);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.kho-scroll {
+  max-height: min(60vh, 560px);
+  overflow: auto;
+}
+
+.kho-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-soft);
+}
+
+.kho-due {
+  color: #7a5a2c;
+}
+
+.kho-op-tabs {
+  flex-wrap: wrap;
+  align-self: flex-start;
+}
+
+.kho-fill-all {
+  margin-top: 12px;
+}
+
+.kho-record-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 16px;
+  align-items: end;
+  padding: 0 20px 14px;
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.kho-record-footer > button {
+  justify-self: end;
+  margin-block: 16px;
+}
+
+.kho-side-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.kho-side-tabs button {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--ink-800);
+  font: inherit;
+  cursor: pointer;
+}
+
+.kho-side-tabs button[aria-pressed="true"] {
+  border-bottom-color: var(--eiu-blue);
+  color: var(--eiu-blue);
+  font-weight: 700;
+}
+
+.kho-summary {
+  margin: 0;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 10px 12px;
+  font-size: 14px;
+}
+
+.kho-summary dt {
+  color: var(--ink-600);
+}
+
+.kho-summary dd {
+  margin: 0;
+}
+
+.kho-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px 12px;
+}
+
+.kho-timeline > li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kho-timeline > li[data-superseded] {
+  opacity: 0.7;
+}
+
+.kho-timeline small {
+  color: var(--ink-600);
+}
+
+.kho-timeline details {
+  width: 100%;
+  font-size: 13px;
+}
+
+.kho-timeline > li.kho-timeline-pages {
+  flex-direction: row;
+  gap: 8px;
+  border-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+  .kho-record-aside {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .kho-record-header {
+    top: 64px;
+    padding: 12px 14px;
+  }
+
+  .kho-steps {
+    font-size: 11px;
+  }
+
+  .kho-scroll {
+    max-height: 70vh;
+  }
+}
