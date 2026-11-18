@@ -372,15 +372,15 @@ export function SurplusManagementView({
               value={selectedLocation}
               label={uiText("Vị trí kho")}
               id="surplus-filter-location"
-              placeholder={uiText("Tất cả vị trí / All Locations")}
+              placeholder={uiText("Tất cả vị trí")}
               hideLabel={true}
               onSelect={(loc) => handleLocationFilterChange(loc.id)}
             />
             {selectedLocation ? (
               <button
                 type="button"
-                aria-label={uiText("Xóa chọn vị trí / Clear location")}
-                title={uiText("Xóa chọn vị trí / Clear location")}
+                aria-label={uiText("Xóa chọn vị trí")}
+                title={uiText("Xóa chọn vị trí")}
                 onClick={() => handleLocationFilterChange("")}
                 className="absolute right-8 top-2 text-slate-400 hover:text-slate-600 z-10 p-0.5"
               >
@@ -442,7 +442,7 @@ export function SurplusManagementView({
             <h3 className="text-sm font-bold text-slate-900">
               {uiText("Danh sách Vật tư Thừa ")}
               {"&"}
-              {uiText(" Lô Tạm giữ / Surplus ")}
+              {uiText(" Lô Tạm giữ")}
               {"&"}
               {uiText(" Held Items (")}
               {totalItems}
@@ -709,9 +709,7 @@ export function SurplusManagementView({
               selectedOrigin.material_kind === "chemical" ? (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs">
                   <span className="font-bold text-amber-900 block">
-                    {uiText(
-                      "Xác minh Hạn sử dụng bắt buộc cho Hóa chất (O01 / INV-042)",
-                    )}
+                    {uiText("Xác minh Hạn sử dụng bắt buộc cho Hóa chất (O01")}
                   </span>
                   <p className="text-slate-600">
                     {uiText(
@@ -817,7 +815,7 @@ export function SurplusManagementView({
                   onClick={closeModal}
                   className="button button-secondary text-xs"
                 >
-                  {uiText("Đóng / Close")}
+                  {uiText("Đóng")}
                 </button>
                 <button
                   type="submit"

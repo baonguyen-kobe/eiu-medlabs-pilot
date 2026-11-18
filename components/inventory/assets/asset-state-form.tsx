@@ -109,9 +109,7 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
     <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
       <div className="border-b pb-3 border-slate-200">
         <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-          {uiText(
-            "Cập nhật Vị trí & Trạng thái Vận hành / Update Physical State",
-          )}
+          {uiText("Cập nhật Vị trí & Trạng thái Vận hành")}
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">
           {uiText(
@@ -183,15 +181,13 @@ export function AssetStateForm({ asset, onSuccess }: AssetStateFormProps) {
               }
               className="input-field text-xs w-full"
             >
-              <option value="ready">{uiText("Sẵn sàng / Ready")}</option>
-              <option value="in_use">{uiText("Đang sử dụng / In Use")}</option>
+              <option value="ready">{uiText("Sẵn sàng")}</option>
+              <option value="in_use">{uiText("Đang sử dụng")}</option>
               <option value="under_maintenance">
-                {uiText("Đang bảo trì / Under Maintenance")}
+                {uiText("Đang bảo trì")}
               </option>
-              <option value="damaged">{uiText("Hư hỏng / Damaged")}</option>
-              <option value="prohibited">
-                {uiText("Cấm lưu hành / Prohibited")}
-              </option>
+              <option value="damaged">{uiText("Hư hỏng")}</option>
+              <option value="prohibited">{uiText("Cấm lưu hành")}</option>
             </select>
           </div>
         </div>

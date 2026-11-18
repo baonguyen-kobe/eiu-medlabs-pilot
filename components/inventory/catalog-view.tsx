@@ -241,7 +241,7 @@ export function CatalogView({
             onClick={() => setCreateItemOpen(true)}
           >
             <Plus size={15} />
-            {uiText(" Thêm vật tư mới / Add Item")}
+            {uiText(" Thêm vật tư mới")}
           </button>
           <button
             type="button"
@@ -249,7 +249,7 @@ export function CatalogView({
             onClick={() => setCategoryModalOpen(true)}
           >
             <Settings size={15} />
-            {uiText(" Quản lý nhóm / Categories")}
+            {uiText(" Quản lý nhóm")}
           </button>
           <button
             type="button"
@@ -257,7 +257,7 @@ export function CatalogView({
             onClick={() => setUomModalOpen(true)}
           >
             <Settings size={15} />
-            {uiText(" Đơn vị tính / UOMs")}
+            {uiText(" Đơn vị tính")}
           </button>
         </div>
 
@@ -283,9 +283,7 @@ export function CatalogView({
               />
               <input
                 id="catalog-search"
-                aria-label={uiText(
-                  "Tìm theo mã SKU, tên vật tư / Search SKU or Name",
-                )}
+                aria-label={uiText("Tìm theo mã SKU, tên vật tư")}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder={uiText("Tìm theo mã SKU, tên vật tư...")}
@@ -311,7 +309,7 @@ export function CatalogView({
                 label={uiText("Lọc theo nhóm vật tư")}
                 id="catalog-category-filter"
                 selectedLabel={selectedCategoryFilterLabel}
-                placeholder={uiText("Tất cả nhóm vật tư / All Categories")}
+                placeholder={uiText("Tất cả nhóm vật tư")}
                 hideLabel={true}
                 onSelect={(cat) => {
                   setCategoryFilter(cat.id);
@@ -340,20 +338,14 @@ export function CatalogView({
           <div>
             <select
               id="catalog-status-filter"
-              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
+              aria-label={uiText("Lọc theo trạng thái")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">
-                {uiText("Tất cả trạng thái / All Statuses")}
-              </option>
-              <option value="active">
-                {uiText("Đang hoạt động / Active")}
-              </option>
-              <option value="inactive">
-                {uiText("Đã ngừng hoạt động / Inactive")}
-              </option>
+              <option value="all">{uiText("Tất cả trạng thái")}</option>
+              <option value="active">{uiText("Đang hoạt động")}</option>
+              <option value="inactive">{uiText("Đã ngừng hoạt động")}</option>
             </select>
           </div>
         </div>
@@ -365,18 +357,16 @@ export function CatalogView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">{uiText("Mã SKU / Code")}</th>
-                <th className="py-3 px-4">{uiText("Tên vật tư / Name")}</th>
-                <th className="py-3 px-4">{uiText("Nhóm / Category")}</th>
-                <th className="py-3 px-4">{uiText("ĐVT cơ sở / Unit")}</th>
-                <th className="py-3 px-4">{uiText("Phân loại / Kind")}</th>
-                <th className="py-3 px-4">{uiText("Cơ chế trả / Return")}</th>
-                <th className="py-3 px-4">{uiText("Bắt buộc HSD / Expiry")}</th>
-                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
-                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
-                <th className="py-3 px-4 text-right">
-                  {uiText("Thao tác / Actions")}
-                </th>
+                <th className="py-3 px-4">{uiText("Mã SKU")}</th>
+                <th className="py-3 px-4">{uiText("Tên vật tư")}</th>
+                <th className="py-3 px-4">{uiText("Nhóm")}</th>
+                <th className="py-3 px-4">{uiText("ĐVT cơ sở")}</th>
+                <th className="py-3 px-4">{uiText("Phân loại")}</th>
+                <th className="py-3 px-4">{uiText("Cơ chế trả")}</th>
+                <th className="py-3 px-4">{uiText("Bắt buộc HSD")}</th>
+                <th className="py-3 px-4">{uiText("Trạng thái")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản")}</th>
+                <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -413,11 +403,11 @@ export function CatalogView({
                     <td className="py-3 px-4">
                       {item.expiry_required ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          {uiText("Bắt buộc / Required")}
+                          {uiText("Bắt buộc")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">
-                          {uiText("Không / No")}
+                          {uiText("Không")}
                         </span>
                       )}
                     </td>
@@ -435,7 +425,7 @@ export function CatalogView({
                           className="px-2 py-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                           onClick={() => setEditItem(item)}
                         >
-                          {uiText("Sửa / Edit")}
+                          {uiText("Sửa")}
                         </button>
                         {isAdmin ? (
                           item.active ? (
@@ -541,8 +531,8 @@ export function CatalogView({
           open={Boolean(targetItemForState)}
           title={
             targetItemForState.targetActive
-              ? uiText("Kích hoạt lại vật tư / Reactivate Item")
-              : uiText("Ngừng hoạt động vật tư / Inactivate Item")
+              ? uiText("Kích hoạt lại vật tư")
+              : uiText("Ngừng hoạt động vật tư")
           }
           description={
             targetItemForState.targetActive
@@ -670,13 +660,13 @@ function CreateItemDialog({
             id="create-item-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Thêm vật tư mới / Create Item")}
+            {uiText("Thêm vật tư mới")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -791,10 +781,8 @@ function CreateItemDialog({
                 }
                 required
               >
-                <option value="other">{uiText("Thông thường / Other")}</option>
-                <option value="chemical">
-                  {uiText("Hóa chất / Chemical")}
-                </option>
+                <option value="other">{uiText("Thông thường")}</option>
+                <option value="chemical">{uiText("Hóa chất")}</option>
               </select>
             </div>
           </div>
@@ -815,12 +803,8 @@ function CreateItemDialog({
                   setTrackingStrategy(e.target.value as TrackingStrategy)
                 }
               >
-                <option value="quantity">
-                  {uiText("Theo số lượng / Quantity")}
-                </option>
-                <option value="serialized">
-                  {uiText("Theo số sê-ri / Serialized")}
-                </option>
+                <option value="quantity">{uiText("Theo số lượng")}</option>
+                <option value="serialized">{uiText("Theo số sê-ri")}</option>
               </select>
             </div>
             <div>
@@ -839,14 +823,10 @@ function CreateItemDialog({
                 }
               >
                 <option value="nonreturnable">
-                  {uiText("Không hoàn trả / Consumable")}
+                  {uiText("Không hoàn trả")}
                 </option>
-                <option value="returnable">
-                  {uiText("Có thể hoàn trả / Returnable")}
-                </option>
-                <option value="in_place">
-                  {uiText("Sử dụng tại chỗ / In-place")}
-                </option>
+                <option value="returnable">{uiText("Có thể hoàn trả")}</option>
+                <option value="in_place">{uiText("Sử dụng tại chỗ")}</option>
               </select>
             </div>
           </div>
@@ -894,7 +874,7 @@ function CreateItemDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -931,7 +911,7 @@ function EditItemDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Tên vật tư không được để trống / Name is required");
+      setError("Tên vật tư không được để trống");
       return;
     }
 
@@ -967,13 +947,13 @@ function EditItemDialog({
             id="edit-item-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Chỉnh sửa vật tư / Edit Item")}
+            {uiText("Chỉnh sửa vật tư")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1037,7 +1017,7 @@ function EditItemDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -1126,7 +1106,7 @@ function CategoryManagerDialog({
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newCode.trim() || !newName.trim()) {
-      setError("Vui lòng nhập mã và tên nhóm / Code and name are required");
+      setError("Vui lòng nhập mã và tên nhóm");
       return;
     }
 
@@ -1150,7 +1130,7 @@ function CategoryManagerDialog({
 
   async function handleUpdateCategory(c: InventoryCategory) {
     if (!editName.trim()) {
-      setError("Tên nhóm không được để trống / Name is required");
+      setError("Tên nhóm không được để trống");
       return;
     }
 
@@ -1212,13 +1192,13 @@ function CategoryManagerDialog({
             id="category-manager-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Quản lý nhóm vật tư / Categories")}
+            {uiText("Quản lý nhóm vật tư")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1230,12 +1210,12 @@ function CategoryManagerDialog({
             className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-3"
           >
             <span className="text-xs font-bold text-slate-800 block">
-              {uiText("Thêm nhóm mới / Add Category")}
+              {uiText("Thêm nhóm mới")}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <input
                 id="create-category-code"
-                aria-label={uiText("Mã nhóm / Category code")}
+                aria-label={uiText("Mã nhóm")}
                 type="text"
                 placeholder={uiText("Mã nhóm (VD: HOA_CHAT)")}
                 className="text-xs font-mono uppercase border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
@@ -1245,7 +1225,7 @@ function CategoryManagerDialog({
               />
               <input
                 id="create-category-name"
-                aria-label={uiText("Tên nhóm / Category name")}
+                aria-label={uiText("Tên nhóm")}
                 type="text"
                 placeholder={uiText("Tên nhóm (VD: Hóa chất & Thuốc thử)")}
                 className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500 sm:col-span-2"
@@ -1434,7 +1414,7 @@ function CategoryManagerDialog({
             className="button button-secondary text-xs"
             onClick={onClose}
           >
-            {uiText("Đóng / Close")}
+            {uiText("Đóng")}
           </button>
         </div>
       </div>
@@ -1444,8 +1424,8 @@ function CategoryManagerDialog({
           open={Boolean(targetCatForState)}
           title={
             targetCatForState.targetActive
-              ? uiText("Kích hoạt lại nhóm vật tư / Reactivate Category")
-              : uiText("Vô hiệu hóa nhóm vật tư / Inactivate Category")
+              ? uiText("Kích hoạt lại nhóm vật tư")
+              : uiText("Vô hiệu hóa nhóm vật tư")
           }
           description={
             targetCatForState.targetActive
@@ -1460,8 +1440,8 @@ function CategoryManagerDialog({
           currentRevision={targetCatForState.cat.revision}
           actionLabel={
             targetCatForState.targetActive
-              ? uiText("Kích hoạt lại / Reactivate")
-              : uiText("Vô hiệu hóa / Inactivate")
+              ? uiText("Kích hoạt lại")
+              : uiText("Vô hiệu hóa")
           }
           actionVariant={targetCatForState.targetActive ? "primary" : "danger"}
           isPending={isPending}
@@ -1545,13 +1525,11 @@ function UomManagerDialog({
   async function handleCreateUom(e: React.FormEvent) {
     e.preventDefault();
     if (!isAdmin) {
-      setError(
-        "Chỉ Quản trị viên (Admin) mới có quyền tạo đơn vị tính / Admin only",
-      );
+      setError("Chỉ Quản trị viên (Admin) mới có quyền tạo đơn vị tính");
       return;
     }
     if (!code.trim() || !name.trim()) {
-      setError("Vui lòng nhập mã và tên ĐVT / Code and name are required");
+      setError("Vui lòng nhập mã và tên ĐVT");
       return;
     }
 
@@ -1577,11 +1555,11 @@ function UomManagerDialog({
 
   async function handleUpdateUom(u: InventoryUom) {
     if (!isAdmin) {
-      setError("Chỉ Quản trị viên mới có quyền cập nhật ĐVT / Admin only");
+      setError("Chỉ Quản trị viên mới có quyền cập nhật ĐVT");
       return;
     }
     if (!editName.trim()) {
-      setError("Tên ĐVT không được để trống / Name is required");
+      setError("Tên ĐVT không được để trống");
       return;
     }
 
@@ -1643,13 +1621,13 @@ function UomManagerDialog({
             id="uom-manager-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Đơn vị tính / Units of Measure (UOM)")}
+            {uiText("Đơn vị tính")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -1666,7 +1644,7 @@ function UomManagerDialog({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <input
                   id="create-uom-code"
-                  aria-label={uiText("Mã ĐVT / UOM Code")}
+                  aria-label={uiText("Mã ĐVT")}
                   type="text"
                   placeholder={uiText("Mã (VD: mL, g, box)")}
                   className="text-xs font-mono border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
@@ -1676,7 +1654,7 @@ function UomManagerDialog({
                 />
                 <input
                   id="create-uom-name"
-                  aria-label={uiText("Tên ĐVT / UOM Name")}
+                  aria-label={uiText("Tên ĐVT")}
                   type="text"
                   placeholder={uiText("Tên (VD: Mililit, Hộp)")}
                   className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500"
@@ -1686,7 +1664,7 @@ function UomManagerDialog({
                 />
                 <select
                   id="create-uom-dimension"
-                  aria-label={uiText("Thứ nguyên ĐVT / Dimension")}
+                  aria-label={uiText("Thứ nguyên ĐVT")}
                   className="text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-blue-500 bg-white"
                   value={dimension}
                   onChange={(e) => {
@@ -1696,18 +1674,14 @@ function UomManagerDialog({
                       setAllowedScale(0);
                   }}
                 >
-                  <option value="count">
-                    {uiText("Đếm / Count (scale 0)")}
-                  </option>
-                  <option value="volume">{uiText("Thể tích / Volume")}</option>
-                  <option value="mass">{uiText("Khối lượng / Mass")}</option>
-                  <option value="package">
-                    {uiText("Đóng gói / Package")}
-                  </option>
+                  <option value="count">{uiText("Đếm")}</option>
+                  <option value="volume">{uiText("Thể tích")}</option>
+                  <option value="mass">{uiText("Khối lượng")}</option>
+                  <option value="package">{uiText("Đóng gói")}</option>
                 </select>
                 <input
                   id="create-uom-scale"
-                  aria-label={uiText("Độ chính xác thập phân / Allowed scale")}
+                  aria-label={uiText("Độ chính xác thập phân")}
                   type="number"
                   min={0}
                   max={6}
@@ -1779,9 +1753,7 @@ function UomManagerDialog({
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 uppercase text-[11px]">
                 <th className="py-2 px-3">{uiText("Mã ĐVT")}</th>
                 <th className="py-2 px-3">{uiText("Tên")}</th>
-                <th className="py-2 px-3">
-                  {uiText("Thứ nguyên / Dimension")}
-                </th>
+                <th className="py-2 px-3">{uiText("Thứ nguyên")}</th>
                 <th className="py-2 px-3 text-center">
                   {uiText("Thập phân (Scale)")}
                 </th>
@@ -1919,7 +1891,7 @@ function UomManagerDialog({
             className="button button-secondary text-xs"
             onClick={onClose}
           >
-            {uiText("Đóng / Close")}
+            {uiText("Đóng")}
           </button>
         </div>
       </div>
@@ -1929,8 +1901,8 @@ function UomManagerDialog({
           open={Boolean(targetUomForState)}
           title={
             targetUomForState.targetActive
-              ? uiText("Kích hoạt lại đơn vị tính / Reactivate UOM")
-              : uiText("Vô hiệu hóa đơn vị tính / Inactivate UOM")
+              ? uiText("Kích hoạt lại đơn vị tính")
+              : uiText("Vô hiệu hóa đơn vị tính")
           }
           description={
             targetUomForState.targetActive
@@ -1945,8 +1917,8 @@ function UomManagerDialog({
           currentRevision={targetUomForState.uom.revision}
           actionLabel={
             targetUomForState.targetActive
-              ? uiText("Kích hoạt lại / Reactivate")
-              : uiText("Vô hiệu hóa / Inactivate")
+              ? uiText("Kích hoạt lại")
+              : uiText("Vô hiệu hóa")
           }
           actionVariant={targetUomForState.targetActive ? "primary" : "danger"}
           isPending={isPending}

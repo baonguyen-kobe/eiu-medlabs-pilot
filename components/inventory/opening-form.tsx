@@ -291,7 +291,7 @@ export function OpeningForm({
     setValidationError(null);
     if (!canSubmit) {
       setValidationError(
-        "Vui lòng hoàn thiện các trường bắt buộc và sửa các dòng kiểm kê chưa hợp lệ / Please resolve invalid fields.",
+        "Vui lòng hoàn thiện các trường bắt buộc và sửa các dòng kiểm kê chưa hợp lệ",
       );
       setTimeout(() => {
         focusFirstInvalidControl();
@@ -351,9 +351,7 @@ export function OpeningForm({
       } else {
         setNotice({
           ok: false,
-          message:
-            res.error ||
-            "Xác nhận số dư đầu kỳ thất bại / Failed to confirm opening balance",
+          message: res.error || "Xác nhận số dư đầu kỳ thất bại",
         });
       }
     });
@@ -554,7 +552,7 @@ export function OpeningForm({
               onClick={addLine}
             >
               <Plus size={14} />
-              {uiText(" Thêm dòng kiểm kê / Add Line")}
+              {uiText(" Thêm dòng kiểm kê")}
             </button>
           </div>
 
@@ -824,13 +822,9 @@ export function OpeningForm({
                       className="mt-3 p-2 text-xs rounded bg-[var(--tone-danger-bg)] border border-[var(--tone-danger-line)] text-[var(--tone-danger-fg)]"
                     >
                       {!calc?.hasItem
-                        ? uiText(
-                            "Vui lòng chọn vật tư kiểm kê / Item is required",
-                          )
+                        ? uiText("Vui lòng chọn vật tư kiểm kê")
                         : !calc?.hasLocation
-                          ? uiText(
-                              "Vui lòng chọn vị trí lưu kho / Location is required",
-                            )
+                          ? uiText("Vui lòng chọn vị trí lưu kho")
                           : !calc?.split.valid
                             ? calc?.split.error
                             : calc?.expiryCheck.error}
@@ -891,13 +885,13 @@ export function OpeningForm({
                 id="confirm-opening-title"
                 className="text-sm font-bold text-[var(--ink-950)] uppercase tracking-wider"
               >
-                {uiText("Xác nhận chốt tồn đầu kỳ / Confirm Opening Cutover")}
+                {uiText("Xác nhận chốt tồn đầu kỳ")}
               </h3>
               <button
                 type="button"
                 className="text-[var(--ink-600)] hover:text-[var(--ink-800)] rounded-lg p-1"
                 onClick={() => setConfirmOpen(false)}
-                aria-label={uiText("Đóng / Close")}
+                aria-label={uiText("Đóng")}
                 disabled={isPending}
               >
                 <X size={18} />

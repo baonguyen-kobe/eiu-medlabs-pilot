@@ -193,7 +193,7 @@ export function LocationsView({
             onClick={() => setCreateOpen(true)}
           >
             <Plus size={15} />
-            {uiText(" Thêm vị trí kho mới / Add Location")}
+            {uiText(" Thêm vị trí kho mới")}
           </button>
         </div>
         <span className="text-xs text-slate-500">
@@ -217,9 +217,7 @@ export function LocationsView({
               />
               <input
                 id="locations-search"
-                aria-label={uiText(
-                  "Tìm theo mã vị trí, tên, phòng / Search Location",
-                )}
+                aria-label={uiText("Tìm theo mã vị trí, tên, phòng")}
                 type="text"
                 className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 placeholder={uiText("Tìm theo mã vị trí, tên, phòng...")}
@@ -238,20 +236,14 @@ export function LocationsView({
           <div>
             <select
               id="locations-active-filter"
-              aria-label={uiText("Lọc theo trạng thái / Filter by Status")}
+              aria-label={uiText("Lọc theo trạng thái")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
               value={activeFilter}
               onChange={(e) => handleActiveChange(e.target.value)}
             >
-              <option value="all">
-                {uiText("Tất cả trạng thái / All Statuses")}
-              </option>
-              <option value="active">
-                {uiText("Đang hoạt động / Active")}
-              </option>
-              <option value="inactive">
-                {uiText("Đã ngừng hoạt động / Inactive")}
-              </option>
+              <option value="all">{uiText("Tất cả trạng thái")}</option>
+              <option value="active">{uiText("Đang hoạt động")}</option>
+              <option value="inactive">{uiText("Đã ngừng hoạt động")}</option>
             </select>
           </div>
         </div>
@@ -262,14 +254,12 @@ export function LocationsView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">{uiText("Mã vị trí / Code")}</th>
-                <th className="py-3 px-4">{uiText("Tên vị trí kho / Name")}</th>
-                <th className="py-3 px-4">{uiText("Vị trí cha / Parent")}</th>
-                <th className="py-3 px-4">
-                  {uiText("Phòng thực hành / Room")}
-                </th>
-                <th className="py-3 px-4">{uiText("Trạng thái / Status")}</th>
-                <th className="py-3 px-4 text-center">{uiText("Bản / Rev")}</th>
+                <th className="py-3 px-4">{uiText("Mã vị trí")}</th>
+                <th className="py-3 px-4">{uiText("Tên vị trí kho")}</th>
+                <th className="py-3 px-4">{uiText("Vị trí cha")}</th>
+                <th className="py-3 px-4">{uiText("Phòng thực hành")}</th>
+                <th className="py-3 px-4">{uiText("Trạng thái")}</th>
+                <th className="py-3 px-4 text-center">{uiText("Bản")}</th>
                 <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
@@ -524,13 +514,13 @@ function CreateLocationDialog({
             id="create-location-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Thêm vị trí kho mới / Create Location")}
+            {uiText("Thêm vị trí kho mới")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>
@@ -741,13 +731,13 @@ function EditLocationDialog({
             id="edit-location-dialog-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Sửa vị trí kho / Edit Location")}
+            {uiText("Sửa vị trí kho")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
           >
             <X size={18} />
           </button>

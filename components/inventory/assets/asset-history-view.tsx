@@ -20,15 +20,15 @@ export interface AssetHistoryViewProps {
 function formatOperationLabel(op: string): string {
   switch (op) {
     case "receive_asset":
-      return "Nhận tài sản mới / Receive Asset";
+      return "Nhận tài sản mới";
     case "open_asset":
-      return "Ghi nhận tồn đầu kỳ / Open Asset";
+      return "Ghi nhận tồn đầu kỳ";
     case "set_asset_state":
-      return "Cập nhật vị trí & trạng thái / Set Physical State";
+      return "Cập nhật vị trí & trạng thái";
     case "set_asset_lifecycle":
-      return "Chuyển trạng thái vòng đời / Set Lifecycle";
+      return "Chuyển trạng thái vòng đời";
     case "correct_asset":
-      return "Đính chính thông tin / Correct Metadata";
+      return "Đính chính thông tin";
     default:
       return op;
   }
@@ -38,7 +38,7 @@ function renderStateSummary(state: Record<string, unknown> | null) {
   if (!state)
     return (
       <span className="text-slate-400 italic">
-        <LocalizedText text={"Không có / None"} />
+        <LocalizedText text={"Không có"} />
       </span>
     );
 
@@ -97,7 +97,7 @@ export function AssetHistoryView({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 border-slate-200">
         <div>
           <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
-            {uiText("Sổ cái lịch sử bất biến / Immutable Audit Trail")}
+            {uiText("Sổ cái lịch sử bất biến")}
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
             {uiText(

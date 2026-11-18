@@ -69,28 +69,28 @@ export function OverviewView({
             className="button button-primary text-xs"
           >
             <Plus size={15} />
-            <span>{uiText("Nhận kho / Receive Stock")}</span>
+            <span>{uiText("Nhận kho")}</span>
           </Link>
           <Link
             href="/inventory/stock"
             className="button button-secondary text-xs"
           >
             <PackageCheck size={15} />
-            <span>{uiText("Tồn kho / Stock")}</span>
+            <span>{uiText("Tồn kho")}</span>
           </Link>
           <Link
             href="/inventory/catalog"
             className="button button-secondary text-xs"
           >
             <Settings size={15} />
-            <span>{uiText("Danh mục vật tư / Items")}</span>
+            <span>{uiText("Danh mục vật tư")}</span>
           </Link>
           <Link
             href="/inventory/acquisitions"
             className="button button-secondary text-xs"
           >
             <ClipboardList size={15} />
-            <span>{uiText("Hồ sơ nguồn / Acquisitions")}</span>
+            <span>{uiText("Hồ sơ nguồn")}</span>
           </Link>
           {isAdmin ? (
             <Link
@@ -98,7 +98,7 @@ export function OverviewView({
               className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50"
             >
               <Import size={15} />
-              <span>{uiText("Tồn đầu kỳ / Opening (Admin)")}</span>
+              <span>{uiText("Tồn đầu kỳ")}</span>
             </Link>
           ) : null}
           <Link
@@ -106,7 +106,7 @@ export function OverviewView({
             className="button button-secondary text-xs"
           >
             <FileClock size={15} />
-            <span>{uiText("Lịch sử / History")}</span>
+            <span>{uiText("Lịch sử")}</span>
           </Link>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <Settings />
           </div>
-          <span>{uiText("Danh mục vật tư hoạt động / Active Items")}</span>
+          <span>{uiText("Danh mục vật tư hoạt động")}</span>
           <strong>{metrics.activeItemCount}</strong>
         </article>
 
@@ -125,7 +125,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <ClipboardList />
           </div>
-          <span>{uiText("Hồ sơ nguồn đang hiệu lực / Active Sources")}</span>
+          <span>{uiText("Hồ sơ nguồn đang hiệu lực")}</span>
           <strong>{metrics.activeSourceCount}</strong>
         </article>
 
@@ -133,7 +133,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <PackageCheck />
           </div>
-          <span>{uiText("Số dòng tồn kho / Stock Balances")}</span>
+          <span>{uiText("Số dòng tồn kho")}</span>
           <strong>{metrics.totalBalanceRows}</strong>
         </article>
 
@@ -141,7 +141,7 @@ export function OverviewView({
           <div className="kpi-icon">
             <AlertTriangle />
           </div>
-          <span>{uiText("Vật tư cần chú ý / Attention Items")}</span>
+          <span>{uiText("Vật tư cần chú ý")}</span>
           <strong>{totalAttention}</strong>
         </article>
       </section>
@@ -152,7 +152,7 @@ export function OverviewView({
           <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
             <AlertTriangle size={18} className="text-amber-600" />
             <span>
-              {uiText("Cảnh báo vật tư kho cần lưu ý / Attention Required (")}
+              {uiText("Cảnh báo vật tư kho cần lưu ý")}
               {totalAttention})
             </span>
           </div>
@@ -206,7 +206,7 @@ export function OverviewView({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              {uiText("Tồn kho hiện hữu gần nhất / Current Stock Balances")}
+              {uiText("Tồn kho hiện hữu gần nhất")}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {uiText(
@@ -227,34 +227,34 @@ export function OverviewView({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Mã / SKU")}
+                  {uiText("Mã")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Tên vật tư / Name")}
+                  {uiText("Tên vật tư")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Vị trí kho / Location")}
+                  {uiText("Vị trí kho")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Tình trạng / Condition")}
+                  {uiText("Tình trạng")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Tồn thực tế / On hand")}
+                  {uiText("Tồn thực tế")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Đủ ĐK / Eligible")}
+                  {uiText("Đủ ĐK")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Khả dụng cho yêu cầu mới / Available for new")}
+                  {uiText("Khả dụng cho yêu cầu mới")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Hết hạn / Expired")}
+                  {uiText("Hết hạn")}
                 </th>
                 <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Chưa rõ HSD / Unknown")}
+                  {uiText("Chưa rõ HSD")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("ĐVT / Unit")}
+                  {uiText("ĐVT")}
                 </th>
               </tr>
             </thead>
@@ -296,7 +296,7 @@ export function OverviewView({
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
                         {bal.available_quantity == null
-                          ? uiText("Chưa xác định / Unknown")
+                          ? uiText("Chưa xác định")
                           : formatDisplayQuantity(bal.available_quantity)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-rose-600">

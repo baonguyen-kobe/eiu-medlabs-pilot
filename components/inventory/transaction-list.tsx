@@ -113,11 +113,11 @@ export function TransactionList({
               size={16}
             />
             <input
-              aria-label={uiText("Tìm giao dịch / Search transactions")}
+              aria-label={uiText("Tìm giao dịch")}
               type="text"
               className="w-full text-xs pl-9 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder={uiText(
-                "Tìm theo mã nghiệp vụ, lý do, người thực hiện... / Search key, reason, actor...",
+                "Tìm theo mã nghiệp vụ, lý do, người thực hiện...",
               )}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -145,18 +145,16 @@ export function TransactionList({
           {/* Operation Filter */}
           <div>
             <select
-              aria-label={uiText("Lọc nghiệp vụ / Filter operation")}
+              aria-label={uiText("Lọc nghiệp vụ")}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               value={currentOperation}
               onChange={(e) => {
                 updateParams({ operation: e.target.value, page: 1 });
               }}
             >
-              <option value="all">
-                {uiText("Tất cả nghiệp vụ / All Operations")}
-              </option>
-              <option value="RECEIVE">{uiText("Nhận kho / RECEIVE")}</option>
-              <option value="OPENING">{uiText("Tồn đầu kỳ / OPENING")}</option>
+              <option value="all">{uiText("Tất cả nghiệp vụ")}</option>
+              <option value="RECEIVE">{uiText("Nhận kho")}</option>
+              <option value="OPENING">{uiText("Tồn đầu kỳ")}</option>
               <option value="CORRECT_RECEIPT">
                 {uiText("Điều chỉnh nhận / CORRECT_RECEIPT")}
               </option>
@@ -166,9 +164,7 @@ export function TransactionList({
               <option value="CORRECT_OPENING">
                 {uiText("Điều chỉnh tồn đầu / CORRECT_OPENING")}
               </option>
-              <option value="TRANSFER">
-                {uiText("Điều chuyển kho / TRANSFER")}
-              </option>
+              <option value="TRANSFER">{uiText("Điều chuyển kho")}</option>
               <option value="CONDITION_CHANGE">
                 {uiText("Hạ phẩm cấp / CONDITION_CHANGE")}
               </option>
@@ -181,20 +177,16 @@ export function TransactionList({
               <option value="VERIFY_SURPLUS">
                 {uiText("Thẩm định dư thừa / VERIFY_SURPLUS")}
               </option>
-              <option value="ASSET_RECEIVE">
-                {uiText("Nhận tài sản / Asset receipt")}
-              </option>
-              <option value="ASSET_OPEN">
-                {uiText("Tài sản đầu kỳ / Asset opening")}
-              </option>
+              <option value="ASSET_RECEIVE">{uiText("Nhận tài sản")}</option>
+              <option value="ASSET_OPEN">{uiText("Tài sản đầu kỳ")}</option>
               <option value="ASSET_SET_STATE">
-                {uiText("Hiện trạng tài sản / Asset state")}
+                {uiText("Hiện trạng tài sản")}
               </option>
               <option value="ASSET_SET_LIFECYCLE">
-                {uiText("Vòng đời tài sản / Asset lifecycle")}
+                {uiText("Vòng đời tài sản")}
               </option>
               <option value="ASSET_CORRECT">
-                {uiText("Đính chính tài sản / Asset correction")}
+                {uiText("Đính chính tài sản")}
               </option>
             </select>
           </div>
@@ -207,17 +199,13 @@ export function TransactionList({
               {uiText("Sắp xếp / Sort:")}
             </span>
             <select
-              aria-label={uiText("Sắp xếp giao dịch / Sort transactions")}
+              aria-label={uiText("Sắp xếp giao dịch")}
               className="text-xs py-1 px-2 border border-slate-300 rounded-md bg-white text-slate-700"
               value={currentSort}
               onChange={(e) => updateParams({ sort: e.target.value, page: 1 })}
             >
-              <option value="posted_desc">
-                {uiText("Mới nhất trước / Newest posted")}
-              </option>
-              <option value="posted_asc">
-                {uiText("Cũ nhất trước / Oldest posted")}
-              </option>
+              <option value="posted_desc">{uiText("Mới nhất trước")}</option>
+              <option value="posted_asc">{uiText("Cũ nhất trước")}</option>
             </select>
           </div>
 
@@ -234,7 +222,7 @@ export function TransactionList({
                 onClick={clearFilters}
               >
                 <X size={14} />
-                {uiText(" Xóa bộ lọc / Clear filters")}
+                {uiText(" Xóa bộ lọc")}
               </button>
             </div>
           ) : (
@@ -279,10 +267,10 @@ export function TransactionList({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Nghiệp vụ / Operation")}
+                  {uiText("Nghiệp vụ")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Mã nghiệp vụ / Key")}
+                  {uiText("Mã nghiệp vụ")}
                 </th>
                 <th scope="col" className="py-3 px-4">
                   {uiText("Thời điểm phát sinh")}
@@ -294,7 +282,7 @@ export function TransactionList({
                   {uiText("Người thực hiện")}
                 </th>
                 <th scope="col" className="py-3 px-4">
-                  {uiText("Lý do / Reason")}
+                  {uiText("Lý do")}
                 </th>
                 <th scope="col" className="py-3 px-4">
                   {uiText("Tham chiếu gốc")}

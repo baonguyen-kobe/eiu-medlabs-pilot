@@ -88,7 +88,7 @@ function StockEvidenceModalContent({
         setError(
           err instanceof Error
             ? err.message
-            : "Không tải được lịch sử bằng chứng / Failed to load evidence",
+            : "Không tải được lịch sử bằng chứng",
         );
       } finally {
         if (!cancelled) {
@@ -124,7 +124,7 @@ function StockEvidenceModalContent({
                 id="stock-evidence-title"
                 className="text-base font-bold text-slate-900"
               >
-                {uiText("Nhật ký Bằng chứng Bất biến / Stock Evidence History")}
+                {uiText("Nhật ký Bằng chứng Bất biến")}
               </h3>
               {itemCode || itemName ? (
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
@@ -173,13 +173,13 @@ function StockEvidenceModalContent({
               const meta = item.metadata || {};
               const actionLabel =
                 item.action === "STOCKTAKE_COUNT_ADJUST"
-                  ? uiText("Đối chiếu kiểm kê / COUNT")
+                  ? uiText("Đối chiếu kiểm kê")
                   : item.action === "SURPLUS_RECORDED"
-                    ? uiText("Ghi nhận hàng thừa / SURPLUS")
+                    ? uiText("Ghi nhận hàng thừa")
                     : item.action === "SURPLUS_VERIFIED_RELEASED"
-                      ? uiText("Thẩm định giải tỏa / RELEASE")
+                      ? uiText("Thẩm định giải tỏa")
                       : item.action === "EVIDENCE_APPENDED"
-                        ? uiText("Bổ sung bằng chứng / APPEND")
+                        ? uiText("Bổ sung bằng chứng")
                         : item.action;
 
               const badgeColor =
@@ -263,8 +263,8 @@ function StockEvidenceModalContent({
                           </span>
                           <span className="font-semibold text-slate-700">
                             {meta.condition === "good"
-                              ? uiText("Hàng tốt / Good")
-                              : uiText("Hàng hỏng / Damaged")}
+                              ? uiText("Hàng tốt")
+                              : uiText("Hàng hỏng")}
                           </span>
                         </div>
                       ) : null}
@@ -372,7 +372,7 @@ function StockEvidenceModalContent({
             onClick={onClose}
             className="button button-secondary text-xs"
           >
-            {uiText("Đóng / Close")}
+            {uiText("Đóng")}
           </button>
         </div>
       </div>

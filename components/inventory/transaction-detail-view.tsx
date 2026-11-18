@@ -173,7 +173,7 @@ export function TransactionDetailView({
               className="button button-secondary text-xs inline-flex items-center gap-1.5"
             >
               <FileClock size={14} />
-              {uiText(" Xem giao dịch gốc / View Original Intake")}
+              {uiText(" Xem giao dịch gốc")}
             </Link>
           ) : null}
 
@@ -314,11 +314,9 @@ export function TransactionDetailView({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px] dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
-                  <th className="py-2.5 px-4">{uiText("Dòng / Line No")}</th>
+                  <th className="py-2.5 px-4">{uiText("Dòng")}</th>
                   <th className="py-2.5 px-4">{uiText("Mã SKU / Vật tư")}</th>
-                  <th className="py-2.5 px-4">
-                    {uiText("Vị trí kho / Location")}
-                  </th>
+                  <th className="py-2.5 px-4">{uiText("Vị trí kho")}</th>
                   <th className="py-2.5 px-4">{uiText("Tình trạng")}</th>
                   <th className="py-2.5 px-4 text-right">
                     {uiText("Biến động số lượng (Delta)")}
@@ -424,7 +422,7 @@ export function TransactionDetailView({
 
                     {isSelected ? (
                       <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
-                        {uiText("Đang xem lô này / Selected origin")}
+                        {uiText("Đang xem lô này")}
                       </span>
                     ) : null}
 
@@ -474,7 +472,7 @@ export function TransactionDetailView({
                   <div className="p-4 space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                       <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[11px]">
-                        {uiText("Bằng chứng gốc ban đầu / Original Fact (v")}
+                        {uiText("Bằng chứng gốc ban đầu")}
                         {String(orig.original_fact.version)})
                       </span>
                       <span className="text-[11px] font-mono text-slate-400">
@@ -563,9 +561,7 @@ export function TransactionDetailView({
                       <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                         <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/60 dark:border-slate-700/60">
                           <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider">
-                            {uiText(
-                              "Bằng chứng hồ sơ nguồn gốc bất biến / Immutable Source Snapshot",
-                            )}
+                            {uiText("Bằng chứng hồ sơ nguồn gốc bất biến")}
                           </span>
                           <span className="text-[10px] text-slate-400 font-mono">
                             {uiText("Snapshot v0")}
@@ -645,9 +641,7 @@ export function TransactionDetailView({
                   <div className="p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/40">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                       <span className="font-bold text-indigo-900 dark:text-indigo-300 uppercase text-[11px]">
-                        {uiText(
-                          "Sự thật hiệu chỉnh hiện thời / Current Fact (v",
-                        )}
+                        {uiText("Sự thật hiệu chỉnh hiện thời")}
                         {String(orig.current_fact.version)})
                       </span>
                       <span className="text-[11px] font-mono text-slate-400">
@@ -949,7 +943,7 @@ function CorrectReceiptDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!reason.trim()) {
-      setError("Vui lòng nhập lý do điều chỉnh / Reason is required");
+      setError("Vui lòng nhập lý do điều chỉnh");
       return;
     }
 
@@ -1045,13 +1039,13 @@ function CorrectReceiptDialog({
             id="correct-receipt-dialog-title"
             className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
           >
-            {uiText("Điều chỉnh phiếu nhận / Correct Receipt")}
+            {uiText("Điều chỉnh phiếu nhận")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
             disabled={isPending}
           >
             <X size={18} />
@@ -1368,7 +1362,7 @@ function CorrectReceiptDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -1482,13 +1476,13 @@ function ReverseReceiptDialog({
             id="reverse-receipt-dialog-title"
             className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
           >
-            {uiText("Hủy phiếu nhận / Reverse Receipt")}
+            {uiText("Hủy phiếu nhận")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
             disabled={isPending}
           >
             <X size={18} />
@@ -1733,13 +1727,13 @@ function CorrectOpeningDialog({
             id="correct-opening-dialog-title"
             className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
           >
-            {uiText("Điều chỉnh tồn đầu kỳ / Correct Opening (Admin)")}
+            {uiText("Điều chỉnh tồn đầu kỳ")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
             disabled={isPending}
           >
             <X size={18} />
@@ -2033,7 +2027,7 @@ function CorrectOpeningDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"
@@ -2154,13 +2148,13 @@ function VerifyExpiryDialog({
             id="verify-expiry-dialog-title"
             className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider"
           >
-            {uiText("Xác minh hạn dùng / Verify Expiry (O14 Admin)")}
+            {uiText("Xác minh hạn dùng")}
           </h3>
           <button
             type="button"
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 dark:hover:text-slate-200"
             onClick={onClose}
-            aria-label={uiText("Đóng / Close")}
+            aria-label={uiText("Đóng")}
             disabled={isPending}
           >
             <X size={18} />
@@ -2286,7 +2280,7 @@ function VerifyExpiryDialog({
               onClick={onClose}
               disabled={isPending}
             >
-              {uiText("Hủy bỏ / Cancel")}
+              {uiText("Hủy bỏ")}
             </button>
             <button
               type="submit"

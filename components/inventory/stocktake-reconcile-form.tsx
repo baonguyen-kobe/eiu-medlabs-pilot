@@ -688,7 +688,7 @@ export function StocktakeReconcileForm({
             <AlertTriangle className="text-amber-600" size={18} />
             <span>
               {uiText(
-                "PHÁT HIỆN SỐ LIỆU ĐÃ BỊ THAY ĐỔI TRONG KHI KIỂM ĐẾM (Stale Count / ABA Detected)",
+                "PHÁT HIỆN SỐ LIỆU ĐÃ BỊ THAY ĐỔI TRONG KHI KIỂM ĐẾM (Stale Count",
               )}
             </span>
           </div>
@@ -766,11 +766,7 @@ export function StocktakeReconcileForm({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <ClipboardList className="text-purple-600" size={18} />
-          <span>
-            {uiText(
-              "Thông tin Phiên Kiểm kê Thực tế / Physical Stocktake Session",
-            )}
-          </span>
+          <span>{uiText("Thông tin Phiên Kiểm kê Thực tế")}</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 pt-2 min-w-0">
@@ -1008,14 +1004,14 @@ export function StocktakeReconcileForm({
                 onClick={() => setConfirmOpen(false)}
                 className="button button-secondary text-xs"
               >
-                {uiText("Hủy bỏ / Cancel")}
+                {uiText("Hủy bỏ")}
               </button>
               <button
                 type="button"
                 onClick={handleFinalSubmit}
                 className="button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-4 rounded-lg"
               >
-                {uiText("Ghi sổ kiểm kê / Confirm Stocktake")}
+                {uiText("Ghi sổ kiểm kê")}
               </button>
             </div>
           </div>

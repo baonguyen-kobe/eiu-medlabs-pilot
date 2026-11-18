@@ -63,19 +63,19 @@ export async function createItemAction(input: {
     if (!code || !name) {
       return {
         ok: false,
-        error: "Mã và Tên vật tư là bắt buộc / SKU Code and Name are required",
+        error: "Mã và Tên vật tư là bắt buộc",
       };
     }
     if (!input.category_id) {
       return {
         ok: false,
-        error: "Vui lòng chọn nhóm vật tư / Category is required",
+        error: "Vui lòng chọn nhóm vật tư",
       };
     }
     if (!input.base_uom_code) {
       return {
         ok: false,
-        error: "Vui lòng chọn đơn vị cơ sở / Base UOM is required",
+        error: "Vui lòng chọn đơn vị cơ sở",
       };
     }
 
@@ -117,7 +117,7 @@ export async function updateItemAction(input: {
     if (!name) {
       return {
         ok: false,
-        error: "Tên vật tư không được để trống / Name is required",
+        error: "Tên vật tư không được để trống",
       };
     }
 
@@ -147,7 +147,7 @@ export async function inactivateItemAction(input: {
     if (!reason) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do ngừng hoạt động / Reason is required",
+        error: "Vui lòng nhập lý do ngừng hoạt động",
       };
     }
 
@@ -178,7 +178,7 @@ export async function reactivateItemAction(input: {
     if (!reason) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do kích hoạt lại / Reason is required",
+        error: "Vui lòng nhập lý do kích hoạt lại",
       };
     }
 
@@ -213,7 +213,7 @@ export async function createCategoryAction(input: {
     if (!code || !name) {
       return {
         ok: false,
-        error: "Mã và tên nhóm vật tư là bắt buộc / Code and name are required",
+        error: "Mã và tên nhóm vật tư là bắt buộc",
       };
     }
 
@@ -241,7 +241,7 @@ export async function updateCategoryAction(input: {
     if (!name) {
       return {
         ok: false,
-        error: "Tên nhóm không được để trống / Name is required",
+        error: "Tên nhóm không được để trống",
       };
     }
 
@@ -268,7 +268,7 @@ export async function inactivateCategoryAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("inactivate_inventory_category", {
@@ -295,7 +295,7 @@ export async function reactivateCategoryAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("reactivate_inventory_category", {
@@ -331,7 +331,7 @@ export async function createUomAction(input: {
     if (!code || !name) {
       return {
         ok: false,
-        error: "Mã và tên ĐVT là bắt buộc / Code and Name are required",
+        error: "Mã và tên ĐVT là bắt buộc",
       };
     }
 
@@ -367,7 +367,7 @@ export async function updateUomAction(input: {
     if (!name) {
       return {
         ok: false,
-        error: "Tên ĐVT không được để trống / Name is required",
+        error: "Tên ĐVT không được để trống",
       };
     }
 
@@ -395,7 +395,7 @@ export async function inactivateUomAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("inactivate_inventory_uom", {
@@ -423,7 +423,7 @@ export async function reactivateUomAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("reactivate_inventory_uom", {
@@ -458,7 +458,7 @@ export async function createSupplierAction(input: {
     if (!name) {
       return {
         ok: false,
-        error: "Tên nhà cung cấp là bắt buộc / Supplier name is required",
+        error: "Tên nhà cung cấp là bắt buộc",
       };
     }
 
@@ -492,8 +492,7 @@ export async function updateSupplierAction(input: {
     if (!name) {
       return {
         ok: false,
-        error:
-          "Tên nhà cung cấp không được để trống / Supplier name is required",
+        error: "Tên nhà cung cấp không được để trống",
       };
     }
 
@@ -525,7 +524,7 @@ export async function inactivateSupplierAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("inactivate_inventory_supplier", {
@@ -553,7 +552,7 @@ export async function reactivateSupplierAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("reactivate_inventory_supplier", {
@@ -590,7 +589,7 @@ export async function createLocationAction(input: {
     if (!code || !name) {
       return {
         ok: false,
-        error: "Mã và tên vị trí kho là bắt buộc / Code and Name are required",
+        error: "Mã và tên vị trí kho là bắt buộc",
       };
     }
 
@@ -623,7 +622,7 @@ export async function updateLocationAction(input: {
     if (!name) {
       return {
         ok: false,
-        error: "Tên vị trí kho không được để trống / Name is required",
+        error: "Tên vị trí kho không được để trống",
       };
     }
 
@@ -631,8 +630,7 @@ export async function updateLocationAction(input: {
     if (input.parent_location_id && input.parent_location_id === input.id) {
       return {
         ok: false,
-        error:
-          "Vị trí không thể tự làm vị trí cha của chính nó / Cyclic parent location",
+        error: "Vị trí không thể tự làm vị trí cha của chính nó",
       };
     }
 
@@ -663,7 +661,7 @@ export async function inactivateLocationAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("inactivate_inventory_location", {
@@ -691,7 +689,7 @@ export async function reactivateLocationAction(input: {
 
     const reason = input.reason.trim();
     if (!reason) {
-      return { ok: false, error: "Vui lòng nhập lý do / Reason is required" };
+      return { ok: false, error: "Vui lòng nhập lý do" };
     }
 
     const result = await inventoryCommand("reactivate_inventory_location", {
@@ -729,27 +727,26 @@ export async function createSourceAction(input: {
     if (!sourceRef) {
       return {
         ok: false,
-        error: "Mã hồ sơ nguồn là bắt buộc / Source reference is required",
+        error: "Mã hồ sơ nguồn là bắt buộc",
       };
     }
     const isDonation = input.source_kind === "donation";
     if (!input.supplier_id && !isDonation) {
       return {
         ok: false,
-        error: "Vui lòng chọn nhà cung cấp / Supplier is required",
+        error: "Vui lòng chọn nhà cung cấp",
       };
     }
     if (isDonation && !input.notes?.trim()) {
       return {
         ok: false,
-        error:
-          "Hàng tặng cần ghi rõ nguồn gốc / A donation needs an origin note",
+        error: "Hàng tặng cần ghi rõ nguồn gốc",
       };
     }
     if (!input.reference_date) {
       return {
         ok: false,
-        error: "Vui lòng nhập ngày hồ sơ / Reference date is required",
+        error: "Vui lòng nhập ngày hồ sơ",
       };
     }
 
@@ -788,7 +785,7 @@ export async function updateSourceAction(input: {
     if (!sourceRef) {
       return {
         ok: false,
-        error: "Mã hồ sơ nguồn là bắt buộc / Source reference is required",
+        error: "Mã hồ sơ nguồn là bắt buộc",
       };
     }
 
@@ -824,7 +821,7 @@ export async function voidSourceAction(input: {
     if (!reason) {
       return {
         ok: false,
-        error: "Vui lòng nhập lý do hủy hồ sơ / Reason is required",
+        error: "Vui lòng nhập lý do hủy hồ sơ",
       };
     }
 
@@ -1010,20 +1007,19 @@ export async function receiveStockAction(
     if (!ref) {
       return {
         ok: false,
-        error: "Mã phiếu nhận hàng là bắt buộc / Receipt reference is required",
+        error: "Mã phiếu nhận hàng là bắt buộc",
       };
     }
     if (!payload.occurred_at) {
       return {
         ok: false,
-        error: "Thời điểm nhận hàng là bắt buộc / Occurred date is required",
+        error: "Thời điểm nhận hàng là bắt buộc",
       };
     }
     if (!payload.lines || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Phiếu nhận phải có ít nhất một dòng hàng / At least one line required",
+        error: "Phiếu nhận phải có ít nhất một dòng hàng",
       };
     }
 
@@ -1103,33 +1099,31 @@ export async function confirmOpeningBalanceAction(
     if (!cutoverKey) {
       return {
         ok: false,
-        error: "Mã số chốt số dư là bắt buộc / Cutover key is required",
+        error: "Mã số chốt số dư là bắt buộc",
       };
     }
     if (!payload.count_cutoff) {
       return {
         ok: false,
-        error: "Thời điểm chốt kiểm kê là bắt buộc / Cutoff date is required",
+        error: "Thời điểm chốt kiểm kê là bắt buộc",
       };
     }
     if (!payload.scope_description.trim()) {
       return {
         ok: false,
-        error: "Mô tả phạm vi là bắt buộc / Scope description is required",
+        error: "Mô tả phạm vi là bắt buộc",
       };
     }
     if (!payload.provenance_note.trim()) {
       return {
         ok: false,
-        error:
-          "Ghi chú chứng từ tồn đầu là bắt buộc / Provenance note is required",
+        error: "Ghi chú chứng từ tồn đầu là bắt buộc",
       };
     }
     if (!payload.lines || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Danh sách tồn đầu phải có ít nhất một dòng / At least one line required",
+        error: "Danh sách tồn đầu phải có ít nhất một dòng",
       };
     }
 
@@ -1190,14 +1184,13 @@ export async function correctReceiptAction(
     if (!payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do điều chỉnh là bắt buộc / Reason is required",
+        error: "Lý do điều chỉnh là bắt buộc",
       };
     }
     if (!payload.lines || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Vui lòng cung cấp ít nhất một dòng điều chỉnh / At least one line required",
+        error: "Vui lòng cung cấp ít nhất một dòng điều chỉnh",
       };
     }
 
@@ -1259,14 +1252,13 @@ export async function reverseReceiptAction(
     if (!payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do hủy phiếu nhận là bắt buộc / Reason is required",
+        error: "Lý do hủy phiếu nhận là bắt buộc",
       };
     }
     if (!payload.versions || payload.versions.length === 0) {
       return {
         ok: false,
-        error:
-          "Vui lòng cung cấp danh sách nguồn gốc cần hủy / Versions list required",
+        error: "Vui lòng cung cấp danh sách nguồn gốc cần hủy",
       };
     }
 
@@ -1296,14 +1288,13 @@ export async function correctOpeningBalanceAction(
     if (!payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do điều chỉnh tồn đầu là bắt buộc / Reason is required",
+        error: "Lý do điều chỉnh tồn đầu là bắt buộc",
       };
     }
     if (!payload.lines || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Cần ít nhất một dòng điều chỉnh tồn đầu / At least one line required",
+        error: "Cần ít nhất một dòng điều chỉnh tồn đầu",
       };
     }
 
@@ -1359,13 +1350,13 @@ export async function verifyOpeningExpiryAction(
     if (!payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do xác minh là bắt buộc / Reason is required",
+        error: "Lý do xác minh là bắt buộc",
       };
     }
     if (!payload.evidence_note.trim()) {
       return {
         ok: false,
-        error: "Bằng chứng xác minh là bắt buộc / Evidence note is required",
+        error: "Bằng chứng xác minh là bắt buộc",
       };
     }
 
@@ -1376,7 +1367,7 @@ export async function verifyOpeningExpiryAction(
       return {
         ok: false,
         error:
-          "Xác minh bắt buộc phải chuyển sang ngày cụ thể hoặc tháng cụ thể / Day or month precision required",
+          "Xác minh bắt buộc phải chuyển sang ngày cụ thể hoặc tháng cụ thể",
       };
     }
 
@@ -1419,24 +1410,21 @@ export async function transferStockAction(
     if (!payload.source_location_id || !payload.target_location_id) {
       return {
         ok: false,
-        error:
-          "Vui lòng chọn cả kho nguồn và kho đích / Source and target locations required",
+        error: "Vui lòng chọn cả kho nguồn và kho đích",
       };
     }
 
     if (payload.source_location_id === payload.target_location_id) {
       return {
         ok: false,
-        error:
-          "Kho nguồn và kho đích phải khác nhau / Source and target locations must be different",
+        error: "Kho nguồn và kho đích phải khác nhau",
       };
     }
 
     if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Cần ít nhất một dòng vật tư để điều chuyển / At least one transfer line required",
+        error: "Cần ít nhất một dòng vật tư để điều chuyển",
       };
     }
 
@@ -1475,10 +1463,7 @@ export async function transferStockAction(
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Lỗi điều chuyển kho / Transfer error";
+    const message = err instanceof Error ? err.message : "Lỗi điều chuyển kho";
     return { ok: false, error: message };
   }
 }
@@ -1493,22 +1478,21 @@ export async function changeStockConditionAction(
     if (!payload.location_id) {
       return {
         ok: false,
-        error: "Vui lòng chọn vị trí kho / Location is required",
+        error: "Vui lòng chọn vị trí kho",
       };
     }
 
     if (!payload.reason || !payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do hạ phẩm cấp (báo hỏng) là bắt buộc / Reason is required",
+        error: "Lý do hạ phẩm cấp (báo hỏng) là bắt buộc",
       };
     }
 
     if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Cần ít nhất một dòng vật tư để hạ phẩm cấp / At least one line required",
+        error: "Cần ít nhất một dòng vật tư để hạ phẩm cấp",
       };
     }
 
@@ -1548,10 +1532,7 @@ export async function changeStockConditionAction(
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Lỗi hạ phẩm cấp / Condition change error";
+    const message = err instanceof Error ? err.message : "Lỗi hạ phẩm cấp";
     return { ok: false, error: message };
   }
 }
@@ -1566,45 +1547,42 @@ export async function reconcileStocktakeAction(
     if (!payload.stocktake_reference || !payload.stocktake_reference.trim()) {
       return {
         ok: false,
-        error:
-          "Mã đợt kiểm kê (stocktake_reference) là bắt buộc / Stocktake reference is required",
+        error: "Mã đợt kiểm kê (stocktake_reference) là bắt buộc",
       };
     }
 
     if (!payload.location_id) {
       return {
         ok: false,
-        error: "Vui lòng chọn vị trí kho kiểm kê / Location is required",
+        error: "Vui lòng chọn vị trí kho kiểm kê",
       };
     }
 
     if (!payload.count_timestamp) {
       return {
         ok: false,
-        error: "Thời điểm kiểm kê là bắt buộc / Count timestamp is required",
+        error: "Thời điểm kiểm kê là bắt buộc",
       };
     }
 
     if (!payload.reason || !payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do kiểm kê là bắt buộc / Reason is required",
+        error: "Lý do kiểm kê là bắt buộc",
       };
     }
 
     if (!payload.evidence_note || !payload.evidence_note.trim()) {
       return {
         ok: false,
-        error:
-          "Ghi chú bằng chứng kiểm kê (Số biên bản/chứng từ) là bắt buộc / Evidence note is required",
+        error: "Ghi chú bằng chứng kiểm kê (Số biên bản/chứng từ) là bắt buộc",
       };
     }
 
     if (!Array.isArray(payload.lines) || payload.lines.length === 0) {
       return {
         ok: false,
-        error:
-          "Cần ít nhất một dòng kiểm kê để đối soát / At least one line required",
+        error: "Cần ít nhất một dòng kiểm kê để đối soát",
       };
     }
 
@@ -1674,9 +1652,7 @@ export async function reconcileStocktakeAction(
     return { ok: true, data: result };
   } catch (err: unknown) {
     const message =
-      err instanceof Error
-        ? err.message
-        : "Lỗi kiểm kê & đối soát kho / Stocktake reconciliation error";
+      err instanceof Error ? err.message : "Lỗi kiểm kê & đối soát kho";
     return { ok: false, error: message };
   }
 }
@@ -1699,21 +1675,21 @@ export async function verifyStocktakeSurplusAction(
       return {
         ok: false,
         error:
-          "Hành động không hợp lệ (chỉ chấp nhận release, append_evidence) / Invalid action",
+          "Hành động không hợp lệ (chỉ chấp nhận release, append_evidence)",
       };
     }
 
     if (!payload.reason || !payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do thẩm định là bắt buộc / Reason is required",
+        error: "Lý do thẩm định là bắt buộc",
       };
     }
 
     if (!payload.evidence_note || !payload.evidence_note.trim()) {
       return {
         ok: false,
-        error: "Bằng chứng thẩm định là bắt buộc / Evidence note is required",
+        error: "Bằng chứng thẩm định là bắt buộc",
       };
     }
 
@@ -1724,8 +1700,7 @@ export async function verifyStocktakeSurplusAction(
       ) {
         return {
           ok: false,
-          error:
-            "Hạn dùng thẩm định phải có độ chính xác ngày hoặc tháng / Day or month precision required",
+          error: "Hạn dùng thẩm định phải có độ chính xác ngày hoặc tháng",
         };
       }
       const expNorm = normalizeExpiryInput(
@@ -1750,9 +1725,7 @@ export async function verifyStocktakeSurplusAction(
     return { ok: true, data: result };
   } catch (err: unknown) {
     const message =
-      err instanceof Error
-        ? err.message
-        : "Lỗi thẩm định hàng thừa / Surplus verification error";
+      err instanceof Error ? err.message : "Lỗi thẩm định hàng thừa";
     return { ok: false, error: message };
   }
 }
@@ -1774,15 +1747,14 @@ export async function appendStocktakeEvidenceAction(
     if (!payload.evidence_note || !payload.evidence_note.trim()) {
       return {
         ok: false,
-        error:
-          "Nội dung bằng chứng bổ sung là bắt buộc / Evidence note is required",
+        error: "Nội dung bằng chứng bổ sung là bắt buộc",
       };
     }
 
     if (!payload.reason || !payload.reason.trim()) {
       return {
         ok: false,
-        error: "Lý do bổ sung bằng chứng là bắt buộc / Reason is required",
+        error: "Lý do bổ sung bằng chứng là bắt buộc",
       };
     }
 
@@ -1799,9 +1771,7 @@ export async function appendStocktakeEvidenceAction(
     return { ok: true, data: result };
   } catch (err: unknown) {
     const message =
-      err instanceof Error
-        ? err.message
-        : "Lỗi bổ sung bằng chứng / Append evidence error";
+      err instanceof Error ? err.message : "Lỗi bổ sung bằng chứng";
     return { ok: false, error: message };
   }
 }

@@ -52,9 +52,7 @@ export function StocktakeSurplusSection({
         <div>
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span>
-              {uiText(
-                "2. Hàng thừa Kiểm kê Không rõ nguồn gốc / Unprovenanced Surplus (",
-              )}
+              {uiText("2. Hàng thừa Kiểm kê Không rõ nguồn gốc")}
               {surplusLines.length})
             </span>
           </h3>
@@ -149,10 +147,8 @@ export function StocktakeSurplusSection({
                     }
                     className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="good">{uiText("Hàng tốt / Good")}</option>
-                    <option value="damaged">
-                      {uiText("Hàng hỏng / Damaged")}
-                    </option>
+                    <option value="good">{uiText("Hàng tốt")}</option>
+                    <option value="damaged">{uiText("Hàng hỏng")}</option>
                   </select>
                 </div>
 

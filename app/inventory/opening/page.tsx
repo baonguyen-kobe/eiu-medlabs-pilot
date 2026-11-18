@@ -23,11 +23,7 @@ export default async function OpeningPage() {
             />
             <div className="space-y-1">
               <h3 className="text-sm font-bold text-amber-900 dark:text-amber-100">
-                <LocalizedText
-                  text={
-                    "Quyền truy cập bị từ chối / Access Denied (Admin Only)"
-                  }
-                />
+                <LocalizedText text={"Quyền truy cập bị từ chối"} />
               </h3>
               <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
                 <LocalizedText

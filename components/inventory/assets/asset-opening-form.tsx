@@ -136,9 +136,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
           </span>
         </div>
         <h2 className="text-lg font-bold text-slate-900 mt-1">
-          {uiText(
-            "Ghi nhận Tồn đầu kỳ Thiết bị Cá thể / Opening Balance Asset",
-          )}
+          {uiText("Ghi nhận Tồn đầu kỳ Thiết bị Cá thể")}
         </h2>
         <p className="text-xs text-slate-500 mt-1">
           {uiText(
@@ -372,7 +370,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
                   className="input-field text-xs w-full"
                 >
                   <option value="not_required">
-                    {uiText("Không yêu cầu hạn dùng / Not Required")}
+                    {uiText("Không yêu cầu hạn dùng")}
                   </option>
                   <option value="day">
                     {uiText("Theo ngày (YYYY-MM-DD)")}

@@ -26,7 +26,7 @@ export default function InventoryError({
         </div>
         <div>
           <h2 className="text-base font-bold text-slate-900">
-            {uiText("Đã xảy ra lỗi tải dữ liệu Kho / Inventory System Error")}
+            {uiText("Đã xảy ra lỗi tải dữ liệu Kho")}
           </h2>
           <p className="text-xs text-slate-500">
             {uiText(
@@ -52,7 +52,7 @@ export default function InventoryError({
           className="button button-primary text-xs"
           onClick={() => reset()}
         >
-          {uiText("Thử lại / Try Again")}
+          {uiText("Thử lại")}
         </button>
       </div>
     </div>

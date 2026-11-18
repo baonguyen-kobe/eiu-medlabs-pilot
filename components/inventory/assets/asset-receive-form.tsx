@@ -132,7 +132,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-4xl mx-auto space-y-6">
       <div className="border-b pb-4 border-slate-200">
         <h2 className="text-lg font-bold text-slate-900">
-          {uiText("Tiếp nhận Thiết bị Cá thể / Receive Physical Asset")}
+          {uiText("Tiếp nhận Thiết bị Cá thể")}
         </h2>
         <p className="text-xs text-slate-500 mt-1">
           {uiText(
@@ -367,7 +367,7 @@ export function AssetReceiveForm({ people }: { people: CustodianOption[] }) {
                   className="input-field text-xs w-full"
                 >
                   <option value="not_required">
-                    {uiText("Không yêu cầu hạn dùng / Not Required")}
+                    {uiText("Không yêu cầu hạn dùng")}
                   </option>
                   <option value="day">
                     {uiText("Theo ngày (YYYY-MM-DD)")}

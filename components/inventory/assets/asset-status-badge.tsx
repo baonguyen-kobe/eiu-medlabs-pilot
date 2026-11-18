@@ -10,31 +10,31 @@ export function LifecycleBadge({ status }: { status: AssetLifecycleStatus }) {
     case "in_service":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
-          <LocalizedText text={"Đang vận hành / In Service"} />
+          <LocalizedText text={"Đang vận hành"} />
         </span>
       );
     case "registered":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 border border-sky-200">
-          <LocalizedText text={"Mới tiếp nhận / Registered"} />
+          <LocalizedText text={"Mới tiếp nhận"} />
         </span>
       );
     case "inactive":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-          <LocalizedText text={"Tạm ngưng / Inactive"} />
+          <LocalizedText text={"Tạm ngưng"} />
         </span>
       );
     case "retired":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
-          <LocalizedText text={"Ngừng sử dụng / Retired"} />
+          <LocalizedText text={"Ngừng sử dụng"} />
         </span>
       );
     case "disposed":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
-          <LocalizedText text={"Đã thanh lý / Disposed"} />
+          <LocalizedText text={"Đã thanh lý"} />
         </span>
       );
     default:
@@ -55,31 +55,31 @@ export function OperationalStatusBadge({
     case "ready":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <LocalizedText text={"Sẵn sàng / Ready"} />
+          <LocalizedText text={"Sẵn sàng"} />
         </span>
       );
     case "in_use":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-          <LocalizedText text={"Đang sử dụng / In Use"} />
+          <LocalizedText text={"Đang sử dụng"} />
         </span>
       );
     case "under_maintenance":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-          <LocalizedText text={"Bảo trì / Maintenance"} />
+          <LocalizedText text={"Bảo trì"} />
         </span>
       );
     case "damaged":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
-          <LocalizedText text={"Hư hỏng / Damaged"} />
+          <LocalizedText text={"Hư hỏng"} />
         </span>
       );
     case "prohibited":
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-          <LocalizedText text={"Cấm lưu hành / Prohibited"} />
+          <LocalizedText text={"Cấm lưu hành"} />
         </span>
       );
     default:
@@ -109,18 +109,16 @@ export function AssetEligibilityBadge({
       }`}
     >
       {available === true ? (
-        <LocalizedText text={"Khả dụng cho yêu cầu mới / Available for new"} />
+        <LocalizedText text={"Khả dụng cho yêu cầu mới"} />
       ) : available === false ? (
-        <LocalizedText
-          text={"Không khả dụng cho yêu cầu mới / Unavailable for new"}
-        />
+        <LocalizedText text={"Không khả dụng cho yêu cầu mới"} />
       ) : (
-        <LocalizedText text={"Chưa xác định khả dụng / Availability unknown"} />
+        <LocalizedText text={"Chưa xác định khả dụng"} />
       )}
     </span>
   );
   const tooltip = eligible
-    ? "Đủ điều kiện vật lý; không đồng nghĩa với khả dụng cho yêu cầu mới / Physical eligibility does not imply availability"
+    ? "Đủ điều kiện vật lý; không đồng nghĩa với khả dụng cho yêu cầu mới"
     : reasons.length > 0
       ? reasons.join("; ")
       : "Không đủ điều kiện xuất mượn hoặc vận hành";
@@ -136,9 +134,9 @@ export function AssetEligibilityBadge({
         title={tooltip}
       >
         {eligible ? (
-          <LocalizedText text={"[Đủ điều kiện] / Eligible"} />
+          <LocalizedText text={"[Đủ điều kiện]"} />
         ) : (
-          <LocalizedText text={"[Không đủ ĐK] / Ineligible"} />
+          <LocalizedText text={"[Không đủ ĐK]"} />
         )}
       </span>
       {availability}
