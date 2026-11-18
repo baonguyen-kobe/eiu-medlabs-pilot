@@ -44,7 +44,7 @@ export function FulfillmentReturnTable({
         </select>
       </label>
       <div className="data-panel">
-        <div className="responsive-table">
+        <div className="responsive-table kho-scroll">
           <table className={`data-table ${styles.returnTable}`}>
             <thead>
               <tr>

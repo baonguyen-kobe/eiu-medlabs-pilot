@@ -3,6 +3,10 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 import { EquipmentFulfillmentWorkspace } from "@/components/equipment-fulfillment-workspace";
 import { fulfillmentSchema } from "@/lib/equipment-fulfillment";
 import { isEquipmentRequestId } from "@/lib/equipment-calendar-request";
+import {
+  loadPeopleNames,
+  loadRequestSummary,
+} from "@/lib/equipment-request-summary";
 import { getViewer } from "@/lib/viewer";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
@@ -14,14 +18,18 @@ export default async function FulfillmentPage({
   const { requestId } = await params;
   if (!isEquipmentRequestId(requestId)) notFound();
   const viewer = await getViewer();
-  const { data, error } = await viewer.supabase.rpc(
-    "equipment_fulfillment_read",
-    { p_request_id: requestId },
-  );
+  const [{ data, error }, summary, people] = await Promise.all([
+    viewer.supabase.rpc("equipment_fulfillment_read", {
+      p_request_id: requestId,
+    }),
+    loadRequestSummary(viewer.supabase, requestId),
+    loadPeopleNames(viewer.supabase),
+  ]);
   if (error) {
     if (error.code === "42501") notFound();
     throw new Error("Không tải được bàn giao / thu hồi thiết bị.");
   }
+
   return (
     <WorkspaceShell
       fullName={viewer.fullName}
@@ -40,7 +48,11 @@ export default async function FulfillmentPage({
         />
       }
     >
-      <EquipmentFulfillmentWorkspace initial={fulfillmentSchema.parse(data)} />
+      <EquipmentFulfillmentWorkspace
+        initial={fulfillmentSchema.parse(data)}
+        summary={summary}
+        people={people}
+      />
     </WorkspaceShell>
   );
 }

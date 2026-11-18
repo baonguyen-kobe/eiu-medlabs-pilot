@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "@/components/icons";
 import {
   LifecycleBadge,
   OperationalStatusBadge,
@@ -32,6 +31,14 @@ export interface AssetDetailViewProps {
 
 export type DetailActionTab = "state" | "lifecycle" | "correction";
 
+const expiryLabels: Record<string, string> = {
+  not_required: "Không yêu cầu",
+  day: "Theo ngày",
+  month: "Theo tháng",
+  unknown: "Chưa rõ (Cần xác minh)",
+};
+
+/** One coded asset in the Kho record layout (owner-approved 2026-11-18). */
 export function AssetDetailView({
   asset,
   events,
@@ -41,309 +48,186 @@ export function AssetDetailView({
   qrSvg,
   isAdmin,
 }: AssetDetailViewProps) {
-  const { text: uiText } = useLanguage();
-
+  const { text } = useLanguage();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<DetailActionTab>("state");
 
-  const handleRefresh = () => {
-    router.refresh();
-  };
-
-  const handleHistoryPageChange = (newPage: number) => {
-    router.push(`/inventory/assets/${asset.id}?page=${newPage}`);
-  };
-
   return (
-    <div className="space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
-      {/* Navigation Breadcrumb & Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4 border-slate-200">
-        <div className="space-y-1">
-          <Link
-            href="/inventory/assets"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800"
-          >
-            <ArrowLeft size={14} />
-            {uiText(" Quay lại danh sách thiết bị")}
-          </Link>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl sm:text-2xl font-mono font-bold text-slate-900 tracking-wide break-all">
-              {asset.asset_code}
-            </h1>
-            <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-              {uiText("Phiên bản #")}
-              {asset.revision}
+    <div className="kho-record">
+      <header className="kho-record-header">
+        <div className="kho-record-head">
+          <div className="kho-record-title">
+            <Link href="/inventory/assets">← {text("Thiết bị cá thể")}</Link>
+            <h2 className="mono">{asset.asset_code}</h2>
+            <LifecycleBadge status={asset.lifecycle_status} />
+            <OperationalStatusBadge status={asset.operational_status} />
+            <AssetEligibilityBadge
+              eligible={asset.eligible}
+              available={asset.available}
+              reasons={asset.ineligibility_reasons}
+            />
+            <span className="kho-record-sub">
+              {[asset.item_name, asset.manufacturer, asset.model]
+                .filter(Boolean)
+                .join(" · ")}
             </span>
           </div>
-          <div className="text-sm text-slate-600">
-            {asset.item_code} •{" "}
-            <span className="font-semibold">{asset.item_name}</span>
-          </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <LifecycleBadge status={asset.lifecycle_status} />
-          <OperationalStatusBadge status={asset.operational_status} />
-          <AssetEligibilityBadge
-            eligible={asset.eligible}
-            available={asset.available}
-            reasons={asset.ineligibility_reasons}
-          />
-        </div>
-      </div>
-
-      {/* Eligibility Callout Banner */}
-      {!asset.eligible ? (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 space-y-2">
-          <div className="font-bold flex items-center gap-2 text-sm text-rose-800">
-            <span>{uiText("[Không đủ điều kiện]")}</span>
-            {uiText(" Tài sản không đủ điều kiện xuất mượn / vận hành")}
-          </div>
-          <p className="text-xs text-rose-700">
-            {uiText(
-              "Theo chính sách quản lý tài sản MedLabs, thiết bị này hiện không được phép xuất dùng do các lý do sau:",
-            )}
+        {asset.eligible ? null : (
+          <p className="kho-alert-line" role="note">
+            <strong>{text("Chưa cấp phát được:")}</strong>{" "}
+            {asset.ineligibility_reasons.join("; ")}
           </p>
-          <ul className="list-disc list-inside space-y-1 text-xs pl-2 font-medium">
-            {asset.ineligibility_reasons.map((reason, idx) => (
-              <li key={idx}>{reason}</li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center gap-2 text-xs">
-          <span className="text-emerald-700 font-bold">
-            {uiText("[Đủ điều kiện]")}
-          </span>
-          <span>
-            {uiText(
-              "Vòng đời đang vận hành, trạng thái sẵn sàng, vị trí hoạt động và hạn dùng hợp lệ.",
-            )}
-          </span>
-        </div>
-      )}
+        )}
+      </header>
 
-      {/* Grid: Facts & QR Label */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 max-w-full">
-        {/* Left 2 Cols: Identity & State Cards */}
-        <div className="lg:col-span-2 space-y-6 min-w-0 max-w-full">
-          {/* Physical & Location Facts */}
-          <section className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3 min-w-0 overflow-hidden">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {uiText("Hiện trạng Vị trí & Quản lý thực tế")}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+      <div className="kho-record-grid">
+        <div className="kho-record-main">
+          <section
+            className="kho-card kho-card-pad"
+            aria-labelledby="asset-now"
+          >
+            <h3 id="asset-now">{text("Hiện trạng")}</h3>
+            <dl className="kho-facts">
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Vị trí lưu trữ:")}
-                </span>
-                <span className="font-semibold text-slate-800">
-                  {asset.location_code} ({asset.location_name})
-                </span>
+                <dt>{text("Vị trí")}</dt>
+                <dd>
+                  {asset.location_name} <small>{asset.location_code}</small>
+                </dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Người chịu trách nhiệm / Quản lý:")}
-                </span>
-                <span className="font-semibold text-slate-800">
-                  {asset.custodian_name ||
-                    asset.custodian_id ||
-                    uiText("Không có")}
-                </span>
+                <dt>{text("Người chịu trách nhiệm")}</dt>
+                <dd>{asset.custodian_name || text("Chưa giao cho ai")}</dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Độ chính xác hạn dùng:")}
-                </span>
-                <span className="font-medium text-slate-700">
-                  {asset.expiry_precision === "not_required" &&
-                    uiText("Không yêu cầu")}
-                  {asset.expiry_precision === "day" && uiText("Theo ngày")}
-                  {asset.expiry_precision === "month" && uiText("Theo tháng")}
-                  {asset.expiry_precision === "unknown" &&
-                    uiText("Chưa rõ (Cần xác minh)")}
-                </span>
+                <dt>{text("Hạn dùng")}</dt>
+                <dd>
+                  {asset.expiry_date ||
+                    text(expiryLabels[asset.expiry_precision] ?? "—")}
+                </dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Hạn sử dụng:")}
-                </span>
-                <span className="font-mono font-medium text-slate-700">
-                  {asset.expiry_date || "—"}
-                </span>
+                <dt>{text("Phiên bản")}</dt>
+                <dd>#{asset.revision}</dd>
               </div>
-            </div>
+            </dl>
           </section>
 
-          {/* Manufacturer & S/N Facts */}
-          <section className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3 min-w-0 overflow-hidden">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {uiText("Định danh Nhà sản xuất & Nguồn gốc")}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <section className="kho-card kho-card-pad" aria-labelledby="asset-id">
+            <h3 id="asset-id">{text("Định danh")}</h3>
+            <dl className="kho-facts kho-facts-3">
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Số sê-ri NSX:")}
-                </span>
-                <span className="font-mono font-bold text-slate-800">
-                  {asset.manufacturer_serial || uiText("Không có")}
-                </span>
+                <dt>{text("Hãng sản xuất")}</dt>
+                <dd>{asset.manufacturer || "—"}</dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Hãng sản xuất:")}
-                </span>
-                <span className="font-medium text-slate-800">
-                  {asset.manufacturer || "—"}
-                </span>
+                <dt>{text("Model")}</dt>
+                <dd>{asset.model || "—"}</dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Model:")}
-                </span>
-                <span className="font-medium text-slate-800">
-                  {asset.model || "—"}
-                </span>
+                <dt>{text("Số sê-ri NSX")}</dt>
+                <dd>{asset.manufacturer_serial || text("Không có")}</dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Hình thức tiếp nhận:")}
-                </span>
-                <span className="font-medium text-slate-700">
+                <dt>{text("Tiếp nhận")}</dt>
+                <dd>
                   {asset.intake_kind === "receive"
-                    ? uiText("Nhận kho mới")
-                    : uiText("Tồn đầu kỳ")}
-                </span>
+                    ? text("Nhận kho mới")
+                    : text("Tồn đầu kỳ")}
+                </dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Chứng từ tiếp nhận:")}
-                </span>
-                <span className="font-medium text-slate-700 font-mono">
-                  {asset.intake_reference}
-                </span>
+                <dt>{text("Chứng từ")}</dt>
+                <dd>{asset.intake_reference}</dd>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Mã dòng:")}
-                </span>
-                <span className="font-mono text-slate-700">
-                  {asset.row_key}
-                </span>
+                <dt>{text("Mã vật tư")}</dt>
+                <dd>{asset.item_code}</dd>
               </div>
-              <div className="sm:col-span-3">
-                <span className="text-slate-400 block mb-0.5">
-                  {uiText("Dòng hồ sơ nguồn:")}
-                </span>
-                {asset.source_line_id ? (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <span className="font-mono font-medium text-slate-700 break-all text-xs">
-                      {asset.source_line_id}
-                    </span>
-                    <Link
-                      href="/inventory/acquisitions"
-                      className="text-indigo-600 hover:underline text-[11px] font-medium shrink-0"
-                    >
-                      {uiText("(Tra cứu Hồ sơ nguồn / Acquisitions &rarr;)")}
-                    </Link>
-                  </div>
-                ) : (
-                  <span className="text-slate-400 italic">
-                    {uiText("Không có dòng nguồn (Ghi nhận tồn đầu kỳ)")}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded border border-slate-200">
-              {uiText(
-                "[Định danh vật lý độc lập] Thiết bị cá thể được quản lý theo thực thể riêng biệt ngoài số dư số lượng (quantity balance) của sổ cái kho. Mỗi tem nhãn mã QR đại diện cho một máy móc/vật tư vật lý duy nhất.",
-              )}
-            </div>
+            </dl>
+            {asset.source_line_id ? (
+              <p>
+                <Link
+                  href={`/inventory/assets?source_line_id=${asset.source_line_id}`}
+                >
+                  {text("Các thiết bị cùng dòng hồ sơ nguồn")}
+                </Link>
+              </p>
+            ) : null}
           </section>
 
-          {/* Action Tabs for State, Lifecycle, Correction */}
-          <section className="space-y-4 min-w-0 max-w-full overflow-hidden">
-            <div className="flex border-b border-slate-200 text-xs overflow-x-auto scrollbar-none gap-1 sm:gap-2 pb-px">
-              <button
-                type="button"
-                onClick={() => setActiveTab("state")}
-                className={`py-2 px-3 sm:px-4 font-semibold border-b-2 whitespace-nowrap shrink-0 transition-colors ${
-                  activeTab === "state"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
-                }`}
+          <section className="kho-card" aria-labelledby="asset-actions">
+            <div className="kho-card-head">
+              <h3 id="asset-actions">{text("Cập nhật thiết bị")}</h3>
+              <div
+                className="segmented-control kho-op-tabs"
+                role="group"
+                aria-label={text("Loại cập nhật")}
               >
-                {uiText("1. Vị trí & Vận hành")}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("lifecycle")}
-                className={`py-2 px-3 sm:px-4 font-semibold border-b-2 whitespace-nowrap shrink-0 transition-colors ${
-                  activeTab === "lifecycle"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {uiText("2. Vòng đời")}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("correction")}
-                className={`py-2 px-3 sm:px-4 font-semibold border-b-2 whitespace-nowrap shrink-0 transition-colors ${
-                  activeTab === "correction"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {uiText("3. Đính chính")}
-              </button>
+                {(
+                  [
+                    ["state", "Vị trí & vận hành"],
+                    ["lifecycle", "Vòng đời"],
+                    ["correction", "Đính chính"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={activeTab === value}
+                    className={activeTab === value ? "selected" : ""}
+                    onClick={() => setActiveTab(value)}
+                  >
+                    {text(label)}
+                  </button>
+                ))}
+              </div>
             </div>
-
-            {/* Tab Body */}
-            <div>
-              {activeTab === "state" && (
-                <AssetStateForm asset={asset} onSuccess={handleRefresh} />
-              )}
-              {activeTab === "lifecycle" && (
+            <div className="kho-card-body kho-flat">
+              {activeTab === "state" ? (
+                <AssetStateForm
+                  asset={asset}
+                  onSuccess={() => router.refresh()}
+                />
+              ) : null}
+              {activeTab === "lifecycle" ? (
                 <AssetLifecycleForm
                   asset={asset}
                   isAdmin={isAdmin}
-                  onSuccess={handleRefresh}
+                  onSuccess={() => router.refresh()}
                 />
-              )}
-              {activeTab === "correction" && (
+              ) : null}
+              {activeTab === "correction" ? (
                 <AssetCorrectionForm
                   asset={asset}
                   events={events}
                   isAdmin={isAdmin}
-                  onSuccess={handleRefresh}
+                  onSuccess={() => router.refresh()}
                 />
-              )}
+              ) : null}
             </div>
+          </section>
+
+          <section
+            className="kho-card kho-card-pad kho-flat"
+            aria-label={text("Sổ cái lịch sử")}
+          >
+            <AssetHistoryView
+              events={events}
+              total={eventsTotal}
+              page={eventsPage}
+              pageSize={eventsPageSize}
+              onPageChange={(next) =>
+                router.push(`/inventory/assets/${asset.id}?page=${next}`)
+              }
+            />
           </section>
         </div>
 
-        {/* Right Col: QR Label Card (Parent handles layout) */}
-        <div className="space-y-6 min-w-0 max-w-full">
+        <aside className="kho-record-aside kho-aside-plain">
           <AssetQrLabel asset={asset} qrSvg={qrSvg} />
-        </div>
+        </aside>
       </div>
-
-      {/* History Audit Trail Section */}
-      <section
-        aria-label={uiText("Sổ cái lịch sử")}
-        className="min-w-0 max-w-full overflow-hidden"
-      >
-        <AssetHistoryView
-          events={events}
-          total={eventsTotal}
-          page={eventsPage}
-          pageSize={eventsPageSize}
-          onPageChange={handleHistoryPageChange}
-        />
-      </section>
     </div>
   );
 }
