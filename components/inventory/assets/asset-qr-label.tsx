@@ -49,7 +49,7 @@ export function AssetQrLabel({ asset, qrSvg }: AssetQrLabelProps) {
             className="button button-primary text-xs px-2.5 py-1"
             title={uiText("In nhãn tài sản này")}
           >
-            {uiText("In nhãn (Print)")}
+            {uiText("In nhãn")}
           </button>
         </div>
       </div>

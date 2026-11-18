@@ -81,3 +81,44 @@ test("U09–U10: a return visit records good and damaged, then the next visit ad
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("t3b: the request detail page opens each of its five tabs", async ({
+  page,
+}) => {
+  await signIn(page);
+  const base = `/equipment/requests/${fixture.request2}`;
+  await page.goto(base, { waitUntil: "networkidle" });
+  await expect(
+    page.getByRole("heading", { name: "Chi tiết phiếu thiết bị" }),
+  ).toBeVisible();
+  const tabs = page.getByRole("navigation", { name: "Mục của phiếu" });
+  await expect(tabs.getByRole("link", { name: "Thông tin" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(
+    page.getByRole("link", { name: "Bàn giao, thu hồi và ký xác nhận" }),
+  ).toHaveAttribute("href", `/equipment/fulfillment/${fixture.request2}`);
+
+  await tabs.getByRole("link", { name: "Nội dung" }).click();
+  await expect(page).toHaveURL(/tab=content/);
+  await expect(
+    page.getByRole("columnheader", { name: "Còn phải trả" }),
+  ).toBeVisible();
+
+  for (const [name, key] of [
+    ["Đính kèm", "files"],
+    ["Liên quan", "related"],
+    ["Lịch sử", "history"],
+  ]) {
+    await tabs.getByRole("link", { name }).click();
+    await expect(page).toHaveURL(new RegExp(`tab=${key}`));
+    await expect(tabs.getByRole("link", { name })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  }
+  await expect(
+    page.getByRole("heading", { name: "Lịch sử xử lý" }),
+  ).toBeVisible();
+});

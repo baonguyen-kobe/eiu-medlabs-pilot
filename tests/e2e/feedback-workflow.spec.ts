@@ -105,11 +105,11 @@ test("admin sees a slim dashboard, real routes and the four-region calendar", as
   ).toHaveAttribute("href", "/class-schedules");
   await expect(page.getByRole("link", { name: "Lịch phòng" })).toHaveCount(0);
   const catalogNavigation = page.getByRole("link", {
-    name: "Danh mục khác",
+    name: "Danh mục",
     exact: true,
   });
   await expect(catalogNavigation).toBeVisible();
-  await expect(catalogNavigation).toHaveAttribute("href", "/admin/courses");
+  await expect(catalogNavigation).toHaveAttribute("href", "/admin/equipment");
 
   await page.goto("/class-schedules?view=month&date=2026-07-31");
   await expect(page.locator(".hero-strip")).toHaveCount(0);

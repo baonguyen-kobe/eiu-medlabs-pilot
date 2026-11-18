@@ -34,10 +34,11 @@ test("danh mục thiết bị hỗ trợ import, export, tìm kiếm, sort và t
   });
   const scrollBefore = await nav.evaluate((element) => element.scrollTop);
   await clickUntilState(
-    page.getByRole("link", { name: "Danh mục TB Skills lab" }),
+    page.getByRole("link", { name: "Danh mục", exact: true }),
     () => expect(page).toHaveURL(/\/admin\/equipment$/),
   );
-  await expect(page.getByRole("link", { name: "Danh mục khác" })).toBeVisible();
+  // t4c: the other catalogs are tabs on the catalog page.
+  await expect(page.getByRole("link", { name: "Môn học" })).toBeVisible();
   if (scrollBefore > 0) {
     await expect
       .poll(() => nav.evaluate((element) => element.scrollTop))

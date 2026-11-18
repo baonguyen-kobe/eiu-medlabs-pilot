@@ -97,9 +97,7 @@ export function AssetDetailView({
         <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 space-y-2">
           <div className="font-bold flex items-center gap-2 text-sm text-rose-800">
             <span>{uiText("[Không đủ điều kiện]")}</span>
-            {uiText(
-              " Tài sản không đủ điều kiện xuất mượn / vận hành (Ineligible)",
-            )}
+            {uiText(" Tài sản không đủ điều kiện xuất mượn / vận hành")}
           </div>
           <p className="text-xs text-rose-700">
             {uiText(
@@ -150,7 +148,7 @@ export function AssetDetailView({
                 <span className="font-semibold text-slate-800">
                   {asset.custodian_name ||
                     asset.custodian_id ||
-                    uiText("Không có (Kho chung)")}
+                    uiText("Không có")}
                 </span>
               </div>
               <div>
@@ -185,7 +183,7 @@ export function AssetDetailView({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div>
                 <span className="text-slate-400 block mb-0.5">
-                  {uiText("Số sê-ri NSX (Serial Number):")}
+                  {uiText("Số sê-ri NSX:")}
                 </span>
                 <span className="font-mono font-bold text-slate-800">
                   {asset.manufacturer_serial || uiText("Không có")}
@@ -213,8 +211,8 @@ export function AssetDetailView({
                 </span>
                 <span className="font-medium text-slate-700">
                   {asset.intake_kind === "receive"
-                    ? uiText("Nhận kho mới (Receive)")
-                    : uiText("Tồn đầu kỳ (Open)")}
+                    ? uiText("Nhận kho mới")
+                    : uiText("Tồn đầu kỳ")}
                 </span>
               </div>
               <div>
@@ -227,7 +225,7 @@ export function AssetDetailView({
               </div>
               <div>
                 <span className="text-slate-400 block mb-0.5">
-                  {uiText("Mã dòng (Row Key):")}
+                  {uiText("Mã dòng:")}
                 </span>
                 <span className="font-mono text-slate-700">
                   {asset.row_key}
@@ -235,7 +233,7 @@ export function AssetDetailView({
               </div>
               <div className="sm:col-span-3">
                 <span className="text-slate-400 block mb-0.5">
-                  {uiText("Dòng hồ sơ nguồn (Source Line ID):")}
+                  {uiText("Dòng hồ sơ nguồn:")}
                 </span>
                 {asset.source_line_id ? (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
@@ -287,7 +285,7 @@ export function AssetDetailView({
                     : "border-transparent text-slate-500 hover:text-slate-700"
                 }`}
               >
-                {uiText("2. Vòng đời (Admin)")}
+                {uiText("2. Vòng đời")}
               </button>
 
               <button

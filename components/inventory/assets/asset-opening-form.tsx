@@ -129,22 +129,6 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
   };
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-4xl mx-auto space-y-6">
-      <div className="border-b pb-4 border-slate-200">
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-            {uiText("Dành riêng Quản trị viên (Admin)")}
-          </span>
-        </div>
-        <h2 className="text-lg font-bold text-slate-900 mt-1">
-          {uiText("Ghi nhận Tồn đầu kỳ Thiết bị Cá thể")}
-        </h2>
-        <p className="text-xs text-slate-500 mt-1">
-          {uiText(
-            "Khởi tạo tài sản hiện hữu từ biên bản kiểm kê đầu kỳ. Thao tác này ghi nhận thực thể độc lập với số dư sổ cái và không tạo đơn mua hàng ngầm định.",
-          )}
-        </p>
-      </div>
-
       {serverError && (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
           <div className="font-semibold">
@@ -198,7 +182,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
           {/* Section 1: Catalog & Optional Source Line */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("1. Thông tin Danh mục & Dòng nguồn (Tùy chọn)")}
+              {uiText("Thông tin Danh mục & Dòng nguồn (Tùy chọn)")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -206,9 +190,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
                   id="open-item-lookup"
                   resource="items"
                   value={form.catalog_item_id}
-                  label={uiText(
-                    "Vật tư danh mục (Theo dõi cá thể / Serialized) *",
-                  )}
+                  label={uiText("Vật tư danh mục (Theo dõi cá thể)")}
                   selectedLabel={form.catalog_item_name}
                   onSelect={(item: Record<string, unknown>) => {
                     const code = String(item.code || "");
@@ -246,7 +228,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
           {/* Section 2: Opening Manifest & Location */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("2. Biên bản kiểm kê & Vị trí kho (Manifest & Location)")}
+              {uiText("Biên bản kiểm kê & Vị trí kho")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -254,7 +236,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
                   htmlFor="open-manifest-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  {uiText("Mã biên bản kiểm kê đầu kỳ (Opening Manifest) *")}
+                  {uiText("Mã biên bản kiểm kê đầu kỳ *")}
                 </label>
                 <input
                   id="open-manifest-input"
@@ -277,7 +259,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
                   htmlFor="open-row-key-input"
                   className="block text-xs font-medium text-slate-700 mb-1"
                 >
-                  {uiText("Mã dòng biên bản (Row Key) *")}
+                  {uiText("Mã dòng biên bản *")}
                 </label>
                 <input
                   id="open-row-key-input"
@@ -297,7 +279,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
                   id="open-location-lookup"
                   resource="locations"
                   value={form.location_id}
-                  label={uiText("Vị trí kho hiện tại *")}
+                  label={uiText("Vị trí kho hiện tại")}
                   selectedLabel={form.location_name}
                   onSelect={(loc: Record<string, unknown>) => {
                     const code = String(loc.code || "");
@@ -348,7 +330,7 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
           {/* Section 4: Expiry Precision with Unknown Allowed */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              {uiText("4. Hạn sử dụng (Expiry Precision)")}
+              {uiText("Hạn sử dụng")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -417,9 +399,9 @@ export function AssetOpeningForm({ people }: { people: CustodianOption[] }) {
             {form.expiry_precision === "unknown" && (
               <div className="p-3 bg-amber-50 rounded border border-amber-200 text-amber-800 text-xs">
                 {uiText("Lưu ý: Tài sản ghi nhận hạn dùng")}{" "}
-                <strong>{uiText("Chưa rõ (Unknown)")}</strong>
+                <strong>{uiText("Chưa rõ")}</strong>
                 {uiText(" sẽ ở trạng thái")}{" "}
-                <strong>{uiText("Không đủ điều kiện (Ineligible)")}</strong>
+                <strong>{uiText("Không đủ điều kiện")}</strong>
                 {uiText(
                   " cho đến khi Quản trị viên thực hiện đính chính xác minh hạn sử dụng kèm bằng chứng.",
                 )}

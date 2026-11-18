@@ -1,3 +1,5 @@
+import { CatalogTabs } from "@/components/catalog-tabs";
+import { canManageBasicMedicalWorkspace } from "@/lib/workspace-access";
 import { redirect } from "next/navigation";
 import {
   EquipmentCatalogManager,
@@ -61,6 +63,17 @@ export default async function EquipmentCatalogPage({
         />
       }
     >
+      <CatalogTabs
+        active="/admin/equipment"
+        canAdmin={roles.includes("admin")}
+        canBasicMedical={
+          roles.includes("admin") ||
+          canManageBasicMedicalWorkspace(
+            roles,
+            roomTypes.map(({ code }) => code),
+          )
+        }
+      />
       {query.notice || query.error ? (
         <p className={query.error ? "form-error" : "form-success"}>
           {query.error ?? query.notice}

@@ -1,3 +1,4 @@
+import { CatalogTabs } from "@/components/catalog-tabs";
 import {
   applyBasicMedicalCatalogReconciliation,
   createBasicMedicalCatalogItem,
@@ -129,6 +130,11 @@ export default async function BasicMedicalEquipmentPage({
         />
       }
     >
+      <CatalogTabs
+        active="/basic-medical/equipment"
+        canAdmin={roles.includes("admin")}
+        canInventory={roles.some((role) => ["admin", "staff"].includes(role))}
+      />
       {query.notice ? (
         <p className="action-feedback success">{query.notice}</p>
       ) : null}

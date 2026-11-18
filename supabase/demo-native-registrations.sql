@@ -26,16 +26,15 @@ values
 on conflict (profile_id, room_type_id) do nothing;
 
 insert into public.rooms (
-  id, room_code, building_code, room_name, room_type, capacity, is_active, room_type_id
+  id, room_code, building_code, room_name, capacity, is_active, room_type_id
 )
 values
-  ('20000000-0000-0000-0000-000000000006', 'YCS-01', 'B10', 'Phòng thực hành Y cơ sở 01', 'Y cơ sở', 40, true, '40000000-0000-0000-0000-000000000002'),
-  ('20000000-0000-0000-0000-000000000007', 'YCS-02', 'B10', 'Phòng thực hành Y cơ sở 02', 'Y cơ sở', 36, true, '40000000-0000-0000-0000-000000000002')
+  ('20000000-0000-0000-0000-000000000006', 'YCS-01', 'B10', 'Phòng thực hành Y cơ sở 01', 40, true, '40000000-0000-0000-0000-000000000002'),
+  ('20000000-0000-0000-0000-000000000007', 'YCS-02', 'B10', 'Phòng thực hành Y cơ sở 02', 36, true, '40000000-0000-0000-0000-000000000002')
 on conflict (id) do update set
   room_code = excluded.room_code,
   building_code = excluded.building_code,
   room_name = excluded.room_name,
-  room_type = excluded.room_type,
   capacity = excluded.capacity,
   is_active = excluded.is_active,
   room_type_id = excluded.room_type_id;

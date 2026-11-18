@@ -1,16 +1,6 @@
-import React from "react";
-import { createClient } from "@/lib/supabase/server";
-import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { AssetReceiveForm } from "@/components/inventory/assets/asset-receive-form";
+import { redirect } from "next/navigation";
 
-export default async function AssetReceivePage() {
-  await requireInventoryViewer();
-  const supabase = await createClient();
-  const { data: people } = await supabase.rpc("list_active_people");
-
-  return (
-    <div className="space-y-6">
-      <AssetReceiveForm people={people ?? []} />
-    </div>
-  );
+// t2f: one intake page per task; the asset form lives behind ?kind=asset.
+export default function LegacyAssetIntakePage() {
+  redirect("/inventory/receive?kind=asset");
 }

@@ -4181,7 +4181,6 @@ export type Database = {
           is_active: boolean
           room_code: string
           room_name: string | null
-          room_type: string | null
           room_type_id: string
           updated_at: string
         }
@@ -4193,7 +4192,6 @@ export type Database = {
           is_active?: boolean
           room_code: string
           room_name?: string | null
-          room_type?: string | null
           room_type_id?: string
           updated_at?: string
         }
@@ -4205,7 +4203,6 @@ export type Database = {
           is_active?: boolean
           room_code?: string
           room_name?: string | null
-          room_type?: string | null
           room_type_id?: string
           updated_at?: string
         }
@@ -5520,6 +5517,18 @@ export type Database = {
       remove_equipment_request_item: {
         Args: { target_item_id: string }
         Returns: boolean
+      }
+      basic_medical_cutover_preview: { Args: never; Returns: Json }
+      basic_medical_mapping_read: { Args: never; Returns: Json }
+      list_equipment_skill_suggestions: { Args: never; Returns: string[] }
+      map_basic_medical_inventory_item: {
+        Args: {
+          p_base_units_per_unit: string
+          p_basic_medical_catalog_item_id: string
+          p_inventory_item_id: string
+          p_reason: string
+        }
+        Returns: string
       }
       room_equipment_read: {
         Args: { p_room_id: string }

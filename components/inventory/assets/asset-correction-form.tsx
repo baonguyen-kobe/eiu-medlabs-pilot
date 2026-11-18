@@ -152,7 +152,7 @@ export function AssetCorrectionForm({
           {uiText(
             "[Quyền hạn] Tài sản này thuộc hồ sơ Tồn đầu kỳ hoặc yêu cầu hạn dùng bắt buộc. Chỉ có ",
           )}
-          <strong>{uiText("Quản trị viên (Admin)")}</strong>
+          <strong>{uiText("Quản trị viên")}</strong>
           {uiText(" mới có quyền thực hiện đính chính dữ kiện pháp lý này.")}
         </div>
       )}
@@ -190,7 +190,7 @@ export function AssetCorrectionForm({
             htmlFor="correct-target-event"
             className="block font-medium text-slate-700 mb-1"
           >
-            {uiText("Sự kiện gốc cần đính chính (Target Event) *")}
+            {uiText("Sự kiện gốc cần đính chính *")}
           </label>
           <select
             id="correct-target-event"
@@ -290,7 +290,7 @@ export function AssetCorrectionForm({
               </option>
               <option value="day">{uiText("Theo ngày (YYYY-MM-DD)")}</option>
               <option value="month">{uiText("Theo tháng (YYYY-MM)")}</option>
-              <option value="unknown">{uiText("Chưa rõ (Unknown)")}</option>
+              <option value="unknown">{uiText("Chưa rõ")}</option>
             </select>
           </div>
 

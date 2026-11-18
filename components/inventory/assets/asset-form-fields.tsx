@@ -52,9 +52,7 @@ export function AssetManufacturerFields({
   return (
     <div className="space-y-4">
       <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-        {uiText(
-          "Định danh nhà sản xuất & Người quản lý (Manufacturer & Custody)",
-        )}
+        {uiText("Định danh nhà sản xuất & Người quản lý")}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
@@ -62,7 +60,7 @@ export function AssetManufacturerFields({
             htmlFor={`${idPrefix}-mfg-serial`}
             className="block text-xs font-medium text-slate-700 mb-1"
           >
-            {uiText("Số sê-ri nhà sản xuất (Serial Number)")}
+            {uiText("Số sê-ri nhà sản xuất")}
           </label>
           <input
             id={`${idPrefix}-mfg-serial`}
@@ -82,7 +80,7 @@ export function AssetManufacturerFields({
             htmlFor={`${idPrefix}-mfg-name`}
             className="block text-xs font-medium text-slate-700 mb-1"
           >
-            {uiText("Hãng sản xuất (Manufacturer)")}
+            {uiText("Hãng sản xuất")}
           </label>
           <input
             id={`${idPrefix}-mfg-name`}
@@ -206,7 +204,7 @@ export function AssetReasonFields({
   return (
     <div className="space-y-4">
       <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-        {uiText("Lý do & Bằng chứng pháp lý (Reason & Evidence)")}
+        {uiText("Lý do & Bằng chứng pháp lý")}
       </h3>
       <div className="space-y-3">
         <div>

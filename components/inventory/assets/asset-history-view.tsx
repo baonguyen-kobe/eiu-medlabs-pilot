@@ -187,13 +187,13 @@ export function AssetHistoryView({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-2 rounded bg-slate-50 border border-slate-200/60">
                     <span className="text-[11px] font-semibold text-slate-500 block mb-1.5">
-                      {uiText("Trước sự kiện (Before):")}
+                      {uiText("Trước sự kiện:")}
                     </span>
                     {renderStateSummary(evt.before_state)}
                   </div>
                   <div className="p-2 rounded bg-slate-50 border border-slate-200/60">
                     <span className="text-[11px] font-semibold text-slate-500 block mb-1.5">
-                      {uiText("Sau sự kiện (After):")}
+                      {uiText("Sau sự kiện:")}
                     </span>
                     {renderStateSummary(evt.after_state)}
                   </div>

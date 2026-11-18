@@ -2,6 +2,12 @@ import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
 import { ReceiveForm } from "@/components/inventory/receive-form";
+import { AssetReceiveForm } from "@/components/inventory/assets/asset-receive-form";
+import {
+  IntakeKindSwitch,
+  intakeKind,
+} from "@/components/inventory/intake-kind-switch";
+import { createClient } from "@/lib/supabase/server";
 import type {
   AcquisitionRecord,
   AcquisitionRecordLine,
@@ -10,11 +16,23 @@ import type {
 export default async function ReceivePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ sourceId?: string }>;
+  searchParams?: Promise<{ sourceId?: string; kind?: string }>;
 }) {
   await requireInventoryViewer();
   const resolvedParams = searchParams ? await searchParams : {};
   const preselectedSourceId = resolvedParams.sourceId;
+  const kind = intakeKind(resolvedParams.kind);
+
+  if (kind === "asset") {
+    const supabase = await createClient();
+    const { data: people } = await supabase.rpc("list_active_people");
+    return (
+      <div className="space-y-6">
+        <IntakeKindSwitch path="/inventory/receive" kind={kind} />
+        <AssetReceiveForm people={people ?? []} />
+      </div>
+    );
+  }
 
   let initialSources: AcquisitionRecord[] = [];
   let initialSourceLines: AcquisitionRecordLine[] = [];
@@ -46,6 +64,7 @@ export default async function ReceivePage({
 
   return (
     <div className="space-y-6">
+      <IntakeKindSwitch path="/inventory/receive" kind={kind} />
       <ReceiveForm
         initialSources={initialSources}
         initialSourceLines={initialSourceLines}

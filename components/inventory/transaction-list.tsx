@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "@/components/icons";
+import { usePathname, useRouter } from "next/navigation";
 import { formatInventoryDateTime } from "@/lib/inventory/dates";
 import { OperationBadge } from "./status-badge";
 import { PaginationControls } from "@/components/pagination-controls";
@@ -25,6 +24,25 @@ export interface TransactionListProps {
   currentSort?: string;
 }
 
+const operations: Array<[string, string]> = [
+  ["RECEIVE", "Nhận kho"],
+  ["OPENING", "Tồn đầu kỳ"],
+  ["CORRECT_RECEIPT", "Điều chỉnh phiếu nhận"],
+  ["REVERSE_RECEIPT", "Hủy phiếu nhận"],
+  ["CORRECT_OPENING", "Điều chỉnh tồn đầu kỳ"],
+  ["TRANSFER", "Điều chuyển kho"],
+  ["CONDITION_CHANGE", "Đổi tình trạng"],
+  ["STOCKTAKE_ADJUST", "Điều chỉnh kiểm kê"],
+  ["STOCKTAKE_SURPLUS", "Dư thừa kiểm kê"],
+  ["VERIFY_SURPLUS", "Thẩm định dư thừa"],
+  ["ASSET_RECEIVE", "Nhận tài sản"],
+  ["ASSET_OPEN", "Tài sản đầu kỳ"],
+  ["ASSET_SET_STATE", "Hiện trạng tài sản"],
+  ["ASSET_SET_LIFECYCLE", "Vòng đời tài sản"],
+  ["ASSET_CORRECT", "Đính chính tài sản"],
+];
+
+/** Ledger history in the Kho list pattern (UI Master 0A.4): filters, table, pages. */
 export function TransactionList({
   transactions: propTransactions,
   initialTransactions,
@@ -35,343 +53,173 @@ export function TransactionList({
   currentOperation = "all",
   currentSort = "posted_desc",
 }: TransactionListProps) {
-  const { text: uiText } = useLanguage();
-
+  const { text } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const transactions = propTransactions ?? initialTransactions ?? [];
   const total = totalTransactions ?? transactions.length;
+  const filtered =
+    Boolean(currentQ.trim()) ||
+    currentOperation !== "all" ||
+    currentSort !== "posted_desc";
 
-  const [search, setSearch] = useState(currentQ);
-
-  const [prevQ, setPrevQ] = useState(currentQ);
-  if (prevQ !== currentQ) {
-    setPrevQ(currentQ);
-    setSearch(currentQ);
+  function go(values: {
+    q?: string;
+    operation?: string;
+    sort?: string;
+    page?: number;
+  }) {
+    const params = new URLSearchParams();
+    const next = {
+      q: currentQ,
+      operation: currentOperation,
+      sort: currentSort,
+      ...values,
+    };
+    if (next.q?.trim()) params.set("q", next.q.trim());
+    if (next.operation && next.operation !== "all")
+      params.set("operation", next.operation);
+    if (next.sort && next.sort !== "posted_desc") params.set("sort", next.sort);
+    if (values.page && values.page > 1) params.set("page", String(values.page));
+    router.push(params.size ? `${pathname}?${params}` : pathname);
   }
 
-  const updateParams = useCallback(
-    (updates: Record<string, string | number | undefined | null>) => {
-      const params = new URLSearchParams(
-        searchParams ? searchParams.toString() : "",
-      );
-      for (const [key, val] of Object.entries(updates)) {
-        if (
-          val === undefined ||
-          val === null ||
-          val === "" ||
-          (key === "page" && Number(val) <= 1) ||
-          (key === "operation" && val === "all") ||
-          (key === "sort" && val === "posted_desc")
-        ) {
-          params.delete(key);
-        } else {
-          params.set(key, String(val));
-        }
-      }
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
-    },
-    [router, pathname, searchParams],
-  );
-
-  const hasActiveFilters = Boolean(
-    (currentQ && currentQ.trim() !== "") ||
-    (currentOperation && currentOperation !== "all") ||
-    (currentSort && currentSort !== "posted_desc"),
-  );
-
-  function handleSearchSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    updateParams({ q: search.trim() || undefined, page: 1 });
-  }
-
-  function clearFilters() {
-    setSearch("");
-    updateParams({
-      q: undefined,
-      operation: undefined,
-      sort: undefined,
-      page: 1,
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    go({
+      q: String(form.get("q") ?? ""),
+      operation: String(form.get("operation") ?? "all"),
+      sort: String(form.get("sort") ?? "posted_desc"),
     });
   }
 
   return (
-    <div className="space-y-4">
-      {/* Filters Toolbar */}
-      <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Search: business_key, reason, actor_name */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="sm:col-span-2 relative"
-          >
-            <Search
-              className="absolute left-3 top-2.5 text-slate-400"
-              size={16}
-            />
-            <input
-              aria-label={uiText("Tìm giao dịch")}
-              type="text"
-              className="w-full text-xs pl-9 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder={uiText(
-                "Tìm theo mã nghiệp vụ, lý do, người thực hiện...",
-              )}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onBlur={() => {
-                if (search !== currentQ) {
-                  updateParams({ q: search.trim() || undefined, page: 1 });
-                }
-              }}
-            />
-            {search ? (
-              <button
-                type="button"
-                aria-label={uiText("Xóa ô tìm kiếm")}
-                onClick={() => {
-                  setSearch("");
-                  updateParams({ q: undefined, page: 1 });
-                }}
-                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
-              >
-                <X size={14} />
-              </button>
-            ) : null}
-          </form>
-
-          {/* Operation Filter */}
-          <div>
-            <select
-              aria-label={uiText("Lọc nghiệp vụ")}
-              className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-              value={currentOperation}
-              onChange={(e) => {
-                updateParams({ operation: e.target.value, page: 1 });
-              }}
-            >
-              <option value="all">{uiText("Tất cả nghiệp vụ")}</option>
-              <option value="RECEIVE">{uiText("Nhận kho")}</option>
-              <option value="OPENING">{uiText("Tồn đầu kỳ")}</option>
-              <option value="CORRECT_RECEIPT">
-                {uiText("Điều chỉnh nhận / CORRECT_RECEIPT")}
+    <>
+      <form
+        className="list-filters"
+        onSubmit={submit}
+        key={`${currentQ}|${currentOperation}|${currentSort}`}
+      >
+        <label>
+          {text("Tìm kiếm")}
+          <input
+            name="q"
+            defaultValue={currentQ}
+            placeholder={text("Mã nghiệp vụ, lý do, người thực hiện")}
+          />
+        </label>
+        <label>
+          {text("Nghiệp vụ")}
+          <select name="operation" defaultValue={currentOperation}>
+            <option value="all">{text("Tất cả")}</option>
+            {operations.map(([value, label]) => (
+              <option key={value} value={value}>
+                {text(label)}
               </option>
-              <option value="REVERSE_RECEIPT">
-                {uiText("Hủy phiếu nhận / REVERSE_RECEIPT")}
-              </option>
-              <option value="CORRECT_OPENING">
-                {uiText("Điều chỉnh tồn đầu / CORRECT_OPENING")}
-              </option>
-              <option value="TRANSFER">{uiText("Điều chuyển kho")}</option>
-              <option value="CONDITION_CHANGE">
-                {uiText("Hạ phẩm cấp / CONDITION_CHANGE")}
-              </option>
-              <option value="STOCKTAKE_ADJUST">
-                {uiText("Điều chỉnh kiểm kê / STOCKTAKE_ADJUST")}
-              </option>
-              <option value="STOCKTAKE_SURPLUS">
-                {uiText("Dư thừa kiểm kê / STOCKTAKE_SURPLUS")}
-              </option>
-              <option value="VERIFY_SURPLUS">
-                {uiText("Thẩm định dư thừa / VERIFY_SURPLUS")}
-              </option>
-              <option value="ASSET_RECEIVE">{uiText("Nhận tài sản")}</option>
-              <option value="ASSET_OPEN">{uiText("Tài sản đầu kỳ")}</option>
-              <option value="ASSET_SET_STATE">
-                {uiText("Hiện trạng tài sản")}
-              </option>
-              <option value="ASSET_SET_LIFECYCLE">
-                {uiText("Vòng đời tài sản")}
-              </option>
-              <option value="ASSET_CORRECT">
-                {uiText("Đính chính tài sản")}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        {/* Sort & Filter Status */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500 font-medium">
-              {uiText("Sắp xếp / Sort:")}
-            </span>
-            <select
-              aria-label={uiText("Sắp xếp giao dịch")}
-              className="text-xs py-1 px-2 border border-slate-300 rounded-md bg-white text-slate-700"
-              value={currentSort}
-              onChange={(e) => updateParams({ sort: e.target.value, page: 1 })}
-            >
-              <option value="posted_desc">{uiText("Mới nhất trước")}</option>
-              <option value="posted_asc">{uiText("Cũ nhất trước")}</option>
-            </select>
-          </div>
-
-          {hasActiveFilters ? (
-            <div className="flex items-center gap-3 text-slate-500">
-              <span>
-                {uiText("Tìm thấy ")}
-                <strong>{total}</strong>
-                {uiText(" kết quả lọc")}
-              </span>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold"
-                onClick={clearFilters}
-              >
-                <X size={14} />
-                {uiText(" Xóa bộ lọc")}
-              </button>
-            </div>
-          ) : (
-            <span className="text-slate-400">
-              {uiText("Tổng số giao dịch: ")}
-              <strong>{total}</strong>
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Distinction notice between Physical Adjustment vs Document Correction */}
-      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs flex items-start gap-2.5">
-        <div className="text-blue-600 font-bold mt-0.5 shrink-0">ℹ</div>
-        <div className="space-y-0.5">
-          <span className="font-semibold text-slate-900 block">
-            {uiText(
-              "Phân biệt Điều chỉnh Thực tế (S2) vs Sửa chứng từ gốc (S1):",
-            )}
+            ))}
+          </select>
+        </label>
+        <label>
+          {text("Sắp xếp")}
+          <select name="sort" defaultValue={currentSort}>
+            <option value="posted_desc">{text("Mới nhất trước")}</option>
+            <option value="posted_asc">{text("Cũ nhất trước")}</option>
+          </select>
+        </label>
+        <div className="list-filters-actions">
+          <button type="submit" className="button button-primary">
+            {text("Lọc")}
+          </button>
+          {filtered ? (
+            <Link href={pathname} className="button button-secondary">
+              {text("Xóa bộ lọc")}
+            </Link>
+          ) : null}
+          <span className="inline-toolbar-count">
+            {text("{0} giao dịch", [total])}
           </span>
-          <p className="text-slate-600 leading-relaxed">
-            •{" "}
-            <strong>
-              {uiText("STOCKTAKE_ADJUST / TRANSFER / CONDITION_CHANGE:")}
-            </strong>{" "}
-            {uiText(
-              "Giao dịch vận hành thực tế tại kho hiện tại, bảo toàn lịch sử và không ghi đè chứng từ nhận ban đầu.",
-            )}
-            <br />•{" "}
-            <strong>{uiText("CORRECT_RECEIPT / CORRECT_OPENING:")}</strong>
-            {uiText(
-              " Sửa đổi sai sót hành chính trên chứng từ gốc khi chưa có biến động kho phái sinh.",
-            )}
-          </p>
         </div>
-      </div>
+      </form>
 
-      {/* Transactions Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Nghiệp vụ")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Mã nghiệp vụ")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Thời điểm phát sinh")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Thời điểm ghi sổ")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Người thực hiện")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Lý do")}
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  {uiText("Tham chiếu gốc")}
-                </th>
-                <th scope="col" className="py-3 px-4 text-right">
-                  {uiText("Chi tiết")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {transactions.length === 0 ? (
+      {transactions.length === 0 ? (
+        <p className="panel-empty">
+          {filtered
+            ? text("Không có giao dịch nào khớp bộ lọc.")
+            : text("Chưa có giao dịch nào được ghi sổ.")}
+        </p>
+      ) : (
+        <div className="data-panel">
+          <div className="responsive-table">
+            <table className="data-table records-on-phone">
+              <thead>
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    {hasActiveFilters
-                      ? uiText(
-                          "Không tìm thấy giao dịch nào phù hợp với bộ lọc.",
-                        )
-                      : uiText("Chưa có giao dịch sổ cái nào được ghi nhận.")}
-                  </td>
+                  <th>{text("Nghiệp vụ")}</th>
+                  <th>{text("Mã nghiệp vụ")}</th>
+                  <th>{text("Thời điểm")}</th>
+                  <th>{text("Người thực hiện")}</th>
+                  <th>{text("Lý do")}</th>
                 </tr>
-              ) : (
-                transactions.map((tx) => (
+              </thead>
+              <tbody>
+                {transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    className="hover:bg-slate-50/80 transition-colors"
+                    className="row-link"
+                    onClick={() =>
+                      router.push(`/inventory/transactions/${tx.id}`)
+                    }
                   >
-                    <td className="py-3 px-4">
+                    <td data-label={text("Nghiệp vụ")}>
                       <OperationBadge
                         operation={tx.operation as TransactionOperationType}
                       />
                     </td>
-                    <td className="py-3 px-4 font-mono font-semibold text-slate-900">
-                      {tx.business_key}
-                    </td>
-                    <td className="py-3 px-4 text-slate-600">
-                      {formatInventoryDateTime(tx.occurred_at)}
-                    </td>
-                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
-                      {formatInventoryDateTime(tx.posted_at)}
-                    </td>
-                    <td className="py-3 px-4 font-medium text-slate-800">
-                      {tx.actor_name || uiText("Hệ thống")}
-                    </td>
-                    <td className="py-3 px-4 text-slate-600 max-w-xs truncate">
-                      {tx.reason || "—"}
-                    </td>
-                    <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                      {tx.corrects_transaction_id ? (
+                    <td data-label={text("Mã nghiệp vụ")}>
+                      <span className="cell-stack">
                         <Link
-                          href={`/inventory/transactions/${tx.corrects_transaction_id}`}
-                          className="text-blue-600 hover:underline"
+                          href={`/inventory/transactions/${tx.id}`}
+                          onClick={(event) => event.stopPropagation()}
                         >
-                          {tx.corrects_transaction_id.slice(0, 8)}...
+                          {tx.business_key}
                         </Link>
-                      ) : (
-                        "—"
-                      )}
+                        {tx.corrects_transaction_id ? (
+                          <small>
+                            {text("Sửa giao dịch {0}", [
+                              tx.corrects_transaction_id.slice(0, 8),
+                            ])}
+                          </small>
+                        ) : null}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <Link
-                        href={`/inventory/transactions/${tx.id}`}
-                        className="button button-secondary text-[11px] py-1 px-2.5"
-                      >
-                        {uiText("Xem &rarr;")}
-                      </Link>
+                    <td data-label={text("Thời điểm")}>
+                      <span className="cell-stack">
+                        <span>{formatInventoryDateTime(tx.occurred_at)}</span>
+                        <small>
+                          {text("Ghi sổ {0}", [
+                            formatInventoryDateTime(tx.posted_at),
+                          ])}
+                        </small>
+                      </span>
                     </td>
+                    <td data-label={text("Người thực hiện")}>
+                      {tx.actor_name || text("Hệ thống")}
+                    </td>
+                    <td data-label={text("Lý do")}>{tx.reason || "—"}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+      )}
 
-        {/* Pagination */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            {uiText("Hiển thị ")}
-            {transactions.length}
-            {uiText(" trên tổng số ")}
-            <strong>{total}</strong> {uiText("giao dịch")}
-          </span>
-          <PaginationControls
-            currentPage={currentPage}
-            totalItems={total}
-            onPageChange={(p) => updateParams({ page: p })}
-            pageSize={pageSize}
-          />
-        </div>
-      </div>
-    </div>
+      <PaginationControls
+        currentPage={currentPage}
+        totalItems={total}
+        onPageChange={(page) => go({ page })}
+        pageSize={pageSize}
+      />
+    </>
   );
 }

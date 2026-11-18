@@ -336,36 +336,26 @@ function buildNavigation(
         activeIcon: UsersSolid,
       });
     }
-    adminItems.push(
-      {
-        label: "Danh mục TB Skills lab",
-        href: "/admin/equipment",
-        icon: Settings,
-        activeIcon: SettingsSolid,
-      },
-      {
-        label: "Danh mục khác",
-        href: "/admin/courses",
-        icon: Settings,
-        activeIcon: SettingsSolid,
-        activeHrefs: [
-          "/admin/catalogs",
-          "/admin/courses",
-          "/admin/rooms",
-          "/admin/audit",
-        ],
-      },
-    );
   }
-  if (
+  // One Danh mục entry (t4c); CatalogTabs on each catalog page shows the
+  // tabs this viewer may open.
+  const canBasicMedicalCatalog =
     (isAdmin || isStaff) &&
-    canManageBasicMedicalWorkspace(roles, roomTypeCodes)
-  ) {
+    canManageBasicMedicalWorkspace(roles, roomTypeCodes);
+  if (isAdmin || canBasicMedicalCatalog) {
     adminItems.push({
-      label: "Danh mục TB Y cơ sở",
-      href: "/basic-medical/equipment",
-      icon: ClipboardList,
-      activeIcon: ClipboardListSolid,
+      label: "Danh mục",
+      href: isAdmin ? "/admin/equipment" : "/basic-medical/equipment",
+      icon: Settings,
+      activeIcon: SettingsSolid,
+      activeHrefs: [
+        "/admin/equipment",
+        "/admin/catalogs",
+        "/admin/courses",
+        "/admin/rooms",
+        "/admin/audit",
+        "/basic-medical/equipment",
+      ],
     });
   }
   if (adminItems.length > 0) {
@@ -446,12 +436,20 @@ function buildNavigation(
       },
     ];
     if (isAdmin) {
-      setupItems.push({
-        label: "Tồn đầu kỳ",
-        href: "/inventory/opening",
-        icon: Import,
-        activeIcon: ImportSolid,
-      });
+      setupItems.push(
+        {
+          label: "Tồn đầu kỳ",
+          href: "/inventory/opening",
+          icon: Import,
+          activeIcon: ImportSolid,
+        },
+        {
+          label: "Ghép danh mục Y cơ sở",
+          href: "/inventory/basic-medical-mapping",
+          icon: ClipboardList,
+          activeIcon: ClipboardListSolid,
+        },
+      );
     }
     setupItems.push(
       {
