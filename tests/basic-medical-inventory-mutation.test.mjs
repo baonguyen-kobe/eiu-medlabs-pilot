@@ -140,7 +140,6 @@ test("existing inventory cannot bypass inactive Basic Medical targets", async ()
         room_code: `${FIXTURE_ROOM_CODE_PREFIX}${suffix}`,
         building_code: "Y02",
         room_name: "Y-02 inventory target test room",
-        room_type: "basic_medical",
         room_type_id: BASIC_MEDICAL_ROOM_TYPE_ID,
         is_active: true,
       })

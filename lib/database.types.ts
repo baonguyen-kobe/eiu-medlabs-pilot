@@ -4181,7 +4181,6 @@ export type Database = {
           is_active: boolean
           room_code: string
           room_name: string | null
-          room_type: string | null
           room_type_id: string
           updated_at: string
         }
@@ -4193,7 +4192,6 @@ export type Database = {
           is_active?: boolean
           room_code: string
           room_name?: string | null
-          room_type?: string | null
           room_type_id?: string
           updated_at?: string
         }
@@ -4205,7 +4203,6 @@ export type Database = {
           is_active?: boolean
           room_code?: string
           room_name?: string | null
-          room_type?: string | null
           room_type_id?: string
           updated_at?: string
         }

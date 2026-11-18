@@ -206,7 +206,6 @@ test("Batch A: Teaching Assistant RPCs enforce scoped role contracts", async () 
           room_code: `M2B-${suffix.slice(0, 8)}`,
           building_code: "M2",
           room_name: "M2 Basic Medical contract fixture",
-          room_type: "Y cơ sở",
           capacity: 30,
           room_type_id: "40000000-0000-0000-0000-000000000002",
         })
