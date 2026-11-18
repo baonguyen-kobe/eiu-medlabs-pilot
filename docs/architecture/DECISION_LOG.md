@@ -207,3 +207,11 @@ Supersedes corresponding proposals/default-port-back of PILOT-REVIEW-001 and can
   - Basic Medical items need no cleaning or sterilisation step before reuse.
   - Basic Medical catalog joins `equipment_inventory_mappings` as an exclusive second FK (`num_nonnulls = 1`), with no name-based auto-mapping.
 - **Sources:** `docs/EIU_MedLabs_Pilot_Plan_Cap_Nhat_2026-11-17.md` (owner plan) and the session review of it.
+
+## PILOT-REVIEW-004 — 2026-11-18 owner decisions: Basic Medical into the shared stock and one catalog
+
+- **Status:** APPROVED by the owner in session on 2026-11-18.
+- **t4r3 B/C (option 2):** an Admin moves ready Basic Medical room rows into the shared ledger with one audited button; the opening is real and skips the P1 pilot scope only for that call. After the move the ledger is the only stock source (`20261118160000`).
+- **t2h:** Skills lab requests move only through the inventory flow; the pilot repo may drop old flows freely (`20261118150000`).
+- **t4e:** one Đăng ký thiết bị screen; one equipment catalog (`equipment_items` + usage scopes, old names kept as views; `20261118170000`).
+- **Pilot data purge (owner request, history loss accepted):** on 2026-11-18 every Basic Medical equipment item on the pilot was deleted with its room stock rows, condition logs and session equipment checks (4 items, 4 room rows, 2 logs, 4 checks). The one session confirmation was kept. The owner will add the real items later. The delete ran with triggers off, so no audit row exists; this entry is the record.
