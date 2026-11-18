@@ -4238,7 +4238,9 @@ export type Database = {
           room_code: string
           room_name: string | null
           room_type_id: string
+          shared_basic_medical: boolean
           updated_at: string
+          usage_scopes: string[] | null
         }
         Insert: {
           building_code: string
@@ -4249,7 +4251,9 @@ export type Database = {
           room_code: string
           room_name?: string | null
           room_type_id?: string
+          shared_basic_medical?: boolean
           updated_at?: string
+          usage_scopes?: string[] | null
         }
         Update: {
           building_code?: string
@@ -4260,7 +4264,9 @@ export type Database = {
           room_code?: string
           room_name?: string | null
           room_type_id?: string
+          shared_basic_medical?: boolean
           updated_at?: string
+          usage_scopes?: string[] | null
         }
         Relationships: [
           {
@@ -5903,6 +5909,10 @@ export type Database = {
       set_personnel_email_notification_capability: {
         Args: { target_enabled: boolean; target_user_id: string }
         Returns: number
+      }
+      set_room_shared_with_basic_medical: {
+        Args: { p_room_id: string; p_shared: boolean }
+        Returns: string[]
       }
       soft_cancel_equipment_request: {
         Args: { target_request_id: string }

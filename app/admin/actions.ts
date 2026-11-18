@@ -1876,3 +1876,25 @@ export async function savePersonnelChanges(
     personnel: (data ?? {}) as Record<string, unknown>,
   };
 }
+
+/** t4e step 3: let Y cơ sở also book a Skills lab room, or stop it. */
+export async function setRoomSharedWithBasicMedical(formData: FormData) {
+  const { supabase } = await adminContext();
+  const shared = String(formData.get("shared")) === "true";
+  const { error } = await supabase.rpc("set_room_shared_with_basic_medical", {
+    p_room_id: String(formData.get("id") ?? ""),
+    p_shared: shared,
+  });
+  if (error)
+    catalogRedirect(
+      "/admin/rooms",
+      "error",
+      error.hint || "Không thể cập nhật phòng dùng chung.",
+    );
+  revalidatePath("/admin/rooms");
+  catalogRedirect(
+    "/admin/rooms",
+    "notice",
+    shared ? "Đã cho Y cơ sở dùng chung phòng." : "Đã bỏ dùng chung phòng.",
+  );
+}

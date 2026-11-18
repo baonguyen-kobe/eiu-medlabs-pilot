@@ -1,3 +1,4 @@
+import { importsEnabled } from "@/lib/feature-flags";
 import Link from "next/link";
 import { AdminShell } from "@/components/admin-shell";
 import { createPersonnel, importPersonnel } from "@/app/admin/actions";
@@ -119,38 +120,40 @@ export default async function PersonnelPage({
         </p>
       ) : null}
 
-      <form
-        action={importPersonnel}
-        className="data-panel equipment-catalog-import personnel-import-panel"
-      >
-        <label className="equipment-import-file">
-          <UploadCloud size={20} />
-          <span>
-            <LocalizedText text={"File CSV hoặc XLSX"} />
-          </span>
-          <LocalizedElement
-            as="input"
-            textAttributes={["aria-label"]}
-            accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            aria-label="Chọn file import nhân sự"
-            name="file"
-            required
-            type="file"
-          />
-        </label>
-        <div className="equipment-import-actions">
-          <Link
-            className="button equipment-template-download"
-            download
-            href="/api/admin-catalog-template/personnel"
-            prefetch={false}
-          >
-            <Download size={17} />
-            <LocalizedText text={" Tải template"} />
-          </Link>
-          <PersonnelImportButtons />
-        </div>
-      </form>
+      {importsEnabled() ? (
+        <form
+          action={importPersonnel}
+          className="data-panel equipment-catalog-import personnel-import-panel"
+        >
+          <label className="equipment-import-file">
+            <UploadCloud size={20} />
+            <span>
+              <LocalizedText text={"File CSV hoặc XLSX"} />
+            </span>
+            <LocalizedElement
+              as="input"
+              textAttributes={["aria-label"]}
+              accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              aria-label="Chọn file import nhân sự"
+              name="file"
+              required
+              type="file"
+            />
+          </label>
+          <div className="equipment-import-actions">
+            <Link
+              className="button equipment-template-download"
+              download
+              href="/api/admin-catalog-template/personnel"
+              prefetch={false}
+            >
+              <Download size={17} />
+              <LocalizedText text={" Tải template"} />
+            </Link>
+            <PersonnelImportButtons />
+          </div>
+        </form>
+      ) : null}
 
       <details className="admin-create-personnel">
         <summary>

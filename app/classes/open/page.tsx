@@ -67,6 +67,7 @@ export default async function OpenClassesPage({
     `,
         )
         .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+        .is("basic_medical_registration_id", null)
         .neq("schedule_status", "cancelled")
         .gte("schedule_date", range.from)
         .lte("schedule_date", range.to)

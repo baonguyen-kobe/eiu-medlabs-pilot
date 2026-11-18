@@ -68,7 +68,7 @@ export default async function BasicMedicalSchedulesPage({
     viewMode === "month" ? addDays(periodStart, 41) : addDays(weekStart, 6);
 
   const [
-    { data: schedules },
+    { data: scheduleRows },
     { data: people },
     { data: lecturers },
     { data: rooms },
@@ -83,7 +83,8 @@ export default async function BasicMedicalSchedulesPage({
         rooms!inner (room_code, building_code, room_type_id)
       `,
       )
-      .eq("rooms.room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+      // t4e: shared Skills rooms carry Basic Medical sessions too.
+      .contains("rooms.usage_scopes", ["basic_medical"])
       .gte("schedule_date", format(periodStart, "yyyy-MM-dd"))
       .lte("schedule_date", format(periodEnd, "yyyy-MM-dd"))
       .neq("schedule_status", "cancelled")
@@ -96,12 +97,19 @@ export default async function BasicMedicalSchedulesPage({
     supabase
       .from("rooms")
       .select("id, room_code, building_code, room_type_id")
-      .eq("room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+      .contains("usage_scopes", ["basic_medical"])
       .eq("is_active", true)
       .order("room_code"),
   ]);
 
-  const scheduleIds = (schedules ?? []).map((schedule) => schedule.id);
+  // In a shared room only the Basic Medical sessions belong to this calendar.
+  const schedules = (scheduleRows ?? []).filter(
+    (schedule) =>
+      schedule.basic_medical_registration_id ||
+      (schedule.rooms as unknown as { room_type_id: string }).room_type_id ===
+        BASIC_MEDICAL_ROOM_TYPE_ID,
+  );
+  const scheduleIds = schedules.map((schedule) => schedule.id);
   const { data: confirmationStates, error: confirmationStatesError } =
     roles.includes("admin") && scheduleIds.length
       ? await supabase.rpc("list_basic_medical_schedule_confirmation_states", {

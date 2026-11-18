@@ -1,4 +1,5 @@
 "use client";
+import { importsEnabled } from "@/lib/feature-flags";
 
 import {
   CalendarDays,
@@ -161,7 +162,7 @@ function buildNavigation(
       activeIcon: ClipboardListSolid,
     });
   }
-  if (canCreateSkills && canImport) {
+  if (importsEnabled() && canCreateSkills && canImport) {
     taoPhieuItems.push({
       label: "Import lịch Skills lab",
       href: "/schedule-entry/import",
@@ -169,7 +170,11 @@ function buildNavigation(
       activeIcon: ImportSolid,
     });
   }
-  if (canCreateSkills && (isAdmin || isStaff || canImport)) {
+  if (
+    importsEnabled() &&
+    canCreateSkills &&
+    (isAdmin || isStaff || canImport)
+  ) {
     taoPhieuItems.push({
       label: "Import dữ liệu",
       href: "/imports",
@@ -304,6 +309,7 @@ function buildNavigation(
       });
     }
     if (
+      importsEnabled() &&
       canImportBasicMedicalSchedules(roles, roomTypeCodes, canImportSchedules)
     ) {
       yItems.push({

@@ -58,6 +58,7 @@ export default async function MyClassesPage({
     `,
       )
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .or(`lecturer_id.eq.${userId},lecturer_2_id.eq.${userId}`)
       .neq("schedule_status", "cancelled")
       .gte("schedule_date", range.from)

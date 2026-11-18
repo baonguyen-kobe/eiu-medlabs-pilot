@@ -1,3 +1,4 @@
+import { importsEnabled } from "@/lib/feature-flags";
 import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import {
   CalendarDays,
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
       `,
       )
       .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+      .is("basic_medical_registration_id", null)
       .gte("schedule_date", monthStartText)
       .lte("schedule_date", queryEndText)
       .neq("schedule_status", "cancelled")
@@ -139,7 +141,7 @@ export default async function DashboardPage() {
       actions={
         canCreate ? (
           <>
-            {canImport ? (
+            {importsEnabled() && canImport ? (
               <Link
                 className="button button-secondary"
                 href="/schedule-entry/import"

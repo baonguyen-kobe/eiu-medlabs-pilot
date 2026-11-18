@@ -1,3 +1,4 @@
+import { importsEnabled } from "@/lib/feature-flags";
 import { CatalogTabs } from "@/components/catalog-tabs";
 import {
   applyBasicMedicalCatalogReconciliation,
@@ -15,7 +16,6 @@ import type {
   BasicMedicalEquipmentCatalogItem,
   BasicMedicalRoomInventoryItem,
 } from "@/lib/basic-medical-equipment";
-import { BASIC_MEDICAL_ROOM_TYPE_ID } from "@/lib/room-types";
 import { getViewer } from "@/lib/viewer";
 import { canManageBasicMedicalWorkspace } from "@/lib/workspace-access";
 import { canViewBasicMedicalSchedules } from "@/lib/workspace-access";
@@ -91,7 +91,7 @@ export default async function BasicMedicalEquipmentPage({
       ? supabase
           .from("rooms")
           .select("id,room_code,building_code,room_name")
-          .eq("room_type_id", BASIC_MEDICAL_ROOM_TYPE_ID)
+          .contains("usage_scopes", ["basic_medical"])
           .eq("is_active", true)
           .order("building_code")
           .order("room_code")
@@ -307,18 +307,22 @@ export default async function BasicMedicalEquipmentPage({
 
           <section className="data-panel equipment-catalog-import">
             <div className="equipment-import-actions">
-              <a
-                className="button equipment-template-download"
-                href="/api/basic-medical-equipment-template"
-              >
-                <Download size={17} aria-hidden="true" />
-                <LocalizedText text={" Tải template"} />
-              </a>
-              <CatalogImportNew action={importBasicMedicalEquipment} />
-              <CatalogReconciliationImport
-                preview={previewBasicMedicalCatalogReconciliation}
-                apply={applyBasicMedicalCatalogReconciliation}
-              />
+              {importsEnabled() ? (
+                <>
+                  <a
+                    className="button equipment-template-download"
+                    href="/api/basic-medical-equipment-template"
+                  >
+                    <Download size={17} aria-hidden="true" />
+                    <LocalizedText text={" Tải template"} />
+                  </a>
+                  <CatalogImportNew action={importBasicMedicalEquipment} />
+                  <CatalogReconciliationImport
+                    preview={previewBasicMedicalCatalogReconciliation}
+                    apply={applyBasicMedicalCatalogReconciliation}
+                  />
+                </>
+              ) : null}
               <a
                 className="button equipment-export-all"
                 href="/api/basic-medical-equipment-export"
