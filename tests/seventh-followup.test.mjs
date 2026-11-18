@@ -291,7 +291,6 @@ test("Basic Medical visibility, RPC-only mutation and soft cancellation preserve
         room_code: `YC${suffix}`,
         building_code: "T7",
         room_name: "Seventh Basic Medical",
-        room_type: "Y cơ sở",
         room_type_id: BASIC,
         capacity: 20,
       })

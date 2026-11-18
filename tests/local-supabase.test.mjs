@@ -2621,7 +2621,6 @@ test("direct RPC không cho Staff đổi lớp từ loại phòng ngoài scope s
       room_code: `YC-${roomId.slice(0, 6)}`,
       building_code: "B08",
       room_name: "Y cơ sở kiểm thử",
-      room_type: "Y cơ sở",
       room_type_id: "40000000-0000-0000-0000-000000000002",
       capacity: 30,
     });
