@@ -1,4 +1,7 @@
-import { BasicMedicalMapForm } from "@/components/inventory/basic-medical-map-form";
+import {
+  BasicMedicalCutoverForm,
+  BasicMedicalMapForm,
+} from "@/components/inventory/basic-medical-map-form";
 import { requireInventoryAdmin } from "@/lib/inventory/auth";
 import { formatDisplayQuantity } from "@/lib/inventory/decimal";
 import { getInterfaceText } from "@/lib/i18n/server";
@@ -126,9 +129,10 @@ export default async function BasicMedicalMappingPage() {
       </div>
 
       <h2>{text("Xem trước tồn đầu kỳ theo phòng")}</h2>
+      <BasicMedicalCutoverForm ready={opening.ready} />
       {opening.rows.length === 0 ? (
         <p className="panel-empty">
-          {text("Chưa có tồn thiết bị Y cơ sở theo phòng.")}
+          {text("Không còn dòng tồn phòng nào chờ chuyển sang kho chung.")}
         </p>
       ) : (
         <div className="data-panel">

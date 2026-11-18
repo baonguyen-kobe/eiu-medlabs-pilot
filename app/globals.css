@@ -12068,3 +12068,19 @@ a.kpi-card[aria-current="true"] {
 .import-kinds .list-filters-actions {
   margin-top: 8px;
 }
+
+/* A confirm checkbox inside a list-filters form (t4r3 cutover). */
+.list-filters .confirm-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.list-filters .confirm-check input {
+  width: 18px;
+  min-height: 18px;
+  height: 18px;
+  flex: none;
+}
