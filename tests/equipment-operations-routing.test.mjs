@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { equipmentOperationHref } from "../lib/equipment-operations.ts";
 
-test("worklist preserves legacy lifecycle routing and Inventory stage routing", () => {
+test("worklist sends pre-inventory requests to their read-only detail page", () => {
   for (const status of ["preparing", "handed_over", "returned"])
     assert.equal(
       equipmentOperationHref({
@@ -11,7 +11,7 @@ test("worklist preserves legacy lifecycle routing and Inventory stage routing", 
         prepared: false,
         has_preparation: false,
       }),
-      "/equipment/requests?request=legacy",
+      "/equipment/requests/legacy",
     );
   assert.equal(
     equipmentOperationHref({

@@ -29,6 +29,7 @@ import {
   equipmentRequestStatuses,
   equipmentRequestWorkflowStatuses,
   equipmentStatusMeta,
+  inventoryStepHref,
   usesInventoryFulfillment,
   type EquipmentCatalogListItem,
   type EquipmentConfirmationState,
@@ -1282,12 +1283,14 @@ export function EquipmentRequestList({
                             {canManageRequest || canSignForRequest ? (
                               <Link
                                 className="text-link"
-                                href={`/equipment/fulfillment/${request.id}`}
+                                href={inventoryStepHref(request)}
                                 onClick={(event) => event.stopPropagation()}
                               >
-                                {canManageRequest
-                                  ? uiText("Bàn giao / thu hồi")
-                                  : uiText("Xem và ký xác nhận")}
+                                {!canManageRequest
+                                  ? uiText("Xem và ký xác nhận")
+                                  : request.status === "new"
+                                    ? uiText("Chuẩn bị thiết bị")
+                                    : uiText("Bàn giao / thu hồi")}
                               </Link>
                             ) : null}
                           </>
@@ -1466,11 +1469,13 @@ export function EquipmentRequestList({
                                   {inventoryManaged ? (
                                     <Link
                                       className="button button-primary"
-                                      href={`/equipment/fulfillment/${request.id}`}
+                                      href={inventoryStepHref(request)}
                                     >
-                                      {uiText(
-                                        "Bàn giao, thu hồi và ký xác nhận",
-                                      )}
+                                      {request.status === "new"
+                                        ? uiText("Chuẩn bị thiết bị")
+                                        : uiText(
+                                            "Bàn giao, thu hồi và ký xác nhận",
+                                          )}
                                     </Link>
                                   ) : (
                                     equipmentRequestWorkflowStatuses.map(

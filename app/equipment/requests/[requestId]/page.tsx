@@ -241,7 +241,7 @@ export default async function EquipmentRequestDetailPage({
             ) : null}
           </dl>
           <div className="list-filters-actions">
-            {canManage && request.has_inventory_preparation ? (
+            {canManage && inventoryManaged && request.status === "new" ? (
               <Link
                 className="button button-secondary"
                 href={`/equipment/preparation/${requestId}`}

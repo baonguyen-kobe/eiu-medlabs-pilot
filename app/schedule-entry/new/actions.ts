@@ -187,7 +187,6 @@ export async function createScheduleDraft(
 
   revalidatePath("/dashboard");
   revalidatePath("/class-schedules");
-  revalidatePath("/admin/class-schedules");
   revalidatePath("/classes/open");
   revalidatePath("/basic-medical/schedules");
   after(processPendingScheduleEmails);

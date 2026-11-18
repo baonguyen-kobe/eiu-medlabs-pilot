@@ -302,8 +302,7 @@ test.fixme("admin personnel, catalog, shift and import pages match the pre-redes
     fullPage: true,
   });
 
-  await page.goto("/admin/catalogs");
-  await expect(page).toHaveURL(/\/admin\/courses$/);
+  await page.goto("/admin/courses");
   await expect(page.locator(".catalog-tabs")).toBeVisible();
   const catalogColumnCount = await page
     .locator(".catalog-tabs")
@@ -487,7 +486,7 @@ test("staff sees separate shift views and can only self-register", async ({
     }),
   ).toHaveCount(0);
   await expect(
-    navigation.getByRole("link", { name: "Lịch sử import", exact: true }),
+    navigation.getByRole("link", { name: "Import dữ liệu", exact: true }),
   ).toBeVisible();
 
   await page.goto("/class-schedules?view=week&date=2026-07-31");

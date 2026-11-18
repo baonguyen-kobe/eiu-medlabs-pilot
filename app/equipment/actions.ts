@@ -61,24 +61,21 @@ function toEquipmentConfirmationState(
   };
 }
 
-async function legacyConfirmationError(
+async function inventoryFlowError(
   supabase: SupabaseClient,
   requestId: string,
 ): Promise<string | null> {
   const { data, error } = await supabase
     .from("equipment_requests")
-    .select("request_domain,has_inventory_preparation")
+    .select("request_domain")
     .eq("id", requestId)
     .maybeSingle();
   if (error || !data) {
     return error?.message || "Không tìm thấy phiếu thiết bị.";
   }
-  const request = data as Pick<
-    EquipmentRequestListItem,
-    "request_domain" | "has_inventory_preparation"
-  >;
+  const request = data as Pick<EquipmentRequestListItem, "request_domain">;
   return usesInventoryFulfillment(request)
-    ? "Phiếu đã có chuẩn bị kho. Vui lòng mở Bàn giao, thu hồi và ký xác nhận để ghi nhận theo từng lần."
+    ? "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi."
     : null;
 }
 
@@ -271,7 +268,7 @@ export async function updateEquipmentRequestStatus(
     return { ok: false, message: "Phiếu hoặc trạng thái không hợp lệ." };
   }
 
-  const guardError = await legacyConfirmationError(supabase, requestId);
+  const guardError = await inventoryFlowError(supabase, requestId);
   if (guardError) return { ok: false, message: guardError };
 
   const { data, error } = await supabase.rpc(
@@ -370,7 +367,7 @@ export async function confirmEquipmentRequestHandoff(
     return { ok: false, message: "Phiên đăng nhập đã hết hạn." };
   }
 
-  const guardError = await legacyConfirmationError(supabase, requestId);
+  const guardError = await inventoryFlowError(supabase, requestId);
   if (guardError) return { ok: false, message: guardError };
 
   const { data, error } = await supabase.rpc(

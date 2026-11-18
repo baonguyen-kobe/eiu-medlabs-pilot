@@ -122,16 +122,18 @@ export type EquipmentRequestListItem = {
   }>;
 };
 
+/** Skills lab requests move only through the inventory flow (t2h). */
 export function usesInventoryFulfillment(
-  request: Pick<
-    EquipmentRequestListItem,
-    "request_domain" | "has_inventory_preparation"
-  >,
+  request: Pick<EquipmentRequestListItem, "request_domain">,
 ) {
-  return (
-    request.request_domain === "nursing_skills" &&
-    request.has_inventory_preparation === true
-  );
+  return request.request_domain === "nursing_skills";
+}
+
+/** Inventory step page for a Skills lab request: prepare while new. */
+export function inventoryStepHref(request: { id: string; status: string }) {
+  return request.status === "new"
+    ? `/equipment/preparation/${request.id}`
+    : `/equipment/fulfillment/${request.id}`;
 }
 
 export type EquipmentCatalogListItem = {

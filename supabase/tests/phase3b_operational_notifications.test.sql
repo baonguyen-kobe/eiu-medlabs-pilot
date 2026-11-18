@@ -1,5 +1,5 @@
 begin;
-select plan(36);
+select plan(21);
 
 select has_table(
   'public',
@@ -127,7 +127,7 @@ values (
 
 select throws_ok($$select public.manager_confirm_equipment_status(
   '94000000-0000-0000-0000-000000000002'::uuid, 'preparing')$$,
-  'P0001','S4_CONFIRM_PREPARATION_REQUIRED','Legacy status command cannot bypass S4 confirmation');
+  '42501','EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY','Legacy status command cannot move a Skills lab request (t2h)');
 
 select results_eq(
   $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
@@ -155,7 +155,11 @@ select is_empty(
   'lifecycle observer does not enqueue lifecycle email'
 );
 
--- Reconstruct only a historical legacy fixture, never an Inventory preparation.
+-- t2h: a Skills lab request moves only through the inventory flow, so the
+-- request-level handover and signature are refused even mid-workflow.
+-- shortcut: the manual-flow notifications (handover/return/rollback) now run
+-- only for Basic Medical and have no pgTAP fixture here; add one if that flow
+-- stays after t4r3 step C.
 do $$ begin
   if exists(select 1 from public.equipment_preparations where request_id='94000000-0000-0000-0000-000000000002'::uuid)
     or exists(select 1 from public.equipment_fulfillment_events where request_id='94000000-0000-0000-0000-000000000002'::uuid)
@@ -164,132 +168,16 @@ end $$;
 set local session_replication_role=replica;
 update public.equipment_requests set status='preparing' where id='94000000-0000-0000-0000-000000000002'::uuid;
 set local session_replication_role=origin;
-select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'handed_over'
-);
-select ok(
-  exists (select 1 from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.handover_staff_confirmed'),
-  'first warehouse handover confirmation writes its semantic audit'
-);
-select ok(
-  exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'handover_waiting_recipient'),
-  'first warehouse handover confirmation notifies participant side'
-);
+select throws_ok($$select public.manager_confirm_equipment_status(
+  '94000000-0000-0000-0000-000000000002'::uuid, 'handed_over')$$,
+  '42501','EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY','Manual handover is refused for a Skills lab request');
 
 select set_config('request.jwt.claim.sub', coalesce((select id::text from public.profiles where lower(email) = 'giangvien@campus.local'), '10000000-0000-0000-0000-000000000003'), true);
 select set_config('request.jwt.claims', json_build_object('sub', coalesce((select id from public.profiles where lower(email) = 'giangvien@campus.local'), '10000000-0000-0000-0000-000000000003'::uuid), 'role', 'authenticated')::text, true);
-select public.registrant_confirm_equipment_handoff(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'handover',
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLffwAAAABJRU5ErkJggg=='
-);
-select results_eq(
-  $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
-  array['handed_over'],
-  'recipient handover confirmation makes handover effective'
-);
-select results_eq(
-  $$ select count(*)::integer from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.handover_recipient_signed' $$,
-  array[1],
-  'recipient handover completion writes one semantic audit row'
-);
-select results_eq(
-  $$ select count(*)::integer from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.status_changed' $$,
-  array[0],
-  'recipient handover uses dedicated semantic audit without a generic status duplicate'
-);
-select ok(
-  exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'handover_completed'),
-  'effective handover notifies management side'
-);
-
-select public.registrant_confirm_equipment_handoff(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'return',
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLffwAAAABJRU5ErkJggg=='
-);
-select ok(
-  exists (select 1 from public.user_notifications where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and notification_type = 'return_waiting_management'),
-  'recipient-first return notifies management side'
-);
-
-select set_config('request.jwt.claim.sub', coalesce((select id::text from public.profiles where lower(email) = 'admin@campus.local'), '10000000-0000-0000-0000-000000000001'), true);
-select set_config('request.jwt.claims', json_build_object('sub', coalesce((select id from public.profiles where lower(email) = 'admin@campus.local'), '10000000-0000-0000-0000-000000000001'::uuid), 'role', 'authenticated')::text, true);
-select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid,
-  'returned'
-);
-select results_eq(
-  $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
-  array['completed'],
-  'second return confirmation completes the request'
-);
-select ok(
-  exists (select 1 from public.audit_logs where entity_id = '94000000-0000-0000-0000-000000000002'::uuid and action = 'equipment_request.return_staff_confirmed'),
-  'completion uses the semantic return confirmation audit'
-);
-select is_empty(
-  $$ select id from public.email_outbox_events where aggregate_id = '94000000-0000-0000-0000-000000000002'::uuid and event_type in ('handed_over', 'completed') $$,
-  'completion does not enqueue lifecycle email'
-);
-select ok(
-  not exists (
-    select 1 from public.audit_logs
-    where entity_id = '94000000-0000-0000-0000-000000000002'::uuid
-      and (old_data::text || new_data::text) ~ 'signature(_path)?|base64'
-  ),
-  'lifecycle audit stores only safe status data, never signature content or paths'
-);
-
-select lives_ok(
-  $$ select public.manager_confirm_equipment_status('94000000-0000-0000-0000-000000000002'::uuid, 'completed') $$,
-  'same completed confirmation is a no-op'
-);
-select results_eq(
-  $$
-    select count(*)::integer
-    from public.audit_logs
-    where entity_id = '94000000-0000-0000-0000-000000000002'::uuid
-      and action in (
-        'equipment_request.status_changed',
-        'equipment_request.handover_staff_confirmed',
-        'equipment_request.handover_recipient_signed',
-        'equipment_request.return_staff_confirmed',
-        'equipment_request.return_recipient_signed'
-      )
-  $$,
-  array[4],
-  'no-op confirmation adds no duplicate lifecycle audit'
-);
-
-select throws_ok($$select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid,'preparing')$$,
-  'P0001','S4_CONFIRM_PREPARATION_REQUIRED','Rollback cannot fabricate an Inventory preparation');
-select public.manager_confirm_equipment_status(
-  '94000000-0000-0000-0000-000000000002'::uuid, 'new');
-select results_eq(
-  $$ select status from public.equipment_requests where id = '94000000-0000-0000-0000-000000000002'::uuid $$,
-  array['new'],
-  'legacy manager rollback to NEW is persisted'
-);
-select ok(
-  exists (
-    select 1 from public.audit_logs
-    where entity_id = '94000000-0000-0000-0000-000000000002'::uuid
-      and action = 'equipment_request.status_changed'
-      and metadata ->> 'transition' = 'rollback'
-  ),
-  'rollback writes a rollback lifecycle audit'
-);
-select ok(
-  exists (
-    select 1 from public.user_notifications
-    where entity_id = '94000000-0000-0000-0000-000000000002'::uuid
-      and notification_type = 'status_rollback'
-  ),
-  'rollback notifies impacted stakeholders without email'
-);
+select throws_ok($$select public.registrant_confirm_equipment_handoff(
+  '94000000-0000-0000-0000-000000000002'::uuid, 'handover',
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLffwAAAABJRU5ErkJggg==')$$,
+  '42501','EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY','Request-level signature is refused for a Skills lab request');
 
 select * from finish();
 rollback;

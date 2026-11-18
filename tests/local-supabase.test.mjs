@@ -1211,13 +1211,15 @@ test("Staff ngoài room-type scope không quản lý được phiếu thiết b�
 
     await legacyStageFixture(requestId, "preparing");
     const inScopeStaff = await signIn("staff@campus.local", "LocalStaff123!");
-    assert.ifError(
+    // t2h: in scope, a Skills lab request still moves only through inventory.
+    assert.equal(
       (
         await inScopeStaff.supabase.rpc("manager_confirm_equipment_status", {
           target_request_id: requestId,
           target_status: "handed_over",
         })
-      ).error,
+      ).error?.message,
+      "EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY",
     );
   } finally {
     // Must delete equipment_requests BEFORE class_schedules (FK dependency)
@@ -1991,27 +1993,20 @@ test("chỉ Admin hoặc Staff được chuyển trạng thái phiếu thiết b
   assert.equal(lecturerUpdate, null);
   await legacyStageFixture(requestId, "preparing");
 
-  const { data: staffUpdate, error: staffUpdateError } =
-    await staff.supabase.rpc("manager_confirm_equipment_status", {
-      target_request_id: requestId,
-      target_status: "handed_over",
-    });
-  assert.ifError(staffUpdateError);
-  assert.equal(staffUpdate.status, "preparing");
+  // t2h: Staff and Admin can no longer move a Skills lab request by hand.
+  for (const actor of [staff, admin]) {
+    const { error } = await actor.supabase.rpc(
+      "manager_confirm_equipment_status",
+      { target_request_id: requestId, target_status: "handed_over" },
+    );
+    assert.equal(error?.message, "EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY");
+  }
 
   const { error: adminContentEditError } = await admin.supabase
     .from("equipment_requests")
     .update({ note: "Vẫn được sửa khi Đã soạn" })
     .eq("id", requestId);
   assert.equal(adminContentEditError?.code, "42501");
-
-  const { data: nextStatus, error: nextStatusError } = await admin.supabase.rpc(
-    "manager_confirm_equipment_status",
-    { target_request_id: requestId, target_status: "handed_over" },
-  );
-  assert.ifError(nextStatusError);
-  assert.equal(nextStatus.status, "preparing");
-  assert.equal(nextStatus.handover_staff_confirmed_by, admin.user.id);
 
   const { error: itemError } = await cleanupLegacyRequest(requestId);
   assert.ifError(itemError);
@@ -2147,24 +2142,9 @@ test("người đăng ký được điều chỉnh nội dung nhưng không đư
     "manager_confirm_equipment_status",
     { target_request_id: requestId, target_status: "preparing" },
   );
-  assert.match(preparingError.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
-  await legacyStageFixture(requestId, "preparing");
-
-  const { error: warehouseHandoverError } = await admin.supabase.rpc(
-    "manager_confirm_equipment_status",
-    { target_request_id: requestId, target_status: "handed_over" },
-  );
-  assert.ifError(warehouseHandoverError);
-  const { error: recipientHandoverError } = await lecturer.supabase.rpc(
-    "registrant_confirm_equipment_handoff",
-    {
-      target_request_id: requestId,
-      target_phase: "handover",
-      target_signature:
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-    },
-  );
-  assert.ifError(recipientHandoverError);
+  // t2h: a Skills lab request moves only through the inventory flow.
+  assert.match(preparingError.message, /EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY/);
+  await legacyStageFixture(requestId, "handed_over");
 
   const { error: lockedRpcError } = await lecturer.supabase.rpc(
     "update_equipment_request_content",
@@ -3836,36 +3816,28 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
     assert.ok(invalidTiming.error);
     assert.match(invalidTiming.error.message, /Ngày trả.*ngày học/i);
 
-    const lecturerTooEarly = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
+    // t2h: Skills lab requests move only through the inventory flow; the
+    // request-level status buttons and signatures stay for Basic Medical.
+    const flowOnly = /EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY/;
+    const sign = (phase) =>
+      lecturer.supabase.rpc("registrant_confirm_equipment_handoff", {
         target_request_id: requestId,
-        target_phase: "handover",
+        target_phase: phase,
         target_signature: signature,
-      },
-    );
-    assert.ok(lecturerTooEarly.error);
-    assert.match(lecturerTooEarly.error.message, /Kho.*Đã giao/i);
+      });
+    const setStatus = (actor, status) =>
+      actor.supabase.rpc("manager_confirm_equipment_status", {
+        target_request_id: requestId,
+        target_status: status,
+      });
+    assert.match((await sign("handover")).error?.message ?? "", flowOnly);
+    for (const actor of [staff, admin])
+      for (const status of ["preparing", "handed_over"])
+        assert.match(
+          (await setStatus(actor, status)).error?.message ?? "",
+          flowOnly,
+        );
 
-    const staffTooEarly = await staff.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "handed_over" },
-    );
-    assert.ok(staffTooEarly.error);
-    assert.match(staffTooEarly.error.message, /Đã soạn/i);
-
-    const adminEarly = await admin.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "handed_over" },
-    );
-    assert.ok(adminEarly.error);
-    assert.match(adminEarly.error.message, /Đã soạn/i);
-
-    const preparing = await admin.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "preparing" },
-    );
-    assert.match(preparing.error.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
     await legacyItemFixture({
       request_id: requestId,
       skill_name: "Kỹ năng workflow",
@@ -3873,26 +3845,9 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
       quantity: 1,
     });
     await legacyStageFixture(requestId, "preparing");
-    const adminHandover = await admin.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "handed_over" },
-    );
-    assert.ifError(adminHandover.error);
-    assert.ok(adminHandover.data.handover_staff_confirmed_at);
+    await legacyStageFixture(requestId, "handed_over");
 
-    const responsibleEarlySign = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
-        target_request_id: requestId,
-        target_phase: "handover",
-        target_signature: signature,
-      },
-    );
-    assert.ifError(responsibleEarlySign.error);
-    assert.equal(responsibleEarlySign.data.status, "handed_over");
-
-    // t2b: a handed-over request cannot be cancelled, and only an Admin
-    // may move it back (no reason required); the rollback is audited.
+    // t2b: a handed-over request cannot be cancelled.
     const cancelAfterHandover = await staff.supabase.rpc(
       "soft_cancel_equipment_request",
       { target_request_id: requestId },
@@ -3901,111 +3856,16 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
       cancelAfterHandover.error?.message ?? "",
       /EQUIPMENT_REQUEST_CANCEL_AFTER_HANDOVER/,
     );
-    const staffRollback = await staff.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "new" },
+    // Neither the old rollback nor the old return signature applies here.
+    assert.match(
+      (await setStatus(admin, "new")).error?.message ?? "",
+      flowOnly,
     );
     assert.match(
-      staffRollback.error?.message ?? "",
-      /EQUIPMENT_REQUEST_ROLLBACK_ADMIN_ONLY/,
+      (await setStatus(staff, "returned")).error?.message ?? "",
+      flowOnly,
     );
-    assert.ifError(
-      (
-        await admin.supabase.rpc("manager_confirm_equipment_status", {
-          target_request_id: requestId,
-          target_status: "new",
-        })
-      ).error,
-    );
-    const { data: rollbackAudit } = await admin.supabase
-      .from("audit_logs")
-      .select("metadata")
-      .eq("entity_id", requestId)
-      .eq("action", "equipment_request.status_rolled_back");
-    assert.deepEqual(rollbackAudit?.at(-1)?.metadata, {
-      from: "handed_over",
-      to: "new",
-    });
-    assert.match(
-      (
-        await staff.supabase.rpc("manager_confirm_equipment_status", {
-          target_request_id: requestId,
-          target_status: "preparing",
-        })
-      ).error.message,
-      /S4_CONFIRM_PREPARATION_REQUIRED/,
-    );
-    await legacyStageFixture(requestId, "preparing");
-
-    const editWhilePreparing = await admin.supabase.rpc(
-      "update_equipment_request_content",
-      {
-        target_request_id: requestId,
-        target_class_schedule_id: scheduleId,
-        target_semester: "HK2",
-        target_responsible_lecturer_id: lecturer.user.id,
-        target_receive_at: "2045-08-19T02:00:00.000Z",
-        target_return_at: "2045-08-20T09:00:00.000Z",
-        target_note: "Điều chỉnh khi Đã soạn",
-        target_items: await equipmentUpdateItems(admin.supabase, requestId, [
-          {
-            skill_name: "Kỹ năng workflow",
-            catalog_item_id: catalogItemId,
-            quantity: 1,
-            note: null,
-          },
-        ]),
-      },
-    );
-    assert.match(
-      editWhilePreparing.error.message,
-      /S4_USE_QUANTITY_ADJUSTMENT/,
-    );
-    assert.equal(editWhilePreparing.data, null);
-
-    const managerAddsWhilePreparing = await staff.supabase
-      .from("equipment_request_items")
-      .insert({
-        request_id: requestId,
-        skill_name: "Kỹ năng workflow",
-        catalog_item_id: supplementalCatalogItemId,
-        quantity: 2,
-        note: "Bổ sung trước khi giao",
-      });
-    assert.equal(managerAddsWhilePreparing.error?.code, "42501");
-
-    const responsibleSignsBeforeWarehouse = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
-        target_request_id: requestId,
-        target_phase: "handover",
-        target_signature: signature,
-      },
-    );
-    assert.ok(responsibleSignsBeforeWarehouse.error);
-    assert.match(
-      responsibleSignsBeforeWarehouse.error.message,
-      /Kho.*Đã giao/i,
-    );
-
-    const staffConfirmsHandover = await staff.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "handed_over" },
-    );
-    assert.ifError(staffConfirmsHandover.error);
-    assert.equal(staffConfirmsHandover.data.status, "preparing");
-    assert.ok(staffConfirmsHandover.data.handover_staff_confirmed_at);
-
-    const responsibleSignsHandover = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
-        target_request_id: requestId,
-        target_phase: "handover",
-        target_signature: signature,
-      },
-    );
-    assert.ifError(responsibleSignsHandover.error);
-    assert.equal(responsibleSignsHandover.data.status, "handed_over");
+    assert.match((await sign("return")).error?.message ?? "", flowOnly);
 
     const managerAddsAfterHandover = await staff.supabase
       .from("equipment_request_items")
@@ -4016,60 +3876,6 @@ test("Phiếu thiết bị chỉ cho ký giao sau khi kho xác nhận và GV ph�
         quantity: 1,
       });
     assert.ok(managerAddsAfterHandover.error);
-
-    const responsibleSignsReturn = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
-        target_request_id: requestId,
-        target_phase: "return",
-        target_signature: signature,
-      },
-    );
-    assert.ifError(responsibleSignsReturn.error);
-    assert.equal(responsibleSignsReturn.data.status, "handed_over");
-
-    const staffConfirmsReturn = await staff.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "returned" },
-    );
-    assert.ifError(staffConfirmsReturn.error);
-    assert.equal(staffConfirmsReturn.data.status, "completed");
-
-    const adminRollsBackToHandover = await admin.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "handed_over" },
-    );
-    assert.ifError(adminRollsBackToHandover.error);
-    assert.equal(adminRollsBackToHandover.data.status, "handed_over");
-    assert.ok(adminRollsBackToHandover.data.handover_recipient_signed_at);
-    assert.equal(adminRollsBackToHandover.data.return_staff_confirmed_at, null);
-    assert.equal(
-      adminRollsBackToHandover.data.return_recipient_signed_at,
-      null,
-    );
-
-    const staffConfirmsReturnFirst = await staff.supabase.rpc(
-      "manager_confirm_equipment_status",
-      { target_request_id: requestId, target_status: "returned" },
-    );
-    assert.ifError(staffConfirmsReturnFirst.error);
-    assert.equal(staffConfirmsReturnFirst.data.status, "handed_over");
-    assert.ok(staffConfirmsReturnFirst.data.return_staff_confirmed_at);
-    assert.equal(
-      staffConfirmsReturnFirst.data.return_recipient_signed_at,
-      null,
-    );
-
-    const responsibleSignsReturnLast = await lecturer.supabase.rpc(
-      "registrant_confirm_equipment_handoff",
-      {
-        target_request_id: requestId,
-        target_phase: "return",
-        target_signature: signature,
-      },
-    );
-    assert.ifError(responsibleSignsReturnLast.error);
-    assert.equal(responsibleSignsReturnLast.data.status, "completed");
   } finally {
     // Use serviceClient() since DELETE privilege is revoked from authenticated role
     await serviceClient()

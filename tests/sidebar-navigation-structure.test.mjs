@@ -99,6 +99,11 @@ function extractBuildNavigation() {
       return roomTypeCodes.includes("basic_medical");
     }
 
+    function canImportSkillsSchedules(roles, roomTypeCodes, canImportSchedules) {
+      if (roles.includes("admin")) return true;
+      return Boolean(canImportSchedules && roomTypeCodes.includes("nursing_skills") && roles.some(r => ["staff", "lecturer", "teaching_assistant"].includes(r)));
+    }
+
     function canImportBasicMedicalSchedules(roles, roomTypeCodes, canImportSchedules) {
       if (roles.includes("admin")) return true;
       return Boolean(canImportSchedules && roomTypeCodes.includes("basic_medical") && roles.some(r => ["staff", "lecturer", "teaching_assistant"].includes(r)));
@@ -165,7 +170,7 @@ test("Sidebar Navigation: Lecturer (Nursing skills) gets correct groups, labels,
       { label: "Tạo lịch Skills lab", href: "/schedule-entry/new" },
       { label: "Đăng ký thiết bị", href: "/equipment/register" },
       { label: "Import lịch Skills lab", href: "/schedule-entry/import" },
-      { label: "Lịch sử import", href: "/imports" },
+      { label: "Import dữ liệu", href: "/imports" },
     ],
   );
 

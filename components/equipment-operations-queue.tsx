@@ -44,7 +44,7 @@ function formatWhen(iso: string) {
 
 function step(row: Row): { label: string; tone: string } {
   if (!row.has_preparation && row.status !== "new")
-    return { label: "Luồng cũ", tone: "neutral" };
+    return { label: "Chỉ xem", tone: "neutral" };
   if (row.status === "new") return { label: "Cần chuẩn bị", tone: "info" };
   if (row.status === "preparing") return { label: "Chờ giao", tone: "info" };
   if (row.status === "completed")
