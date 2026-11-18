@@ -39,8 +39,9 @@ export function equipmentOperationHref(row: {
   prepared: boolean;
   has_preparation: boolean;
 }): string {
+  // Pre-inventory requests already past Mới: read-only detail (t2h).
   if (!row.has_preparation && row.status !== "new")
-    return `/equipment/requests?request=${row.id}`;
+    return `/equipment/requests/${row.id}`;
   return row.prepared ||
     (row.has_preparation && !["new", "preparing"].includes(row.status))
     ? `/equipment/fulfillment/${row.id}`

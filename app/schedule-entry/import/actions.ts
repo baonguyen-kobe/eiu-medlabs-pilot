@@ -947,7 +947,6 @@ export async function importScheduleRows(
   revalidatePath("/dashboard");
   revalidatePath("/class-schedules");
   revalidatePath("/imports");
-  revalidatePath("/admin/class-schedules");
   revalidatePath("/basic-medical/schedules");
   after(processPendingScheduleEmails);
   return {

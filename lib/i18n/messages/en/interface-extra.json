@@ -403,7 +403,6 @@
   "Phiên chỉnh sửa đã hết hạn. Vui lòng tải lại nhân sự trước khi lưu.": "The editing session expired. Reload this person before saving.",
   "Phiên đăng nhập đã hết hạn.": "Your session has expired.",
   "Phiên import đã dừng vì không thể ghi nhận kết quả của một số dòng. Hãy tải file lỗi hoặc thử lại.": "Import stopped because some row results could not be recorded. Download the error file or try again.",
-  "Phiếu đã có chuẩn bị kho. Vui lòng mở Bàn giao, thu hồi và ký xác nhận để ghi nhận theo từng lần.": "This request has warehouse preparation. Open Handover, returns and signatures to record each operation.",
   "Phiếu đã thay đổi. Tải phiên bản mới, kiểm tra và xác nhận lại; dữ liệu nhập được giữ.": "The request has changed. Load the latest revision, review and confirm again; your input is preserved.",
   "Phiếu hoặc bước xác nhận không hợp lệ.": "Invalid request or confirmation step.",
   "Phiếu hoặc kết quả duyệt không hợp lệ.": "Invalid request or review result.",
@@ -887,7 +886,6 @@
   "Trả": "Return",
   "Bước": "Step",
   "Cần làm": "To do",
-  "Luồng cũ": "Legacy flow",
   "Cần chuẩn bị": "To prepare",
   "Chờ giao": "To hand over",
   "Đã hoàn tất": "Completed",
@@ -1316,5 +1314,7 @@
   "Cần ghi lý do ghép.": "A reason is required.",
   "Chọn mã hàng trong kho.": "Choose an inventory SKU.",
   "Hệ số quy đổi phải là số dương.": "The conversion factor must be positive.",
-  "Đã ghép.": "Mapped."
+  "Đã ghép.": "Mapped.",
+  "Chỉ xem": "View only",
+  "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.": "Skills lab requests are recorded through Preparation and Handover / return."
 }

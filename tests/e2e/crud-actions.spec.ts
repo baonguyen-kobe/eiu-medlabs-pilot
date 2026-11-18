@@ -120,7 +120,6 @@ test("all authenticated pages load without a Server Action module error", async 
     "/schedule-entry/import",
     "/imports",
     "/admin/personnel",
-    "/admin/catalogs",
     "/admin/courses",
     "/admin/rooms",
     "/admin/audit",

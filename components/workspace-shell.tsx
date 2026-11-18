@@ -350,7 +350,6 @@ function buildNavigation(
       activeIcon: SettingsSolid,
       activeHrefs: [
         "/admin/equipment",
-        "/admin/catalogs",
         "/admin/courses",
         "/admin/rooms",
         "/admin/audit",

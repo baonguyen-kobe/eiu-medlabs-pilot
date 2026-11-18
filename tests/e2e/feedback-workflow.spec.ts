@@ -302,8 +302,7 @@ test.fixme("admin personnel, catalog, shift and import pages match the pre-redes
     fullPage: true,
   });
 
-  await page.goto("/admin/catalogs");
-  await expect(page).toHaveURL(/\/admin\/courses$/);
+  await page.goto("/admin/courses");
   await expect(page.locator(".catalog-tabs")).toBeVisible();
   const catalogColumnCount = await page
     .locator(".catalog-tabs")

@@ -571,7 +571,8 @@ test("D7: Skills preparation requires S4 and preserves canonical semester on rej
     );
 
     assert.equal(confirmed, null);
-    assert.match(rpcErr.message, /S4_CONFIRM_PREPARATION_REQUIRED/);
+    // t2h: Skills lab requests move only through the inventory flow.
+    assert.match(rpcErr.message, /EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY/);
     const current = await service
       .from("equipment_requests")
       .select("status,semester")
