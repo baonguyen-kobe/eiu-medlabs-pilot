@@ -12,6 +12,7 @@ const items: Array<[string, string, Scope]> = [
   ["/inventory/catalog", "Vật tư kho", "inventory"],
   ["/admin/courses", "Môn học", "admin"],
   ["/admin/rooms", "Phòng", "admin"],
+  ["/admin/equipment-scopes", "Phạm vi thiết bị", "admin"],
   ["/admin/audit", "Lịch sử thay đổi", "admin"],
 ];
 

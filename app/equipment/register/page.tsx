@@ -74,7 +74,7 @@ type SourceRequest = {
 };
 
 const requestDraftSelect =
-  "id,preparation_revision,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(id,skill_name,quantity,note,equipment_catalog(id,item_name))";
+  "id,preparation_revision,created_at,status,semester,class_schedule_id,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),equipment_request_items(id,skill_name,quantity,note,equipment_catalog!equipment_request_items_catalog_item_id_fkey(id,item_name))";
 
 const dateTimeInputFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Ho_Chi_Minh",

@@ -76,7 +76,7 @@ export async function loadEquipmentRequestEmailSnapshot(requestId: string) {
   const { data, error } = await supabase
     .from("equipment_requests")
     .select(
-      "id,request_domain,created_at,semester,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,late_review_note,registrant:profiles!equipment_requests_registrant_id_fkey(full_name,email),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name,email),class_schedules(schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,student_count,rooms(room_code,building_code,room_name)),equipment_request_items(skill_name,quantity,note,equipment_catalog(item_name,commercial_name,unit),basic_medical_equipment_catalog(item_name,commercial_name,unit))",
+      "id,request_domain,created_at,semester,registrant_id,responsible_lecturer_id,phone_snapshot,email_snapshot,receive_at,return_at,note,late_approval_status,late_registration_reason,late_review_note,registrant:profiles!equipment_requests_registrant_id_fkey(full_name,email),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name,email),class_schedules(schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,student_count,rooms(room_code,building_code,room_name)),equipment_request_items(skill_name,quantity,note,equipment_catalog!equipment_request_items_catalog_item_id_fkey(item_name,commercial_name,unit),basic_medical_equipment_catalog!equipment_request_items_basic_medical_catalog_item_id_fkey(item_name,commercial_name,unit))",
     )
     .eq("id", requestId)
     .maybeSingle();

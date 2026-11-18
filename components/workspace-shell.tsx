@@ -356,6 +356,7 @@ function buildNavigation(
         "/admin/equipment",
         "/admin/courses",
         "/admin/rooms",
+        "/admin/equipment-scopes",
         "/admin/audit",
         "/basic-medical/equipment",
       ],

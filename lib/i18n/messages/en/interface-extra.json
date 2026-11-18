@@ -1341,5 +1341,19 @@
   "Thiết bị này đã chuyển sang kho chung; đổi số lượng tại Kho.": "This item moved into shared stock; change its quantity in Kho.",
   "Không còn dòng tồn phòng nào chờ chuyển sang kho chung.": "No room stock rows are waiting to move into shared stock.",
   "Phạm vi đăng ký": "Registration scope",
-  "Skills lab": "Skills lab"
+  "Skills lab": "Skills lab",
+  "Phạm vi thiết bị": "Equipment scopes",
+  "Một danh mục thiết bị: tick bên nào được dùng từng thiết bị (Skills lab, Y cơ sở hoặc cả hai).": "One equipment catalog: tick which side uses each item (Skills lab, Basic Medical or both).",
+  "Trùng tên giữa hai bên": "Same name on both sides",
+  "Trùng tên giữa hai bên ({0})": "Same name on both sides ({0})",
+  "Cùng tên thương mại nhưng là hai dòng. Kiểm tra rồi giữ một dòng và tick cả hai bên; dòng thừa ngừng dùng ở trang danh mục của bên đó.": "Same commercial name, two rows. Check them, keep one and tick both sides; deactivate the extra row on its side's catalog page.",
+  "Skills lab: {0} · Y cơ sở: {1}": "Skills lab: {0} · Basic Medical: {1}",
+  "Tên thiết bị hoặc tên thương mại": "Item or commercial name",
+  "Dùng cho": "Used by",
+  "Không có thiết bị nào.": "No equipment.",
+  "Đã lưu phạm vi.": "Scopes saved.",
+  "Bên này đã có thiết bị cùng tên thương mại.": "That side already has an item with the same commercial name.",
+  "Chọn ít nhất một phạm vi.": "Pick at least one scope.",
+  "Thiết bị đang được phiếu hoặc kho Skills lab dùng; không bỏ phạm vi này được.": "Skills lab requests or stock use this item; this scope cannot be removed.",
+  "Thiết bị đang được phòng hoặc phiếu Y cơ sở dùng; không bỏ phạm vi này được.": "Basic Medical rooms or requests use this item; this scope cannot be removed."
 }
