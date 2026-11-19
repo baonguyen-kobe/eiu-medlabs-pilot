@@ -12966,3 +12966,100 @@ tr[data-open] > :is(th, td) {
   flex: 1 1 280px;
   min-width: 0;
 }
+
+/* B3: personnel action column stays reachable; email table rebalanced; audit/equipment toolbars. */
+@media (min-width: 761px) {
+  .personnel-table th:last-child,
+  .personnel-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: -1px 0 0 var(--line);
+  }
+
+  .personnel-table thead th:last-child {
+    z-index: 3;
+    background: var(--surface-soft);
+  }
+}
+
+.personnel-replace-confirm {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.personnel-replace-confirm input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+}
+
+.email-notification-col-time {
+  width: 11%;
+}
+
+.email-notification-col-recipient {
+  width: 20%;
+}
+
+.email-notification-col-content {
+  width: 30%;
+}
+
+.email-notification-col-status {
+  width: 11%;
+}
+
+.email-notification-col-attempts {
+  width: 6%;
+}
+
+.email-notification-col-error {
+  width: 17%;
+}
+
+.email-notification-col-action {
+  width: 5%;
+}
+
+.email-notification-recipient {
+  overflow-wrap: anywhere;
+}
+
+.email-notification-subject {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 920px) {
+  .email-notification-table {
+    table-layout: auto;
+  }
+}
+
+.equipment-catalog-import .equipment-export-all {
+  width: auto;
+}
+
+.audit-filters {
+  grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(150px, 1fr));
+}
+
+.equipment-scopes-filters {
+  grid-template-columns: minmax(min(100%, 320px), 1fr) auto;
+}
+
+.equipment-scopes-filters .list-filters-actions {
+  grid-column: auto;
+}
+
+@media (max-width: 760px) {
+  .equipment-scopes-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

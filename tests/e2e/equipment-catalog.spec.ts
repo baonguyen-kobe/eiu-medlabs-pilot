@@ -54,14 +54,13 @@ test("danh mục thiết bị hỗ trợ import, export, tìm kiếm, sort và t
     exact: true,
   });
   await expect(templateLink).toBeVisible();
-  const exportLink = page.getByRole("link", { name: "Export tất cả" });
+  const exportLink = page.getByRole("link", { name: "Xuất tất cả" });
   await expect(exportLink).toBeVisible();
   const importActionTops = await Promise.all(
     [
       templateLink,
       page.getByRole("button", { name: "Import tất cả" }),
       page.getByRole("button", { name: "Import mới" }),
-      exportLink,
     ].map(async (control) => (await control.boundingBox())?.y ?? 0),
   );
   expect(
@@ -168,6 +167,7 @@ test("danh mục thiết bị hỗ trợ import, export, tìm kiếm, sort và t
     .filter({ hasText: uniqueName });
   await expect(row).toContainText("Hãng đã cập nhật");
 
+  await row.getByRole("checkbox", { name: `Chọn ${uniqueName}` }).check();
   await page.getByRole("button", { name: "Sửa", exact: true }).click();
   await page
     .getByRole("textbox", { name: `Tên thương mại của ${uniqueName}` })
@@ -179,9 +179,14 @@ test("danh mục thiết bị hỗ trợ import, export, tìm kiếm, sort và t
     .filter({ hasText: uniqueName });
   await expect(row).toContainText("E2E Trade Updated");
 
-  await page.getByRole("button", { name: "Ngừng sử dụng" }).click();
+  await expect(page.getByText("0 mục được chọn")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Ngừng sử dụng", exact: true }),
+  ).toBeDisabled();
   await row.getByRole("checkbox", { name: `Chọn ${uniqueName}` }).check();
-  await page.getByRole("button", { name: "Xác nhận ngừng sử dụng" }).click();
+  await page
+    .getByRole("button", { name: "Ngừng sử dụng", exact: true })
+    .click();
   const disableDialog = page.locator(".confirm-dialog");
   await expect(disableDialog).toContainText("Ngừng sử dụng 1 thiết bị?");
   await disableDialog.getByRole("button", { name: "Xác nhận" }).click();
@@ -189,9 +194,8 @@ test("danh mục thiết bị hỗ trợ import, export, tìm kiếm, sort và t
   await page.getByLabel("Lọc trạng thái thiết bị").selectOption("inactive");
   await expect(row).toHaveCount(1);
 
-  await page.getByRole("button", { name: "Xóa", exact: true }).click();
   await row.getByRole("checkbox", { name: `Chọn ${uniqueName}` }).check();
-  await page.getByRole("button", { name: "Xác nhận xóa" }).click();
+  await page.getByRole("button", { name: "Xóa", exact: true }).click();
   const deleteDialog = page.locator(".confirm-dialog");
   await expect(deleteDialog).toContainText("Xóa 1 thiết bị?");
   await deleteDialog.getByRole("button", { name: "Xác nhận" }).click();

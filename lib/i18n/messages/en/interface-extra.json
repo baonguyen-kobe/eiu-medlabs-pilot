@@ -1490,5 +1490,14 @@
   "Ghép với vật tư kho": "Match to store item",
   "Bỏ nguồn lấy hàng": "Remove pick source",
   "Với vật tư tiêu hao hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.": "For consumables only, or when no items have returned, the initial return may have an empty list; a return signature is still required.",
-  "Tài sản đã được giữ cho một nguồn lấy hàng khác. Hãy chọn tài sản khác.": "This asset is already reserved for another pick source. Choose another asset."
+  "Tài sản đã được giữ cho một nguồn lấy hàng khác. Hãy chọn tài sản khác.": "This asset is already reserved for another pick source. Choose another asset.",
+  "Thay toàn bộ danh sách nhân sự?": "Replace the entire personnel list?",
+  "Danh sách nhân sự hiện tại sẽ bị thay bằng tệp vừa chọn. Chỉ tài khoản Quản trị viên được giữ nguyên.": "The current personnel list will be replaced by the selected file. Only Administrator accounts are kept.",
+  "Thay toàn bộ": "Replace all",
+  "Gõ {0} để xác nhận": "Type {0} to confirm",
+  " Xuất tất cả": " Export all",
+  "Thao tác khác": "Other action",
+  "Dữ liệu khác": "Other data",
+  "Tất cả hành động": "All actions",
+  " mục được chọn": " items selected"
 }

@@ -542,7 +542,7 @@ export function PersonnelManagementList({
           </div>
         </section>
       ) : null}
-      <div className="personnel-table-wrap">
+      <div className="personnel-table-wrap kho-list">
         <table className="data-table personnel-table records-on-phone">
           <thead>
             <tr>
