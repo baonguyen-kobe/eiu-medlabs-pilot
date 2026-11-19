@@ -12656,3 +12656,27 @@ tr[data-open] > :is(th, td) {
     z-index: 2;
   }
 }
+
+.kho-row-actions,
+.kho-badges {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.kho-row-actions .button {
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.kho-search input {
+  width: 100%;
+}
+
+.kho-scroll td.num {
+  white-space: nowrap;
+}
+
+.kho-scroll tbody th {
+  white-space: normal;
+}

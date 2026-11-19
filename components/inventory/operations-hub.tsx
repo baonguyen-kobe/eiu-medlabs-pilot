@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   ClipboardList,
-  LayoutDashboard,
   PackageCheck,
   ShieldCheck,
 } from "@/components/icons";
@@ -15,11 +14,7 @@ import { ConditionChangeForm } from "./condition-change-form";
 import { StocktakeReconcileForm } from "./stocktake-reconcile-form";
 import { SurplusManagementView } from "./surplus-management-view";
 import { formatDisplayQuantity, uomLabel } from "@/lib/inventory/decimal";
-import {
-  ConditionBadge,
-  HoldStatusBadge,
-  ProvenanceBadge,
-} from "./status-badge";
+import { ConditionBadge, HoldStatusBadge } from "./status-badge";
 import type { InventoryOperationStock } from "@/lib/inventory/types";
 import { useLanguage } from "@/components/i18n/language-provider";
 
@@ -35,6 +30,15 @@ export function OperationsHub({
   heldStockCount?: number;
 }) {
   const { text: uiText } = useLanguage();
+  const [lotQuery, setLotQuery] = React.useState("");
+  const lotSearch = lotQuery.trim().toLowerCase();
+  const visibleStock = lotSearch
+    ? initialStock.filter((row) =>
+        `${row.item_code} ${row.item_name} ${row.location_code}`
+          .toLowerCase()
+          .includes(lotSearch),
+      )
+    : initialStock;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -162,111 +166,84 @@ export function OperationsHub({
         {activeTab === "surplus" && <SurplusManagementView isAdmin={isAdmin} />}
       </div>
 
-      {/* Bounded Preview of Operation Stock & Cohort Identities */}
-      <section
-        aria-label={uiText("Tra cứu số dư thực tế theo lô và phiên bản")}
-        className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <LayoutDashboard size={16} className="text-slate-600" />
-              <span>
-                {uiText("Tra cứu Bách phân vị Số dư Lô ")}
-                {"&"}
-                {uiText(" Phiên bản")}
-              </span>
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {uiText(
-                "Theo dõi trực tiếp số dư theo chiều kích (vị trí, tình trạng, lô nguồn, phiên bản vX và trạng thái giữ Hold)",
-              )}
-            </p>
+      <section className="kho-card" aria-labelledby="hub-lots">
+        <div className="kho-card-head">
+          <h3 id="hub-lots">
+            {uiText("Số dư theo lô")}{" "}
+            <small>{uiText("· {0} dòng", [visibleStock.length])}</small>
+          </h3>
+          <div className="kho-filter-bar">
+            <label className="kho-search">
+              <span className="sr-only">{uiText("Tìm lô")}</span>
+              <input
+                type="search"
+                value={lotQuery}
+                placeholder={uiText("Tìm mã, tên vật tư hoặc vị trí")}
+                onChange={(event) => setLotQuery(event.target.value)}
+              />
+            </label>
+            <Link href="/inventory/stock" className="button button-secondary">
+              {uiText("Mở Tồn kho")}
+            </Link>
           </div>
-          <Link
-            href="/inventory/stock"
-            className="button button-secondary text-xs"
-          >
-            {uiText("Về trang Tồn kho / Stock →")}
-          </Link>
         </div>
-
         {initialStock.length === 0 ? (
-          <p className="text-xs text-slate-400 py-6 text-center">
+          <p className="kho-card-body">
             {uiText(
               "Hiện không có số liệu tồn kho khả dụng để hiển thị xem trước.",
             )}
           </p>
         ) : (
-          <div className="overflow-x-auto border border-slate-100 rounded-xl">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="kho-scroll">
+            <table className="data-table">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3">
-                    {uiText("Mã SKU ")}
-                    {"&"}
-                    {uiText(" Tên vật tư")}
+                <tr>
+                  <th scope="col">{uiText("Vật tư")}</th>
+                  <th scope="col">{uiText("Vị trí")}</th>
+                  <th scope="col">{uiText("Tình trạng")}</th>
+                  <th scope="col" className="num">
+                    {uiText("Khả dụng / tồn")}
                   </th>
-                  <th className="py-2.5 px-3">{uiText("Kho")}</th>
-                  <th className="py-2.5 px-3">{uiText("Tình trạng")}</th>
-                  <th className="py-2.5 px-3">{uiText("Trạng thái giữ")}</th>
-                  <th className="py-2.5 px-3 text-right">
-                    {uiText("Tổng tồn")}
-                  </th>
-                  <th className="py-2.5 px-3 text-right">
-                    {uiText("Khả dụng")}
-                  </th>
-                  <th className="py-2.5 px-3">{uiText("Nguồn gốc")}</th>
-                  <th className="py-2.5 px-3">{uiText("Hạn dùng")}</th>
-                  <th className="py-2.5 px-3 text-center">
-                    {uiText("Tác vụ nhanh")}
+                  <th scope="col">
+                    <span className="sr-only">{uiText("Tác vụ nhanh")}</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {initialStock.map((row) => (
+              <tbody>
+                {visibleStock.map((row) => (
                   <tr
                     key={`${row.origin_id}-${row.location_id}-${row.condition}`}
-                    className="hover:bg-slate-50/80 transition-colors"
                   >
-                    <td className="py-2.5 px-3">
-                      <div className="font-semibold text-slate-900">
-                        {row.item_code} - {row.item_name}
-                      </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        {uiText("Lô: ")}
-                        {row.origin_id.slice(0, 8)}
-                        {uiText("... | Phiên bản kho: r")}
-                        {row.stock_revision ?? row.current_version}
-                      </div>
+                    <th scope="row">
+                      <span className="cell-stack">
+                        <strong>{row.item_name}</strong>
+                        <small>
+                          {row.item_code} · {uiText("Lô")}{" "}
+                          {row.origin_id.slice(0, 8)}
+                          {row.expiry_date
+                            ? ` · ${uiText("HSD")} ${row.expiry_date}`
+                            : ""}
+                        </small>
+                      </span>
+                    </th>
+                    <td>{row.location_code}</td>
+                    <td>
+                      <span className="kho-badges">
+                        <ConditionBadge condition={row.condition} />
+                        {row.is_held ? (
+                          <HoldStatusBadge
+                            isHeld={row.is_held}
+                            holdReason={row.hold_reason}
+                          />
+                        ) : null}
+                      </span>
                     </td>
-                    <td className="py-2.5 px-3 text-slate-700">
-                      {row.location_code}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <ConditionBadge condition={row.condition} />
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <HoldStatusBadge
-                        isHeld={row.is_held}
-                        holdReason={row.hold_reason}
-                      />
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
+                    <td className="num">
+                      <b>{formatDisplayQuantity(row.available_quantity)}</b> /{" "}
                       {formatDisplayQuantity(row.quantity)} {uomLabel(row)}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono font-semibold text-emerald-700">
-                      {formatDisplayQuantity(row.available_quantity)}{" "}
-                      {uomLabel(row)}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <ProvenanceBadge provenance={row.provenance_group} />
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-600">
-                      {row.expiry_date || "—"}
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      <div className="inline-flex items-center gap-1 justify-center">
+                    <td>
+                      <div className="kho-row-actions">
                         <button
                           type="button"
                           onClick={() => {
@@ -278,7 +255,7 @@ export function OperationsHub({
                             params.set("origin_id", row.origin_id);
                             router.push(`${pathname}?${params.toString()}`);
                           }}
-                          className="button button-secondary text-[10px] py-0.5 px-2 text-sky-700"
+                          className="button button-secondary"
                           title={uiText("Chuyển lô này sang kho khác")}
                         >
                           {uiText("Chuyển")}
@@ -295,7 +272,7 @@ export function OperationsHub({
                               params.set("origin_id", row.origin_id);
                               router.push(`${pathname}?${params.toString()}`);
                             }}
-                            className="button button-secondary text-[10px] py-0.5 px-2 text-amber-700"
+                            className="button button-secondary"
                             title={uiText("Báo hỏng lô này")}
                           >
                             {uiText("Hỏng")}
@@ -305,6 +282,13 @@ export function OperationsHub({
                     </td>
                   </tr>
                 ))}
+                {visibleStock.length ? null : (
+                  <tr>
+                    <td colSpan={5} className="panel-empty">
+                      {uiText("Không có dòng nào khớp bộ lọc.")}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
