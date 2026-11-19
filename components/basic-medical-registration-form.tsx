@@ -442,8 +442,10 @@ export function BasicMedicalRegistrationForm({
             )}
           </p>
         </div>
-        <label>
-          {uiText("Số buổi TN-TH *")}
+        <label className="session-count-field">
+          <span title={uiText("thí nghiệm – thực hành")}>
+            {uiText("Số buổi TN-TH *")}
+          </span>
           <input
             type="number"
             min="1"
@@ -552,7 +554,7 @@ export function BasicMedicalRegistrationForm({
           />
         </label>
       </section>
-      <footer>
+      <footer className="form-submit-bar">
         <Link
           href="/basic-medical/schedules"
           className="button button-secondary"
@@ -571,6 +573,11 @@ export function BasicMedicalRegistrationForm({
               : uiText("Gửi đăng ký")}
         </button>
       </footer>
+      <p className="form-submit-hint">
+        {uiText(
+          "Sau khi gửi, theo dõi và ký xác nhận khi nhận thiết bị tại Phiếu thiết bị của tôi.",
+        )}
+      </p>
     </form>
   );
 }
