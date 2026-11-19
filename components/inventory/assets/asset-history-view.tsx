@@ -5,6 +5,13 @@ import { formatInventoryDateTime } from "@/lib/inventory/dates";
 import { PaginationControls } from "@/components/pagination-controls";
 import type { EquipmentAssetEvent } from "@/lib/inventory/asset-types";
 import {
+  expiryPrecisionLabels,
+  labelOf,
+  lifecycleLabels,
+  operationLabels,
+  operationalLabels,
+} from "@/lib/inventory/labels";
+import {
   useLanguage,
   LocalizedText,
 } from "@/components/i18n/language-provider";
@@ -17,22 +24,8 @@ export interface AssetHistoryViewProps {
   onPageChange?: (page: number) => void;
 }
 
-function formatOperationLabel(op: string): string {
-  switch (op) {
-    case "receive_asset":
-      return "Nhận tài sản mới";
-    case "open_asset":
-      return "Ghi nhận tồn đầu kỳ";
-    case "set_asset_state":
-      return "Cập nhật vị trí & trạng thái";
-    case "set_asset_lifecycle":
-      return "Chuyển trạng thái vòng đời";
-    case "correct_asset":
-      return "Đính chính thông tin";
-    default:
-      return op;
-  }
-}
+const shortId = (v: unknown) =>
+  /^[0-9a-f]{8}-/i.test(String(v)) ? String(v).slice(0, 8) : String(v);
 
 function renderStateSummary(state: Record<string, unknown> | null) {
   if (!state)
@@ -45,18 +38,40 @@ function renderStateSummary(state: Record<string, unknown> | null) {
   const fields: Array<{ label: string; value: unknown }> = [
     {
       label: "Vị trí",
-      value: state.location_code || state.location_name || state.location_id,
+      value:
+        state.location_name && state.location_code
+          ? `${state.location_name} (${state.location_code})`
+          : state.location_name ||
+            state.location_code ||
+            shortId(state.location_id),
     },
-    { label: "Vòng đời", value: state.lifecycle_status },
-    { label: "Vận hành", value: state.operational_status },
+    {
+      label: "Vòng đời",
+      value: state.lifecycle_status
+        ? labelOf(lifecycleLabels, String(state.lifecycle_status))
+        : undefined,
+    },
+    {
+      label: "Vận hành",
+      value: state.operational_status
+        ? labelOf(operationalLabels, String(state.operational_status))
+        : undefined,
+    },
     {
       label: "Người quản lý",
-      value: state.custodian_name || state.custodian_id,
+      value: state.custodian_name || shortId(state.custodian_id),
     },
     { label: "Hãng sản xuất", value: state.manufacturer },
     { label: "Model", value: state.model },
     { label: "Sê-ri", value: state.manufacturer_serial },
-    { label: "Hạn dùng", value: state.expiry_date || state.expiry_precision },
+    {
+      label: "Hạn dùng",
+      value:
+        state.expiry_date ||
+        (state.expiry_precision
+          ? labelOf(expiryPrecisionLabels, String(state.expiry_precision))
+          : undefined),
+    },
   ].filter((f) => f.value !== undefined && f.value !== null && f.value !== "");
 
   if (fields.length === 0) {
@@ -75,7 +90,7 @@ function renderStateSummary(state: Record<string, unknown> | null) {
             <LocalizedText text={f.label} />:{" "}
           </dt>
           <dd className="font-medium text-slate-800 inline">
-            {String(f.value)}
+            <LocalizedText text={String(f.value)} />
           </dd>
         </div>
       ))}
@@ -127,15 +142,15 @@ export function AssetHistoryView({
               <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-slate-200">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
-                    {uiText("Rev #")}
+                    {uiText("Phiên bản ")}
                     {evt.revision}
                   </span>
                   <span className="font-semibold text-xs text-slate-900">
-                    {uiText(formatOperationLabel(evt.operation))}
+                    {uiText(labelOf(operationLabels, evt.operation))}
                   </span>
                   {evt.corrects_event_id && (
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                      {uiText("Đính chính sự kiện #")}
+                      {uiText("Đính chính sự kiện ")}
                       {evt.corrects_event_id.slice(0, 8)}...
                     </span>
                   )}
@@ -163,13 +178,13 @@ export function AssetHistoryView({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="bg-white p-2.5 rounded border border-slate-200">
                   <span className="font-semibold text-slate-600 block text-[11px] uppercase tracking-wider mb-1">
-                    {uiText("Lý do thực hiện / Reason:")}
+                    {uiText("Lý do thực hiện:")}
                   </span>
                   <p className="text-slate-800">{evt.reason}</p>
                 </div>
                 <div className="bg-white p-2.5 rounded border border-slate-200">
                   <span className="font-semibold text-slate-600 block text-[11px] uppercase tracking-wider mb-1">
-                    {uiText("Bằng chứng / Evidence Note:")}
+                    {uiText("Ghi chú bằng chứng:")}
                   </span>
                   <p className="text-slate-800">
                     {evt.evidence_note || uiText("Không có ghi chú bổ sung")}
@@ -180,9 +195,7 @@ export function AssetHistoryView({
               {/* Before vs After State Comparison */}
               <div className="bg-white rounded border border-slate-200 p-3 space-y-2">
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  {uiText(
-                    "Đối chiếu trạng thái trước & sau sự kiện / State Transition:",
-                  )}
+                  {uiText("Trạng thái trước và sau sự kiện:")}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-2 rounded bg-slate-50 border border-slate-200/60">

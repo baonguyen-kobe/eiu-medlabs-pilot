@@ -17,6 +17,11 @@ import type {
   EquipmentAsset,
   EquipmentAssetEvent,
 } from "@/lib/inventory/asset-types";
+import {
+  describeIneligibility,
+  expiryPrecisionLabels,
+  labelOf,
+} from "@/lib/inventory/labels";
 import { useLanguage } from "@/components/i18n/language-provider";
 
 export interface AssetDetailViewProps {
@@ -30,13 +35,6 @@ export interface AssetDetailViewProps {
 }
 
 export type DetailActionTab = "state" | "lifecycle" | "correction";
-
-const expiryLabels: Record<string, string> = {
-  not_required: "Không yêu cầu",
-  day: "Theo ngày",
-  month: "Theo tháng",
-  unknown: "Chưa rõ (Cần xác minh)",
-};
 
 /** One coded asset in the Kho record layout (owner-approved 2026-11-18). */
 export function AssetDetailView({
@@ -76,7 +74,7 @@ export function AssetDetailView({
         {asset.eligible ? null : (
           <p className="kho-alert-line" role="note">
             <strong>{text("Chưa cấp phát được:")}</strong>{" "}
-            {asset.ineligibility_reasons.join("; ")}
+            {asset.ineligibility_reasons.map(describeIneligibility).join("; ")}
           </p>
         )}
       </header>
@@ -103,7 +101,9 @@ export function AssetDetailView({
                 <dt>{text("Hạn dùng")}</dt>
                 <dd>
                   {asset.expiry_date ||
-                    text(expiryLabels[asset.expiry_precision] ?? "—")}
+                    text(
+                      labelOf(expiryPrecisionLabels, asset.expiry_precision),
+                    )}
                 </dd>
               </div>
               <div>

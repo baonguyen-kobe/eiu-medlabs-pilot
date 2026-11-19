@@ -8,6 +8,7 @@ import type {
   TransactionOperationType,
 } from "@/lib/inventory/types";
 import { evaluateExpiry } from "@/lib/inventory/dates";
+import { labelOf, operationLabels } from "@/lib/inventory/labels";
 import {
   LocalizedText,
   useLanguage,
@@ -162,7 +163,7 @@ export function OperationBadge({
     case "CORRECT_OPENING":
       return (
         <span className="badge badge-warning">
-          <LocalizedText text={"Điều chỉnh tồn đầu / CORRECT_OPENING"} />
+          <LocalizedText text={"Điều chỉnh tồn đầu kỳ"} />
         </span>
       );
     case "TRANSFER":
@@ -180,19 +181,19 @@ export function OperationBadge({
     case "STOCKTAKE_ADJUST":
       return (
         <span className="badge badge-purple bg-purple-50 text-purple-800 border-purple-200">
-          <LocalizedText text={"Điều chỉnh kiểm kê / STOCKTAKE_ADJUST"} />
+          <LocalizedText text={"Điều chỉnh kiểm kê"} />
         </span>
       );
     case "STOCKTAKE_SURPLUS":
       return (
         <span className="badge badge-indigo bg-indigo-50 text-indigo-800 border-indigo-200">
-          <LocalizedText text={"Dư thừa kiểm kê / STOCKTAKE_SURPLUS"} />
+          <LocalizedText text={"Dư thừa kiểm kê"} />
         </span>
       );
     case "VERIFY_SURPLUS":
       return (
         <span className="badge badge-success bg-emerald-50 text-emerald-800 border-emerald-200">
-          <LocalizedText text={"Thẩm định dư thừa / VERIFY_SURPLUS"} />
+          <LocalizedText text={"Thẩm định dư thừa"} />
         </span>
       );
     case "ASSET_RECEIVE":
@@ -226,7 +227,11 @@ export function OperationBadge({
         </span>
       );
     default:
-      return <span className="badge badge-neutral">{operation}</span>;
+      return (
+        <span className="badge badge-neutral">
+          <LocalizedText text={labelOf(operationLabels, operation)} />
+        </span>
+      );
   }
 }
 
