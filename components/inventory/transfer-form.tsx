@@ -751,8 +751,7 @@ export function TransferForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              {uiText("Danh sách vật tư điều chuyển")}
-              {lines.length})
+              {uiText("Danh sách vật tư điều chuyển")} ({lines.length})
             </h3>
             <p className="text-xs text-slate-500">
               {uiText("Nhập số lượng cần chuyển cho từng lô đã chọn")}

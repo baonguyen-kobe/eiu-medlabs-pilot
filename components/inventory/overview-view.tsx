@@ -152,8 +152,7 @@ export function OverviewView({
           <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
             <AlertTriangle size={18} className="text-amber-600" />
             <span>
-              {uiText("Cảnh báo vật tư kho cần lưu ý")}
-              {totalAttention})
+              {uiText("Cảnh báo vật tư kho cần lưu ý")} ({totalAttention})
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

@@ -52,7 +52,7 @@ export function StocktakeSurplusSection({
         <div>
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span>
-              {uiText("2. Hàng thừa Kiểm kê Không rõ nguồn gốc")}
+              {uiText("2. Hàng thừa Kiểm kê Không rõ nguồn gốc")} (
               {surplusLines.length})
             </span>
           </h3>

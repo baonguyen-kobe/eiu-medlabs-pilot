@@ -384,7 +384,7 @@ export function TransactionDetailView({
                       <div className="p-4 space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                           <span className="font-bold text-slate-700 dark:text-slate-300 uppercase text-[11px]">
-                            {uiText("Bằng chứng gốc ban đầu")}
+                            {uiText("Bằng chứng gốc ban đầu")} (v
                             {String(orig.original_fact.version)})
                           </span>
                           <span className="text-[11px] font-mono text-slate-400">
@@ -553,7 +553,7 @@ export function TransactionDetailView({
                       <div className="p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/40">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                           <span className="font-bold text-indigo-900 dark:text-indigo-300 uppercase text-[11px]">
-                            {uiText("Sự thật hiệu chỉnh hiện thời")}
+                            {uiText("Sự thật hiệu chỉnh hiện thời")} (v
                             {String(orig.current_fact.version)})
                           </span>
                           <span className="text-[11px] font-mono text-slate-400">
