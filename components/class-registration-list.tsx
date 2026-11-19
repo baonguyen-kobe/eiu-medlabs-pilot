@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays, Download, Search, Trash2 } from "@/components/icons";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import {
@@ -43,6 +44,12 @@ export type RegistrationClass = {
   created_by?: string | null;
   has_equipment_request?: boolean;
 };
+
+const shortDate = (value: string) => formatBusinessDate(value).slice(0, 5);
+
+function shortRange(from: string, to: string) {
+  return `${shortDate(from)} – ${formatBusinessDate(to)}`;
+}
 
 export function ClassRegistrationList({
   classes,
@@ -353,7 +360,11 @@ export function ClassRegistrationList({
               applyRange(nextMode);
             }}
           >
-            <option value="default">{uiText("Mặc định")}</option>
+            <option value="default">
+              {range.mode === "default"
+                ? `${uiText("Mặc định")} (${shortRange(range.from, range.to)})`
+                : uiText("Mặc định")}
+            </option>
             <option value="week">{uiText("Theo tuần")}</option>
             <option value="month">{uiText("Theo tháng")}</option>
             <option value="day">{uiText("Chọn ngày")}</option>
@@ -439,7 +450,8 @@ export function ClassRegistrationList({
             disabled={!filtered.length || exporting}
             onClick={exportFilteredClasses}
           >
-            <Download size={17} /> {exporting ? uiText("Đang xuất…") : "Export"}
+            <Download size={17} />{" "}
+            {exporting ? uiText("Đang xuất…") : uiText("Xuất Excel")}
           </button>
         ) : null}
         <span className="inline-toolbar-count-slot class-result-count-slot">
@@ -466,7 +478,7 @@ export function ClassRegistrationList({
         tabIndex={0}
       >
         <table
-          className={`data-table class-registration-table class-registration-table-${mode}`}
+          className={`data-table records-on-phone class-registration-table class-registration-table-${mode}`}
         >
           <colgroup>
             <col className="class-registration-col-date" />
@@ -555,7 +567,7 @@ export function ClassRegistrationList({
 
               return (
                 <tr key={item.id}>
-                  <td>
+                  <td data-label={uiText("Ngày")}>
                     {canEditDetails ? (
                       <input
                         aria-label={uiText("Ngày học {0}", [
@@ -571,7 +583,7 @@ export function ClassRegistrationList({
                       formatBusinessDate(item.schedule_date)
                     )}
                   </td>
-                  <td className="mono">
+                  <td className="mono" data-label={uiText("Thời gian")}>
                     {canEditDetails ? (
                       <span className="inline-time-editor">
                         <TimePicker
@@ -595,7 +607,7 @@ export function ClassRegistrationList({
                       `${item.start_time.slice(0, 5)}–${item.end_time.slice(0, 5)}`
                     )}
                   </td>
-                  <td>
+                  <td data-label={uiText("Mã môn")}>
                     {canEditDetails && courses.length > 0 ? (
                       <select
                         aria-label={uiText("Mã môn học {0}", [
@@ -616,8 +628,10 @@ export function ClassRegistrationList({
                       <strong>{item.course_code_snapshot}</strong>
                     )}
                   </td>
-                  <td>{displayedCourseName}</td>
-                  <td>
+                  <td data-label={uiText("Tên môn học")}>
+                    {displayedCourseName}
+                  </td>
+                  <td data-label={uiText("Phòng")}>
                     {canEditDetails ? (
                       <select
                         aria-label={uiText("Phòng {0}", [
@@ -644,7 +658,10 @@ export function ClassRegistrationList({
                       item.roomLabel
                     )}
                   </td>
-                  <td className="class-registration-student-count-cell">
+                  <td
+                    className="class-registration-student-count-cell"
+                    data-label={uiText("Số sinh viên")}
+                  >
                     {canEditDetails ? (
                       <input
                         className="student-count-input"
@@ -666,7 +683,10 @@ export function ClassRegistrationList({
                     )}
                   </td>
                   {mode === "open" ? (
-                    <td className="lecturer-name">
+                    <td
+                      className="lecturer-name"
+                      data-label={uiText("Giảng viên")}
+                    >
                       {canManageLecturers ? (
                         <LecturerAssignmentFields
                           disabled={pending}
@@ -693,7 +713,7 @@ export function ClassRegistrationList({
                       )}
                     </td>
                   ) : null}
-                  <td className="table-action">
+                  <td className="table-action" data-label="">
                     <div className="row-actions">
                       {isLocked ? (
                         <span
@@ -765,9 +785,18 @@ export function ClassRegistrationList({
         </table>
       </div>
       {!filtered.length ? (
-        <p className="panel-empty">
-          {uiText("Không có lớp phù hợp với bộ lọc hiện tại.")}
-        </p>
+        classes.length === 0 && mode === "mine" ? (
+          <p className="panel-empty">
+            {uiText("Bạn chưa nhận lớp nào.")}{" "}
+            <Link className="button button-secondary" href="/classes/open">
+              {uiText("Xem lớp đang mở")}
+            </Link>
+          </p>
+        ) : (
+          <p className="panel-empty">
+            {uiText("Không có lớp phù hợp với bộ lọc hiện tại.")}
+          </p>
+        )
       ) : null}
       <PaginationControls
         currentPage={safePage}

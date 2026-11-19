@@ -124,45 +124,45 @@
 }
 
 .class-registration-table-open {
-  width: 1485px;
-  min-width: 1485px;
+  width: 1171px;
+  min-width: 1171px;
 }
 
 .class-registration-table-mine {
-  width: 1225px;
-  min-width: 1225px;
+  width: 981px;
+  min-width: 981px;
 }
 
 .class-registration-table .class-registration-col-date {
-  width: 178px;
-}
-
-.class-registration-table .class-registration-col-time {
-  width: 285px;
-}
-
-.class-registration-table .class-registration-col-course-code {
-  width: 118px;
-}
-
-.class-registration-table .class-registration-col-course-name {
-  width: 230px;
-}
-
-.class-registration-table .class-registration-col-room {
   width: 140px;
 }
 
+.class-registration-table .class-registration-col-time {
+  width: 245px;
+}
+
+.class-registration-table .class-registration-col-course-code {
+  width: 96px;
+}
+
+.class-registration-table .class-registration-col-course-name {
+  width: 160px;
+}
+
+.class-registration-table .class-registration-col-room {
+  width: 116px;
+}
+
 .class-registration-table .class-registration-col-student-count {
-  width: 126px;
+  width: 84px;
 }
 
 .class-registration-table .class-registration-col-lecturers {
-  width: 260px;
+  width: 190px;
 }
 
 .class-registration-table .class-registration-col-actions {
-  width: 148px;
+  width: 140px;
 }
 
 @media (max-width: 900px) {
@@ -5417,7 +5417,7 @@ select {
 }
 
 .class-registration-table .table-action {
-  width: 210px;
+  width: 140px;
 }
 
 .class-registration-table .row-action-button {
@@ -12892,5 +12892,35 @@ tr[data-open] > :is(th, td) {
   .equipment-request-split.has-panel .equipment-request-table .request-status {
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+/* B2-classes: schedule form headings in normal case; class tables keep the
+   action column reachable and read as labelled records on phones. */
+.schedule-form .standard-section-heading {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@media (min-width: 921px) {
+  .class-registration-table td.table-action,
+  .class-registration-table thead th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: -8px 0 8px -8px rgb(0 0 0 / 18%);
+  }
+}
+
+@media (max-width: 920px) {
+  .data-table.records-on-phone td.table-action {
+    display: block;
+  }
+  .data-table.records-on-phone .inline-time-editor {
+    min-width: 0;
+  }
+  .class-registration-table .row-actions {
+    justify-content: flex-start;
   }
 }

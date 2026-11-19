@@ -151,7 +151,7 @@ test("UI V2 shared chrome and data primitives use canonical Master geometry", as
   );
   assert.match(
     css,
-    /\.class-registration-table-open\s*\{[\s\S]*width: 1485px[\s\S]*min-width: 1485px/,
+    /\.class-registration-table-open\s*\{[\s\S]*width: 1171px[\s\S]*min-width: 1171px/,
   );
   assert.match(
     css,

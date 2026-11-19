@@ -1,4 +1,8 @@
 {
+  "Xuất Excel": "Export Excel",
+  "Bạn chưa nhận lớp nào.": "You have not claimed any classes yet.",
+  "Xem lớp đang mở": "View open classes",
+  "Hệ thống sẽ báo nếu trùng phòng hoặc trùng lịch giảng viên.": "The system will warn you if a room or lecturer schedule overlaps.",
   "{0} dòng Importer cũ đã được chuyển thành Trợ giảng + quyền nhập lịch.": "{0} legacy Importer rows were converted to Teaching Assistant with schedule import permission.",
   "{0} giờ {1} phút": "{0} hours {1} minutes",
   "{0} tại dòng {1} chỉ nhận Có hoặc Không.": "{0} on row {1} only accepts Có or Không.",
