@@ -29,7 +29,7 @@ export function ActiveBadge({ active }: { active: boolean }) {
     <span className="badge badge-neutral inline-flex items-center gap-1 font-medium text-slate-500 bg-slate-100">
       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
       <span>
-        <LocalizedText text={"Ngừng HĐ"} />
+        <LocalizedText text={"Ngừng hoạt động"} />
       </span>
     </span>
   );

@@ -448,7 +448,7 @@ export function CatalogView({
                                 })
                               }
                             >
-                              {uiText("Ngừng HĐ")}
+                              {uiText("Ngừng hoạt động")}
                             </button>
                           ) : (
                             <button
