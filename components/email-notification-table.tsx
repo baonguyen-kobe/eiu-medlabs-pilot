@@ -98,7 +98,7 @@ export function EmailNotificationTable({
         aria-label={uiText("Nhật ký email thông báo")}
         tabIndex={0}
       >
-        <table className="data-table catalog-data-table email-notification-table">
+        <table className="data-table catalog-data-table email-notification-table records-on-phone">
           <colgroup>
             {isAdmin ? <col className="email-notification-col-select" /> : null}
             <col className="email-notification-col-time" />
@@ -136,7 +136,10 @@ export function EmailNotificationTable({
             {notifications.map((item) => (
               <tr key={item.id}>
                 {isAdmin ? (
-                  <td className="email-notification-select-column">
+                  <td
+                    data-label=""
+                    className="email-notification-select-column"
+                  >
                     <input
                       type="checkbox"
                       aria-label={uiText("Chọn email {0}", [item.subject])}
@@ -147,19 +150,29 @@ export function EmailNotificationTable({
                     />
                   </td>
                 ) : null}
-                <td>
+                <td data-label={uiText("Thời gian")}>
                   {new Intl.DateTimeFormat("vi-VN", {
                     dateStyle: "short",
                     timeStyle: "medium",
                     timeZone: "Asia/Ho_Chi_Minh",
                   }).format(new Date(item.created_at))}
                 </td>
-                <td>{item.recipient_email}</td>
-                <td>
-                  <strong>{item.subject}</strong>
+                <td
+                  data-label={uiText("Người nhận")}
+                  className="email-notification-recipient"
+                >
+                  {item.recipient_email}
+                </td>
+                <td data-label={uiText("Nội dung")}>
+                  <strong
+                    className="email-notification-subject"
+                    title={item.subject}
+                  >
+                    {item.subject}
+                  </strong>
                   <small>{item.notification_type}</small>
                 </td>
-                <td>
+                <td data-label={uiText("Trạng thái")}>
                   <span className="status-pill">
                     {item.status === "simulated" && item.sent_at
                       ? uiText("Đã gửi kiểm thử")
@@ -168,11 +181,11 @@ export function EmailNotificationTable({
                         : uiText(statusLabels[item.status] ?? item.status)}
                   </span>
                 </td>
-                <td>{item.attempts}</td>
-                <td>
+                <td data-label={uiText("Lần gửi")}>{item.attempts}</td>
+                <td data-label={uiText("Lỗi gần nhất")}>
                   <small>{item.last_error ?? "—"}</small>
                 </td>
-                <td className="table-action">
+                <td data-label="" className="table-action">
                   {item.status === "failed" &&
                   deliveryMode !== "off" &&
                   canRetry ? (

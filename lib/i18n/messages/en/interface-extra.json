@@ -1454,5 +1454,14 @@
   "Hướng dẫn sử dụng": "User guide",
   "{0} phiếu đang mở": "{0} open requests",
   "Đóng chi tiết phiếu": "Close request details",
-  "Mở trang đầy đủ": "Open full page"
+  "Mở trang đầy đủ": "Open full page",
+  "Thay toàn bộ danh sách nhân sự?": "Replace the entire personnel list?",
+  "Danh sách nhân sự hiện tại sẽ bị thay bằng tệp vừa chọn. Chỉ tài khoản Quản trị viên được giữ nguyên.": "The current personnel list will be replaced by the selected file. Only Administrator accounts are kept.",
+  "Thay toàn bộ": "Replace all",
+  "Gõ {0} để xác nhận": "Type {0} to confirm",
+  " Xuất tất cả": " Export all",
+  "Thao tác khác": "Other action",
+  "Dữ liệu khác": "Other data",
+  "Tất cả hành động": "All actions",
+  " mục được chọn": " items selected"
 }

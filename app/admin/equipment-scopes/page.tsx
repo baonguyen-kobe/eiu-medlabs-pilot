@@ -123,7 +123,7 @@ export default async function EquipmentScopesPage({
         </section>
       ) : null}
 
-      <form className="list-filters" method="get">
+      <form className="list-filters equipment-scopes-filters" method="get">
         <label>
           {text("Tìm kiếm")}
           <input
