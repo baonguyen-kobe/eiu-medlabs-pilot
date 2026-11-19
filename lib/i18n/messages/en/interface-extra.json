@@ -1452,5 +1452,7 @@
   "Theo dõi phiếu": "Request tracking",
   "Thiết lập": "Setup",
   "Hướng dẫn sử dụng": "User guide",
-  "{0} phiếu đang mở": "{0} open requests"
+  "{0} phiếu đang mở": "{0} open requests",
+  "Đóng chi tiết phiếu": "Close request details",
+  "Mở trang đầy đủ": "Open full page"
 }

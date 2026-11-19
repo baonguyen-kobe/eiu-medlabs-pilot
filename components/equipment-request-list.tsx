@@ -836,13 +836,10 @@ export function EquipmentRequestList({
   const { text: uiText } = useLanguage();
 
   const items = requests as EquipmentRequestListItem[];
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    () =>
-      new Set(
-        initialRequestId && items.some((item) => item.id === initialRequestId)
-          ? [initialRequestId]
-          : [],
-      ),
+  const [selectedId, setSelectedId] = useState<string | null>(() =>
+    initialRequestId && items.some((item) => item.id === initialRequestId)
+      ? initialRequestId
+      : null,
   );
   const [modalRequest, setModalRequest] =
     useState<EquipmentRequestListItem | null>(null);
@@ -904,18 +901,58 @@ export function EquipmentRequestList({
     setCurrentStatuses(statusMap(items));
     setConfirmationStates(confirmationMap(items));
     setDeletedIds(new Set());
+    if (selectedId && !items.some((item) => item.id === selectedId)) {
+      setSelectedId(null);
+    }
   }
 
   const visibleItems = items.filter(({ id }) => !deletedIds.has(id));
 
+  const selectedRequest = visibleItems.find(({ id }) => id === selectedId);
+
   function toggleExpanded(requestId: string) {
-    setExpandedIds((current) => {
-      const next = new Set(current);
-      if (next.has(requestId)) next.delete(requestId);
-      else next.add(requestId);
-      return next;
-    });
+    setSelectedId((current) => (current === requestId ? null : requestId));
   }
+
+  function closePanel() {
+    const id = selectedId;
+    setSelectedId(null);
+    if (id) {
+      document
+        .querySelector<HTMLElement>(
+          `[data-request-id="${id}"] .equipment-request-course-button`,
+        )
+        ?.focus();
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedRequest) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.closest("input, select, textarea, [contenteditable]") ||
+        document.querySelector('[role="dialog"]')
+      )
+        return;
+      if (event.key === "Escape") {
+        closePanel();
+        return;
+      }
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      const index = visibleItems.findIndex(({ id }) => id === selectedId);
+      const next = visibleItems[index + (event.key === "ArrowDown" ? 1 : -1)];
+      if (!next) return;
+      event.preventDefault();
+      setSelectedId(next.id);
+      document
+        .querySelector(`[data-request-id="${next.id}"]`)
+        ?.scrollIntoView({ block: "nearest" });
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   function changeStatus(
     requestId: string,
@@ -1045,11 +1082,7 @@ export function EquipmentRequestList({
           }));
         } else {
           setDeletedIds((current) => new Set(current).add(request.id));
-          setExpandedIds((current) => {
-            const next = new Set(current);
-            next.delete(request.id);
-            return next;
-          });
+          setSelectedId((current) => (current === request.id ? null : current));
         }
         if (modalRequest?.id === request.id) setModalRequest(null);
       }
@@ -1057,6 +1090,418 @@ export function EquipmentRequestList({
       setUpdatingId("");
       setRequestToDelete(null);
     });
+  }
+
+  function deriveRequest(request: EquipmentRequestListItem) {
+    const schedule = request.class_schedules;
+    const room = schedule?.rooms;
+    const status = currentStatuses[request.id] ?? request.status;
+    const confirmation = confirmationStates[request.id];
+    const lateApprovalStatus =
+      confirmation?.late_approval_status ?? request.late_approval_status;
+    const lateRegistrationReason =
+      confirmation?.late_registration_reason ??
+      request.late_registration_reason;
+    const inventoryManaged = usesInventoryFulfillment(request);
+    const warehouseStatus = getWarehouseStatus(status, confirmation);
+    const isCancelled = warehouseStatus === "cancelled";
+    const isRegistrant = request.registrant_id === viewerId;
+    const isResponsibleLecturer = request.responsible_lecturer_id === viewerId;
+    const canSignForRequest = isRegistrant || isResponsibleLecturer;
+    const canManageRequest =
+      canManageStatus && manageableDomains.includes(request.request_domain);
+    const recipientRoleLabel =
+      request.request_domain === "basic_medical"
+        ? uiText("Người đăng ký/GV giảng dạy-hướng dẫn")
+        : uiText("Người đăng ký/GV phụ trách");
+    const handoverSigned = Boolean(confirmation?.handover_recipient_signed_at);
+    const returnSigned = Boolean(confirmation?.return_recipient_signed_at);
+    const warehouseHasHandedOver = [
+      "handed_over",
+      "returned",
+      "completed",
+    ].includes(warehouseStatus);
+    const warehouseHasReturned = ["returned", "completed"].includes(
+      warehouseStatus,
+    );
+    const isCompleted = warehouseStatus === "completed";
+    const canSignHandover =
+      !inventoryManaged &&
+      canSignForRequest &&
+      warehouseHasHandedOver &&
+      !handoverSigned &&
+      !warehouseHasReturned &&
+      !isCompleted;
+    const canSignReturn =
+      canSignForRequest &&
+      !inventoryManaged &&
+      warehouseHasHandedOver &&
+      (handoverSigned || warehouseHasReturned) &&
+      !returnSigned &&
+      !isCompleted;
+    return {
+      schedule,
+      room,
+      status,
+      confirmation,
+      lateApprovalStatus,
+      lateRegistrationReason,
+      inventoryManaged,
+      warehouseStatus,
+      isCancelled,
+      canSignForRequest,
+      canManageRequest,
+      recipientRoleLabel,
+      handoverSigned,
+      returnSigned,
+      warehouseHasHandedOver,
+      warehouseHasReturned,
+      isCompleted,
+      canSignHandover,
+      canSignReturn,
+    };
+  }
+
+  function renderRequestDetails(request: EquipmentRequestListItem) {
+    const {
+      canManageRequest,
+      isCancelled,
+      lateApprovalStatus,
+      lateRegistrationReason,
+      inventoryManaged,
+      status,
+      warehouseStatus,
+      confirmation,
+      recipientRoleLabel,
+      canSignForRequest,
+      schedule,
+      room,
+    } = deriveRequest(request);
+    return (
+      <div className="equipment-request-details">
+        {canManageRequest ? (
+          <div className="equipment-status-section equipment-status-section-top">
+            {!isCancelled && lateApprovalStatus === "pending" ? (
+              <div className="equipment-late-review-panel">
+                <div>
+                  <strong>{uiText("Chờ duyệt đăng ký trễ")}</strong>
+                  <p>
+                    <b>{uiText("Lý do đăng ký trễ:")}</b>{" "}
+                    {lateRegistrationReason}
+                  </p>
+                </div>
+                <div className="equipment-late-review-actions">
+                  <button
+                    type="button"
+                    className="button button-primary"
+                    disabled={isPending && updatingId === request.id}
+                    onClick={() =>
+                      reviewLateRegistration(request.id, "approved")
+                    }
+                  >
+                    {uiText("Duyệt đăng ký trễ")}
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-danger"
+                    disabled={isPending && updatingId === request.id}
+                    onClick={() =>
+                      reviewLateRegistration(request.id, "rejected")
+                    }
+                  >
+                    {uiText("Từ chối đăng ký trễ")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <strong>{uiText("Trạng thái phiếu")}</strong>
+            <div className="equipment-status-toolbar">
+              <div
+                className="equipment-status-actions"
+                aria-busy={isPending && updatingId === request.id}
+              >
+                {inventoryManaged ? (
+                  <Link
+                    className="button button-primary"
+                    href={inventoryStepHref(request)}
+                  >
+                    {request.status === "new"
+                      ? uiText("Chuẩn bị thiết bị")
+                      : uiText("Bàn giao, thu hồi và ký xác nhận")}
+                  </Link>
+                ) : (
+                  equipmentRequestWorkflowStatuses.map((option) => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      className={`request-status-button request-status-${option.color}${warehouseStatus === option.value ? " active" : ""}`}
+                      disabled={
+                        isCancelled ||
+                        (isPending && updatingId === request.id) ||
+                        (option.value === "handed_over" && status === "new") ||
+                        (!canRollBack &&
+                          STATUS_RANK[option.value] < STATUS_RANK[status]) ||
+                        (option.value === "completed" &&
+                          status !== "completed") ||
+                        (
+                          [
+                            "pending",
+                            "rejected",
+                          ] as EquipmentLateApprovalStatus[]
+                        ).includes(lateApprovalStatus)
+                      }
+                      onClick={() => changeStatus(request.id, option.value)}
+                    >
+                      {option.value === "handed_over"
+                        ? uiText("Đã giao")
+                        : option.value === "returned"
+                          ? uiText("Đã trả")
+                          : uiText(option.label)}
+                    </button>
+                  ))
+                )}
+              </div>
+              <a
+                className="button button-secondary equipment-handover-export"
+                href={`/api/equipment-requests/${request.id}/handover`}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <Download size={17} aria-hidden="true" />
+                {uiText("Xuất phiếu PDF")}
+              </a>
+              {!isCancelled ? (
+                <button
+                  type="button"
+                  className="button button-danger equipment-request-delete"
+                  disabled={isPending}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setRequestToDelete(request);
+                  }}
+                >
+                  <Trash2 size={17} aria-hidden="true" />
+                  {request.request_domain === "basic_medical"
+                    ? uiText("Hủy phiếu")
+                    : uiText("Xóa phiếu")}
+                </button>
+              ) : null}
+            </div>
+            {inventoryManaged ? (
+              <p>
+                {uiText(
+                  "Thực giao/thực nhận được ghi kho ngay. Xem số lượng và ký xác nhận theo từng lần trong không gian bàn giao/thu hồi.",
+                )}
+              </p>
+            ) : (
+              <div className="equipment-confirmation-progress">
+                <span>
+                  {uiText("Giao — Kho:")}{" "}
+                  {confirmation?.handover_staff_confirmed_at
+                    ? uiText("Đã xác nhận")
+                    : uiText("Chưa")}
+                </span>
+                <span>
+                  {recipientRoleLabel}:{" "}
+                  {confirmation?.handover_recipient_signed_at
+                    ? uiText("Đã ký")
+                    : uiText("Chưa")}
+                </span>
+                <span>
+                  {uiText("Trả — Kho:")}{" "}
+                  {confirmation?.return_staff_confirmed_at
+                    ? uiText("Đã xác nhận")
+                    : uiText("Chưa")}
+                </span>
+                <span>
+                  {recipientRoleLabel}:{" "}
+                  {confirmation?.return_recipient_signed_at
+                    ? uiText("Đã ký")
+                    : uiText("Chưa")}
+                </span>
+              </div>
+            )}
+            <EquipmentRequestLifecycleHistory requestId={request.id} />
+          </div>
+        ) : null}
+        {inventoryManaged && !canManageRequest && canSignForRequest ? (
+          <div className="equipment-status-section equipment-status-section-top">
+            <strong>{uiText("Ký xác nhận từng lần bàn giao/thu hồi")}</strong>
+            <p>
+              {uiText(
+                "Xem số lượng thực giao/thực nhận trước khi ký xác nhận. Chữ ký gắn với từng lần, không xác nhận chung cho cả phiếu.",
+              )}
+            </p>
+            <Link
+              className="button button-primary"
+              href={`/equipment/fulfillment/${request.id}`}
+            >
+              {uiText("Xem và ký xác nhận bàn giao/thu hồi")}
+            </Link>
+          </div>
+        ) : null}
+        <dl className="detail-list equipment-request-detail-grid">
+          <div className="equipment-request-code-detail">
+            <dt>{uiText("Mã phiếu")}</dt>
+            <dd className="mono">
+              <Link href={`/equipment/requests/${request.id}`}>
+                {formatEquipmentRequestCode(request.created_at)}
+              </Link>{" "}
+              <Link
+                className="text-link"
+                href={`/equipment/requests/${request.id}`}
+              >
+                {uiText("Mở trang chi tiết")}
+              </Link>
+            </dd>
+          </div>
+          <div className="equipment-note-detail-row">
+            <dt>{uiText("Ghi chú chung")}</dt>
+            <dd>{request.note || uiText("Không có ghi chú")}</dd>
+          </div>
+          {lateApprovalStatus !== "not_required" ? (
+            <div className="equipment-note-detail-row">
+              <dt>{uiText("Đăng ký trễ")}</dt>
+              <dd>
+                <strong>
+                  {lateApprovalStatus === "pending"
+                    ? uiText("Chờ duyệt đăng ký trễ")
+                    : lateApprovalStatus === "approved"
+                      ? uiText("Đã duyệt đăng ký trễ")
+                      : uiText("Đã từ chối đăng ký trễ")}
+                </strong>
+                {lateRegistrationReason ? ` — ${lateRegistrationReason}` : ""}
+                {confirmation?.late_review_note
+                  ? uiText(" — Ghi chú: {0}", [confirmation.late_review_note])
+                  : request.late_review_note
+                    ? uiText(" — Ghi chú: {0}", [request.late_review_note])
+                    : ""}
+              </dd>
+            </div>
+          ) : null}
+          <div>
+            <dt>{uiText("Người đăng ký")}</dt>
+            <dd>{request.profiles?.full_name}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Email")}</dt>
+            <dd>{request.email_snapshot}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Số điện thoại")}</dt>
+            <dd>{request.phone_snapshot}</dd>
+          </div>
+          <div>
+            <dt>
+              {request.request_domain === "basic_medical"
+                ? uiText("Giảng viên giảng dạy/hướng dẫn")
+                : uiText("Giảng viên phụ trách")}
+            </dt>
+            <dd>{request.responsible?.full_name}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Số sinh viên")}</dt>
+            <dd>{schedule?.student_count}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Phòng/Lab")}</dt>
+            <dd>
+              {room?.room_code}.{room?.building_code}
+              {room?.room_name ? ` — ${room.room_name}` : ""}
+            </dd>
+          </div>
+          <div>
+            <dt>{uiText("Thời gian nhận")}</dt>
+            <dd>{formatDateTime(request.receive_at)}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Thời gian trả")}</dt>
+            <dd>{formatDateTime(request.return_at)}</dd>
+          </div>
+          <div>
+            <dt>{uiText("Ngày tạo phiếu")}</dt>
+            <dd>{formatDateTime(request.created_at)}</dd>
+          </div>
+          <div className="equipment-list-detail-row">
+            <dt>{uiText("Danh sách trang thiết bị")}</dt>
+            <dd>
+              <button
+                type="button"
+                className="button button-secondary"
+                onClick={() => setModalRequest(request)}
+              >
+                {uiText("Xem toàn bộ danh sách (")}
+                {request.equipment_request_items.length})
+              </button>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    );
+  }
+
+  function renderPanel(request: EquipmentRequestListItem) {
+    const { schedule, warehouseStatus } = deriveRequest(request);
+    const stepIndex = equipmentRequestWorkflowStatuses.findIndex(
+      ({ value }) => value === warehouseStatus,
+    );
+    return (
+      <aside
+        className="equipment-request-panel"
+        role="region"
+        aria-labelledby="equipment-request-panel-title"
+      >
+        <header className="equipment-request-panel-header">
+          <div className="equipment-request-panel-title">
+            <h2 id="equipment-request-panel-title">
+              <span className="mono">
+                {formatEquipmentRequestCode(request.created_at)}
+              </span>
+              <small>
+                {schedule?.course_code_snapshot} ·{" "}
+                {schedule?.course_name_snapshot}
+              </small>
+            </h2>
+            <StatusBadge status={warehouseStatus} />
+            <button
+              type="button"
+              className="equipment-modal-close"
+              aria-label={uiText("Đóng chi tiết phiếu")}
+              onClick={closePanel}
+            >
+              {uiText("×")}
+            </button>
+          </div>
+          {warehouseStatus === "cancelled" ? null : (
+            <ol className="kho-steps" aria-label={uiText("Tiến độ phiếu")}>
+              {equipmentRequestWorkflowStatuses.map((step, index) => (
+                <li
+                  key={step.value}
+                  data-state={
+                    index < stepIndex
+                      ? "done"
+                      : index === stepIndex
+                        ? "current"
+                        : "todo"
+                  }
+                  aria-current={index === stepIndex ? "step" : undefined}
+                >
+                  {uiText(step.label)}
+                </li>
+              ))}
+            </ol>
+          )}
+          <Link
+            className="text-link"
+            href={`/equipment/requests/${request.id}`}
+          >
+            {uiText("Mở trang đầy đủ")}
+          </Link>
+        </header>
+        <div className="equipment-request-list-item-panel">
+          {renderRequestDetails(request)}
+        </div>
+      </aside>
+    );
   }
 
   return (
@@ -1146,245 +1591,159 @@ export function EquipmentRequestList({
 
       <section className="data-panel equipment-request-list-panel">
         <div
-          className="responsive-table"
-          role="region"
-          aria-label={uiText(
-            "Danh sách phiếu thiết bị; vuốt ngang để xem đầy đủ",
-          )}
-          tabIndex={0}
+          className={`equipment-request-split${selectedRequest ? " has-panel" : ""}`}
         >
-          <table className="data-table equipment-request-table records-on-phone">
-            <colgroup>
-              <col className="equipment-col-domain" />
-              <col className="equipment-col-course" />
-              <col className="equipment-col-date" />
-              <col className="equipment-col-time" />
-              <col className="equipment-col-room" />
-              <col className="equipment-col-count" />
-              <col className="equipment-col-status" />
-              <col className="equipment-col-toggle" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>{uiText("Phạm vi")}</th>
-                <th>{uiText("Môn học")}</th>
-                <th>{uiText("Ngày")}</th>
-                <th>{uiText("Thời gian")}</th>
-                <th>{uiText("Phòng/Lab")}</th>
-                <th>{uiText("Thiết bị")}</th>
-                <th>
-                  <span className="equipment-status-heading">
-                    {uiText("Trạng thái")}
-                  </span>
-                </th>
-                <th>
-                  <span className="sr-only">{uiText("Chi tiết")}</span>
-                </th>
-              </tr>
-            </thead>
-            {visibleItems.map((request) => {
-              const schedule = request.class_schedules;
-              const room = schedule?.rooms;
-              const status = currentStatuses[request.id] ?? request.status;
-              const confirmation = confirmationStates[request.id];
-              const lateApprovalStatus =
-                confirmation?.late_approval_status ??
-                request.late_approval_status;
-              const lateRegistrationReason =
-                confirmation?.late_registration_reason ??
-                request.late_registration_reason;
-              const inventoryManaged = usesInventoryFulfillment(request);
-              const warehouseStatus = getWarehouseStatus(status, confirmation);
-              const isCancelled = warehouseStatus === "cancelled";
-              const expanded = expandedIds.has(request.id);
-              const isRegistrant = request.registrant_id === viewerId;
-              const isResponsibleLecturer =
-                request.responsible_lecturer_id === viewerId;
-              const canSignForRequest = isRegistrant || isResponsibleLecturer;
-              const canManageRequest =
-                canManageStatus &&
-                manageableDomains.includes(request.request_domain);
-              const recipientRoleLabel =
-                request.request_domain === "basic_medical"
-                  ? uiText("Người đăng ký/GV giảng dạy-hướng dẫn")
-                  : uiText("Người đăng ký/GV phụ trách");
-              const handoverSigned = Boolean(
-                confirmation?.handover_recipient_signed_at,
-              );
-              const returnSigned = Boolean(
-                confirmation?.return_recipient_signed_at,
-              );
-              const warehouseHasHandedOver = [
-                "handed_over",
-                "returned",
-                "completed",
-              ].includes(warehouseStatus);
-              const warehouseHasReturned = ["returned", "completed"].includes(
-                warehouseStatus,
-              );
-              const isCompleted = warehouseStatus === "completed";
-              const canSignHandover =
-                !inventoryManaged &&
-                canSignForRequest &&
-                warehouseHasHandedOver &&
-                !handoverSigned &&
-                !warehouseHasReturned &&
-                !isCompleted;
-              const canSignReturn =
-                canSignForRequest &&
-                !inventoryManaged &&
-                warehouseHasHandedOver &&
-                (handoverSigned || warehouseHasReturned) &&
-                !returnSigned &&
-                !isCompleted;
+          <div
+            className="responsive-table"
+            role="region"
+            aria-label={uiText(
+              "Danh sách phiếu thiết bị; vuốt ngang để xem đầy đủ",
+            )}
+            tabIndex={0}
+          >
+            <table className="data-table equipment-request-table records-on-phone">
+              <colgroup>
+                <col className="equipment-col-domain" />
+                <col className="equipment-col-course" />
+                <col className="equipment-col-date" />
+                <col className="equipment-col-time" />
+                <col className="equipment-col-room" />
+                <col className="equipment-col-count" />
+                <col className="equipment-col-status" />
+                <col className="equipment-col-toggle" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>{uiText("Phạm vi")}</th>
+                  <th>{uiText("Môn học")}</th>
+                  <th>{uiText("Ngày")}</th>
+                  <th>{uiText("Thời gian")}</th>
+                  <th>{uiText("Phòng/Lab")}</th>
+                  <th>{uiText("Thiết bị")}</th>
+                  <th>
+                    <span className="equipment-status-heading">
+                      {uiText("Trạng thái")}
+                    </span>
+                  </th>
+                  <th>
+                    <span className="sr-only">{uiText("Chi tiết")}</span>
+                  </th>
+                </tr>
+              </thead>
+              {visibleItems.map((request) => {
+                const {
+                  schedule,
+                  room,
+                  lateApprovalStatus,
+                  inventoryManaged,
+                  warehouseStatus,
+                  isCancelled,
+                  canSignForRequest,
+                  canManageRequest,
+                  returnSigned,
+                  handoverSigned,
+                  warehouseHasHandedOver,
+                  warehouseHasReturned,
+                  isCompleted,
+                  canSignHandover,
+                  canSignReturn,
+                } = deriveRequest(request);
+                const expanded = selectedId === request.id;
 
-              return (
-                <tbody className="equipment-request-list-item" key={request.id}>
-                  <tr
-                    className="equipment-request-table-row"
-                    onClick={() => toggleExpanded(request.id)}
+                return (
+                  <tbody
+                    className={`equipment-request-list-item${expanded ? " is-selected" : ""}`}
+                    data-request-id={request.id}
+                    key={request.id}
                   >
-                    <td
-                      data-label={uiText("Phạm vi")}
-                      className="equipment-request-domain-cell"
+                    <tr
+                      className="equipment-request-table-row"
+                      onClick={() => toggleExpanded(request.id)}
                     >
-                      <span className="equipment-request-domain">
-                        {uiText(domainLabel(request))}
-                      </span>
-                    </td>
-                    <td data-label={uiText("Môn học")}>
-                      <button
-                        type="button"
-                        className="equipment-request-summary equipment-request-course-button"
-                        aria-expanded={expanded}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          toggleExpanded(request.id);
-                        }}
+                      <td
+                        data-label={uiText("Phạm vi")}
+                        className="equipment-request-domain-cell"
                       >
-                        <strong>{schedule?.course_code_snapshot}</strong>
-                        <span>{schedule?.course_name_snapshot}</span>
-                      </button>
-                    </td>
-                    <td
-                      data-label={uiText("Ngày")}
-                      className="equipment-request-date-cell"
-                    >
-                      <strong>
-                        {formatScheduleDate(schedule?.schedule_date)}
-                      </strong>
-                    </td>
-                    <td data-label={uiText("Thời gian")} className="mono">
-                      {schedule?.start_time.slice(0, 5)}–
-                      {schedule?.end_time.slice(0, 5)}
-                    </td>
-                    <td
-                      data-label={uiText("Phòng/Lab")}
-                      className="equipment-request-room-cell"
-                    >
-                      <strong>
-                        {room?.room_code}.{room?.building_code}
-                      </strong>
-                    </td>
-                    <td data-label={uiText("Thiết bị")}>
-                      {request.equipment_request_items.length}
-                    </td>
-                    <td
-                      data-label={uiText("Trạng thái")}
-                      className="equipment-request-status-cell"
-                    >
-                      <div className="equipment-request-status-stack">
-                        {!isCancelled && lateApprovalStatus === "pending" ? (
-                          <span className="request-late-approval request-late-approval-pending">
-                            {uiText("Chờ duyệt đăng ký trễ")}
-                          </span>
-                        ) : !isCancelled &&
-                          lateApprovalStatus === "rejected" ? (
-                          <span className="request-late-approval request-late-approval-rejected">
-                            {uiText("Đã từ chối đăng ký trễ")}
-                          </span>
-                        ) : inventoryManaged ? (
-                          <>
-                            <StatusBadge status={warehouseStatus} />
-                            {canManageRequest || canSignForRequest ? (
-                              <Link
-                                className="text-link"
-                                href={inventoryStepHref(request)}
-                                onClick={(event) => event.stopPropagation()}
-                              >
-                                {!canManageRequest
-                                  ? ["handed_over", "returned"].includes(
-                                      request.status,
-                                    )
-                                    ? uiText("Xem và ký xác nhận")
-                                    : uiText("Xem tiến độ")
-                                  : request.status === "new"
-                                    ? uiText("Chuẩn bị thiết bị")
-                                    : uiText("Bàn giao / thu hồi")}
-                              </Link>
-                            ) : null}
-                          </>
-                        ) : isCompleted ? (
-                          <StatusBadge status="completed" />
-                        ) : warehouseHasReturned && !returnSigned ? (
-                          canSignReturn ? (
-                            <button
-                              type="button"
-                              className="equipment-sign-status-button equipment-sign-return"
-                              disabled={isPending && updatingId === request.id}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setSignatureTarget({
-                                  request,
-                                  phase: "return",
-                                });
-                              }}
-                            >
-                              {uiText("Ký xác nhận Đã trả")}
-                            </button>
-                          ) : (
+                        <span className="equipment-request-domain">
+                          {uiText(domainLabel(request))}
+                        </span>
+                      </td>
+                      <td data-label={uiText("Môn học")}>
+                        <button
+                          type="button"
+                          className="equipment-request-summary equipment-request-course-button"
+                          aria-expanded={expanded}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleExpanded(request.id);
+                          }}
+                        >
+                          <strong>{schedule?.course_code_snapshot}</strong>
+                          <span>{schedule?.course_name_snapshot}</span>
+                        </button>
+                      </td>
+                      <td
+                        data-label={uiText("Ngày")}
+                        className="equipment-request-date-cell"
+                      >
+                        <strong>
+                          {formatScheduleDate(schedule?.schedule_date)}
+                        </strong>
+                      </td>
+                      <td data-label={uiText("Thời gian")} className="mono">
+                        {schedule?.start_time.slice(0, 5)}–
+                        {schedule?.end_time.slice(0, 5)}
+                      </td>
+                      <td
+                        data-label={uiText("Phòng/Lab")}
+                        className="equipment-request-room-cell"
+                      >
+                        <strong>
+                          {room?.room_code}.{room?.building_code}
+                        </strong>
+                      </td>
+                      <td data-label={uiText("Thiết bị")}>
+                        {request.equipment_request_items.length}
+                      </td>
+                      <td
+                        data-label={uiText("Trạng thái")}
+                        className="equipment-request-status-cell"
+                      >
+                        <div className="equipment-request-status-stack">
+                          {!isCancelled && lateApprovalStatus === "pending" ? (
+                            <span className="request-late-approval request-late-approval-pending">
+                              {uiText("Chờ duyệt đăng ký trễ")}
+                            </span>
+                          ) : !isCancelled &&
+                            lateApprovalStatus === "rejected" ? (
+                            <span className="request-late-approval request-late-approval-rejected">
+                              {uiText("Đã từ chối đăng ký trễ")}
+                            </span>
+                          ) : inventoryManaged ? (
                             <>
-                              <StatusBadge status="returned" />
-                              <small className="equipment-confirmation-waiting">
-                                {uiText("Chờ ký xác nhận Đã trả")}
-                              </small>
+                              <StatusBadge status={warehouseStatus} />
+                              {canManageRequest || canSignForRequest ? (
+                                <Link
+                                  className="text-link"
+                                  href={inventoryStepHref(request)}
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  {!canManageRequest
+                                    ? ["handed_over", "returned"].includes(
+                                        request.status,
+                                      )
+                                      ? uiText("Xem và ký xác nhận")
+                                      : uiText("Xem tiến độ")
+                                    : request.status === "new"
+                                      ? uiText("Chuẩn bị thiết bị")
+                                      : uiText("Bàn giao / thu hồi")}
+                                </Link>
+                              ) : null}
                             </>
-                          )
-                        ) : warehouseHasHandedOver && !handoverSigned ? (
-                          canSignHandover ? (
-                            <button
-                              type="button"
-                              className="equipment-sign-status-button equipment-sign-handover"
-                              disabled={isPending && updatingId === request.id}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setSignatureTarget({
-                                  request,
-                                  phase: "handover",
-                                });
-                              }}
-                            >
-                              {uiText("Ký xác nhận Đã giao")}
-                            </button>
-                          ) : (
-                            <>
-                              <StatusBadge status="handed_over" />
-                              <small className="equipment-confirmation-waiting">
-                                {uiText("Chờ ký xác nhận Đã giao")}
-                              </small>
-                            </>
-                          )
-                        ) : warehouseHasHandedOver && returnSigned ? (
-                          <>
-                            <StatusBadge status="returned" />
-                            <small className="equipment-confirmation-waiting">
-                              {uiText("Chờ kho xác nhận")}
-                            </small>
-                          </>
-                        ) : warehouseHasHandedOver && handoverSigned ? (
-                          <>
-                            <StatusBadge status="handed_over" />
-                            {canSignReturn ? (
+                          ) : isCompleted ? (
+                            <StatusBadge status="completed" />
+                          ) : warehouseHasReturned && !returnSigned ? (
+                            canSignReturn ? (
                               <button
                                 type="button"
                                 className="equipment-sign-status-button equipment-sign-return"
@@ -1402,355 +1761,109 @@ export function EquipmentRequestList({
                                 {uiText("Ký xác nhận Đã trả")}
                               </button>
                             ) : (
-                              <small className="equipment-confirmation-waiting">
-                                {uiText("Chờ ký xác nhận Đã trả")}
-                              </small>
-                            )}
-                          </>
-                        ) : (
-                          <StatusBadge status={warehouseStatus} />
-                        )}
-                        {lateApprovalStatus === "approved" ? (
-                          <small className="request-late-approval-approved">
-                            {uiText("Đã duyệt đăng ký trễ")}
-                          </small>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td data-label="" className="equipment-request-toggle-cell">
-                      <button
-                        type="button"
-                        className="equipment-request-chevron"
-                        aria-label={
-                          expanded
-                            ? uiText("Thu gọn phiếu")
-                            : uiText("Mở chi tiết phiếu")
-                        }
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          toggleExpanded(request.id);
-                        }}
-                      >
-                        {expanded ? "⌃" : "⌄"}
-                      </button>
-                    </td>
-                  </tr>
-
-                  {expanded ? (
-                    <tr className="equipment-request-detail-row">
-                      <td colSpan={8} className="record-detail-cell">
-                        <div className="equipment-request-details">
-                          {canManageRequest ? (
-                            <div className="equipment-status-section equipment-status-section-top">
-                              {!isCancelled &&
-                              lateApprovalStatus === "pending" ? (
-                                <div className="equipment-late-review-panel">
-                                  <div>
-                                    <strong>
-                                      {uiText("Chờ duyệt đăng ký trễ")}
-                                    </strong>
-                                    <p>
-                                      <b>{uiText("Lý do đăng ký trễ:")}</b>{" "}
-                                      {lateRegistrationReason}
-                                    </p>
-                                  </div>
-                                  <div className="equipment-late-review-actions">
-                                    <button
-                                      type="button"
-                                      className="button button-primary"
-                                      disabled={
-                                        isPending && updatingId === request.id
-                                      }
-                                      onClick={() =>
-                                        reviewLateRegistration(
-                                          request.id,
-                                          "approved",
-                                        )
-                                      }
-                                    >
-                                      {uiText("Duyệt đăng ký trễ")}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="button button-danger"
-                                      disabled={
-                                        isPending && updatingId === request.id
-                                      }
-                                      onClick={() =>
-                                        reviewLateRegistration(
-                                          request.id,
-                                          "rejected",
-                                        )
-                                      }
-                                    >
-                                      {uiText("Từ chối đăng ký trễ")}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : null}
-                              <strong>{uiText("Trạng thái phiếu")}</strong>
-                              <div className="equipment-status-toolbar">
-                                <div
-                                  className="equipment-status-actions"
-                                  aria-busy={
-                                    isPending && updatingId === request.id
-                                  }
-                                >
-                                  {inventoryManaged ? (
-                                    <Link
-                                      className="button button-primary"
-                                      href={inventoryStepHref(request)}
-                                    >
-                                      {request.status === "new"
-                                        ? uiText("Chuẩn bị thiết bị")
-                                        : uiText(
-                                            "Bàn giao, thu hồi và ký xác nhận",
-                                          )}
-                                    </Link>
-                                  ) : (
-                                    equipmentRequestWorkflowStatuses.map(
-                                      (option) => (
-                                        <button
-                                          type="button"
-                                          key={option.value}
-                                          className={`request-status-button request-status-${option.color}${warehouseStatus === option.value ? " active" : ""}`}
-                                          disabled={
-                                            isCancelled ||
-                                            (isPending &&
-                                              updatingId === request.id) ||
-                                            (option.value === "handed_over" &&
-                                              status === "new") ||
-                                            (!canRollBack &&
-                                              STATUS_RANK[option.value] <
-                                                STATUS_RANK[status]) ||
-                                            (option.value === "completed" &&
-                                              status !== "completed") ||
-                                            (
-                                              [
-                                                "pending",
-                                                "rejected",
-                                              ] as EquipmentLateApprovalStatus[]
-                                            ).includes(lateApprovalStatus)
-                                          }
-                                          onClick={() =>
-                                            changeStatus(
-                                              request.id,
-                                              option.value,
-                                            )
-                                          }
-                                        >
-                                          {option.value === "handed_over"
-                                            ? uiText("Đã giao")
-                                            : option.value === "returned"
-                                              ? uiText("Đã trả")
-                                              : uiText(option.label)}
-                                        </button>
-                                      ),
-                                    )
-                                  )}
-                                </div>
-                                <a
-                                  className="button button-secondary equipment-handover-export"
-                                  href={`/api/equipment-requests/${request.id}/handover`}
-                                  onClick={(event) => event.stopPropagation()}
-                                >
-                                  <Download size={17} aria-hidden="true" />
-                                  {uiText("Xuất phiếu PDF")}
-                                </a>
-                                {!isCancelled ? (
-                                  <button
-                                    type="button"
-                                    className="button button-danger equipment-request-delete"
-                                    disabled={isPending}
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      setRequestToDelete(request);
-                                    }}
-                                  >
-                                    <Trash2 size={17} aria-hidden="true" />
-                                    {request.request_domain === "basic_medical"
-                                      ? uiText("Hủy phiếu")
-                                      : uiText("Xóa phiếu")}
-                                  </button>
-                                ) : null}
-                              </div>
-                              {inventoryManaged ? (
-                                <p>
-                                  {uiText(
-                                    "Thực giao/thực nhận được ghi kho ngay. Xem số lượng và ký xác nhận theo từng lần trong không gian bàn giao/thu hồi.",
-                                  )}
-                                </p>
-                              ) : (
-                                <div className="equipment-confirmation-progress">
-                                  <span>
-                                    {uiText("Giao — Kho:")}{" "}
-                                    {confirmation?.handover_staff_confirmed_at
-                                      ? uiText("Đã xác nhận")
-                                      : uiText("Chưa")}
-                                  </span>
-                                  <span>
-                                    {recipientRoleLabel}:{" "}
-                                    {confirmation?.handover_recipient_signed_at
-                                      ? uiText("Đã ký")
-                                      : uiText("Chưa")}
-                                  </span>
-                                  <span>
-                                    {uiText("Trả — Kho:")}{" "}
-                                    {confirmation?.return_staff_confirmed_at
-                                      ? uiText("Đã xác nhận")
-                                      : uiText("Chưa")}
-                                  </span>
-                                  <span>
-                                    {recipientRoleLabel}:{" "}
-                                    {confirmation?.return_recipient_signed_at
-                                      ? uiText("Đã ký")
-                                      : uiText("Chưa")}
-                                  </span>
-                                </div>
-                              )}
-                              <EquipmentRequestLifecycleHistory
-                                requestId={request.id}
-                              />
-                            </div>
-                          ) : null}
-                          {inventoryManaged &&
-                          !canManageRequest &&
-                          canSignForRequest ? (
-                            <div className="equipment-status-section equipment-status-section-top">
-                              <strong>
-                                {uiText(
-                                  "Ký xác nhận từng lần bàn giao/thu hồi",
-                                )}
-                              </strong>
-                              <p>
-                                {uiText(
-                                  "Xem số lượng thực giao/thực nhận trước khi ký xác nhận. Chữ ký gắn với từng lần, không xác nhận chung cho cả phiếu.",
-                                )}
-                              </p>
-                              <Link
-                                className="button button-primary"
-                                href={`/equipment/fulfillment/${request.id}`}
+                              <>
+                                <StatusBadge status="returned" />
+                                <small className="equipment-confirmation-waiting">
+                                  {uiText("Chờ ký xác nhận Đã trả")}
+                                </small>
+                              </>
+                            )
+                          ) : warehouseHasHandedOver && !handoverSigned ? (
+                            canSignHandover ? (
+                              <button
+                                type="button"
+                                className="equipment-sign-status-button equipment-sign-handover"
+                                disabled={
+                                  isPending && updatingId === request.id
+                                }
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setSignatureTarget({
+                                    request,
+                                    phase: "handover",
+                                  });
+                                }}
                               >
-                                {uiText("Xem và ký xác nhận bàn giao/thu hồi")}
-                              </Link>
-                            </div>
-                          ) : null}
-                          <dl className="detail-list equipment-request-detail-grid">
-                            <div className="equipment-request-code-detail">
-                              <dt>{uiText("Mã phiếu")}</dt>
-                              <dd className="mono">
-                                <Link
-                                  href={`/equipment/requests/${request.id}`}
-                                >
-                                  {formatEquipmentRequestCode(
-                                    request.created_at,
-                                  )}
-                                </Link>{" "}
-                                <Link
-                                  className="text-link"
-                                  href={`/equipment/requests/${request.id}`}
-                                >
-                                  {uiText("Mở trang chi tiết")}
-                                </Link>
-                              </dd>
-                            </div>
-                            <div className="equipment-note-detail-row">
-                              <dt>{uiText("Ghi chú chung")}</dt>
-                              <dd>
-                                {request.note || uiText("Không có ghi chú")}
-                              </dd>
-                            </div>
-                            {lateApprovalStatus !== "not_required" ? (
-                              <div className="equipment-note-detail-row">
-                                <dt>{uiText("Đăng ký trễ")}</dt>
-                                <dd>
-                                  <strong>
-                                    {lateApprovalStatus === "pending"
-                                      ? uiText("Chờ duyệt đăng ký trễ")
-                                      : lateApprovalStatus === "approved"
-                                        ? uiText("Đã duyệt đăng ký trễ")
-                                        : uiText("Đã từ chối đăng ký trễ")}
-                                  </strong>
-                                  {lateRegistrationReason
-                                    ? ` — ${lateRegistrationReason}`
-                                    : ""}
-                                  {confirmation?.late_review_note
-                                    ? uiText(" — Ghi chú: {0}", [
-                                        confirmation.late_review_note,
-                                      ])
-                                    : request.late_review_note
-                                      ? uiText(" — Ghi chú: {0}", [
-                                          request.late_review_note,
-                                        ])
-                                      : ""}
-                                </dd>
-                              </div>
-                            ) : null}
-                            <div>
-                              <dt>{uiText("Người đăng ký")}</dt>
-                              <dd>{request.profiles?.full_name}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Email")}</dt>
-                              <dd>{request.email_snapshot}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Số điện thoại")}</dt>
-                              <dd>{request.phone_snapshot}</dd>
-                            </div>
-                            <div>
-                              <dt>
-                                {request.request_domain === "basic_medical"
-                                  ? uiText("Giảng viên giảng dạy/hướng dẫn")
-                                  : uiText("Giảng viên phụ trách")}
-                              </dt>
-                              <dd>{request.responsible?.full_name}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Số sinh viên")}</dt>
-                              <dd>{schedule?.student_count}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Phòng/Lab")}</dt>
-                              <dd>
-                                {room?.room_code}.{room?.building_code}
-                                {room?.room_name ? ` — ${room.room_name}` : ""}
-                              </dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Thời gian nhận")}</dt>
-                              <dd>{formatDateTime(request.receive_at)}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Thời gian trả")}</dt>
-                              <dd>{formatDateTime(request.return_at)}</dd>
-                            </div>
-                            <div>
-                              <dt>{uiText("Ngày tạo phiếu")}</dt>
-                              <dd>{formatDateTime(request.created_at)}</dd>
-                            </div>
-                            <div className="equipment-list-detail-row">
-                              <dt>{uiText("Danh sách trang thiết bị")}</dt>
-                              <dd>
+                                {uiText("Ký xác nhận Đã giao")}
+                              </button>
+                            ) : (
+                              <>
+                                <StatusBadge status="handed_over" />
+                                <small className="equipment-confirmation-waiting">
+                                  {uiText("Chờ ký xác nhận Đã giao")}
+                                </small>
+                              </>
+                            )
+                          ) : warehouseHasHandedOver && returnSigned ? (
+                            <>
+                              <StatusBadge status="returned" />
+                              <small className="equipment-confirmation-waiting">
+                                {uiText("Chờ kho xác nhận")}
+                              </small>
+                            </>
+                          ) : warehouseHasHandedOver && handoverSigned ? (
+                            <>
+                              <StatusBadge status="handed_over" />
+                              {canSignReturn ? (
                                 <button
                                   type="button"
-                                  className="button button-secondary"
-                                  onClick={() => setModalRequest(request)}
+                                  className="equipment-sign-status-button equipment-sign-return"
+                                  disabled={
+                                    isPending && updatingId === request.id
+                                  }
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setSignatureTarget({
+                                      request,
+                                      phase: "return",
+                                    });
+                                  }}
                                 >
-                                  {uiText("Xem toàn bộ danh sách (")}
-                                  {request.equipment_request_items.length})
+                                  {uiText("Ký xác nhận Đã trả")}
                                 </button>
-                              </dd>
-                            </div>
-                          </dl>
+                              ) : (
+                                <small className="equipment-confirmation-waiting">
+                                  {uiText("Chờ ký xác nhận Đã trả")}
+                                </small>
+                              )}
+                            </>
+                          ) : (
+                            <StatusBadge status={warehouseStatus} />
+                          )}
+                          {lateApprovalStatus === "approved" ? (
+                            <small className="request-late-approval-approved">
+                              {uiText("Đã duyệt đăng ký trễ")}
+                            </small>
+                          ) : null}
                         </div>
                       </td>
+                      <td
+                        data-label=""
+                        className="equipment-request-toggle-cell"
+                      >
+                        <button
+                          type="button"
+                          className="equipment-request-chevron"
+                          aria-label={
+                            expanded
+                              ? uiText("Thu gọn phiếu")
+                              : uiText("Mở chi tiết phiếu")
+                          }
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleExpanded(request.id);
+                          }}
+                        >
+                          {expanded ? "⌃" : "⌄"}
+                        </button>
+                      </td>
                     </tr>
-                  ) : null}
-                </tbody>
-              );
-            })}
-          </table>
+                  </tbody>
+                );
+              })}
+            </table>
+          </div>
+          {selectedRequest ? renderPanel(selectedRequest) : null}
         </div>
         {!visibleItems.length ? (
           <p className="panel-empty">

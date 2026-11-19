@@ -200,9 +200,11 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
     const detailsButton = requestRow.getByRole("button", {
       name: "Mở chi tiết phiếu",
     });
-    const fullListButton = requestRow.getByRole("button", {
-      name: /Xem toàn bộ danh sách/,
-    });
+    const fullListButton = page
+      .locator(".equipment-request-panel")
+      .getByRole("button", {
+        name: /Xem toàn bộ danh sách/,
+      });
     await clickUntilState(detailsButton, () =>
       expect(fullListButton).toBeVisible({ timeout: 1_000 }),
     );

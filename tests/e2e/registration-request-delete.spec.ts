@@ -143,8 +143,13 @@ test("Admin hủy phiếu Y cơ sở và xóa phiếu thiết bị trên giao di
     const equipmentRow = page.locator(".equipment-request-list-item");
     await expect(equipmentRow).toHaveCount(1);
     await equipmentRow.locator(".equipment-request-summary").click();
-    await expect(equipmentRow.getByText(/^\d{12}$/)).toBeVisible();
-    await equipmentRow
+    const equipmentPanel = page.locator(".equipment-request-panel");
+    await expect(
+      equipmentPanel
+        .locator(".equipment-request-details")
+        .getByText(/^\d{12}$/),
+    ).toBeVisible();
+    await equipmentPanel
       .getByRole("button", { name: "Xóa phiếu", exact: true })
       .click();
     const equipmentDialog = page.getByRole("dialog", {
