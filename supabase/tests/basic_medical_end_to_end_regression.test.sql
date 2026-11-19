@@ -1,6 +1,6 @@
 begin;
 
-select plan(35);
+select plan(36);
 
 create temp table y08_context (
   manager_id uuid,
@@ -108,6 +108,16 @@ begin
       '98000000-0000-4000-8000-000000000002',
       '98000000-0000-4000-8000-000000000002',
       '98000000-0000-4000-8000-000000000001'
+    ),
+    -- Filed by the coordinator on the lecturer's behalf.
+    (
+      '98000000-0000-4000-8000-000000000032', '2042-2043', 'HK1',
+      current_date + 20, current_date + 20,
+      '98000000-0000-4000-8000-000000000003',
+      '98000000-0000-4000-8000-000000000004', 20,
+      '98000000-0000-4000-8000-000000000001',
+      '98000000-0000-4000-8000-000000000002',
+      '98000000-0000-4000-8000-000000000001'
     );
 
   perform set_config('app.basic_medical_registration_mutation', 'true', true);
@@ -197,6 +207,14 @@ select is(
    where id = (select registration_id from y08_context)),
   1,
   'teaching lecturer can open the scoped registration chain'
+);
+
+select is(
+  (select responsible_name is not null and registrant_name is not null
+   from public.basic_medical_registration_list
+   where id = '98000000-0000-4000-8000-000000000032'),
+  true,
+  'responsible lecturer lists a registration filed by someone else, with both names'
 );
 
 select is(
