@@ -1,6 +1,6 @@
 begin;
 
-select plan(11);
+select plan(14);
 
 -- t4e step 2: one equipment table with usage scopes; each side keeps its view.
 do $$
@@ -59,6 +59,14 @@ from public.rooms r join public.room_types t on t.id = r.room_type_id where t.co
 select set_config('role', 'authenticated', true);
 select throws_ok($$select public.set_equipment_item_scopes('99200000-0000-4000-8000-000000000011', '{nursing_skills}')$$,
   '23503', 'EQUIPMENT_SCOPE_IN_USE', 'a side in use keeps its scope');
+-- Scopes change only through the RPC (review 2026-11-19).
+select throws_ok($$update public.equipment_catalog set usage_scopes = '{nursing_skills}' where id = '99200000-0000-4000-8000-000000000012'$$,
+  '42501', 'EQUIPMENT_SCOPE_RPC_ONLY', 'an ordinary catalog edit cannot change scopes');
+select throws_ok($$insert into public.equipment_catalog (item_name, commercial_name, unit, usage_scopes)
+  values ('two sides', 'two sides', 'cái', '{nursing_skills,basic_medical}')$$,
+  '42501', 'EQUIPMENT_SCOPE_RPC_ONLY', 'a new item belongs to exactly one side');
+select lives_ok($$update public.equipment_catalog set model = 'M2' where id = '99200000-0000-4000-8000-000000000012'$$,
+  'other columns still edit normally');
 select set_config('role', 'postgres', true);
 select is((select usage_scopes from public.equipment_items where id = '99200000-0000-4000-8000-000000000011'),
   '{basic_medical}'::text[], 'the item still belongs to Y cơ sở');
