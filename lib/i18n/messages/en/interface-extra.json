@@ -1499,5 +1499,14 @@
   "Thao tác khác": "Other action",
   "Dữ liệu khác": "Other data",
   "Tất cả hành động": "All actions",
-  " mục được chọn": " items selected"
+  " mục được chọn": " items selected",
+  "Lọc phiếu": "Filter requests",
+  "Cần ký": "To sign",
+  "Đang mượn": "On loan",
+  "Trên trang này": "On this page",
+  "Từ chối đăng ký trễ?": "Reject the late registration?",
+  "Người đăng ký sẽ thấy lý do này. Vui lòng nhập lý do từ chối.": "The registrant will see this reason. Please enter the reason for rejecting.",
+  "Lý do từ chối": "Reason for rejection",
+  "Không có phiếu nào ở trạng thái “Chưa hoàn thành” theo bộ lọc hiện tại.": "No requests are in the “Not completed” status for the current filter.",
+  "Xem tất cả phiếu": "View all requests"
 }

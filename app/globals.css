@@ -13063,3 +13063,45 @@ tr[data-open] > :is(th, td) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* C1-requests: request chips; Y cơ sở filter row wide enough at 1440 px */
+.equipment-request-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.equipment-request-chip {
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--ink-700);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-weight: 650;
+}
+
+.equipment-request-chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--eiu-blue);
+  border-color: var(--eiu-blue);
+}
+
+.equipment-request-chips small {
+  color: var(--ink-500);
+}
+
+@media (min-width: 1081px) {
+  .basic-medical-registration-filters {
+    grid-template-columns:
+      minmax(200px, 1fr) repeat(2, minmax(210px, 1fr))
+      auto auto auto;
+  }
+
+  .basic-medical-registration-filters .data-search {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

@@ -3,7 +3,7 @@ export const equipmentRequestWorkflowStatuses = [
   { value: "preparing", label: "Đã soạn", color: "orange" },
   { value: "handed_over", label: "Đã giao", color: "blue" },
   { value: "returned", label: "Đã trả", color: "purple" },
-  { value: "completed", label: "Hoàn Thành", color: "green" },
+  { value: "completed", label: "Hoàn thành", color: "green" },
 ] as const;
 
 export type EquipmentRequestWorkflowStatus =
