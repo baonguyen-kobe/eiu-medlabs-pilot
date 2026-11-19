@@ -13174,3 +13174,9 @@ a.kpi-card {
   color: var(--eiu-blue);
   font-weight: 700;
 }
+
+/* C7: Kho small fixes */
+.kho-manage-button {
+  color: var(--ink-600);
+  border-style: dashed;
+}
