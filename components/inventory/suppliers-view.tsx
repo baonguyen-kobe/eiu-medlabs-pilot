@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, { useCallback, useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search, X } from "@/components/icons";
@@ -491,6 +492,7 @@ function CreateSupplierDialog({
       aria-modal="true"
       aria-labelledby="create-supplier-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -666,6 +668,7 @@ function EditSupplierDialog({
       aria-modal="true"
       aria-labelledby="edit-supplier-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3

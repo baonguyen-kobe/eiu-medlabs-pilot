@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, {
   useEffect,
   useMemo,
@@ -972,6 +973,7 @@ function CorrectReceiptDialog({
       aria-modal="true"
       aria-labelledby="correct-receipt-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -1409,6 +1411,7 @@ function ReverseReceiptDialog({
       aria-modal="true"
       aria-labelledby="reverse-receipt-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -1660,6 +1663,7 @@ function CorrectOpeningDialog({
       aria-modal="true"
       aria-labelledby="correct-opening-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -2081,6 +2085,7 @@ function VerifyExpiryDialog({
       aria-modal="true"
       aria-labelledby="verify-expiry-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3

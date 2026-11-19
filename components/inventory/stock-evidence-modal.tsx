@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
@@ -114,6 +115,7 @@ function StockEvidenceModalContent({
       aria-labelledby="stock-evidence-title"
       className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
     >
+      <DialogKeyboard onClose={onClose} />
       <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">

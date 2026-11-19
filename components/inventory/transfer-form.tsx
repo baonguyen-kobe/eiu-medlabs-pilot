@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, {
   useCallback,
   useEffect,
@@ -900,7 +901,15 @@ export function TransferForm({
 
       {/* Confirmation Modal */}
       {confirmOpen ? (
-        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <DialogKeyboard
+            onClose={() => setConfirmOpen(false)}
+            pending={isPending}
+          />
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ArrowRight className="text-sky-600" size={18} />

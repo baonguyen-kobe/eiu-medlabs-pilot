@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "@/components/icons";
@@ -136,6 +137,7 @@ export function ConfirmActionModal({
       aria-labelledby={titleId}
       aria-describedby={descId}
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div
         ref={modalRef}
         className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden dark:bg-slate-900 dark:border-slate-800"
