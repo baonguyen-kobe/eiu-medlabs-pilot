@@ -237,6 +237,8 @@ const errors: Record<string, string> = {
     "Khóa chuẩn bị đã hết hạn hoặc thuộc tab khác. Bắt đầu chuẩn bị lại trước khi lưu.",
   S4_REVIEW_REQUIRED: "Có dòng chưa rà soát theo phiên bản hiện hành.",
   S4_ALL_LINES_REVIEW_REQUIRED: "Phải rà soát mọi dòng đang hoạt động.",
+  S4_INVALID_SOURCE:
+    "Vị trí này không được xuất hàng (vị trí thuộc phòng hoặc đã ngừng). Chọn lại nguồn từ danh sách.",
   S4_INSUFFICIENT_AVAILABLE:
     "Nguồn đủ điều kiện không đủ sau khi trừ các cam kết đang giữ.",
   S4_SHORTAGE_REASON_REQUIRED: "Nhập lý do cho từng dòng chuẩn bị thiếu.",

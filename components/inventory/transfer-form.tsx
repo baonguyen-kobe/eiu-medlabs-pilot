@@ -96,6 +96,7 @@ export function TransferForm({
   const [isLoadingStock, setIsLoadingStock] = useState(false);
 
   const [lines, setLines] = useState<TransferLineState[]>([]);
+  const [targetLabel, setTargetLabel] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [notice, setNotice] = useState<{
@@ -529,7 +530,10 @@ export function TransferForm({
               label={uiText("Kho nhập (Đích) *")}
               id="transfer-target-location"
               placeholder={uiText("Chọn kho đích...")}
-              onSelect={(loc) => setTargetLocationId(loc.id)}
+              onSelect={(loc) => {
+                setTargetLocationId(loc.id);
+                setTargetLabel(`${loc.name} (${loc.code})`);
+              }}
             />
             {sourceLocationId &&
             targetLocationId &&
@@ -585,8 +589,7 @@ export function TransferForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                {uiText("Chọn vật tư từ kho nguồn")}
-                {totalStock}
+                {uiText("Chọn vật tư từ kho nguồn")} ({totalStock}
                 {uiText(" lô)")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -918,13 +921,15 @@ export function TransferForm({
               <div className="flex justify-between">
                 <span className="text-slate-500">{uiText("Kho nguồn:")}</span>
                 <span className="font-semibold text-slate-800">
-                  {sourceLocationId}
+                  {availableStock[0]
+                    ? `${availableStock[0].location_name} (${availableStock[0].location_code})`
+                    : sourceLocationId}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">{uiText("Kho đích:")}</span>
                 <span className="font-semibold text-slate-800">
-                  {targetLocationId}
+                  {targetLabel || targetLocationId}
                 </span>
               </div>
               <div className="flex justify-between">

@@ -1287,7 +1287,11 @@ export function EquipmentRequestList({
                                 onClick={(event) => event.stopPropagation()}
                               >
                                 {!canManageRequest
-                                  ? uiText("Xem và ký xác nhận")
+                                  ? ["handed_over", "returned"].includes(
+                                      request.status,
+                                    )
+                                    ? uiText("Xem và ký xác nhận")
+                                    : uiText("Xem tiến độ")
                                   : request.status === "new"
                                     ? uiText("Chuẩn bị thiết bị")
                                     : uiText("Bàn giao / thu hồi")}

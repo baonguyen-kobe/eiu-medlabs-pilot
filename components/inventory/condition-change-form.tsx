@@ -566,8 +566,8 @@ export function ConditionChangeForm({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                {uiText("Chọn lô hàng tốt tại kho")}
-                {totalStock} {uiText("lô)")}
+                {uiText("Chọn lô hàng tốt tại kho")} ({totalStock}{" "}
+                {uiText("lô)")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 {uiText(

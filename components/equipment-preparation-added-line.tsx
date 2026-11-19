@@ -51,7 +51,7 @@ export function PreparationAddedLine({
     }
   }
   return (
-    <details className="rounded-xl border p-4 space-y-3">
+    <details className="rounded-xl border border-[var(--line)] p-4 space-y-3">
       <summary className="font-semibold">{uiText(title)}</summary>
       <p>
         {uiText(

@@ -25,6 +25,7 @@ import {
   equipmentRequestWorkflowStatuses,
 } from "@/lib/equipment-requests";
 import {
+  formatDisplayQuantity,
   addExact,
   compareExact,
   isPositive,
@@ -85,7 +86,7 @@ export function EquipmentFulfillmentWorkspace({
   const [assetPage, setAssetPage] = useState(1);
   const [assetTotal, setAssetTotal] = useState(0);
   const [sliceId, setSliceId] = useState(initial.issues[0]?.id ?? "");
-  const [locationId, setLocationId] = useState(initial.locations[0]?.id ?? "");
+  const [pickedLocationId, setLocationId] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [condition, setCondition] = useState("good");
   const [classification, setClassification] = useState("waived");
@@ -135,6 +136,17 @@ export function EquipmentFulfillmentWorkspace({
   );
   const selectedIssue = selectableIssues.find((issue) => issue.id === sliceId);
   const returning = receiving && operation !== "correct";
+  // Returns land where the items were issued from unless staff pick another
+  // place; the first location by name put stock in the wrong store.
+  const locationId =
+    pickedLocationId ||
+    workspace.issues.find((issue) =>
+      workspace.locations.some(
+        (location) => location.id === issue.location_id && location.active,
+      ),
+    )?.location_id ||
+    workspace.locations[0]?.id ||
+    "";
   const returnIssues = selectableIssues.filter(
     (issue) => compareExact(issue.issued, issue.returned) > 0,
   );
@@ -537,7 +549,7 @@ export function EquipmentFulfillmentWorkspace({
       <div className="kho-record-grid">
         <div className="kho-record-main">
           {signEvent ? (
-            <section className="kho-card">
+            <section className="kho-card" id="kho-sign">
               <h2>
                 {uiText("Ký đúng sự kiện #")}
                 {signEvent.revision}
@@ -897,9 +909,10 @@ export function EquipmentFulfillmentWorkspace({
                             >
                               {source.item_name} — {source.location_name}
                               {uiText(" — khả dụng")}{" "}
-                              {source.available_quantity} {source.base_uom_code}
+                              {formatDisplayQuantity(source.available_quantity)}{" "}
+                              {source.base_uom_code}
                               {uiText("; quy đổi ")}
-                              {source.conversion_factor}
+                              {formatDisplayQuantity(source.conversion_factor)}
                             </option>
                           ))}
                         </select>
@@ -1302,6 +1315,13 @@ export function EquipmentFulfillmentWorkspace({
                         setSigningId(event.id);
                         setSignature("");
                         hasInk.current = false;
+                        // The pad opens at the top of the main column, away from this panel.
+                        requestAnimationFrame(() =>
+                          document.getElementById("kho-sign")?.scrollIntoView({
+                            block: "start",
+                            behavior: "smooth",
+                          }),
+                        );
                       }}
                     >
                       {uiText("Ký sự kiện #")}

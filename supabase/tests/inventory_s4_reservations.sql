@@ -80,9 +80,9 @@ begin
   select (x->>'available_quantity')::numeric into available
    from jsonb_array_elements(stock_rows) x where x->>'location_id'=pg_temp.s4r_id(loc)::text;
   if found then return available; end if;
-  if jsonb_array_length(stock_rows)<100 then
-   raise exception 'Fixture stock location % missing from projection',loc;
-  end if;
+  -- Sources list only locations that can supply the line; one that is not
+  -- listed has nothing available for a new reservation.
+  if jsonb_array_length(stock_rows)<100 then return 0; end if;
   page_number:=page_number+1;
  end loop;
 end;
@@ -143,6 +143,9 @@ select results_eq($$select rs.location_id,rs.quantity from public.inventory_rese
 select is((select sum(b.quantity) from public.inventory_stock_balances b join public.inventory_stock_origins o on o.id=b.cohort_id where o.catalog_item_id=pg_temp.s4r_id(31)),1.6::numeric,'reservation leaves physical on-hand unchanged');
 select is(pg_temp.s4r_available('quantity',41),0::numeric,'reservation reduces source A availability');
 select is(pg_temp.s4r_available('quantity',42),0::numeric,'reservation reduces source B availability');
+select ok(not exists(select 1 from jsonb_array_elements(public.equipment_preparation_read(pg_temp.s4r_request('quantity'),'stock',
+ jsonb_build_object('catalog_item_id',pg_temp.s4r_id(20),'page',1))->'rows') x where x->>'location_id'=pg_temp.s4r_id(41)::text),
+ 'a fully reserved location is not offered as a source');
 select pg_temp.s4r_actor(2);
 select is((select count(*) from public.user_notifications where entity_id=pg_temp.s4r_request('quantity') and notification_type='prepared'),1::bigint,'confirmed PREPARED emits one aggregate participant notification');
 select pg_temp.s4r_actor(1);

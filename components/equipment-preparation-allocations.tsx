@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { readPreparation } from "@/app/equipment/preparation/actions";
 import { readInventoryOptions } from "@/app/inventory/read-actions";
-import { multiplyExact } from "@/lib/inventory/decimal";
+import { formatDisplayQuantity, multiplyExact } from "@/lib/inventory/decimal";
 import type { Json } from "@/lib/database.types";
 import type {
   PreparationAllocation,
@@ -45,6 +45,7 @@ export function PreparationAllocations({
   const { text: uiText } = useLanguage();
 
   const [sources, setSources] = useState<PreparationSource[]>([]);
+  const [sourcesLoaded, setSourcesLoaded] = useState(false);
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -69,6 +70,7 @@ export function PreparationAllocations({
       }
       const parsed = preparationSourcesSchema.parse(result.data);
       setSources(parsed.rows);
+      setSourcesLoaded(true);
       setPage(nextPage);
     } catch {
       setError(
@@ -157,8 +159,9 @@ export function PreparationAllocations({
                     {source.location_name} ·{" "}
                     {source.tracking_strategy === "serialized"
                       ? uiText("Chọn đúng tài sản")
-                      : `Available-for-new: ${source.available_quantity} ${source.base_uom_code}`}{" "}
-                    · 1 {demand.unit} = {source.conversion_factor}{" "}
+                      : `${uiText("Khả dụng")}: ${formatDisplayQuantity(source.available_quantity)} ${source.base_uom_code}`}{" "}
+                    · 1 {demand.unit} ={" "}
+                    {formatDisplayQuantity(source.conversion_factor)}{" "}
                     {source.base_uom_code}
                   </span>
                   <button
@@ -171,6 +174,12 @@ export function PreparationAllocations({
                 </div>
               ))}
             </div>
+          ) : sourcesLoaded ? (
+            <p role="status">
+              {uiText(
+                "Không có nguồn nào còn tồn cho thiết bị này. Nhận kho hoặc kiểm tra mapping Inventory, rồi bấm lại.",
+              )}
+            </p>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <button
@@ -360,7 +369,10 @@ function AllocationRow({
     }
   }
   return (
-    <fieldset className="rounded-xl border p-3 space-y-2" disabled={disabled}>
+    <fieldset
+      className="rounded-xl border border-[var(--line)] p-3 space-y-2"
+      disabled={disabled}
+    >
       <legend>
         {source
           ? `${source.item_name} · ${source.location_name}`
