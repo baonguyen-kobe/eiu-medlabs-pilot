@@ -1499,5 +1499,9 @@
   "Thao tác khác": "Other action",
   "Dữ liệu khác": "Other data",
   "Tất cả hành động": "All actions",
-  " mục được chọn": " items selected"
+  " mục được chọn": " items selected",
+  "Không có thiết bị phù hợp.": "No matching equipment.",
+  "Đổi trạng thái / hủy trên danh sách": "Change status / cancel on the list",
+  "Lĩnh vực": "Area",
+  "Kỹ năng": "Skill"
 }

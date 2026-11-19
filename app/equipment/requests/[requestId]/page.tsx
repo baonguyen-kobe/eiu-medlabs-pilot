@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace-shell";
 import { EquipmentRequestLifecycleHistory } from "@/components/equipment-request-lifecycle-history";
+import { RequestItemsTable } from "@/components/equipment-request-detail/items-table";
 import { LocalizedText } from "@/components/i18n/language-provider";
 import { formatEquipmentRequestCode } from "@/lib/equipment-request-code";
 import {
@@ -21,16 +22,6 @@ import { addExact, formatDisplayQuantity } from "@/lib/inventory/decimal";
 import { getInterfaceText } from "@/lib/i18n/server";
 import { getViewer } from "@/lib/viewer";
 import { equipmentOperationsDomains } from "@/lib/workspace-access";
-
-// Detail template (t3a): Thông tin | Nội dung | Đính kèm | Liên quan | Lịch sử.
-const tabs = [
-  ["info", "Thông tin"],
-  ["content", "Nội dung"],
-  ["files", "Đính kèm"],
-  ["related", "Liên quan"],
-  ["history", "Lịch sử"],
-] as const;
-type Tab = (typeof tabs)[number][0];
 
 const dateTime = new Intl.DateTimeFormat("vi-VN", {
   dateStyle: "short",
@@ -54,7 +45,7 @@ export default async function EquipmentRequestDetailPage({
   searchParams,
 }: {
   params: Promise<{ requestId: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; side?: string }>;
 }) {
   const [{ requestId }, query] = await Promise.all([params, searchParams]);
   // Seeded and fixture ids are not RFC 4122, so check the shape only.
@@ -90,11 +81,10 @@ export default async function EquipmentRequestDetailPage({
     fulfillment = parsed.success ? parsed.data : null;
   }
 
-  const tab: Tab = tabs.some(([key]) => key === query.tab)
-    ? (query.tab as Tab)
-    : "info";
+  // Old `?tab=history` links still land on the history panel.
+  const sideTab =
+    query.side === "history" || query.tab === "history" ? "history" : "summary";
   const base = `/equipment/requests/${requestId}`;
-  const href = (key: Tab) => (key === "info" ? base : `${base}?tab=${key}`);
   const listHref = canManage
     ? `/equipment/requests?request=${requestId}`
     : `/equipment/mine?request=${requestId}`;
@@ -111,7 +101,69 @@ export default async function EquipmentRequestDetailPage({
   const events = (fulfillment?.events ?? []).filter(
     (event) => !event.superseded,
   );
-  const signedEvents = events.filter((event) => event.signature);
+  const pendingSign = events.some(
+    (event) => event.signature_required && !event.signature,
+  );
+  const fulfillmentHref = `/equipment/fulfillment/${requestId}`;
+  const primary: { href: string; label: string } | null = !inventoryManaged
+    ? null
+    : canManage && request.status === "new"
+      ? {
+          href: `/equipment/preparation/${requestId}`,
+          label: "Chuẩn bị thiết bị",
+        }
+      : canManage &&
+          ["preparing", "handed_over", "returned"].includes(request.status)
+        ? { href: fulfillmentHref, label: "Bàn giao / thu hồi" }
+        : canSign && pendingSign
+          ? { href: fulfillmentHref, label: "Ký xác nhận" }
+          : null;
+  const subtitle = [
+    schedule
+      ? `${schedule.course_code_snapshot} · ${schedule.course_name_snapshot}`
+      : "",
+    room ? `${room.building_code}-${room.room_code}` : "",
+    request.receive_at || request.return_at
+      ? `${at(request.receive_at)} → ${at(request.return_at)}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const itemHeaders = fulfillment
+    ? ["Đăng ký", "Đã giao", "Đã trả", "Còn phải trả"]
+    : ["Kỹ năng", "Đăng ký"];
+  const itemRows = fulfillment
+    ? fulfillment.lines.map((line) => {
+        const slices = fulfillment.issues.filter(
+          (issue) => issue.request_line_id === line.id,
+        );
+        return {
+          id: line.id,
+          name: line.name,
+          cells: [
+            `${formatDisplayQuantity(line.registered_quantity)} ${line.unit}`,
+            formatDisplayQuantity(sum(slices.map((slice) => slice.issued))),
+            formatDisplayQuantity(sum(slices.map((slice) => slice.returned))),
+            formatDisplayQuantity(sum(slices.map((slice) => slice.due))),
+          ],
+        };
+      })
+    : request.equipment_request_items.map((item) => {
+        const catalog =
+          item.equipment_catalog ?? item.basic_medical_equipment_catalog;
+        return {
+          id: item.id,
+          name: [catalog?.item_name ?? "—", catalog?.commercial_name]
+            .filter(Boolean)
+            .join(" · "),
+          cells: [
+            item.skill_name || "—",
+            `${item.quantity} ${catalog?.unit ?? ""}`.trim(),
+          ],
+        };
+      });
+  const operationLabel = (operation: string) =>
+    text(fulfillmentLabels[operation as FulfillmentOperation] ?? operation);
 
   return (
     <WorkspaceShell
@@ -125,356 +177,204 @@ export default async function EquipmentRequestDetailPage({
       title={<LocalizedText text={"Chi tiết phiếu thiết bị"} />}
       description={<LocalizedText text={"Phiếu {0}"} values={[code]} />}
     >
-      <p className="cell-stack">
-        <Link href={listHref}>{text("← Danh sách phiếu")}</Link>
-        <strong>
-          {text("Phiếu {0}", [code])} ·{" "}
-          {request.request_domain === "basic_medical"
-            ? text("Y cơ sở")
-            : text("Skills lab")}
-        </strong>
-      </p>
-
-      <nav className="segmented-control" aria-label={text("Mục của phiếu")}>
-        {tabs.map(([key, label]) => (
-          <Link
-            key={key}
-            href={href(key)}
-            scroll={false}
-            className={tab === key ? "selected" : ""}
-            aria-current={tab === key ? "page" : undefined}
-          >
-            {text(label)}
-          </Link>
-        ))}
-      </nav>
-
-      {tab === "info" ? (
-        <section className="data-panel" aria-label={text("Thông tin")}>
-          <ol className="list-filters-actions" aria-label={text("Trạng thái")}>
-            {request.status === "cancelled" ? (
-              <li className="badge" data-tone="danger">
-                {text("Đã hủy")}
-              </li>
-            ) : (
-              equipmentRequestWorkflowStatuses.map((step, index) => (
+      <div className="kho-record">
+        <header className="kho-record-header">
+          <div className="kho-record-head">
+            <div className="kho-record-title">
+              <Link href={listHref}>← {text("Danh sách phiếu")}</Link>
+              <h2>{text("Phiếu {0}", [code])}</h2>
+              <span
+                className="badge"
+                data-tone={request.status === "cancelled" ? "danger" : "info"}
+              >
+                {text(statusLabel)}
+              </span>
+              {subtitle ? (
+                <span className="kho-record-sub">{subtitle}</span>
+              ) : null}
+            </div>
+            <div className="kho-record-actions">
+              {primary ? (
+                <Link className="button button-primary" href={primary.href}>
+                  {text(primary.label)}
+                </Link>
+              ) : null}
+              <a
+                className="button button-secondary"
+                href={`/api/equipment-requests/${requestId}/handover`}
+              >
+                {text("Xuất phiếu PDF")}
+              </a>
+              {canManage ? (
+                <Link className="button button-secondary" href={listHref}>
+                  {text("Đổi trạng thái / hủy trên danh sách")}
+                </Link>
+              ) : null}
+            </div>
+          </div>
+          {request.status === "cancelled" ? null : (
+            <ol className="kho-steps" aria-label={text("Tiến độ phiếu")}>
+              {equipmentRequestWorkflowStatuses.map((step, index) => (
                 <li
                   key={step.value}
-                  className="badge"
-                  data-tone={
+                  data-state={
                     index < stepIndex
-                      ? "success"
+                      ? "done"
                       : index === stepIndex
-                        ? "info"
-                        : "neutral"
+                        ? "current"
+                        : "todo"
                   }
                   aria-current={index === stepIndex ? "step" : undefined}
                 >
                   {text(step.label)}
                 </li>
-              ))
-            )}
-          </ol>
-          <dl className="detail-list">
-            <div>
-              <dt>{text("Mã phiếu")}</dt>
-              <dd className="mono">{code}</dd>
-            </div>
-            <div>
-              <dt>{text("Trạng thái")}</dt>
-              <dd>{text(statusLabel)}</dd>
-            </div>
-            <div>
-              <dt>{text("Người đăng ký")}</dt>
-              <dd>{request.profiles?.full_name ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>{text("GV phụ trách")}</dt>
-              <dd>{request.responsible?.full_name ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>{text("Lớp / buổi")}</dt>
-              <dd>
-                {schedule
-                  ? `${schedule.course_code_snapshot} · ${schedule.course_name_snapshot} · ${date.format(new Date(`${schedule.schedule_date}T00:00:00+07:00`))} ${schedule.start_time.slice(0, 5)}–${schedule.end_time.slice(0, 5)}`
-                  : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt>{text("Phòng")}</dt>
-              <dd>
-                {room
-                  ? `${room.building_code}-${room.room_code}${room.room_name ? ` · ${room.room_name}` : ""}`
-                  : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt>{text("Nhận / trả")}</dt>
-              <dd>
-                {at(request.receive_at)} → {at(request.return_at)}
-              </dd>
-            </div>
-            <div>
-              <dt>{text("Ngày tạo")}</dt>
-              <dd>{at(request.created_at)}</dd>
-            </div>
-            <div>
-              <dt>{text("Ghi chú chung")}</dt>
-              <dd>{request.note || text("Không có ghi chú")}</dd>
-            </div>
-            {request.late_approval_status !== "not_required" ? (
-              <div>
-                <dt>{text("Đăng ký trễ")}</dt>
-                <dd>
-                  {text(
-                    request.late_approval_status === "pending"
-                      ? "Chờ duyệt đăng ký trễ"
-                      : request.late_approval_status === "approved"
-                        ? "Đã duyệt đăng ký trễ"
-                        : "Đã từ chối đăng ký trễ",
-                  )}
-                  {request.late_registration_reason
-                    ? ` — ${request.late_registration_reason}`
-                    : ""}
-                </dd>
+              ))}
+            </ol>
+          )}
+        </header>
+
+        <div className="kho-record-grid">
+          <div className="kho-record-main">
+            <section className="kho-card" aria-labelledby="req-items">
+              <div className="kho-card-head">
+                <h3 id="req-items">{text("Thiết bị của phiếu")}</h3>
               </div>
-            ) : null}
-          </dl>
-          <div className="list-filters-actions">
-            {canManage && inventoryManaged && request.status === "new" ? (
-              <Link
-                className="button button-secondary"
-                href={`/equipment/preparation/${requestId}`}
-              >
-                {text("Chuẩn bị thiết bị")}
-              </Link>
-            ) : null}
-            {inventoryManaged && (canManage || canSign) ? (
-              <Link
-                className="button button-primary"
-                href={`/equipment/fulfillment/${requestId}`}
-              >
-                {canManage
-                  ? text("Bàn giao, thu hồi và ký xác nhận")
-                  : text("Xem và ký xác nhận bàn giao/thu hồi")}
-              </Link>
-            ) : null}
-            {canManage ? (
-              <Link className="button button-secondary" href={listHref}>
-                {text("Đổi trạng thái / duyệt trễ / hủy")}
-              </Link>
-            ) : null}
-            <a
-              className="button button-secondary"
-              href={`/api/equipment-requests/${requestId}/handover`}
+              <RequestItemsTable headers={itemHeaders} rows={itemRows} />
+            </section>
+
+            <section
+              className="kho-card kho-card-pad"
+              aria-labelledby="req-info"
             >
-              {text("Xuất phiếu PDF")}
-            </a>
-          </div>
-        </section>
-      ) : null}
-
-      {tab === "content" ? (
-        <div className="data-panel">
-          <div className="responsive-table">
-            <table className="data-table records-on-phone">
-              <thead>
-                <tr>
-                  <th>{text("Thiết bị")}</th>
-                  {fulfillment ? null : <th>{text("Kỹ năng")}</th>}
-                  <th>{text("Đăng ký")}</th>
-                  {fulfillment ? (
-                    <>
-                      <th>{text("Đã giao")}</th>
-                      <th>{text("Đã trả")}</th>
-                      <th>{text("Còn phải trả")}</th>
-                    </>
-                  ) : null}
-                </tr>
-              </thead>
-              <tbody>
-                {fulfillment
-                  ? fulfillment.lines.map((line) => {
-                      const slices = fulfillment.issues.filter(
-                        (issue) => issue.request_line_id === line.id,
-                      );
-                      return (
-                        <tr key={line.id}>
-                          <td data-label={text("Thiết bị")}>{line.name}</td>
-                          <td data-label={text("Đăng ký")}>
-                            {formatDisplayQuantity(line.registered_quantity)}{" "}
-                            {line.unit}
-                          </td>
-                          <td data-label={text("Đã giao")}>
-                            {formatDisplayQuantity(
-                              sum(slices.map((slice) => slice.issued)),
-                            )}
-                          </td>
-                          <td data-label={text("Đã trả")}>
-                            {formatDisplayQuantity(
-                              sum(slices.map((slice) => slice.returned)),
-                            )}
-                          </td>
-                          <td data-label={text("Còn phải trả")}>
-                            {formatDisplayQuantity(
-                              sum(slices.map((slice) => slice.due)),
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  : request.equipment_request_items.map((item) => {
-                      const catalog =
-                        item.equipment_catalog ??
-                        item.basic_medical_equipment_catalog;
-                      return (
-                        <tr key={item.id}>
-                          <td data-label={text("Thiết bị")}>
-                            <span className="cell-stack">
-                              <strong>{catalog?.item_name ?? "—"}</strong>
-                              {catalog?.commercial_name ? (
-                                <small>{catalog.commercial_name}</small>
-                              ) : null}
-                            </span>
-                          </td>
-                          <td data-label={text("Kỹ năng")}>
-                            {item.skill_name || "—"}
-                          </td>
-                          <td data-label={text("Đăng ký")}>
-                            {item.quantity} {catalog?.unit ?? ""}
-                          </td>
-                        </tr>
-                      );
-                    })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
-
-      {tab === "files" ? (
-        <section className="data-panel" aria-label={text("Đính kèm")}>
-          <dl className="detail-list">
-            <div>
-              <dt>{text("Biên bản bàn giao")}</dt>
-              <dd>
-                <a href={`/api/equipment-requests/${requestId}/handover`}>
-                  {text("Xuất phiếu PDF")}
-                </a>
-              </dd>
-            </div>
-            {request.handover_file_url ? (
-              <div>
-                <dt>{text("File đính kèm")}</dt>
-                <dd>
-                  <a href={request.handover_file_url}>{text("Mở file")}</a>
-                </dd>
+              <div className="kho-card-head">
+                <h3 id="req-info">{text("Thông tin")}</h3>
               </div>
-            ) : null}
-            {fulfillment ? (
-              signedEvents.length ? (
-                signedEvents.map((event) => (
-                  <div key={event.id}>
-                    <dt>
-                      {text(
-                        fulfillmentLabels[
-                          event.operation as FulfillmentOperation
-                        ] ?? event.operation,
-                      )}
-                    </dt>
+              <dl className="kho-facts">
+                <div>
+                  <dt>{text("Mã phiếu")}</dt>
+                  <dd className="mono">{code}</dd>
+                </div>
+                <div>
+                  <dt>{text("Lĩnh vực")}</dt>
+                  <dd>
+                    {request.request_domain === "basic_medical"
+                      ? text("Y cơ sở")
+                      : text("Skills lab")}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{text("Người đăng ký")}</dt>
+                  <dd>{request.profiles?.full_name ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt>{text("GV phụ trách")}</dt>
+                  <dd>{request.responsible?.full_name ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt>{text("Lớp / buổi")}</dt>
+                  <dd>
+                    {schedule
+                      ? `${schedule.course_code_snapshot} · ${schedule.course_name_snapshot} · ${date.format(new Date(`${schedule.schedule_date}T00:00:00+07:00`))} ${schedule.start_time.slice(0, 5)}–${schedule.end_time.slice(0, 5)}`
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{text("Phòng")}</dt>
+                  <dd>
+                    {room
+                      ? `${room.building_code}-${room.room_code}${room.room_name ? ` · ${room.room_name}` : ""}`
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{text("Nhận / trả")}</dt>
+                  <dd>
+                    {at(request.receive_at)} → {at(request.return_at)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{text("Ngày tạo")}</dt>
+                  <dd>{at(request.created_at)}</dd>
+                </div>
+                <div>
+                  <dt>{text("Ghi chú chung")}</dt>
+                  <dd>{request.note || text("Không có ghi chú")}</dd>
+                </div>
+                {request.late_approval_status !== "not_required" ? (
+                  <div>
+                    <dt>{text("Đăng ký trễ")}</dt>
                     <dd>
-                      {text("Đã ký {0}", [at(event.signature!.signed_at)])}
+                      {text(
+                        request.late_approval_status === "pending"
+                          ? "Chờ duyệt đăng ký trễ"
+                          : request.late_approval_status === "approved"
+                            ? "Đã duyệt đăng ký trễ"
+                            : "Đã từ chối đăng ký trễ",
+                      )}
+                      {request.late_registration_reason
+                        ? ` — ${request.late_registration_reason}`
+                        : ""}
                     </dd>
                   </div>
-                ))
-              ) : (
-                <div>
-                  <dt>{text("Chữ ký")}</dt>
-                  <dd>{text("Chưa có chữ ký xác nhận.")}</dd>
-                </div>
-              )
+                ) : null}
+                {request.handover_file_url ? (
+                  <div>
+                    <dt>{text("File đính kèm")}</dt>
+                    <dd>
+                      <a href={request.handover_file_url}>{text("Mở file")}</a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </section>
+          </div>
+
+          <aside className="kho-record-aside">
+            <nav className="kho-side-tabs" aria-label={text("Bảng bên")}>
+              <Link
+                href={base}
+                scroll={false}
+                aria-current={sideTab === "summary" ? "page" : undefined}
+              >
+                {text("Tóm tắt")}
+              </Link>
+              <Link
+                href={`${base}?side=history`}
+                scroll={false}
+                aria-current={sideTab === "history" ? "page" : undefined}
+              >
+                {text("Lịch sử")}
+              </Link>
+            </nav>
+            {sideTab === "history" ? (
+              <EquipmentRequestLifecycleHistory requestId={requestId} />
+            ) : events.length ? (
+              <ol className="kho-timeline">
+                {events.map((event) => (
+                  <li key={event.id}>
+                    <strong>{operationLabel(event.operation)}</strong>
+                    <span>{at(event.occurred_at)}</span>
+                    {event.signature ? (
+                      <span className="badge" data-tone="success">
+                        {text("Đã ký")}
+                      </span>
+                    ) : event.signature_required ? (
+                      <span className="badge" data-tone="warning">
+                        {text("Chờ ký")}
+                      </span>
+                    ) : null}
+                    {event.reason ? <small>{event.reason}</small> : null}
+                  </li>
+                ))}
+              </ol>
             ) : (
-              <>
-                <div>
-                  <dt>{text("Ký nhận giao")}</dt>
-                  <dd>{at(request.handover_recipient_signed_at)}</dd>
-                </div>
-                <div>
-                  <dt>{text("Ký nhận trả")}</dt>
-                  <dd>{at(request.return_recipient_signed_at)}</dd>
-                </div>
-              </>
+              <p className="panel-empty">
+                {text("Chưa có lần bàn giao / thu hồi nào.")}
+              </p>
             )}
-          </dl>
-        </section>
-      ) : null}
-
-      {tab === "related" ? (
-        <section className="data-panel" aria-label={text("Liên quan")}>
-          <dl className="detail-list">
-            <div>
-              <dt>{text("Buổi học")}</dt>
-              <dd>
-                {schedule
-                  ? `${schedule.course_code_snapshot} · ${date.format(new Date(`${schedule.schedule_date}T00:00:00+07:00`))} · ${text("{0} sinh viên", [schedule.student_count])}`
-                  : "—"}
-              </dd>
-            </div>
-          </dl>
-          {events.length ? (
-            <div className="responsive-table">
-              <table className="data-table records-on-phone">
-                <thead>
-                  <tr>
-                    <th>{text("Nghiệp vụ")}</th>
-                    <th>{text("Thời điểm")}</th>
-                    <th>{text("Ký xác nhận")}</th>
-                    <th>{text("Lý do")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((event) => (
-                    <tr key={event.id}>
-                      <td data-label={text("Nghiệp vụ")}>
-                        {text(
-                          fulfillmentLabels[
-                            event.operation as FulfillmentOperation
-                          ] ?? event.operation,
-                        )}
-                      </td>
-                      <td data-label={text("Thời điểm")}>
-                        {at(event.occurred_at)}
-                      </td>
-                      <td data-label={text("Ký xác nhận")}>
-                        {event.signature ? (
-                          <span className="badge" data-tone="success">
-                            {text("Đã ký")}
-                          </span>
-                        ) : event.signature_required ? (
-                          <span className="badge" data-tone="warning">
-                            {text("Chờ ký")}
-                          </span>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td data-label={text("Lý do")}>{event.reason || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="panel-empty">
-              {text("Chưa có lần bàn giao / thu hồi nào.")}
-            </p>
-          )}
-        </section>
-      ) : null}
-
-      {tab === "history" ? (
-        <EquipmentRequestLifecycleHistory requestId={requestId} />
-      ) : null}
+          </aside>
+        </div>
+      </div>
     </WorkspaceShell>
   );
 }
