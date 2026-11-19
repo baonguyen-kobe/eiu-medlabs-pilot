@@ -12725,6 +12725,7 @@ tr[data-open] > :is(th, td) {
   .data-table.records-on-phone .personnel-name {
     min-width: 0;
   }
+}
 /* Sidebar: collapsible groups and work count */
 .nav-group-toggle {
   width: calc(100% - 24px);
