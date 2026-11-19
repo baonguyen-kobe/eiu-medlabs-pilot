@@ -687,14 +687,22 @@ test("Basic Medical registrations and sessions use shared master-grid anchors", 
       if (!viewport) {
         throw new Error("Basic Medical responsive table viewport is missing");
       }
+      const table = viewport.querySelector<HTMLElement>("table");
+      const firstCell = table?.querySelector<HTMLElement>("tbody td[data-label]");
       return {
+        // UI Master 0A.4: at 920 px and below rows are labelled records,
+        // no field hidden and no sideways scroll (review 2026-11-19).
         localScroll: viewport.scrollWidth > viewport.clientWidth,
-        overflowX: getComputedStyle(viewport).overflowX,
+        records: Boolean(table?.classList.contains("records-on-phone")),
+        label: firstCell
+          ? getComputedStyle(firstCell, "::before").content
+          : "none",
         pageOverflow: document.documentElement.scrollWidth > window.innerWidth,
       };
     });
-    expect(mobileGeometry.localScroll).toBe(true);
-    expect(mobileGeometry.overflowX).toBe("auto");
+    expect(mobileGeometry.localScroll).toBe(false);
+    expect(mobileGeometry.records).toBe(true);
+    expect(mobileGeometry.label).not.toBe("none");
     expect(mobileGeometry.pageOverflow).toBe(false);
   } finally {
     localSql(`
