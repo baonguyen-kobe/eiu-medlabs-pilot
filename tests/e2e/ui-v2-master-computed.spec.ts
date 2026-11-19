@@ -688,7 +688,9 @@ test("Basic Medical registrations and sessions use shared master-grid anchors", 
         throw new Error("Basic Medical responsive table viewport is missing");
       }
       const table = viewport.querySelector<HTMLElement>("table");
-      const firstCell = table?.querySelector<HTMLElement>("tbody td[data-label]");
+      const firstCell = table?.querySelector<HTMLElement>(
+        "tbody td[data-label]",
+      );
       return {
         // UI Master 0A.4: at 920 px and below rows are labelled records,
         // no field hidden and no sideways scroll (review 2026-11-19).
