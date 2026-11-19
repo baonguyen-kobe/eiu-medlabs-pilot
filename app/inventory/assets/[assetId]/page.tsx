@@ -2,6 +2,7 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { assetRead } from "@/lib/inventory/asset-client";
+import { isUuid } from "@/lib/inventory/client";
 import { generateAssetQrSvg } from "@/lib/inventory/asset-qr";
 import { AssetDetailView } from "@/components/inventory/assets/asset-detail-view";
 import type {
@@ -20,6 +21,7 @@ export default async function AssetDetailPage({
 }) {
   const viewer = await requireInventoryViewer();
   const { assetId } = await params;
+  if (!isUuid(assetId)) notFound();
   const sp = await searchParams;
 
   const historyPage = Math.max(1, parseInt(sp.page || "1", 10) || 1);

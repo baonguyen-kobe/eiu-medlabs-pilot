@@ -967,7 +967,7 @@ function CorrectReceiptDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="correct-receipt-dialog-title"
@@ -1404,7 +1404,7 @@ function ReverseReceiptDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="reverse-receipt-dialog-title"
@@ -1655,7 +1655,7 @@ function CorrectOpeningDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="correct-opening-dialog-title"
@@ -2076,7 +2076,7 @@ function VerifyExpiryDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="verify-expiry-dialog-title"

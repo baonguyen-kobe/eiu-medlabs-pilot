@@ -1,6 +1,6 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { ReceiveForm } from "@/components/inventory/receive-form";
 import { AssetReceiveForm } from "@/components/inventory/assets/asset-receive-form";
 import {
@@ -20,7 +20,10 @@ export default async function ReceivePage({
 }) {
   await requireInventoryViewer();
   const resolvedParams = searchParams ? await searchParams : {};
-  const preselectedSourceId = resolvedParams.sourceId;
+  // A malformed link falls back to the source list instead of an error page.
+  const preselectedSourceId = isUuid(resolvedParams.sourceId)
+    ? resolvedParams.sourceId
+    : undefined;
   const kind = intakeKind(resolvedParams.kind);
 
   if (kind === "asset") {

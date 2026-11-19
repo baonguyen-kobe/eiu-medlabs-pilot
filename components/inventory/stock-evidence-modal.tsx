@@ -112,7 +112,7 @@ function StockEvidenceModalContent({
       role="dialog"
       aria-modal="true"
       aria-labelledby="stock-evidence-title"
-      className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
     >
       <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
         {/* Header */}
