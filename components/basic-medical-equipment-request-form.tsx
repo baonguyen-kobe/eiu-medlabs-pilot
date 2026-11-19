@@ -655,7 +655,7 @@ export function BasicMedicalEquipmentRequestForm({
           <LocalizedText text={state.message ?? ""} />
         </p>
       ) : null}
-      <footer>
+      <footer className="form-submit-bar">
         <a
           className="button button-secondary"
           href="/basic-medical/equipment-requests"
@@ -678,6 +678,11 @@ export function BasicMedicalEquipmentRequestForm({
                   : uiText("Gửi đăng ký")}
         </button>
       </footer>
+      <p className="form-submit-hint">
+        {uiText(
+          "Sau khi gửi, theo dõi và ký xác nhận khi nhận thiết bị tại Phiếu thiết bị của tôi.",
+        )}
+      </p>
     </form>
   );
 }

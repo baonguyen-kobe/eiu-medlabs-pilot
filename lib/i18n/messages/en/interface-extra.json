@@ -1519,5 +1519,8 @@
   "Không có thiết bị phù hợp.": "No matching equipment.",
   "Đổi trạng thái / hủy trên danh sách": "Change status / cancel on the list",
   "Lĩnh vực": "Area",
-  "Kỹ năng": "Skill"
+  "Kỹ năng": "Skill",
+  "Chọn lớp để xem thông tin buổi học.": "Choose a class to see its session details.",
+  "Sau khi gửi, theo dõi và ký xác nhận khi nhận thiết bị tại Phiếu thiết bị của tôi.": "After submitting, track the request and sign to confirm receipt under My equipment requests.",
+  "thí nghiệm – thực hành": "experiment – practice"
 }

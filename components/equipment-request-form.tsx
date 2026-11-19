@@ -339,13 +339,13 @@ export function EquipmentRequestForm({
     [skills],
   );
 
-  function buildSkillTables() {
+  function buildSkillTables(count = skillCount) {
     setSkills((current) => {
-      if (current.length === skillCount) return current;
-      if (current.length > skillCount) return current.slice(0, skillCount);
+      if (current.length === count) return current;
+      if (current.length > count) return current.slice(0, count);
       return [
         ...current,
-        ...Array.from({ length: skillCount - current.length }, createSkill),
+        ...Array.from({ length: count - current.length }, createSkill),
       ];
     });
     setClientError("");
@@ -600,62 +600,53 @@ export function EquipmentRequestForm({
             </Link>
           )}
         </div>
-        <div className="form-grid three">
-          <label>
-            {uiText("Ngày học")}
-            <input
-              value={selectedClass?.date.split("-").reverse().join("/") ?? ""}
-              readOnly
-            />
-          </label>
-          <label>
-            {uiText("Giờ học")}
-            <input
-              value={
-                selectedClass
-                  ? `${selectedClass.start}–${selectedClass.end}`
-                  : ""
-              }
-              readOnly
-            />
-          </label>
-          <label>
-            {uiText("Học kỳ")}
-            <input
-              value={
-                selectedClass?.semester ||
-                (initialData?.mode === "edit" && initialData.classId === classId
-                  ? initialData.semester
-                  : "")
-              }
-              readOnly
-              placeholder={uiText("Chưa có học kỳ")}
-            />
-          </label>
-          <label>
-            {uiText("Mã môn học")}
-            <input value={selectedClass?.courseCode ?? ""} readOnly />
-          </label>
-          <label>
-            {uiText("Tên môn học")}
-            <input value={selectedClass?.courseName ?? ""} readOnly />
-          </label>
-          <label>
-            {uiText("Số lượng sinh viên")}
-            <input value={selectedClass?.studentCount ?? ""} readOnly />
-          </label>
-          <label>
-            {uiText("Loại lab")}
-            <input
-              value={selectedClass ? uiText("Kỹ năng Điều dưỡng") : ""}
-              readOnly
-            />
-          </label>
-          <label>
-            {uiText("Phòng/Lab")}
-            <input value={selectedClass?.room ?? ""} readOnly />
-          </label>
-        </div>
+        {selectedClass ? (
+          <dl className="class-facts">
+            <div>
+              <dt>{uiText("Ngày học")}</dt>
+              <dd>{selectedClass.date.split("-").reverse().join("/")}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Giờ học")}</dt>
+              <dd>{`${selectedClass.start}–${selectedClass.end}`}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Học kỳ")}</dt>
+              <dd>
+                {selectedClass.semester ||
+                  (initialData?.mode === "edit" &&
+                  initialData.classId === classId
+                    ? initialData.semester
+                    : "") ||
+                  uiText("Chưa có học kỳ")}
+              </dd>
+            </div>
+            <div>
+              <dt>{uiText("Mã môn học")}</dt>
+              <dd>{selectedClass.courseCode}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Tên môn học")}</dt>
+              <dd>{selectedClass.courseName}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Số lượng sinh viên")}</dt>
+              <dd>{selectedClass.studentCount}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Loại lab")}</dt>
+              <dd>{uiText("Kỹ năng Điều dưỡng")}</dd>
+            </div>
+            <div>
+              <dt>{uiText("Phòng/Lab")}</dt>
+              <dd>{selectedClass.room}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="panel-empty">
+            {uiText("Chọn lớp để xem thông tin buổi học.")}
+          </p>
+        )}
       </section>
 
       <section>
@@ -838,7 +829,11 @@ export function EquipmentRequestForm({
             <select
               value={skillCount}
               disabled={isEditMode}
-              onChange={(event) => setSkillCount(Number(event.target.value))}
+              onChange={(event) => {
+                const count = Number(event.target.value);
+                setSkillCount(count);
+                buildSkillTables(count);
+              }}
             >
               {[1, 2, 3, 4, 5].map((count) => (
                 <option key={count} value={count}>
@@ -850,7 +845,7 @@ export function EquipmentRequestForm({
           <button
             type="button"
             className="button button-secondary"
-            onClick={buildSkillTables}
+            onClick={() => buildSkillTables()}
             disabled={isEditMode}
           >
             {uiText("+ Tạo bảng thiết bị")}
@@ -1047,7 +1042,7 @@ export function EquipmentRequestForm({
           />
         </label>
       </section>
-      <footer>
+      <footer className="form-submit-bar">
         <Link className="button button-secondary" href="/class-schedules">
           {uiText("Hủy")}
         </Link>
@@ -1067,6 +1062,11 @@ export function EquipmentRequestForm({
                   : uiText("Gửi đăng ký")}
         </button>
       </footer>
+      <p className="form-submit-hint">
+        {uiText(
+          "Sau khi gửi, theo dõi và ký xác nhận khi nhận thiết bị tại Phiếu thiết bị của tôi.",
+        )}
+      </p>
     </form>
   );
 }

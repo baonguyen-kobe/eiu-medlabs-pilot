@@ -13174,3 +13174,73 @@ a.kpi-card {
   color: var(--eiu-blue);
   font-weight: 700;
 }
+
+/* C6: register form - class facts, sticky submit bar, compact tools row */
+.class-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px 18px;
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--surface-soft);
+  border-radius: 10px;
+}
+
+.class-facts dt {
+  color: var(--ink-500);
+  font-size: 11px;
+}
+
+.class-facts dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.schedule-form footer.form-submit-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  border-top: 1px solid var(--line);
+}
+
+.form-submit-hint {
+  margin: 0;
+  padding: 8px 28px 16px;
+  color: var(--ink-500);
+  font-size: 12px;
+  text-align: right;
+}
+
+.session-count-field input {
+  width: 110px;
+}
+
+.equipment-registration-tools {
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.equipment-registration-tools-heading strong {
+  font-size: 13px;
+}
+
+.equipment-registration-mode > summary.equipment-mode-edit,
+.equipment-registration-mode > summary.equipment-mode-copy {
+  min-height: 34px;
+  color: var(--ink-700, var(--eiu-blue));
+  background: #fff;
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.equipment-registration-mode > summary.equipment-mode-edit:hover,
+.equipment-registration-mode[open] > summary.equipment-mode-edit,
+.equipment-registration-mode > summary.equipment-mode-copy:hover,
+.equipment-registration-mode[open] > summary.equipment-mode-copy {
+  color: var(--eiu-blue);
+  background: #e5edf5;
+  border-color: var(--eiu-blue);
+}
