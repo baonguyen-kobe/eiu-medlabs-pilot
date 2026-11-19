@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, {
   useEffect,
   useMemo,
@@ -993,6 +994,10 @@ export function ReceiveForm({
           aria-modal="true"
           aria-labelledby="receive-confirmation-dialog-title"
         >
+          <DialogKeyboard
+            onClose={() => setConfirmOpen(false)}
+            pending={isPending}
+          />
           <div
             ref={modalRef}
             className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-[var(--line)] overflow-hidden flex flex-col max-h-[85vh]"

@@ -26,6 +26,25 @@ test("a return row rejects values that are not exact quantities", () => {
   }
 });
 
+test("each line returns to its own issue location unless one is picked", () => {
+  const entries = { b: { good: "1", damaged: "" } };
+  const issueLocation = { a: "kho-a", b: "kho-b" };
+  const own = returnEntryLines(entries, (id) => issueLocation[id]);
+  assert.deepEqual(
+    own.map((line) => line.location_id),
+    ["kho-b"],
+  );
+  const picked = "kho-a";
+  const override = returnEntryLines(
+    { a: { good: "1", damaged: "" }, ...entries },
+    (id) => picked || issueLocation[id],
+  );
+  assert.deepEqual(
+    override.map((line) => line.location_id),
+    ["kho-a", "kho-a"],
+  );
+});
+
 test("each condition with a quantity becomes one line; blanks and zero do not", () => {
   assert.deepEqual(
     returnEntryLines(
@@ -34,7 +53,7 @@ test("each condition with a quantity becomes one line; blanks and zero do not", 
         b: { good: "", damaged: "0" },
         c: { good: "0.000000", damaged: "2" },
       },
-      "location",
+      () => "location",
     ),
     [
       {

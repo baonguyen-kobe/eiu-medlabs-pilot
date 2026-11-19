@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, {
   useEffect,
   useMemo,
@@ -307,9 +308,10 @@ export function TransactionDetailView({
                   Record<string, unknown> | undefined;
 
                 return (
-                  <div
+                  <details
                     key={orig.origin_id}
                     id={`cohort-section-${orig.origin_id}`}
+                    open={origins.length <= 3 || isSelected}
                     tabIndex={-1}
                     className={`bg-white rounded-xl border overflow-hidden shadow-xs transition-all dark:bg-slate-900 ${
                       isSelected
@@ -317,7 +319,7 @@ export function TransactionDetailView({
                         : "border-slate-200 dark:border-slate-800"
                     }`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-100 bg-slate-50/60 text-xs dark:border-slate-800 dark:bg-slate-800/40">
+                    <summary className="cursor-pointer list-none flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-100 bg-slate-50/60 text-xs dark:border-slate-800 dark:bg-slate-800/40">
                       <div className="flex items-center gap-2">
                         <div>
                           <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono mr-2">
@@ -376,7 +378,7 @@ export function TransactionDetailView({
                           {uiText("Xác minh hạn dùng (Admin O14)")}
                         </button>
                       ) : null}
-                    </div>
+                    </summary>
 
                     {/* Side-by-side grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-xs dark:divide-slate-800">
@@ -665,7 +667,7 @@ export function TransactionDetailView({
                         </div>
                       </div>
                     ) : null}
-                  </div>
+                  </details>
                 );
               })}
             </div>
@@ -972,6 +974,7 @@ function CorrectReceiptDialog({
       aria-modal="true"
       aria-labelledby="correct-receipt-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -1409,6 +1412,7 @@ function ReverseReceiptDialog({
       aria-modal="true"
       aria-labelledby="reverse-receipt-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -1660,6 +1664,7 @@ function CorrectOpeningDialog({
       aria-modal="true"
       aria-labelledby="correct-opening-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3
@@ -2081,6 +2086,7 @@ function VerifyExpiryDialog({
       aria-modal="true"
       aria-labelledby="verify-expiry-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
           <h3

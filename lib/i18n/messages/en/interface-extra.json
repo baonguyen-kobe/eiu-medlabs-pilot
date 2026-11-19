@@ -817,6 +817,8 @@
   "Không tải được trang này": "This page could not be loaded",
   "Không còn hàng cần nhận.": "Nothing is left to receive.",
   "Nơi nhận": "Received at",
+  "Kho đã xuất của từng dòng": "Each line's issue location",
+  "Mặc định mỗi dòng trả về kho đã xuất của dòng đó; chọn một kho để áp cho mọi dòng.": "By default each line returns to the location it was issued from; pick one to apply it to every line.",
   "Hàng": "Item",
   "Đã nhận": "Received",
   "Còn trả": "Still due",
@@ -1440,5 +1442,9 @@
   "HSD": "Exp.",
   "Không có nguồn nào còn tồn cho thiết bị này. Nhận kho hoặc kiểm tra mapping Inventory, rồi bấm lại.": "No location holds available stock for this item. Receive stock or check the inventory mapping, then try again.",
   "Vị trí này không được xuất hàng (vị trí thuộc phòng hoặc đã ngừng). Chọn lại nguồn từ danh sách.": "This location cannot issue stock (a room location or inactive). Pick a source from the list again.",
-  "Xem tiến độ": "View progress"
+  "Xem tiến độ": "View progress",
+  "Phòng chưa có vị trí kho": "Room has no stock location",
+  "Vật tư kho đã ngừng": "Inventory item is inactive",
+  "Vật tư cần hạn dùng: nhập qua Tồn đầu kỳ": "Item needs an expiry date: enter it through Opening stock",
+  "Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử.": "No test recipient is configured (EMAIL_TEST_RECIPIENT); test mode cannot be turned on."
 }

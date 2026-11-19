@@ -1,6 +1,6 @@
 begin;
 
-select plan(11);
+select plan(13);
 
 -- t4r3 B/C: an Admin moves a Basic Medical room row into the shared ledger,
 -- and a lecturer's newly damaged count then posts good -> damaged there.
@@ -76,6 +76,26 @@ select throws_ok($$update public.basic_medical_room_inventory set good_quantity 
   '42501', 'BASIC_MEDICAL_ROOM_INVENTORY_CUT_OVER', 'a moved row cannot be edited by hand');
 
 select set_config('role', 'authenticated', true);
+select set_config('request.jwt.claim.sub', '99100000-0000-4000-8000-000000000001', true);
+select set_config('request.jwt.claims', json_build_object('sub', '99100000-0000-4000-8000-000000000001', 'role', 'authenticated')::text, true);
+-- Kho finds one more damaged item before the session is signed (review 2026-11-19).
+select lives_ok($$select public.inventory_command('change_stock_condition', jsonb_build_object(
+  'location_id', (select loc.id from public.inventory_storage_locations loc
+    join public.basic_medical_room_inventory inv on inv.room_id = loc.room_id and loc.is_room_root
+    where inv.id = '99100000-0000-4000-8000-000000000020'),
+  'reason', 'Kho phát hiện thêm một món hư',
+  'lines', jsonb_build_array(jsonb_build_object(
+    'origin_id', c.origin_id, 'expected_version', f.version, 'expected_stock_revision', c.revision,
+    'from_condition', 'good', 'to_condition', 'damaged', 'quantity', '1'))), gen_random_uuid())
+  from public.inventory_receipt_cohorts c
+  join public.inventory_stock_origins o on o.id = c.origin_id
+  join public.inventory_stock_facts f on f.id = c.current_fact_id
+  where o.catalog_item_id = '99100000-0000-4000-8000-000000000061'$$,
+  'Kho moves one moved item from good to damaged');
+select is((select row(good_quantity, damaged_quantity, total_quantity)::text from public.basic_medical_room_inventory where id = '99100000-0000-4000-8000-000000000020'),
+  '(7,3,10)', 'the room row follows the ledger right away, before any session is signed');
+
+select set_config('role', 'authenticated', true);
 select set_config('request.jwt.claim.sub', '99100000-0000-4000-8000-000000000002', true);
 select set_config('request.jwt.claims', json_build_object('sub', '99100000-0000-4000-8000-000000000002', 'role', 'authenticated')::text, true);
 select throws_like($$select public.inventory_command('change_stock_condition',
@@ -88,16 +108,16 @@ select lives_ok(format(
   jsonb_build_array(jsonb_build_object(
     'inventory_id', '99100000-0000-4000-8000-000000000020', 'newly_damaged_quantity', 3,
     'expected_catalog_item_id', '99100000-0000-4000-8000-000000000010',
-    'expected_total_quantity', 10, 'expected_good_quantity', 8, 'expected_damaged_quantity', 2,
+    'expected_total_quantity', 10, 'expected_good_quantity', 7, 'expected_damaged_quantity', 3,
     'expected_item_name', 'Cutover stethoscope', 'expected_commercial_name', 'Cutover stetho',
     'expected_unit', 'piece'))::text),
-  'the lecturer confirms the session with 3 newly damaged');
+  'the lecturer confirms against the counts the sign screen showed (7 good, 3 damaged)');
 
 select set_config('role', 'postgres', true);
 select is((select row(good, damaged)::text from private.basic_medical_ledger_counts('99100000-0000-4000-8000-000000000020')),
-  '(5,5)', 'the damage moved 3 from good to damaged in the ledger');
+  '(4,6)', 'the damage moved 3 from good to damaged in the ledger');
 select is((select row(good_quantity, damaged_quantity, total_quantity)::text from public.basic_medical_room_inventory where id = '99100000-0000-4000-8000-000000000020'),
-  '(5,5,10)', 'the room row mirrors the ledger');
+  '(4,6,10)', 'the room row mirrors the ledger');
 select ok(exists(select 1 from public.inventory_transactions
   where operation = 'CONDITION_CHANGE' and actor_id = '99100000-0000-4000-8000-000000000002'),
   'the condition change is recorded as the lecturer');

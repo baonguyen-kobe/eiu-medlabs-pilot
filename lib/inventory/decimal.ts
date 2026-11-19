@@ -432,7 +432,7 @@ export function returnEntryError(
 /** Turns table cells into the event lines the fulfillment command expects. */
 export function returnEntryLines(
   entries: Record<string, ReturnEntry>,
-  locationId: string,
+  locationFor: (issueSliceId: string) => string,
 ) {
   return Object.entries(entries).flatMap(([issueSliceId, entry]) =>
     conditions
@@ -440,7 +440,7 @@ export function returnEntryLines(
       .map((condition) => ({
         issue_slice_id: issueSliceId,
         quantity: entry[condition],
-        location_id: locationId,
+        location_id: locationFor(issueSliceId),
         condition,
       })),
   );

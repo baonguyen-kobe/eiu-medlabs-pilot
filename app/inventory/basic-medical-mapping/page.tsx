@@ -161,7 +161,14 @@ export default async function BasicMedicalMappingPage() {
                     <td className="num" data-label={text("Sẽ ghi vào kho")}>
                       {row.blocker ? (
                         <span className="badge" data-tone="warning">
-                          {text("Chưa ghép")}
+                          {text(
+                            {
+                              NO_ROOM_LOCATION: "Phòng chưa có vị trí kho",
+                              ITEM_INACTIVE: "Vật tư kho đã ngừng",
+                              EXPIRY_REQUIRED:
+                                "Vật tư cần hạn dùng: nhập qua Tồn đầu kỳ",
+                            }[row.blocker] ?? "Chưa ghép",
+                          )}
                         </span>
                       ) : (
                         `${formatDisplayQuantity(row.base_good!)} / ${formatDisplayQuantity(row.base_damaged!)} ${row.base_uom_code}`

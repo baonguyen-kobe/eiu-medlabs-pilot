@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, {
   useCallback,
   useEffect,
@@ -677,7 +678,6 @@ export function StocktakeReconcileForm({
           </button>
         </div>
       ) : null}
-
       {/* Stale warning banner */}
       {staleErrorDetected ? (
         <div
@@ -709,7 +709,6 @@ export function StocktakeReconcileForm({
           </button>
         </div>
       ) : null}
-
       {validationError ? (
         <div
           role="alert"
@@ -727,7 +726,6 @@ export function StocktakeReconcileForm({
           </button>
         </div>
       ) : null}
-
       {/* Educational notice card */}
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-blue-950 text-xs space-y-1.5">
         <div className="font-bold flex items-center gap-1.5">
@@ -761,124 +759,126 @@ export function StocktakeReconcileForm({
           {uiText(" giải tỏa.")}
         </p>
       </div>
-
       {/* Header controls card */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-          <ClipboardList className="text-purple-600" size={18} />
-          <span>{uiText("Thông tin Phiên Kiểm kê Thực tế")}</span>
-        </h2>
+      <div className="kho-card">
+        <div className="kho-card-head">
+          <h3 className="flex items-center gap-2">
+            {" "}
+            <ClipboardList className="text-purple-600" size={18} />{" "}
+            <span>{uiText("Thông tin Phiên Kiểm kê Thực tế")}</span>{" "}
+          </h3>
+        </div>
+        <div className="kho-card-body space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 pt-2 min-w-0">
+            {/* Stocktake Reference */}
+            <div className="min-w-0">
+              <label
+                htmlFor="stocktake-ref"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Mã đợt kiểm kê (Reference) *")}
+              </label>
+              <input
+                id="stocktake-ref"
+                type="text"
+                value={stocktakeReference}
+                onChange={(e) => setStocktakeReference(e.target.value)}
+                placeholder={uiText("VD: STK-20261003-001...")}
+                className="w-full text-xs font-mono py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white uppercase font-bold"
+                required
+              />
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 pt-2 min-w-0">
-          {/* Stocktake Reference */}
-          <div className="min-w-0">
-            <label
-              htmlFor="stocktake-ref"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              {uiText("Mã đợt kiểm kê (Reference) *")}
-            </label>
-            <input
-              id="stocktake-ref"
-              type="text"
-              value={stocktakeReference}
-              onChange={(e) => setStocktakeReference(e.target.value)}
-              placeholder={uiText("VD: STK-20261003-001...")}
-              className="w-full text-xs font-mono py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white uppercase font-bold"
-              required
-            />
+            {/* Location lookup */}
+            <div className="min-w-0">
+              <InventoryLookup<InventoryStorageLocation>
+                resource="locations"
+                filters={{ active: true }}
+                value={locationId}
+                label={uiText("Vị trí kho kiểm kê *")}
+                id="stocktake-location"
+                placeholder={uiText("Chọn kho kiểm kê...")}
+                onSelect={(loc) => handleLocationChange(loc.id)}
+              />
+            </div>
+
+            {/* Count Timestamp */}
+            <div className="min-w-0">
+              <label
+                htmlFor="stocktake-timestamp"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Thời điểm kiểm đếm *")}
+              </label>
+              <input
+                id="stocktake-timestamp"
+                type="datetime-local"
+                value={countTimestamp}
+                onChange={(e) => setCountTimestamp(e.target.value)}
+                className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+              />
+            </div>
+
+            {/* Reason */}
+            <div>
+              <label
+                htmlFor="stocktake-reason"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Lý do kiểm kê *")}
+              </label>
+              <input
+                id="stocktake-reason"
+                type="text"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={uiText(
+                  "VD: Kiểm kê định kỳ quý 4, kiểm kê bất xuất...",
+                )}
+                className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+              />
+            </div>
+
+            {/* Evidence note */}
+            <div>
+              <label
+                htmlFor="stocktake-evidence"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Chứng từ / Biên bản kiểm kê *")}
+              </label>
+              <input
+                id="stocktake-evidence"
+                type="text"
+                value={evidenceNote}
+                onChange={(e) => setEvidenceNote(e.target.value)}
+                placeholder={uiText("VD: Biên bản kiểm kê số 09/BB-KK/2026...")}
+                className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+              />
+            </div>
           </div>
 
-          {/* Location lookup */}
-          <div className="min-w-0">
-            <InventoryLookup<InventoryStorageLocation>
-              resource="locations"
-              filters={{ active: true }}
-              value={locationId}
-              label={uiText("Vị trí kho kiểm kê *")}
-              id="stocktake-location"
-              placeholder={uiText("Chọn kho kiểm kê...")}
-              onSelect={(loc) => handleLocationChange(loc.id)}
-            />
-          </div>
-
-          {/* Count Timestamp */}
-          <div className="min-w-0">
-            <label
-              htmlFor="stocktake-timestamp"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              {uiText("Thời điểm kiểm đếm *")}
-            </label>
-            <input
-              id="stocktake-timestamp"
-              type="datetime-local"
-              value={countTimestamp}
-              onChange={(e) => setCountTimestamp(e.target.value)}
-              className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-            />
-          </div>
-
-          {/* Reason */}
+          {/* Scope description */}
           <div>
             <label
-              htmlFor="stocktake-reason"
+              htmlFor="stocktake-scope"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              {uiText("Lý do kiểm kê *")}
+              {uiText("Phạm vi kiểm kê / Ghi chú bổ sung")}
             </label>
             <input
-              id="stocktake-reason"
+              id="stocktake-scope"
               type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              value={scopeDescription}
+              onChange={(e) => setScopeDescription(e.target.value)}
               placeholder={uiText(
-                "VD: Kiểm kê định kỳ quý 4, kiểm kê bất xuất...",
+                "VD: Toàn bộ tủ hóa chất A1-A3, các kệ lưu mẫu phòng thí nghiệm...",
               )}
               className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
             />
           </div>
-
-          {/* Evidence note */}
-          <div>
-            <label
-              htmlFor="stocktake-evidence"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              {uiText("Chứng từ / Biên bản kiểm kê *")}
-            </label>
-            <input
-              id="stocktake-evidence"
-              type="text"
-              value={evidenceNote}
-              onChange={(e) => setEvidenceNote(e.target.value)}
-              placeholder={uiText("VD: Biên bản kiểm kê số 09/BB-KK/2026...")}
-              className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-            />
-          </div>
-        </div>
-
-        {/* Scope description */}
-        <div>
-          <label
-            htmlFor="stocktake-scope"
-            className="block text-xs font-semibold text-slate-700 mb-1"
-          >
-            {uiText("Phạm vi kiểm kê / Ghi chú bổ sung")}
-          </label>
-          <input
-            id="stocktake-scope"
-            type="text"
-            value={scopeDescription}
-            onChange={(e) => setScopeDescription(e.target.value)}
-            placeholder={uiText(
-              "VD: Toàn bộ tủ hóa chất A1-A3, các kệ lưu mẫu phòng thí nghiệm...",
-            )}
-            className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-          />
-        </div>
-      </div>
-
+        </div>{" "}
+      </div>{" "}
       {/* Section A: Count existing cohorts at location with search & pagination */}
       {locationId ? (
         <StocktakeCountTable
@@ -896,7 +896,6 @@ export function StocktakeReconcileForm({
           onRecount={handleRecount}
         />
       ) : null}
-
       {/* Section B: Unprovenanced Surplus Lines (STOCKTAKE_SURPLUS) */}
       <StocktakeSurplusSection
         surplusLines={surplusLines}
@@ -905,9 +904,8 @@ export function StocktakeReconcileForm({
         onRemoveSurplusLine={handleRemoveSurplusLine}
         onUpdateSurplusLine={handleUpdateSurplusLine}
       />
-
       {/* Final submit summary bar */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+      <div className="kho-card kho-card-pad flex items-center justify-between">
         <span className="text-xs text-slate-600">
           {uiText("Tổng cộng đã chọn ghi sổ: ")}
           <strong>{activeCountCount}</strong>
@@ -932,10 +930,17 @@ export function StocktakeReconcileForm({
             : uiText("Xác nhận & Ghi sổ Kiểm kê →")}
         </button>
       </div>
-
       {/* Confirmation Modal */}
       {confirmOpen ? (
-        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <DialogKeyboard
+            onClose={() => setConfirmOpen(false)}
+            pending={isPending}
+          />
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ClipboardList className="text-purple-600" size={18} />

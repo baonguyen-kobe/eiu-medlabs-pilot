@@ -195,6 +195,12 @@ select lives_ok($$select pg_temp.s4r_confirm('asset-owner',pg_temp.s4r_plan('ass
 select is((select rs.asset_id from public.inventory_reservations rs join public.equipment_preparations p on p.id=rs.preparation_id where p.request_id=pg_temp.s4r_request('asset-owner') and rs.released_at is null),(select (value->>'id')::uuid from s4r_context where key='asset'),'reservation belongs to the exact selected asset');
 select pg_temp.s4r_command('asset-competitor','start',jsonb_build_object('lock_token',pg_temp.s4r_id(90)));
 select throws_ok($$select pg_temp.s4r_confirm('asset-competitor',pg_temp.s4r_plan('asset-competitor','1',jsonb_build_array(pg_temp.s4r_alloc('asset-map',41,'1',jsonb_build_array((select value->>'id' from s4r_context where key='asset'))))))$$,'23505',null,'another request cannot double-book the same asset');
+select ok(not exists(select 1 from jsonb_array_elements(public.equipment_preparation_read(pg_temp.s4r_request('asset-competitor'),'stock',
+ jsonb_build_object('catalog_item_id',pg_temp.s4r_id(21),'page',1))->'rows') x where x->>'location_id'=pg_temp.s4r_id(41)::text),
+ 'a location whose only asset is held by another request is not offered as a source');
+select is((select x->>'available_quantity' from jsonb_array_elements(public.equipment_preparation_read(pg_temp.s4r_request('asset-owner'),'stock',
+ jsonb_build_object('catalog_item_id',pg_temp.s4r_id(21),'page',1))->'rows') x where x->>'location_id'=pg_temp.s4r_id(41)::text),
+ '1','the holder still sees its own reserved asset as a source');
 select is(pg_temp.s4r_reserved('asset-competitor'),0::numeric,'double-booking failure leaves competitor unreserved');
 select lives_ok($$select public.equipment_asset_command('correct_asset',jsonb_build_object('id',(select value->>'id' from s4r_context where key='asset'),'expected_revision',2,
  'corrects_event_id',(select value->>'event_id' from s4r_context where key='asset'),'manufacturer',null,'model',null,'manufacturer_serial',null,

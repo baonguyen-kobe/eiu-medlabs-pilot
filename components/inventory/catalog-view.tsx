@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import { uomLabel } from "@/lib/inventory/decimal";
 import React, { useCallback, useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -654,6 +655,7 @@ function CreateItemDialog({
       aria-modal="true"
       aria-labelledby="create-item-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -941,6 +943,7 @@ function EditItemDialog({
       aria-modal="true"
       aria-labelledby="edit-item-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -1186,6 +1189,7 @@ function CategoryManagerDialog({
       aria-modal="true"
       aria-labelledby="category-manager-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -1615,6 +1619,7 @@ function UomManagerDialog({
       aria-modal="true"
       aria-labelledby="uom-manager-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3

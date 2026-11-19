@@ -1,5 +1,6 @@
 "use client";
 
+import { DialogKeyboard } from "@/components/dialog-keyboard";
 import React, { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -765,6 +766,7 @@ function CreateSourceDialog({
       aria-modal="true"
       aria-labelledby="create-source-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -1027,6 +1029,7 @@ function EditSourceDialog({
       aria-modal="true"
       aria-labelledby="edit-source-dialog-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -1317,6 +1320,7 @@ function CreateSourceLineDialog({
       aria-modal="true"
       aria-labelledby="create-source-line-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3
@@ -1744,6 +1748,7 @@ function EditSourceLineDialog({
       aria-modal="true"
       aria-labelledby="edit-source-line-title"
     >
+      <DialogKeyboard onClose={onClose} pending={isPending} />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <h3

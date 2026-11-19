@@ -185,7 +185,7 @@ test("Basic Medical Lecturer Edit: UI component implements inline lecturer edit 
   // In read mode, lecturer cell renders resolved display name as text
   assert.match(
     listSource,
-    /if \(!isEditing\) \{\s*const displayName =[\s\S]*return <td>\{displayName\}<\/td>;\s*\}/,
+    /if \(!isEditing\) \{\s*const displayName =[\s\S]*return \(?\s*<td[^>]*>\s*\{displayName\}\s*<\/td>\s*\)?;\s*\}/,
     "Lecturer cell renders resolved display name in read mode",
   );
   assert.doesNotMatch(
@@ -214,7 +214,7 @@ test("Basic Medical Lecturer Edit: UI component implements inline lecturer edit 
   // Sửa button is positioned in the final action area (basic-medical-session-action-stack)
   assert.match(
     listSource,
-    /<td className="basic-medical-session-action-cell">\s*<div className="basic-medical-session-action-stack">[\s\S]*<SessionStatus[\s\S]*\{canEditLecturer \? \(/,
+    /<td[^>]*className="basic-medical-session-action-cell"[^>]*>\s*<div className="basic-medical-session-action-stack">[\s\S]*<SessionStatus[\s\S]*\{canEditLecturer \? \(/,
     "Sửa button is placed in the final Trạng thái / Thao tác action stack",
   );
 
