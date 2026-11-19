@@ -325,7 +325,7 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
   );
   await expect(
     requestPanel.getByRole("button", {
-      name: "Hoàn Thành",
+      name: "Hoàn thành",
       exact: true,
     }),
   ).toBeDisabled();

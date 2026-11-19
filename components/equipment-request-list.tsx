@@ -885,6 +885,9 @@ export function EquipmentRequestList({
     request: EquipmentRequestListItem;
     phase: "handover" | "return";
   } | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
+  const [rejectNote, setRejectNote] = useState("");
+  const [chip, setChip] = useState<"all" | "sign" | "borrowing">("all");
   const [isPending, startTransition] = useTransition();
   // Only an Admin may move a request back (t2b).
   const canRollBack = viewerRoles.includes("admin");
@@ -906,7 +909,22 @@ export function EquipmentRequestList({
     }
   }
 
-  const visibleItems = items.filter(({ id }) => !deletedIds.has(id));
+  const notDeletedItems = items.filter(({ id }) => !deletedIds.has(id));
+  const chipCounts = { all: notDeletedItems.length, sign: 0, borrowing: 0 };
+  for (const item of notDeletedItems) {
+    const derived = deriveRequest(item);
+    if (derived.needsMySignature) chipCounts.sign += 1;
+    if (derived.warehouseStatus === "handed_over") chipCounts.borrowing += 1;
+  }
+  const visibleItems =
+    chip === "all"
+      ? notDeletedItems
+      : notDeletedItems.filter((item) => {
+          const derived = deriveRequest(item);
+          return chip === "sign"
+            ? derived.needsMySignature
+            : derived.warehouseStatus === "handed_over";
+        });
 
   const selectedRequest = visibleItems.find(({ id }) => id === selectedId);
 
@@ -997,6 +1015,7 @@ export function EquipmentRequestList({
   function reviewLateRegistration(
     requestId: string,
     decision: Extract<EquipmentLateApprovalStatus, "approved" | "rejected">,
+    note = "",
   ) {
     if (
       !canManageStatus ||
@@ -1006,12 +1025,6 @@ export function EquipmentRequestList({
       )
     )
       return;
-    const note =
-      decision === "rejected"
-        ? window.prompt("Ghi chú lý do từ chối (không bắt buộc):", "")
-        : "";
-    if (note === null) return;
-
     setUpdatingId(requestId);
     setStatusNotice(null);
     startTransition(async () => {
@@ -1020,6 +1033,7 @@ export function EquipmentRequestList({
         decision,
         note,
       );
+      if (result.ok) setRejectTarget(null);
       if (result.ok && result.data) {
         setCurrentStatuses((current) => ({
           ...current,
@@ -1139,7 +1153,13 @@ export function EquipmentRequestList({
       (handoverSigned || warehouseHasReturned) &&
       !returnSigned &&
       !isCompleted;
+    const needsMySignature = inventoryManaged
+      ? canSignForRequest &&
+        !canManageRequest &&
+        ["handed_over", "returned"].includes(request.status)
+      : canSignHandover || canSignReturn;
     return {
+      needsMySignature,
       schedule,
       room,
       status,
@@ -1205,9 +1225,10 @@ export function EquipmentRequestList({
                     type="button"
                     className="button button-danger"
                     disabled={isPending && updatingId === request.id}
-                    onClick={() =>
-                      reviewLateRegistration(request.id, "rejected")
-                    }
+                    onClick={() => {
+                      setRejectNote("");
+                      setRejectTarget(request.id);
+                    }}
                   >
                     {uiText("Từ chối đăng ký trễ")}
                   </button>
@@ -1334,8 +1355,9 @@ export function EquipmentRequestList({
             <Link
               className="button button-primary"
               href={`/equipment/fulfillment/${request.id}`}
+              aria-label={uiText("Xem và ký xác nhận bàn giao/thu hồi")}
             >
-              {uiText("Xem và ký xác nhận bàn giao/thu hồi")}
+              {uiText("Ký xác nhận")}
             </Link>
           </div>
         ) : null}
@@ -1589,6 +1611,31 @@ export function EquipmentRequestList({
         </p>
       ) : null}
 
+      <div
+        className="equipment-request-chips"
+        role="group"
+        aria-label={uiText("Lọc phiếu")}
+      >
+        {(
+          [
+            ["all", "Tất cả"],
+            ["sign", "Cần ký"],
+            ["borrowing", "Đang mượn"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            type="button"
+            key={value}
+            className="equipment-request-chip"
+            aria-pressed={chip === value}
+            onClick={() => setChip(value)}
+          >
+            {uiText(label)} {chipCounts[value]}
+          </button>
+        ))}
+        <small>{uiText("Trên trang này")}</small>
+      </div>
+
       <section className="data-panel equipment-request-list-panel">
         <div
           className={`equipment-request-split${selectedRequest ? " has-panel" : ""}`}
@@ -1724,15 +1771,30 @@ export function EquipmentRequestList({
                               <StatusBadge status={warehouseStatus} />
                               {canManageRequest || canSignForRequest ? (
                                 <Link
-                                  className="text-link"
+                                  className={
+                                    !canManageRequest &&
+                                    ["handed_over", "returned"].includes(
+                                      request.status,
+                                    )
+                                      ? "button button-primary"
+                                      : "text-link"
+                                  }
                                   href={inventoryStepHref(request)}
+                                  aria-label={
+                                    !canManageRequest &&
+                                    ["handed_over", "returned"].includes(
+                                      request.status,
+                                    )
+                                      ? uiText("Xem và ký xác nhận")
+                                      : undefined
+                                  }
                                   onClick={(event) => event.stopPropagation()}
                                 >
                                   {!canManageRequest
                                     ? ["handed_over", "returned"].includes(
                                         request.status,
                                       )
-                                      ? uiText("Xem và ký xác nhận")
+                                      ? uiText("Ký xác nhận")
                                       : uiText("Xem tiến độ")
                                     : request.status === "new"
                                       ? uiText("Chuẩn bị thiết bị")
@@ -1908,6 +1970,33 @@ export function EquipmentRequestList({
           onConfirm={confirmSignature}
         />
       ) : null}
+      <ConfirmDialog
+        open={rejectTarget !== null}
+        title={uiText("Từ chối đăng ký trễ?")}
+        description={uiText(
+          "Người đăng ký sẽ thấy lý do này. Vui lòng nhập lý do từ chối.",
+        )}
+        confirmLabel={uiText("Từ chối đăng ký trễ")}
+        pending={isPending && updatingId === rejectTarget}
+        confirmDisabled={!rejectNote.trim()}
+        onConfirm={() => {
+          if (rejectTarget)
+            reviewLateRegistration(rejectTarget, "rejected", rejectNote.trim());
+        }}
+        onCancel={() => {
+          if (!isPending) setRejectTarget(null);
+        }}
+      >
+        <label className="field">
+          <span>{uiText("Lý do từ chối")}</span>
+          <textarea
+            rows={3}
+            required
+            value={rejectNote}
+            onChange={(event) => setRejectNote(event.target.value)}
+          />
+        </label>
+      </ConfirmDialog>
       <ConfirmDialog
         open={Boolean(requestToDelete)}
         title={
