@@ -352,7 +352,7 @@ export function CatalogBatchManager({
         onConfirm={remove}
       />
       <div
-        className="responsive-table"
+        className="responsive-table kho-list"
         role="region"
         aria-label={
           kind === "rooms"

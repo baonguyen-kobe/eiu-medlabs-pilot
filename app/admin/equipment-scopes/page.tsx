@@ -154,7 +154,7 @@ export default async function EquipmentScopesPage({
         <p className="panel-empty">{text("Không có thiết bị nào.")}</p>
       ) : (
         <div className="data-panel">
-          <div className="responsive-table">
+          <div className="responsive-table kho-list">
             <table className="data-table records-on-phone">
               <thead>
                 <tr>

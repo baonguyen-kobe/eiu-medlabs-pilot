@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LocalizedElement } from "@/components/i18n/localized-element";
 import { LocalizedText } from "@/components/i18n/language-provider";
+import { CatalogTabsScroll } from "@/components/catalog-tabs-scroll";
 
 type Scope = "admin" | "basicMedical" | "inventory";
 
@@ -41,6 +42,7 @@ export function CatalogTabs({
       className="catalog-tabs"
       aria-label="Danh mục"
     >
+      <CatalogTabsScroll />
       {visible.map(([href, label]) => (
         <Link
           aria-current={active === href ? "page" : undefined}
