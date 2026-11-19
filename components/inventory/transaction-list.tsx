@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { formatInventoryDateTime } from "@/lib/inventory/dates";
 import { OperationBadge } from "./status-badge";
+import { businessKeyTitle, describeBusinessKey } from "@/lib/inventory/labels";
 import { PaginationControls } from "@/components/pagination-controls";
 import { TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
@@ -180,8 +181,9 @@ export function TransactionList({
                         <Link
                           href={`/inventory/transactions/${tx.id}`}
                           onClick={(event) => event.stopPropagation()}
+                          title={businessKeyTitle(tx.business_key)}
                         >
-                          {tx.business_key}
+                          {text(describeBusinessKey(tx.business_key))}
                         </Link>
                         {tx.corrects_transaction_id ? (
                           <small>

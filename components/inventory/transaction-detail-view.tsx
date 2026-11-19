@@ -43,6 +43,12 @@ import type {
   StockCondition,
   TransactionDetailResult,
 } from "@/lib/inventory/types";
+import {
+  businessKeyTitle,
+  describeBusinessKey,
+  expiryPrecisionLabels,
+  labelOf,
+} from "@/lib/inventory/labels";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
@@ -122,7 +128,9 @@ export function TransactionDetailView({
               ← {uiText("Lịch sử giao dịch")}
             </Link>
             <OperationBadge operation={transaction.operation} />
-            <h2 className="mono">{transaction.business_key}</h2>
+            <h2 title={businessKeyTitle(transaction.business_key)}>
+              {uiText(describeBusinessKey(transaction.business_key))}
+            </h2>
             <span className="kho-record-sub">
               {transaction.actor_name || uiText("Hệ thống")} ·{" "}
               {formatInventoryDateTime(transaction.occurred_at)}
@@ -159,7 +167,7 @@ export function TransactionDetailView({
                 onClick={() => setCorrectOpeningOpen(true)}
               >
                 <Settings size={14} />
-                {uiText(" Điều chỉnh tồn đầu (Admin O10)")}
+                {uiText(" Điều chỉnh tồn đầu")}
               </button>
             ) : null}
 
@@ -287,14 +295,11 @@ export function TransactionDetailView({
           <div className="space-y-4">
             <div>
               <h3 className="kho-section-title">
-                {uiText(
-                  "Đối chiếu chứng từ nguồn gốc & Phiên bản (Origins & Evidence:",
-                )}{" "}
-                {origins.length})
+                {uiText("Nguồn gốc & chứng từ (")} {origins.length})
               </h3>
               <p className="kho-section-sub">
                 {uiText(
-                  "Bảo lưu nguyên vẹn bằng chứng mua sắm ban đầu (Fact v0) đối chiếu cùng sự thật hiệu chỉnh hiện thời (Current Fact)",
+                  "Số liệu ban đầu được giữ nguyên, đặt cạnh số liệu hiện tại sau các lần điều chỉnh",
                 )}
               </p>
             </div>
@@ -329,8 +334,8 @@ export function TransactionDetailView({
                             {orig.item_code} - {orig.item_name}
                           </strong>
                           <span className="text-slate-400 text-[11px] block mt-0.5 font-mono">
-                            {uiText("Origin ID: ")}
-                            {orig.origin_id}
+                            {uiText("Mã nguồn: ")}
+                            {orig.origin_id.slice(0, 8)}
                           </span>
                         </div>
 
@@ -375,7 +380,7 @@ export function TransactionDetailView({
                           }
                         >
                           <ShieldCheck size={14} className="text-amber-600" />
-                          {uiText("Xác minh hạn dùng (Admin O14)")}
+                          {uiText("Xác minh hạn dùng")}
                         </button>
                       ) : null}
                     </summary>
@@ -412,7 +417,9 @@ export function TransactionDetailView({
                             <span className="font-mono text-slate-800 dark:text-slate-200">
                               {orig.original_fact.conversion_factor
                                 ? uiText("×{0}", [
-                                    orig.original_fact.conversion_factor,
+                                    formatDisplayQuantity(
+                                      orig.original_fact.conversion_factor,
+                                    ),
                                   ])
                                 : "—"}
                             </span>
@@ -456,7 +463,13 @@ export function TransactionDetailView({
                             />
                             <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                               {orig.original_fact.expiry_input ?? "—"} (
-                              {orig.original_fact.expiry_precision})
+                              {uiText(
+                                labelOf(
+                                  expiryPrecisionLabels,
+                                  orig.original_fact.expiry_precision,
+                                ),
+                              )}
+                              )
                             </span>
                           </div>
                           <div>
@@ -581,7 +594,9 @@ export function TransactionDetailView({
                             <span className="font-mono text-slate-800 dark:text-slate-200">
                               {orig.current_fact.conversion_factor
                                 ? uiText("×{0}", [
-                                    orig.current_fact.conversion_factor,
+                                    formatDisplayQuantity(
+                                      orig.current_fact.conversion_factor,
+                                    ),
                                   ])
                                 : "—"}
                             </span>
@@ -625,7 +640,13 @@ export function TransactionDetailView({
                             />
                             <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                               {orig.current_fact.expiry_input ?? "—"} (
-                              {orig.current_fact.expiry_precision})
+                              {uiText(
+                                labelOf(
+                                  expiryPrecisionLabels,
+                                  orig.current_fact.expiry_precision,
+                                ),
+                              )}
+                              )
                             </span>
                           </div>
                           <div>
@@ -1240,7 +1261,7 @@ function CorrectReceiptDialog({
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
-                            {uiText("Trước điều chỉnh (Fact hiện thời):")}
+                            {uiText("Trước điều chỉnh (số liệu hiện tại):")}
                           </span>
                           <span className="font-mono text-slate-700 dark:text-slate-300">
                             {uiText("Cơ sở: ")}
@@ -1252,7 +1273,7 @@ function CorrectReceiptDialog({
                         </div>
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
-                            {uiText("Dự kiến sau điều chỉnh (Intended Fact):")}
+                            {uiText("Dự kiến sau điều chỉnh:")}
                           </span>
                           <span className="font-mono font-semibold text-indigo-900 dark:text-indigo-200">
                             {uiText("Cơ sở: ")}
@@ -1907,7 +1928,7 @@ function CorrectOpeningDialog({
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
-                            {uiText("Trước điều chỉnh (Fact hiện thời):")}
+                            {uiText("Trước điều chỉnh (số liệu hiện tại):")}
                           </span>
                           <span className="font-mono text-slate-700 dark:text-slate-300">
                             {uiText("Cơ sở: ")}
@@ -1919,7 +1940,7 @@ function CorrectOpeningDialog({
                         </div>
                         <div>
                           <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
-                            {uiText("Dự kiến sau điều chỉnh (Intended Fact):")}
+                            {uiText("Dự kiến sau điều chỉnh:")}
                           </span>
                           <span className="font-mono font-semibold text-indigo-900 dark:text-indigo-200">
                             {uiText("Cơ sở: ")}
