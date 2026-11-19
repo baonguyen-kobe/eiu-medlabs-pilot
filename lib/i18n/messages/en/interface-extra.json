@@ -1440,5 +1440,11 @@
   "HSD": "Exp.",
   "Không có nguồn nào còn tồn cho thiết bị này. Nhận kho hoặc kiểm tra mapping Inventory, rồi bấm lại.": "No location holds available stock for this item. Receive stock or check the inventory mapping, then try again.",
   "Vị trí này không được xuất hàng (vị trí thuộc phòng hoặc đã ngừng). Chọn lại nguồn từ danh sách.": "This location cannot issue stock (a room location or inactive). Pick a source from the list again.",
-  "Xem tiến độ": "View progress"
+  "Xem tiến độ": "View progress",
+  "Lịch": "Schedules",
+  "Lớp & đăng ký": "Classes & requests",
+  "Theo dõi phiếu": "Request tracking",
+  "Thiết lập": "Setup",
+  "Hướng dẫn sử dụng": "User guide",
+  "{0} phiếu đang mở": "{0} open requests"
 }

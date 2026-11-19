@@ -52,6 +52,7 @@ import {
   canViewBasicMedicalSchedules,
 } from "@/lib/workspace-access";
 import { useLanguage } from "@/components/i18n/language-provider";
+import { createClient } from "@/lib/supabase/client";
 
 const roleLabels: Record<AppRole, string> = {
   admin: "Quản trị viên",
@@ -69,10 +70,25 @@ const primaryRoleOrder: AppRole[] = [
   "viewer",
 ];
 const sidebarScrollStorageKey = "medlabs-sidebar-scroll:v1";
+const sidebarGroupsStorageKey = "medlabs-sidebar-groups:v1";
+const guideUrl = process.env.NEXT_PUBLIC_GUIDE_URL;
+const operationsHref = "/equipment/operations";
 
 function getPrimaryRoleLabel(roles: AppRole[]) {
   const primaryRole = primaryRoleOrder.find((role) => roles.includes(role));
   return primaryRole ? roleLabels[primaryRole] : "Người dùng";
+}
+
+function NavCount({ count }: { count: number }) {
+  const { text: uiText } = useLanguage();
+  return (
+    <span
+      className="nav-count"
+      aria-label={uiText("{0} phiếu đang mở", [count])}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
 }
 
 type NavItem = {
@@ -122,48 +138,98 @@ function buildNavigation(
     roomTypeCodes,
   );
   const groups: Array<{ label: string; items: NavItem[] }> = [];
+  const pushGroup = (label: string, items: NavItem[]) => {
+    if (items.length > 0) groups.push({ label, items });
+  };
+  const canBasicMedicalCatalog =
+    (isAdmin || isStaff) &&
+    canManageBasicMedicalWorkspace(roles, roomTypeCodes);
 
-  // Group 1 — Kỹ năng Điều dưỡng
+  // Group 1 — Lịch
+  const lichItems: NavItem[] = [];
   if (hasSkillsWorkspace) {
-    groups.push({
-      label: "Kỹ năng Điều dưỡng",
-      items: [
-        {
-          label: "Tổng quan Skills lab",
-          href: "/dashboard",
-          icon: LayoutDashboard,
-          activeIcon: LayoutDashboardSolid,
-        },
-        {
-          label: "Lịch Skills lab",
-          href: "/class-schedules",
-          icon: CalendarDays,
-          activeIcon: CalendarDaysSolid,
-        },
-      ],
+    lichItems.push(
+      {
+        label: "Tổng quan Skills lab",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        activeIcon: LayoutDashboardSolid,
+      },
+      {
+        label: "Lịch Skills lab",
+        href: "/class-schedules",
+        icon: CalendarDays,
+        activeIcon: CalendarDaysSolid,
+      },
+    );
+  }
+  if (canShowBasicMedical) {
+    lichItems.push({
+      label: "Lịch Y cơ sở",
+      href: "/basic-medical/schedules",
+      icon: CalendarDays,
+      activeIcon: CalendarDaysSolid,
     });
   }
+  if (canUseEquipmentManagement && canManageSkillsEquipment) {
+    lichItems.push({
+      label: "Lịch trực",
+      href: "/staff-shifts",
+      icon: PackageCheck,
+      activeIcon: PackageCheckSolid,
+    });
+  }
+  pushGroup("Lịch", lichItems);
 
-  // Group 2 — Tạo phiếu
-  const taoPhieuItems: NavItem[] = [];
+  // Group 2 — Lớp & đăng ký
+  const lopItems: NavItem[] = [];
   if (canCreateSkills) {
-    taoPhieuItems.push({
+    lopItems.push({
       label: "Tạo lịch Skills lab",
       href: "/schedule-entry/new",
       icon: Plus,
       activeIcon: PlusSolid,
     });
   }
+  if (
+    canShowBasicMedical &&
+    canCreateBasicMedicalSchedules(
+      roles,
+      roomTypeCodes,
+      allowBasicMedicalAccess,
+    )
+  ) {
+    lopItems.push({
+      label: "Tạo lịch Y cơ sở",
+      href: "/basic-medical/new",
+      icon: Plus,
+      activeIcon: PlusSolid,
+    });
+  }
   if (canUseSkillsEquipment) {
-    taoPhieuItems.push({
+    lopItems.push({
       label: "Đăng ký thiết bị",
       href: "/equipment/register",
       icon: ClipboardList,
       activeIcon: ClipboardListSolid,
     });
   }
+  // One shared registration screen (t4e); dual-scope users switch there.
+  if (
+    canShowBasicMedical &&
+    canUseBasicMedicalEquipment &&
+    !canUseSkillsEquipment
+  ) {
+    lopItems.push({
+      label: "Đăng ký thiết bị",
+      href: "/equipment/register?scope=basic_medical",
+      icon: ClipboardList,
+      activeIcon: ClipboardListSolid,
+      activeHrefs: ["/equipment/register", "/basic-medical/equipment-requests"],
+    });
+  }
   if (importsEnabled() && canCreateSkills && canImport) {
-    taoPhieuItems.push({
+    lopItems.push({
       label: "Import lịch Skills lab",
       href: "/schedule-entry/import",
       icon: Import,
@@ -175,29 +241,32 @@ function buildNavigation(
     canCreateSkills &&
     (isAdmin || isStaff || canImport)
   ) {
-    taoPhieuItems.push({
+    lopItems.push({
       label: "Import dữ liệu",
       href: "/imports",
       icon: FileClock,
       activeIcon: FileClockSolid,
     });
   }
-  if (taoPhieuItems.length > 0) {
-    groups.push({
-      label: "Tạo phiếu",
-      items: taoPhieuItems,
+  if (
+    canShowBasicMedical &&
+    importsEnabled() &&
+    canImportBasicMedicalSchedules(roles, roomTypeCodes, canImportSchedules)
+  ) {
+    lopItems.push({
+      label: "Import lịch Y cơ sở",
+      href: "/basic-medical/import",
+      icon: Import,
+      activeIcon: ImportSolid,
     });
   }
-
-  // Group 3 — Quản lý lớp
-  const quanLyLopItems: NavItem[] = [];
   if (
     hasSkillsScope &&
     roles.some((role) =>
       ["admin", "staff", "lecturer", "teaching_assistant"].includes(role),
     )
   ) {
-    quanLyLopItems.push({
+    lopItems.push({
       label: "Lớp đang mở",
       href: "/classes/open",
       icon: GraduationCap,
@@ -205,7 +274,7 @@ function buildNavigation(
     });
   }
   if (hasSkillsScope && roles.includes("lecturer")) {
-    quanLyLopItems.push({
+    lopItems.push({
       label: "Lớp của tôi",
       href: "/classes/mine",
       icon: ClipboardList,
@@ -213,219 +282,113 @@ function buildNavigation(
     });
   }
   if (hasSkillsScope && !isViewer) {
-    quanLyLopItems.push({
+    lopItems.push({
       label: "Phiếu thiết bị của tôi",
       href: "/equipment/mine",
       icon: FileClock,
       activeIcon: FileClockSolid,
     });
   }
-  if (quanLyLopItems.length > 0) {
-    groups.push({
-      label: "Quản lý lớp",
-      items: quanLyLopItems,
-    });
-  }
+  pushGroup("Lớp & đăng ký", lopItems);
 
-  // Group 4 — Quản lý phòng
-  const quanLyPhongItems: NavItem[] = [];
+  // Group 3 — Theo dõi phiếu
+  const theoDoiItems: NavItem[] = [];
   if (canUseEquipmentManagement) {
-    if (canManageSkillsEquipment) {
-      quanLyPhongItems.push({
-        label: "Lịch trực",
-        href: "/staff-shifts",
-        icon: PackageCheck,
-        activeIcon: PackageCheckSolid,
-      });
-    }
-    quanLyPhongItems.push({
+    theoDoiItems.push({
       label: "Phiếu thiết bị",
       href: "/equipment/requests",
       icon: FileClock,
       activeIcon: FileClockSolid,
     });
-    // "Import Phiếu thiết bị" is hidden (owner decision, 2026-11-17): the
-    // inventory line guard rejects finished requests, so the import cannot
-    // succeed. Its page redirects until the feature is reopened.
-    if (canManageSkillsEquipment && canManageEmailNotifications) {
-      quanLyPhongItems.push({
-        label: "Email thông báo",
-        href: "/email-notifications",
-        icon: FileClock,
-        activeIcon: FileClockSolid,
-      });
-    }
   }
-  if (quanLyPhongItems.length > 0) {
-    groups.push({
-      label: "Quản lý phòng",
-      items: quanLyPhongItems,
-    });
-  }
-
-  // Group 5 — Y cơ sở
+  // "Import Phiếu thiết bị" is hidden (owner decision, 2026-11-17): the
+  // inventory line guard rejects finished requests, so the import cannot
+  // succeed. Its page redirects until the feature is reopened.
   if (canShowBasicMedical) {
-    const yItems: NavItem[] = [
-      {
-        label: "Lịch Y cơ sở",
-        href: "/basic-medical/schedules",
-        icon: CalendarDays,
-        activeIcon: CalendarDaysSolid,
-      },
-    ];
-    if (
-      canCreateBasicMedicalSchedules(
-        roles,
-        roomTypeCodes,
-        allowBasicMedicalAccess,
-      )
-    ) {
-      yItems.push({
-        label: "Tạo lịch Y cơ sở",
-        href: "/basic-medical/new",
-        icon: Plus,
-        activeIcon: PlusSolid,
-      });
-    }
     if (canViewBasicMedicalRegistrations(roles, roomTypeCodes)) {
-      yItems.push({
+      theoDoiItems.push({
         label: "Phiếu Y cơ sở",
         href: "/basic-medical/registrations",
         icon: ClipboardList,
         activeIcon: ClipboardListSolid,
       });
     }
-    // One shared registration screen (t4e); dual-scope users switch there.
-    if (canUseBasicMedicalEquipment && !canUseSkillsEquipment) {
-      yItems.push({
-        label: "Đăng ký thiết bị",
-        href: "/equipment/register?scope=basic_medical",
-        icon: ClipboardList,
-        activeIcon: ClipboardListSolid,
-        activeHrefs: [
-          "/equipment/register",
-          "/basic-medical/equipment-requests",
-        ],
-      });
-    }
-    if (
-      importsEnabled() &&
-      canImportBasicMedicalSchedules(roles, roomTypeCodes, canImportSchedules)
-    ) {
-      yItems.push({
-        label: "Import lịch Y cơ sở",
-        href: "/basic-medical/import",
-        icon: Import,
-        activeIcon: ImportSolid,
-      });
-    }
-    if (
-      canViewBasicMedicalSchedules(roles, roomTypeCodes) &&
-      !canManageBasicMedicalWorkspace(roles, roomTypeCodes)
-    ) {
-      yItems.push({
+    if (!canManageBasicMedicalWorkspace(roles, roomTypeCodes)) {
+      theoDoiItems.push({
         label: "Thiết bị Y cơ sở",
         href: "/basic-medical/equipment?tab=rooms",
         icon: ClipboardList,
         activeIcon: ClipboardListSolid,
       });
     }
-    if (yItems.length > 0) {
-      groups.push({ label: "Y cơ sở", items: yItems });
-    }
   }
+  pushGroup("Theo dõi phiếu", theoDoiItems);
 
-  // Group 6 — Quản trị
-  const adminItems: NavItem[] = [];
-  if (isAdmin) {
-    if (canManagePersonnel) {
-      adminItems.push({
-        label: "Nhân sự",
-        href: "/admin/personnel",
-        icon: Users,
-        activeIcon: UsersSolid,
-      });
-    }
-  }
-  // One Danh mục entry (t4c); CatalogTabs on each catalog page shows the
-  // tabs this viewer may open.
-  const canBasicMedicalCatalog =
-    (isAdmin || isStaff) &&
-    canManageBasicMedicalWorkspace(roles, roomTypeCodes);
-  if (isAdmin || canBasicMedicalCatalog) {
-    adminItems.push({
-      label: "Danh mục",
-      href: isAdmin ? "/admin/equipment" : "/basic-medical/equipment",
-      icon: Settings,
-      activeIcon: SettingsSolid,
-      activeHrefs: [
-        "/admin/equipment",
-        "/admin/courses",
-        "/admin/rooms",
-        "/admin/equipment-scopes",
-        "/admin/audit",
-        "/basic-medical/equipment",
-      ],
-    });
-  }
-  if (adminItems.length > 0) {
-    groups.push({
-      label: "Quản trị",
-      items: adminItems,
-    });
-  }
-
-  // Group 7 — Kho, split into daily work and setup (approved menu tree).
+  // Group 4 + 5 — Kho: daily work, then setup (approved menu tree).
   if (isAdmin || isStaff) {
-    groups.push({
-      label: "Vận hành kho",
-      items: [
-        {
-          label: "Công việc & giao nhận",
-          href: "/equipment/operations",
-          icon: PackageCheck,
-          activeIcon: PackageCheckSolid,
-        },
-        {
-          label: "Tổng quan kho",
-          href: "/inventory",
-          icon: LayoutDashboard,
-          activeIcon: LayoutDashboardSolid,
-        },
-        {
-          label: "Tồn kho",
-          href: "/inventory/stock",
-          icon: PackageCheck,
-          activeIcon: PackageCheckSolid,
-        },
-        {
-          label: "Kho theo phòng",
-          href: "/inventory/rooms",
-          icon: DoorOpen,
-          activeIcon: DoorOpenSolid,
-        },
-        {
-          label: "Nhận kho",
-          href: "/inventory/receive",
-          icon: Plus,
-          activeIcon: PlusSolid,
-        },
-        {
-          label: "Nghiệp vụ kho",
-          href: "/inventory/operations",
-          icon: ClipboardList,
-          activeIcon: ClipboardListSolid,
-        },
-        {
-          label: "Lịch sử giao dịch",
-          href: "/inventory/transactions",
-          icon: FileClock,
-          activeIcon: FileClockSolid,
-        },
-      ],
-    });
+    pushGroup("Vận hành kho", [
+      {
+        label: "Công việc & giao nhận",
+        href: "/equipment/operations",
+        icon: PackageCheck,
+        activeIcon: PackageCheckSolid,
+      },
+      {
+        label: "Tồn kho",
+        href: "/inventory/stock",
+        icon: PackageCheck,
+        activeIcon: PackageCheckSolid,
+        // Exact match only, so /inventory/receive etc. do not light this up.
+        activeHrefs: ["/inventory/stock", "/inventory"],
+      },
+      {
+        label: "Kho theo phòng",
+        href: "/inventory/rooms",
+        icon: DoorOpen,
+        activeIcon: DoorOpenSolid,
+      },
+      {
+        label: "Nhận kho",
+        href: "/inventory/receive",
+        icon: Plus,
+        activeIcon: PlusSolid,
+      },
+      {
+        label: "Nghiệp vụ kho",
+        href: "/inventory/operations",
+        icon: ClipboardList,
+        activeIcon: ClipboardListSolid,
+      },
+      {
+        label: "Lịch sử giao dịch",
+        href: "/inventory/transactions",
+        icon: FileClock,
+        activeIcon: FileClockSolid,
+      },
+    ]);
 
-    const setupItems: NavItem[] = [
+    // One Danh mục entry (t4c); CatalogTabs on each catalog page shows the
+    // tabs this viewer may open.
+    const thietLapItems: NavItem[] = [
+      {
+        label: "Danh mục",
+        href: isAdmin
+          ? "/admin/equipment"
+          : canBasicMedicalCatalog
+            ? "/basic-medical/equipment"
+            : "/inventory/catalog",
+        icon: Settings,
+        activeIcon: SettingsSolid,
+        activeHrefs: [
+          "/admin/equipment",
+          "/admin/courses",
+          "/admin/rooms",
+          "/admin/equipment-scopes",
+          "/admin/audit",
+          "/basic-medical/equipment",
+          "/inventory/catalog",
+        ],
+      },
       {
         label: "Thiết bị cá thể",
         href: "/inventory/assets",
@@ -433,20 +396,26 @@ function buildNavigation(
         activeIcon: ClipboardListSolid,
       },
       {
-        label: "Vật tư & Danh mục",
-        href: "/inventory/catalog",
-        icon: Settings,
-        activeIcon: SettingsSolid,
-      },
-      {
         label: "Hồ sơ nguồn",
         href: "/inventory/acquisitions",
         icon: ClipboardList,
         activeIcon: ClipboardListSolid,
       },
+      {
+        label: "Nhà cung cấp",
+        href: "/inventory/suppliers",
+        icon: Users,
+        activeIcon: UsersSolid,
+      },
+      {
+        label: "Vị trí kho",
+        href: "/inventory/locations",
+        icon: Settings,
+        activeIcon: SettingsSolid,
+      },
     ];
     if (isAdmin) {
-      setupItems.push(
+      thietLapItems.push(
         {
           label: "Tồn đầu kỳ",
           href: "/inventory/opening",
@@ -461,22 +430,32 @@ function buildNavigation(
         },
       );
     }
-    setupItems.push(
-      {
-        label: "Nhà cung cấp",
-        href: "/inventory/suppliers",
-        icon: Users,
-        activeIcon: UsersSolid,
-      },
-      {
-        label: "Vị trí kho",
-        href: "/inventory/locations",
-        icon: Settings,
-        activeIcon: SettingsSolid,
-      },
-    );
-    groups.push({ label: "Thiết lập kho", items: setupItems });
+    pushGroup("Thiết lập", thietLapItems);
   }
+
+  // Group 6 — Quản trị
+  const adminItems: NavItem[] = [];
+  if (isAdmin && canManagePersonnel) {
+    adminItems.push({
+      label: "Nhân sự",
+      href: "/admin/personnel",
+      icon: Users,
+      activeIcon: UsersSolid,
+    });
+  }
+  if (
+    canUseEquipmentManagement &&
+    canManageSkillsEquipment &&
+    canManageEmailNotifications
+  ) {
+    adminItems.push({
+      label: "Email thông báo",
+      href: "/email-notifications",
+      icon: FileClock,
+      activeIcon: FileClockSolid,
+    });
+  }
+  pushGroup("Quản trị", adminItems);
 
   return groups;
 }
@@ -534,6 +513,11 @@ export function WorkspaceShell({
     canManagePersonnel,
     canManageEmailNotifications,
   );
+  const hasOperations = navigation.some((group) =>
+    group.items.some((item) => item.href === operationsHref),
+  );
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+  const [operationsCount, setOperationsCount] = useState(0);
   const primaryRoleLabel = getPrimaryRoleLabel(roles);
   const initials = getNameInitials(fullName);
 
@@ -549,6 +533,50 @@ export function WorkspaceShell({
       // Storage can be disabled in private browsing; navigation still works normally.
     }
   }, [pathname]);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(sidebarGroupsStorageKey) ?? "[]",
+      );
+      if (Array.isArray(stored)) {
+        // Read after mount so server and client markup match.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCollapsedGroups(stored.filter((x) => typeof x === "string"));
+      }
+    } catch {
+      // Storage unavailable or corrupt: every group stays open.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasOperations) return;
+    let cancelled = false;
+    createClient()
+      .rpc("equipment_operations_read", {
+        p_filters: { phase: "all", search: "", page: 1 },
+      })
+      .then(({ data, error }) => {
+        const total = (data as { total?: unknown } | null)?.total;
+        if (cancelled) return;
+        setOperationsCount(!error && typeof total === "number" ? total : 0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasOperations, pathname]);
+
+  function toggleGroup(label: string) {
+    const next = collapsedGroups.includes(label)
+      ? collapsedGroups.filter((x) => x !== label)
+      : [...collapsedGroups, label];
+    setCollapsedGroups(next);
+    try {
+      localStorage.setItem(sidebarGroupsStorageKey, JSON.stringify(next));
+    } catch {
+      // Ignore unavailable storage.
+    }
+  }
 
   function rememberSidebarScroll() {
     try {
@@ -650,27 +678,49 @@ export function WorkspaceShell({
                 item.roles.some((requiredRole) => roles.includes(requiredRole)),
             );
             if (!items.length) return null;
+            const isActive = (item: NavItem) =>
+              pathname === item.href ||
+              (item.href !== "/dashboard" &&
+                pathname.startsWith(`${item.href}/`)) ||
+              Boolean(
+                item.activeHrefs?.some((activeHref) => pathname === activeHref),
+              );
+            const expanded =
+              !collapsedGroups.includes(group.label) || items.some(isActive);
+            const groupCount = items.some(
+              (item) => item.href === operationsHref,
+            )
+              ? operationsCount
+              : 0;
+            const listId = `nav-group-${group.label.replace(/\W+/g, "-")}`;
             return (
               <div className="nav-group" key={group.label}>
-                <p className="nav-heading">{uiText(group.label)}</p>
-                {items.map(
-                  ({
-                    label,
-                    href,
-                    icon: OutlineIcon,
-                    activeIcon: SolidIcon,
-                    activeHrefs,
-                  }) => {
-                    const active =
-                      pathname === href ||
-                      (href !== "/dashboard" &&
-                        href !== "/inventory" &&
-                        pathname.startsWith(`${href}/`)) ||
-                      Boolean(
-                        activeHrefs?.some(
-                          (activeHref) => pathname === activeHref,
-                        ),
-                      );
+                <button
+                  aria-controls={listId}
+                  aria-expanded={expanded}
+                  className="nav-heading nav-group-toggle"
+                  onClick={() => toggleGroup(group.label)}
+                  type="button"
+                >
+                  <span>{uiText(group.label)}</span>
+                  {!expanded && groupCount > 0 ? (
+                    <NavCount count={groupCount} />
+                  ) : null}
+                  <ChevronRight
+                    aria-hidden="true"
+                    className="nav-group-chevron"
+                    size={14}
+                  />
+                </button>
+                <div hidden={!expanded} id={listId}>
+                  {items.map((item) => {
+                    const {
+                      label,
+                      href,
+                      icon: OutlineIcon,
+                      activeIcon: SolidIcon,
+                    } = item;
+                    const active = isActive(item);
                     return (
                       <Link
                         className={`nav-item ${active ? "active" : ""}`}
@@ -688,13 +738,26 @@ export function WorkspaceShell({
                           <OutlineIcon size={19} />
                         )}
                         <span>{uiText(label)}</span>
+                        {href === operationsHref && operationsCount > 0 ? (
+                          <NavCount count={operationsCount} />
+                        ) : null}
                       </Link>
                     );
-                  },
-                )}
+                  })}
+                </div>
               </div>
             );
           })}
+          {guideUrl ? (
+            <a
+              className="nav-item"
+              href={guideUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span>{uiText("Hướng dẫn sử dụng")}</span>
+            </a>
+          ) : null}
         </nav>
 
         <div className="workspace-account-menu" ref={accountMenuRef}>

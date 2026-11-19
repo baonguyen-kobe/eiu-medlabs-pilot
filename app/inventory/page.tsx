@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { LocalizedText } from "@/components/i18n/language-provider";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
@@ -66,6 +68,14 @@ export default async function InventoryOverviewPage() {
 
   return (
     <div className="space-y-6">
+      <nav className="segmented-control" aria-label="Kho">
+        <Link href="/inventory" className={"selected"} aria-current="page">
+          <LocalizedText text="Tổng quan" />
+        </Link>
+        <Link href="/inventory/stock" className={""} aria-current={undefined}>
+          <LocalizedText text="Tồn kho" />
+        </Link>
+      </nav>
       <OverviewView metrics={metrics} isAdmin={viewer.isAdmin} />
     </div>
   );
