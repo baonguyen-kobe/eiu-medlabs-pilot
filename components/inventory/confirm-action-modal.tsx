@@ -130,7 +130,7 @@ export function ConfirmActionModal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}

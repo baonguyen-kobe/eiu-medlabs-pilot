@@ -138,3 +138,8 @@ export async function inventoryCommand<T = Record<string, unknown>>(
     payload: res as T,
   };
 }
+
+/** Ids from links are checked before reaching an RPC that casts to uuid. */
+export function isUuid(value: string | null | undefined): value is string {
+  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value ?? "");
+}

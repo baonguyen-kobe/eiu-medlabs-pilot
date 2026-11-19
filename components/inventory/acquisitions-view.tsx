@@ -760,7 +760,7 @@ function CreateSourceDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-source-dialog-title"
@@ -1022,7 +1022,7 @@ function EditSourceDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-source-dialog-title"
@@ -1312,7 +1312,7 @@ function CreateSourceLineDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-source-line-title"
@@ -1739,7 +1739,7 @@ function EditSourceLineDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-source-line-title"

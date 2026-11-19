@@ -1,6 +1,6 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { AcquisitionsView } from "@/components/inventory/acquisitions-view";
 import type {
   AcquisitionRecord,
@@ -52,7 +52,8 @@ export default async function AcquisitionsPage({
   });
 
   // A record opens in a drawer only when the user picks it.
-  const selectedSourceId = params.sourceId?.trim() || null;
+  const rawSourceId = params.sourceId?.trim();
+  const selectedSourceId = isUuid(rawSourceId) ? rawSourceId : null;
 
   let selectedSource =
     sourcesRes.rows.find((s) => s.id === selectedSourceId) || null;
