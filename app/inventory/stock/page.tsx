@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { LocalizedText } from "@/components/i18n/language-provider";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { inventoryRead } from "@/lib/inventory/client";
@@ -121,31 +123,45 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     : null;
 
   return (
-    <StockView
-      balances={balancesRes.rows}
-      totalBalances={balancesRes.total}
-      currentPage={page}
-      pageSize={pageSize}
-      filters={{
-        q: query.q || "",
-        location_id: query.location_id || "",
-        condition: query.condition || "all",
-        expiry_state: expiryState || "all",
-        active: query.active || "all",
-        sort: query.sort || "",
-      }}
-      counts={{
-        all: allCount,
-        eligible: eligibleCount,
-        expired: expiredCount,
-        unknown: unknownCount,
-        damaged: damagedCount,
-      }}
-      selectedLocationLabel={selectedLocationLabel}
-      selectedDimensions={selectedDimensions}
-      cohorts={cohortsRes?.rows ?? []}
-      totalCohorts={cohortsRes?.total ?? 0}
-      cohortPage={normalizePage(query.cohort_page)}
-    />
+    <>
+      <nav className="segmented-control" aria-label="Kho">
+        <Link href="/inventory" className={""} aria-current={undefined}>
+          <LocalizedText text="Tổng quan" />
+        </Link>
+        <Link
+          href="/inventory/stock"
+          className={"selected"}
+          aria-current="page"
+        >
+          <LocalizedText text="Tồn kho" />
+        </Link>
+      </nav>
+      <StockView
+        balances={balancesRes.rows}
+        totalBalances={balancesRes.total}
+        currentPage={page}
+        pageSize={pageSize}
+        filters={{
+          q: query.q || "",
+          location_id: query.location_id || "",
+          condition: query.condition || "all",
+          expiry_state: expiryState || "all",
+          active: query.active || "all",
+          sort: query.sort || "",
+        }}
+        counts={{
+          all: allCount,
+          eligible: eligibleCount,
+          expired: expiredCount,
+          unknown: unknownCount,
+          damaged: damagedCount,
+        }}
+        selectedLocationLabel={selectedLocationLabel}
+        selectedDimensions={selectedDimensions}
+        cohorts={cohortsRes?.rows ?? []}
+        totalCohorts={cohortsRes?.total ?? 0}
+        cohortPage={normalizePage(query.cohort_page)}
+      />
+    </>
   );
 }

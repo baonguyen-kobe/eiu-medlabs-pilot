@@ -12725,4 +12725,45 @@ tr[data-open] > :is(th, td) {
   .data-table.records-on-phone .personnel-name {
     min-width: 0;
   }
+/* Sidebar: collapsible groups and work count */
+.nav-group-toggle {
+  width: calc(100% - 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-group-toggle > span:first-child {
+  flex: 1;
+}
+
+.nav-group-chevron {
+  flex: none;
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+
+.nav-group-toggle[aria-expanded="false"] .nav-group-chevron {
+  transform: rotate(0deg);
+}
+
+.nav-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--eiu-gold);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
