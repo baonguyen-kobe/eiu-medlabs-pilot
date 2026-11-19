@@ -257,7 +257,7 @@ function BasicMedicalConfirmationModal({
                 </button>
               </div>
               <div className="responsive-table">
-                <table className="data-table basic-medical-condition-table">
+                <table className="data-table basic-medical-condition-table records-on-phone">
                   <thead>
                     <tr>
                       <th>{uiText("STT")}</th>
@@ -275,18 +275,22 @@ function BasicMedicalConfirmationModal({
                       const isDamaged = damaged > 0;
                       return (
                         <tr key={inventory.id}>
-                          <td>{index + 1}</td>
-                          <td>
+                          <td data-label={uiText("STT")}>{index + 1}</td>
+                          <td data-label={uiText("Tên thiết bị và vật tư")}>
                             <strong>{inventory.catalog?.item_name}</strong>
                           </td>
-                          <td>{inventory.catalog?.commercial_name || "—"}</td>
-                          <td>{inventory.catalog?.unit || "—"}</td>
-                          <td>
+                          <td data-label={uiText("Tên thương mại")}>
+                            {inventory.catalog?.commercial_name || "—"}
+                          </td>
+                          <td data-label={uiText("ĐVT")}>
+                            {inventory.catalog?.unit || "—"}
+                          </td>
+                          <td data-label={uiText("Hiện có")}>
                             {inventory.good_quantity}
                             {uiText(" Tốt ·")} {inventory.damaged_quantity}
                             {uiText(" Hư")}
                           </td>
-                          <td>
+                          <td data-label={uiText("Tình trạng")}>
                             <label className="inline-choice">
                               <input
                                 type="radio"
@@ -316,7 +320,7 @@ function BasicMedicalConfirmationModal({
                               {uiText("Hư")}
                             </label>
                           </td>
-                          <td>
+                          <td data-label={uiText("Số lượng hư mới")}>
                             {isDamaged ? (
                               <input
                                 aria-label={uiText("Số lượng hư mới của {0}", [
@@ -624,11 +628,15 @@ function SessionLecturerCell({
       peopleById?.get(session.teaching_lecturer_id) ??
       session.teaching?.full_name ??
       "—";
-    return <td>{displayName}</td>;
+    return (
+      <td data-label={uiText("Giảng viên giảng dạy/hướng dẫn")}>
+        {displayName}
+      </td>
+    );
   }
 
   return (
-    <td>
+    <td data-label={uiText("Giảng viên giảng dạy/hướng dẫn")}>
       <div className="basic-medical-session-lecturer-cell">
         <select
           className="form-select basic-medical-lecturer-select"
@@ -937,7 +945,7 @@ export function BasicMedicalRegistrationList({
     <>
       <div className="equipment-request-list-panel data-panel basic-medical-registration-panel">
         <div className="responsive-table">
-          <table className="data-table equipment-request-table basic-medical-registration-table">
+          <table className="data-table equipment-request-table basic-medical-registration-table records-on-phone">
             <colgroup>
               <col className="basic-medical-registration-col-course" />
               <col className="basic-medical-registration-col-period" />
@@ -978,7 +986,7 @@ export function BasicMedicalRegistrationList({
                     className="equipment-request-table-row"
                     onClick={toggleRegistration}
                   >
-                    <td>
+                    <td data-label={uiText("Môn học")}>
                       <button
                         type="button"
                         className="equipment-request-course-button"
@@ -991,7 +999,10 @@ export function BasicMedicalRegistrationList({
                         <span>{registration.courses?.course_name}</span>
                       </button>
                     </td>
-                    <td className="equipment-request-date-cell">
+                    <td
+                      data-label={uiText("Thời gian đăng ký")}
+                      className="equipment-request-date-cell"
+                    >
                       <strong>
                         {formatDate(registration.start_date)}–
                         {formatDate(registration.end_date)}
@@ -1000,15 +1011,21 @@ export function BasicMedicalRegistrationList({
                         {registration.semester} · {registration.academic_year}
                       </span>
                     </td>
-                    <td className="equipment-request-room-cell">
+                    <td
+                      data-label={uiText("Phòng")}
+                      className="equipment-request-room-cell"
+                    >
                       <strong>
                         {registration.rooms?.room_code}.
                         {registration.rooms?.building_code}
                       </strong>
                       <span>{registration.rooms?.room_name || "—"}</span>
                     </td>
-                    <td>{sessions.length}</td>
-                    <td className="basic-medical-registration-status-cell">
+                    <td data-label={uiText("Số buổi")}>{sessions.length}</td>
+                    <td
+                      data-label={uiText("Trạng thái")}
+                      className="basic-medical-registration-status-cell"
+                    >
                       <div className="basic-medical-registration-status-control">
                         <span
                           className={`request-status request-status-${isCancelled ? "gray" : isCompleted ? "green" : "red"}`}
@@ -1039,7 +1056,7 @@ export function BasicMedicalRegistrationList({
                   </tr>
                   {isOpen ? (
                     <tr className="equipment-request-detail-row">
-                      <td colSpan={5}>
+                      <td colSpan={5} className="record-detail-cell">
                         <div className="equipment-request-details">
                           <div className="equipment-request-detail-grid basic-medical-registration-detail-grid">
                             <div className="basic-medical-registration-detail-code">
@@ -1160,7 +1177,7 @@ export function BasicMedicalRegistrationList({
                                 })}
                           </div>
                           <div className="responsive-table basic-medical-session-viewport">
-                            <table className="data-table basic-medical-session-table">
+                            <table className="data-table basic-medical-session-table records-on-phone">
                               <colgroup>
                                 <col className="basic-medical-session-col-index" />
                                 <col className="basic-medical-session-col-date" />
@@ -1217,14 +1234,16 @@ export function BasicMedicalRegistrationList({
 
                                   return (
                                     <tr key={session.id}>
-                                      <td>{session.session_number}</td>
-                                      <td>
+                                      <td data-label={uiText("#")}>
+                                        {session.session_number}
+                                      </td>
+                                      <td data-label={uiText("Ngày")}>
                                         {formatDate(
                                           session.class_schedules
                                             ?.schedule_date,
                                         )}
                                       </td>
-                                      <td>
+                                      <td data-label={uiText("Thời gian")}>
                                         {formatTime(
                                           session.class_schedules?.start_time,
                                         )}
@@ -1233,7 +1252,9 @@ export function BasicMedicalRegistrationList({
                                           session.class_schedules?.end_time,
                                         )}
                                       </td>
-                                      <td>{session.lesson_title}</td>
+                                      <td data-label={uiText("Tên bài TN-TH")}>
+                                        {session.lesson_title}
+                                      </td>
                                       <SessionLecturerCell
                                         session={session}
                                         instructors={instructors}
@@ -1243,7 +1264,12 @@ export function BasicMedicalRegistrationList({
                                         onLecturerChange={setSelectedLecturerId}
                                         isSaving={isSavingLecturer}
                                       />
-                                      <td className="basic-medical-session-action-cell">
+                                      <td
+                                        data-label={uiText(
+                                          "Trạng thái / Thao tác",
+                                        )}
+                                        className="basic-medical-session-action-cell"
+                                      >
                                         <div className="basic-medical-session-action-stack">
                                           <div className="basic-medical-session-status-row">
                                             <SessionStatus

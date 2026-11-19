@@ -494,7 +494,7 @@ export function PersonnelManagementList({
         >
           <h2>{uiText("Thao tác mật khẩu cần đối soát")}</h2>
           <div className="responsive-table">
-            <table className="data-table">
+            <table className="data-table records-on-phone">
               <thead>
                 <tr>
                   <th>{uiText("Mã thao tác")}</th>
@@ -508,19 +508,23 @@ export function PersonnelManagementList({
               <tbody>
                 {passwordReconciliationItems.map((operation) => (
                   <tr key={operation.id}>
-                    <td className="mono">
+                    <td data-label={uiText("Mã thao tác")} className="mono">
                       {operation.correlation_id.slice(0, 8)}
                     </td>
-                    <td>{operation.target?.full_name ?? uiText("Nhân sự")}</td>
-                    <td>{operation.action}</td>
-                    <td>{operation.status}</td>
-                    <td>
+                    <td data-label={uiText("Nhân sự")}>
+                      {operation.target?.full_name ?? uiText("Nhân sự")}
+                    </td>
+                    <td data-label={uiText("Loại")}>{operation.action}</td>
+                    <td data-label={uiText("Trạng thái")}>
+                      {operation.status}
+                    </td>
+                    <td data-label={uiText("Thời điểm")}>
                       {new Intl.DateTimeFormat("vi-VN", {
                         dateStyle: "short",
                         timeStyle: "short",
                       }).format(new Date(operation.created_at))}
                     </td>
-                    <td>
+                    <td data-label="">
                       <button
                         className="button button-secondary"
                         disabled={pending || reconcilingId === operation.id}
@@ -539,7 +543,7 @@ export function PersonnelManagementList({
         </section>
       ) : null}
       <div className="personnel-table-wrap">
-        <table className="personnel-table">
+        <table className="data-table personnel-table records-on-phone">
           <thead>
             <tr>
               <th>{uiText("Mã")}</th>
@@ -555,17 +559,19 @@ export function PersonnelManagementList({
           <tbody>
             {items.map((item) => (
               <tr key={item.id}>
-                <td className="personnel-code mono">
+                <td data-label={uiText("Mã")} className="personnel-code mono">
                   {getNameInitials(item.full_name)}
                 </td>
-                <td>
+                <td data-label={uiText("Họ và tên")}>
                   <span className="personnel-name">
                     <strong>{item.full_name}</strong>
                     {item.title ? <small>{item.title}</small> : null}
                   </span>
                 </td>
-                <td className="personnel-email">{item.email}</td>
-                <td>
+                <td data-label={uiText("Email")} className="personnel-email">
+                  {item.email}
+                </td>
+                <td data-label={uiText("Vai trò")}>
                   <span className="personnel-badges">
                     {item.roles.map((role) => (
                       <span className="role-chip selected" key={role}>
@@ -574,7 +580,7 @@ export function PersonnelManagementList({
                     ))}
                   </span>
                 </td>
-                <td>
+                <td data-label={uiText("Quyền bổ sung")}>
                   <span className="personnel-badges">
                     {item.is_root_administrator ? (
                       <span className="permission-badge">
@@ -599,7 +605,7 @@ export function PersonnelManagementList({
                       : null}
                   </span>
                 </td>
-                <td>
+                <td data-label={uiText("Phạm vi")}>
                   <span className="personnel-badges">
                     {roomTypes
                       .filter((roomType) =>
@@ -612,14 +618,14 @@ export function PersonnelManagementList({
                       ))}
                   </span>
                 </td>
-                <td>
+                <td data-label={uiText("Trạng thái")}>
                   <span
                     className={`status-pill ${item.is_active ? "is-active" : ""}`}
                   >
                     {item.is_active ? uiText("Hoạt động") : uiText("Đã khóa")}
                   </span>
                 </td>
-                <td>
+                <td data-label={uiText("Thao tác")}>
                   <button
                     className="button button-secondary"
                     type="button"

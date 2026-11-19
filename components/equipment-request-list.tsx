@@ -391,7 +391,7 @@ function EquipmentItemsModal({
                       ])}
                 </h3>
                 <div className="responsive-table">
-                  <table className="data-table equipment-detail-table">
+                  <table className="data-table equipment-detail-table records-on-phone">
                     <thead>
                       <tr>
                         <th>{uiText("STT")}</th>
@@ -409,36 +409,40 @@ function EquipmentItemsModal({
                     <tbody>
                       {items.map((item, index) => (
                         <tr key={item.id}>
-                          <td>{index + 1}</td>
-                          <td>
+                          <td data-label={uiText("STT")}>{index + 1}</td>
+                          <td data-label={uiText("Tên thiết bị và vật tư")}>
                             <strong>
                               {catalogForRequest(request, item)?.item_name ||
                                 uiText("Danh mục thiết bị không còn khả dụng")}
                             </strong>
                           </td>
-                          <td>
+                          <td data-label={uiText("Tên thương mại")}>
                             {catalogForRequest(request, item)
                               ?.commercial_name || "—"}
                           </td>
-                          <td>
+                          <td data-label={uiText("Loại")}>
                             {catalogForRequest(request, item)?.item_type || "—"}
                           </td>
-                          <td>
+                          <td data-label={uiText("Nước SX")}>
                             {catalogForRequest(request, item)
                               ?.country_of_origin || "—"}
                           </td>
-                          <td>
+                          <td data-label={uiText("Hãng")}>
                             {catalogForRequest(request, item)?.manufacturer ||
                               "—"}
                           </td>
-                          <td>
+                          <td data-label={uiText("Model")}>
                             {catalogForRequest(request, item)?.model || "—"}
                           </td>
-                          <td>
+                          <td data-label={uiText("ĐVT")}>
                             {catalogForRequest(request, item)?.unit || "—"}
                           </td>
-                          <td>{item.quantity}</td>
-                          <td>{item.note || "—"}</td>
+                          <td data-label={uiText("Số lượng")}>
+                            {item.quantity}
+                          </td>
+                          <td data-label={uiText("Ghi chú")}>
+                            {item.note || "—"}
+                          </td>
                         </tr>
                       ))}
                       {canAddItemsForRequest
@@ -451,8 +455,12 @@ function EquipmentItemsModal({
                                 className="equipment-modal-add-row"
                                 key={draft.key}
                               >
-                                <td>{items.length + draftIndex + 1}</td>
-                                <td>
+                                <td data-label={uiText("STT")}>
+                                  {items.length + draftIndex + 1}
+                                </td>
+                                <td
+                                  data-label={uiText("Tên thiết bị và vật tư")}
+                                >
                                   <SearchableCombobox
                                     value={draft.itemName}
                                     options={itemNameOptions}
@@ -473,7 +481,7 @@ function EquipmentItemsModal({
                                     )}
                                   />
                                 </td>
-                                <td>
+                                <td data-label={uiText("Tên thương mại")}>
                                   <SearchableCombobox
                                     value={draft.catalogId}
                                     options={commercialOptionsFor(
@@ -496,19 +504,23 @@ function EquipmentItemsModal({
                                     )}
                                   />
                                 </td>
-                                <td>
+                                <td data-label={uiText("Loại")}>
                                   {selectedDraftCatalog?.item_type || "—"}
                                 </td>
-                                <td>
+                                <td data-label={uiText("Nước SX")}>
                                   {selectedDraftCatalog?.country_of_origin ||
                                     "—"}
                                 </td>
-                                <td>
+                                <td data-label={uiText("Hãng")}>
                                   {selectedDraftCatalog?.manufacturer || "—"}
                                 </td>
-                                <td>{selectedDraftCatalog?.model || "—"}</td>
-                                <td>{selectedDraftCatalog?.unit || "—"}</td>
-                                <td>
+                                <td data-label={uiText("Model")}>
+                                  {selectedDraftCatalog?.model || "—"}
+                                </td>
+                                <td data-label={uiText("ĐVT")}>
+                                  {selectedDraftCatalog?.unit || "—"}
+                                </td>
+                                <td data-label={uiText("Số lượng")}>
                                   <input
                                     aria-label={uiText(
                                       "Số lượng bổ sung dòng {0} cho {1}",
@@ -524,7 +536,7 @@ function EquipmentItemsModal({
                                     }
                                   />
                                 </td>
-                                <td>
+                                <td data-label={uiText("Ghi chú")}>
                                   <input
                                     aria-label={uiText(
                                       "Ghi chú thiết bị bổ sung dòng {0} cho {1}",
@@ -1141,7 +1153,7 @@ export function EquipmentRequestList({
           )}
           tabIndex={0}
         >
-          <table className="data-table equipment-request-table">
+          <table className="data-table equipment-request-table records-on-phone">
             <colgroup>
               <col className="equipment-col-domain" />
               <col className="equipment-col-course" />
@@ -1232,12 +1244,15 @@ export function EquipmentRequestList({
                     className="equipment-request-table-row"
                     onClick={() => toggleExpanded(request.id)}
                   >
-                    <td className="equipment-request-domain-cell">
+                    <td
+                      data-label={uiText("Phạm vi")}
+                      className="equipment-request-domain-cell"
+                    >
                       <span className="equipment-request-domain">
                         {uiText(domainLabel(request))}
                       </span>
                     </td>
-                    <td>
+                    <td data-label={uiText("Môn học")}>
                       <button
                         type="button"
                         className="equipment-request-summary equipment-request-course-button"
@@ -1251,22 +1266,33 @@ export function EquipmentRequestList({
                         <span>{schedule?.course_name_snapshot}</span>
                       </button>
                     </td>
-                    <td className="equipment-request-date-cell">
+                    <td
+                      data-label={uiText("Ngày")}
+                      className="equipment-request-date-cell"
+                    >
                       <strong>
                         {formatScheduleDate(schedule?.schedule_date)}
                       </strong>
                     </td>
-                    <td className="mono">
+                    <td data-label={uiText("Thời gian")} className="mono">
                       {schedule?.start_time.slice(0, 5)}–
                       {schedule?.end_time.slice(0, 5)}
                     </td>
-                    <td className="equipment-request-room-cell">
+                    <td
+                      data-label={uiText("Phòng/Lab")}
+                      className="equipment-request-room-cell"
+                    >
                       <strong>
                         {room?.room_code}.{room?.building_code}
                       </strong>
                     </td>
-                    <td>{request.equipment_request_items.length}</td>
-                    <td className="equipment-request-status-cell">
+                    <td data-label={uiText("Thiết bị")}>
+                      {request.equipment_request_items.length}
+                    </td>
+                    <td
+                      data-label={uiText("Trạng thái")}
+                      className="equipment-request-status-cell"
+                    >
                       <div className="equipment-request-status-stack">
                         {!isCancelled && lateApprovalStatus === "pending" ? (
                           <span className="request-late-approval request-late-approval-pending">
@@ -1391,7 +1417,7 @@ export function EquipmentRequestList({
                         ) : null}
                       </div>
                     </td>
-                    <td className="equipment-request-toggle-cell">
+                    <td data-label="" className="equipment-request-toggle-cell">
                       <button
                         type="button"
                         className="equipment-request-chevron"
@@ -1412,7 +1438,7 @@ export function EquipmentRequestList({
 
                   {expanded ? (
                     <tr className="equipment-request-detail-row">
-                      <td colSpan={8}>
+                      <td colSpan={8} className="record-detail-cell">
                         <div className="equipment-request-details">
                           {canManageRequest ? (
                             <div className="equipment-status-section equipment-status-section-top">
