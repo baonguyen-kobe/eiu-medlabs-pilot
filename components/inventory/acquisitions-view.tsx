@@ -1750,8 +1750,7 @@ function EditSourceLineDialog({
             id="edit-source-line-title"
             className="text-sm font-bold text-slate-900 uppercase tracking-wider"
           >
-            {uiText("Sửa dòng vật tư")}
-            {line.line_key})
+            {uiText("Sửa dòng vật tư")} ({line.line_key})
           </h3>
           <button
             type="button"

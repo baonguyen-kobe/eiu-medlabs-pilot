@@ -1431,5 +1431,11 @@
   "Phát sinh": "Occurred",
   "Ghi sổ": "Posted",
   "Đính chính cho": "Corrects",
-  "Giao dịch gốc": "Original transaction"
+  "Giao dịch gốc": "Original transaction",
+  "Số dư theo lô": "Balance by lot",
+  "Tìm lô": "Search lots",
+  "Tìm mã, tên vật tư hoặc vị trí": "Search code, item or location",
+  "Mở Tồn kho": "Open stock",
+  "Khả dụng / tồn": "Available / on hand",
+  "HSD": "Exp."
 }

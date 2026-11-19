@@ -722,8 +722,7 @@ export function ConditionChangeForm({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              {uiText("Danh sách vật tư báo hỏng")}
-              {lines.length})
+              {uiText("Danh sách vật tư báo hỏng")} ({lines.length})
             </h3>
             <p className="text-xs text-slate-500">
               {uiText(
