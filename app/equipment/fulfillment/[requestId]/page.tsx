@@ -18,12 +18,12 @@ export default async function FulfillmentPage({
   const { requestId } = await params;
   if (!isEquipmentRequestId(requestId)) notFound();
   const viewer = await getViewer();
-  const [{ data, error }, summary, people] = await Promise.all([
+  const people = await loadPeopleNames(viewer.supabase);
+  const [{ data, error }, summary] = await Promise.all([
     viewer.supabase.rpc("equipment_fulfillment_read", {
       p_request_id: requestId,
     }),
-    loadRequestSummary(viewer.supabase, requestId),
-    loadPeopleNames(viewer.supabase),
+    loadRequestSummary(viewer.supabase, requestId, people),
   ]);
   if (error) {
     if (error.code === "42501") notFound();

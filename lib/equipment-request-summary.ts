@@ -14,8 +14,8 @@ type RequestRow = {
   created_at: string;
   receive_at: string;
   return_at: string;
-  registrant: { full_name: string } | null;
-  responsible: { full_name: string } | null;
+  registrant_id: string;
+  responsible_lecturer_id: string | null;
   class_schedules: {
     schedule_date: string;
     start_time: string;
@@ -26,15 +26,20 @@ type RequestRow = {
   } | null;
 };
 
-/** Facts for a Kho record header: code, class, room, time and people. */
+/**
+ * Facts for a Kho record header: code, class, room, time and people.
+ * Names come from `people` (list_active_people): profiles RLS hides other
+ * people from staff, so an embedded profile join would come back empty.
+ */
 export async function loadRequestSummary(
   supabase: SupabaseClient,
   requestId: string,
+  people: Record<string, string>,
 ): Promise<FulfillmentSummary> {
   const { data } = await supabase
     .from("equipment_requests")
     .select(
-      "created_at,receive_at,return_at,registrant:profiles!equipment_requests_registrant_id_fkey(full_name),responsible:profiles!equipment_requests_responsible_lecturer_id_fkey(full_name),class_schedules(schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,rooms(room_code,building_code))",
+      "created_at,receive_at,return_at,registrant_id,responsible_lecturer_id,class_schedules(schedule_date,start_time,end_time,course_code_snapshot,course_name_snapshot,rooms(room_code,building_code))",
     )
     .eq("id", requestId)
     .maybeSingle();
@@ -54,8 +59,11 @@ export async function loadRequestSummary(
     handover: request
       ? `${timeFormat.format(new Date(request.receive_at))} → ${timeFormat.format(new Date(request.return_at))}`
       : "",
-    registrant: request?.registrant?.full_name ?? "",
-    responsible: request?.responsible?.full_name ?? "",
+    registrant: (request && people[request.registrant_id]) || "",
+    responsible:
+      (request?.responsible_lecturer_id &&
+        people[request.responsible_lecturer_id]) ||
+      "",
   };
 }
 
