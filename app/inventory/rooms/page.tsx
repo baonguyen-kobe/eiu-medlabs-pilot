@@ -52,7 +52,7 @@ export default async function RoomEquipmentListPage({
         </p>
       ) : (
         <div className="data-panel">
-          <div className="responsive-table">
+          <div className="responsive-table kho-list">
             <table className="data-table records-on-phone">
               <thead>
                 <tr>
