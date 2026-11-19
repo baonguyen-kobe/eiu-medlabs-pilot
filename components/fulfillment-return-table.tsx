@@ -35,6 +35,7 @@ export function FulfillmentReturnTable({
           value={locationId}
           onChange={(event) => onLocationChange(event.target.value)}
         >
+          <option value="">{text("Kho đã xuất của từng dòng")}</option>
           {locations.map((location) => (
             <option key={location.id} value={location.id}>
               {location.name}
@@ -42,6 +43,11 @@ export function FulfillmentReturnTable({
             </option>
           ))}
         </select>
+        <small>
+          {text(
+            "Mặc định mỗi dòng trả về kho đã xuất của dòng đó; chọn một kho để áp cho mọi dòng.",
+          )}
+        </small>
       </label>
       <div className="data-panel">
         <div className="responsive-table kho-scroll">

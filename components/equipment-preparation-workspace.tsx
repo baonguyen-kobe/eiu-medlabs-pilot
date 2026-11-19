@@ -53,6 +53,7 @@ export function EquipmentPreparationWorkspace({
   const [lockToken, setLockToken] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const lockReleased = useRef(false);
   const leaseExpiry = useRef(0);
   const lastActivity = useRef(0);
   const pending = useRef<{
@@ -245,7 +246,10 @@ export function EquipmentPreparationWorkspace({
         leaseExpiry.current = new Date(
           result.data.preparation.lock_expires_at,
         ).getTime();
-      if (operation === "start") setOwned(true);
+      if (operation === "start") {
+        lockReleased.current = false;
+        setOwned(true);
+      }
       if (
         [
           "release_lock",
@@ -254,8 +258,10 @@ export function EquipmentPreparationWorkspace({
           "begin_reversal",
           "finalize_reversal",
         ].includes(operation)
-      )
+      ) {
+        lockReleased.current = true;
         setOwned(false);
+      }
       setMessage(
         operation === "save"
           ? "Đã lưu tiến độ; chưa giữ tồn và không gửi thông báo."
@@ -312,6 +318,7 @@ export function EquipmentPreparationWorkspace({
         );
     }, 20_000);
     function release() {
+      if (lockReleased.current) return;
       navigator.sendBeacon(
         "/api/equipment/preparation/release",
         new Blob(

@@ -136,14 +136,15 @@ export function EquipmentFulfillmentWorkspace({
   );
   const selectedIssue = selectableIssues.find((issue) => issue.id === sliceId);
   const returning = receiving && operation !== "correct";
-  // Returns land where the items were issued from unless staff pick another
-  // place; the first location by name put stock in the wrong store.
-  const locationId =
+  // The first location by name, or the first issue's, put stock in the wrong store.
+  const locationFor = (issueSliceId: string) =>
     pickedLocationId ||
-    workspace.issues.find((issue) =>
-      workspace.locations.some(
-        (location) => location.id === issue.location_id && location.active,
-      ),
+    workspace.issues.find(
+      (issue) =>
+        issue.id === issueSliceId &&
+        workspace.locations.some(
+          (location) => location.id === issue.location_id && location.active,
+        ),
     )?.location_id ||
     workspace.locations[0]?.id ||
     "";
@@ -151,7 +152,7 @@ export function EquipmentFulfillmentWorkspace({
     (issue) => compareExact(issue.issued, issue.returned) > 0,
   );
   const returnRows: Entry[] = returning
-    ? returnEntryLines(returnEntries, locationId)
+    ? returnEntryLines(returnEntries, locationFor)
     : rows;
   const returnError =
     returning &&
@@ -384,7 +385,7 @@ export function EquipmentFulfillmentWorkspace({
           issue_slice_id: selectedIssue.id,
           quantity,
           ...(receiving
-            ? { location_id: locationId, condition }
+            ? { location_id: locationFor(selectedIssue.id), condition }
             : { classification }),
         },
       ]);
@@ -1015,7 +1016,7 @@ export function EquipmentFulfillmentWorkspace({
                       <FulfillmentReturnTable
                         issues={returnIssues}
                         locations={receiveLocations}
-                        locationId={locationId}
+                        locationId={pickedLocationId}
                         entries={returnEntries}
                         onLocationChange={setLocationId}
                         onEntryChange={(id, entry) =>
@@ -1054,11 +1055,14 @@ export function EquipmentFulfillmentWorkspace({
                           <label>
                             {uiText("Nơi thực nhận")}
                             <select
-                              value={locationId}
+                              value={pickedLocationId}
                               onChange={(event) =>
                                 setLocationId(event.target.value)
                               }
                             >
+                              <option value="">
+                                {uiText("Kho đã xuất của từng dòng")}
+                              </option>
                               {receiveLocations.map((location) => (
                                 <option key={location.id} value={location.id}>
                                   {location.name}

@@ -817,6 +817,8 @@
   "Không tải được trang này": "This page could not be loaded",
   "Không còn hàng cần nhận.": "Nothing is left to receive.",
   "Nơi nhận": "Received at",
+  "Kho đã xuất của từng dòng": "Each line's issue location",
+  "Mặc định mỗi dòng trả về kho đã xuất của dòng đó; chọn một kho để áp cho mọi dòng.": "By default each line returns to the location it was issued from; pick one to apply it to every line.",
   "Hàng": "Item",
   "Đã nhận": "Received",
   "Còn trả": "Still due",
