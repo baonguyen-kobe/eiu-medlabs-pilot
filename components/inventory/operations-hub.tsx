@@ -146,6 +146,8 @@ export function OperationsHub({
       <div>
         {activeTab === "transfer" && (
           <TransferForm
+            // Remount when a lot row picks a new source; the form reads it once.
+            key={`${preselectedLocationId}:${preselectedOriginId}`}
             preselectedSourceId={preselectedLocationId}
             preselectedOriginId={preselectedOriginId}
           />
@@ -153,6 +155,8 @@ export function OperationsHub({
 
         {activeTab === "condition" && (
           <ConditionChangeForm
+            // Remount when a lot row picks a new source; the form reads it once.
+            key={`${preselectedLocationId}:${preselectedOriginId}`}
             preselectedLocationId={preselectedLocationId}
             preselectedOriginId={preselectedOriginId}
           />

@@ -116,7 +116,7 @@ export function EquipmentPreparationQueue({
         {uiText(" phút trước giờ nhận. Mở phiếu không tự nhận việc.")}
       </p>
       <form
-        className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-3 rounded-xl border border-[var(--line)] p-4 sm:grid-cols-2 lg:grid-cols-4"
         onSubmit={(event) => {
           event.preventDefault();
           const parsed = preparationQueueFiltersSchema.safeParse({
@@ -186,7 +186,7 @@ export function EquipmentPreparationQueue({
           {queue.page}/{Math.max(1, Math.ceil(queue.total / queue.page_size))}
         </p>
         {queue.rows.length === 0 ? (
-          <p className="rounded-xl border p-4">
+          <p className="rounded-xl border border-[var(--line)] p-4">
             {uiText("Không có phiếu trong phạm vi và bộ lọc hiện tại.")}
           </p>
         ) : (
@@ -267,7 +267,7 @@ export function EquipmentPreparationQueue({
         </nav>
       </section>
       {queue.admin ? (
-        <section className="rounded-xl border p-4 space-y-3">
+        <section className="rounded-xl border border-[var(--line)] p-4 space-y-3">
           <h2 className="text-lg font-semibold">
             {uiText("Cấu hình chuẩn bị — Admin")}
           </h2>

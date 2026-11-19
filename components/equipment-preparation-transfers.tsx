@@ -289,7 +289,7 @@ export function EquipmentPreparationTransfers({
   if (!workspace.manager) return null;
   return (
     <section
-      className="space-y-4 rounded-xl border p-4"
+      className="space-y-4 rounded-xl border border-[var(--line)] p-4"
       aria-label={uiText("Chuyển kho vật lý liên quan phiếu")}
     >
       <h2 className="text-lg font-semibold">
@@ -316,7 +316,7 @@ export function EquipmentPreparationTransfers({
         </p>
       )}
       {pending && (
-        <div className="space-y-2 rounded-lg border p-3">
+        <div className="space-y-2 rounded-lg border border-[var(--line)] p-3">
           <p>
             {uiText(
               "Thao tác chưa được xác nhận thành công. Thử lại dùng nguyên dữ liệu và mã chống trùng; không chuyển hàng thêm lần nữa.",
