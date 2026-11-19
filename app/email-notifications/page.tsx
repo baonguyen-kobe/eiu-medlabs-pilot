@@ -31,7 +31,14 @@ export default async function EmailNotificationsPage({
       ? deliverySettings.delivery_mode
       : "off";
   const isAdmin = viewer.roles.includes("admin");
-  const testRecipient = isAdmin ? getEmailTestRecipient() : null;
+  let testRecipient: string | null = null;
+  if (isAdmin) {
+    try {
+      testRecipient = getEmailTestRecipient();
+    } catch {
+      testRecipient = null;
+    }
+  }
   const currentPage = normalizePage(query.page);
   const { from, to } = paginationRange(currentPage);
   const { data: notifications, count } = await admin
@@ -62,10 +69,14 @@ export default async function EmailNotificationsPage({
           />
         ) : deliveryMode === "test" ? (
           isAdmin ? (
-            <LocalizedText
-              text="Chế độ kiểm thử; email thực tế chỉ gửi đến {0}."
-              values={[testRecipient]}
-            />
+            testRecipient ? (
+              <LocalizedText
+                text="Chế độ kiểm thử; email thực tế chỉ gửi đến {0}."
+                values={[testRecipient]}
+              />
+            ) : (
+              <LocalizedText text="Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử." />
+            )
           ) : (
             <LocalizedText
               text={
@@ -113,10 +124,14 @@ export default async function EmailNotificationsPage({
               />
             ) : deliveryMode === "test" ? (
               isAdmin ? (
-                <LocalizedText
-                  text="Người nhận gốc không nhận email. Toàn bộ bản kiểm thử chỉ gửi đến {0} để Admin kiểm tra nội dung."
-                  values={[testRecipient]}
-                />
+                testRecipient ? (
+                  <LocalizedText
+                    text="Người nhận gốc không nhận email. Toàn bộ bản kiểm thử chỉ gửi đến {0} để Admin kiểm tra nội dung."
+                    values={[testRecipient]}
+                  />
+                ) : (
+                  <LocalizedText text="Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử." />
+                )
               ) : (
                 <LocalizedText
                   text={
@@ -147,12 +162,19 @@ export default async function EmailNotificationsPage({
                 <button
                   className={`button ${className}`}
                   type="submit"
-                  disabled={deliveryMode === mode}
+                  disabled={
+                    deliveryMode === mode || (mode === "test" && !testRecipient)
+                  }
                 >
                   <LocalizedText text={label} />
                 </button>
               </form>
             ))}
+            {!testRecipient ? (
+              <p className="action-feedback error">
+                <LocalizedText text="Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử." />
+              </p>
+            ) : null}
           </div>
         ) : null}
       </section>

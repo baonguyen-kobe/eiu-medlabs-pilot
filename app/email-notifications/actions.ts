@@ -84,6 +84,20 @@ export async function setEmailDeliveryMode(formData: FormData) {
     );
   }
 
+  let testRecipient = "";
+  if (deliveryMode === "test") {
+    try {
+      testRecipient = getEmailTestRecipient();
+    } catch {
+      redirect(
+        resultUrl(
+          "error",
+          "Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử.",
+        ),
+      );
+    }
+  }
+
   const { error } = await supabase.rpc("set_email_delivery_mode", {
     target_mode: deliveryMode,
   });
@@ -92,7 +106,6 @@ export async function setEmailDeliveryMode(formData: FormData) {
   }
 
   revalidatePath("/email-notifications");
-  const testRecipient = getEmailTestRecipient();
   redirect(
     resultUrl(
       "notice",

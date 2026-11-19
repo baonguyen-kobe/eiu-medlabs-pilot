@@ -1445,5 +1445,6 @@
   "Xem tiến độ": "View progress",
   "Phòng chưa có vị trí kho": "Room has no stock location",
   "Vật tư kho đã ngừng": "Inventory item is inactive",
-  "Vật tư cần hạn dùng: nhập qua Tồn đầu kỳ": "Item needs an expiry date: enter it through Opening stock"
+  "Vật tư cần hạn dùng: nhập qua Tồn đầu kỳ": "Item needs an expiry date: enter it through Opening stock",
+  "Chưa cấu hình địa chỉ nhận email kiểm thử (EMAIL_TEST_RECIPIENT); không bật được chế độ kiểm thử.": "No test recipient is configured (EMAIL_TEST_RECIPIENT); test mode cannot be turned on."
 }
