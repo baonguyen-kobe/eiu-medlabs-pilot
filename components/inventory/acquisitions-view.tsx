@@ -397,7 +397,9 @@ export function AcquisitionsView({
                   <th>{uiText("Mã hồ sơ")}</th>
                   <th>{uiText("Nhà cung cấp")}</th>
                   <th>{uiText("Ngày hồ sơ")}</th>
-                  <th>{uiText("Nguồn kinh phí")}</th>
+                  {sources.some((source) => source.funding_source) ? (
+                    <th>{uiText("Nguồn kinh phí")}</th>
+                  ) : null}
                   <th>{uiText("Trạng thái")}</th>
                 </tr>
               </thead>
@@ -427,9 +429,11 @@ export function AcquisitionsView({
                     <td data-label={uiText("Ngày hồ sơ")}>
                       {formatInventoryDate(source.reference_date)}
                     </td>
-                    <td data-label={uiText("Nguồn kinh phí")}>
-                      {source.funding_source || "—"}
-                    </td>
+                    {sources.some((row) => row.funding_source) ? (
+                      <td data-label={uiText("Nguồn kinh phí")}>
+                        {source.funding_source || "—"}
+                      </td>
+                    ) : null}
                     <td data-label={uiText("Trạng thái")}>
                       <SourceStatus status={source.status} />
                     </td>

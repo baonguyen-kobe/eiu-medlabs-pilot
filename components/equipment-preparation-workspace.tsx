@@ -527,7 +527,7 @@ export function EquipmentPreparationWorkspace({
             ["preparing", "Đã soạn"],
             ["handed_over", "Đã giao"],
             ["returned", "Đã trả"],
-            ["completed", "Hoàn Thành"],
+            ["completed", "Hoàn thành"],
           ].map(([value, label], index) => (
             <li
               key={value}

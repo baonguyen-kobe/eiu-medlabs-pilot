@@ -5,10 +5,7 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ClipboardList,
-  FileClock,
-  Import,
   PackageCheck,
-  Plus,
   Settings,
 } from "@/components/icons";
 import {
@@ -33,7 +30,6 @@ export interface OverviewMetrics {
 
 export function OverviewView({
   metrics,
-  isAdmin,
 }: {
   metrics: OverviewMetrics;
   isAdmin: boolean;
@@ -56,61 +52,6 @@ export function OverviewView({
     ).length;
   return (
     <div className="space-y-6">
-      {/* Quick Action Navigation Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            {uiText("Phím tắt tác vụ / Quick Actions:")}
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/inventory/receive"
-            className="button button-primary text-xs"
-          >
-            <Plus size={15} />
-            <span>{uiText("Nhận kho")}</span>
-          </Link>
-          <Link
-            href="/inventory/stock"
-            className="button button-secondary text-xs"
-          >
-            <PackageCheck size={15} />
-            <span>{uiText("Tồn kho")}</span>
-          </Link>
-          <Link
-            href="/inventory/catalog"
-            className="button button-secondary text-xs"
-          >
-            <Settings size={15} />
-            <span>{uiText("Danh mục vật tư")}</span>
-          </Link>
-          <Link
-            href="/inventory/acquisitions"
-            className="button button-secondary text-xs"
-          >
-            <ClipboardList size={15} />
-            <span>{uiText("Hồ sơ nguồn")}</span>
-          </Link>
-          {isAdmin ? (
-            <Link
-              href="/inventory/opening"
-              className="button button-secondary text-xs border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50"
-            >
-              <Import size={15} />
-              <span>{uiText("Tồn đầu kỳ")}</span>
-            </Link>
-          ) : null}
-          <Link
-            href="/inventory/transactions"
-            className="button button-secondary text-xs"
-          >
-            <FileClock size={15} />
-            <span>{uiText("Lịch sử")}</span>
-          </Link>
-        </div>
-      </div>
-
       {/* KPI Cards */}
       <section className="kpi-grid" aria-label={uiText("Chỉ số tổng quan kho")}>
         <article className="kpi-card kpi-teal">
@@ -172,7 +113,7 @@ export function OverviewView({
                   href="/inventory/stock?expiry_state=expired"
                   className="inline-block mt-2 font-semibold text-blue-600 hover:underline"
                 >
-                  {uiText("Xem danh sách hết hạn &rarr;")}
+                  {uiText("Xem danh sách hết hạn →")}
                 </Link>
               </div>
             ) : null}

@@ -257,14 +257,13 @@ export function SuppliersView({
                 <th className="py-3 px-4">{uiText("Thông tin liên hệ")}</th>
                 <th className="py-3 px-4">{uiText("Ghi chú")}</th>
                 <th className="py-3 px-4">{uiText("Trạng thái")}</th>
-                <th className="py-3 px-4 text-center">{uiText("Bản")}</th>
                 <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {suppliers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     {uiText("Chưa có nhà cung cấp nào phù hợp.")}
                   </td>
                 </tr>
@@ -289,10 +288,6 @@ export function SuppliersView({
                     <td className="py-3 px-4">
                       <ActiveBadge active={s.active} />
                     </td>
-                    <td className="py-3 px-4 text-center font-mono text-[11px] text-slate-400">
-                      {uiText("r")}
-                      {String(s.revision)}
-                    </td>
                     <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
                         <button
@@ -314,7 +309,7 @@ export function SuppliersView({
                                 })
                               }
                             >
-                              {uiText("Ngừng HĐ")}
+                              {uiText("Ngừng hoạt động")}
                             </button>
                           ) : (
                             <button

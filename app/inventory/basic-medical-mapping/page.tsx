@@ -128,8 +128,16 @@ export default async function BasicMedicalMappingPage() {
         </div>
       </div>
 
-      <h2>{text("Xem trước tồn đầu kỳ theo phòng")}</h2>
-      <BasicMedicalCutoverForm ready={opening.ready} />
+      <section className="kho-card">
+        <div className="kho-card-head">
+          <h3>{text("Xem trước tồn đầu kỳ theo phòng")}</h3>
+        </div>
+        {opening.ready > 0 ? (
+          <div className="kho-card-body">
+            <BasicMedicalCutoverForm ready={opening.ready} />
+          </div>
+        ) : null}
+      </section>
       {opening.rows.length === 0 ? (
         <p className="panel-empty">
           {text("Không còn dòng tồn phòng nào chờ chuyển sang kho chung.")}

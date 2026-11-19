@@ -13274,3 +13274,9 @@ nav.catalog-tabs a {
   background: #e5edf5;
   border-color: var(--eiu-blue);
 }
+
+/* C7: Kho small fixes */
+.kho-manage-button {
+  color: var(--ink-600);
+  border-style: dashed;
+}
