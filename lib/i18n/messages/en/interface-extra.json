@@ -1499,5 +1499,12 @@
   "Thao tác khác": "Other action",
   "Dữ liệu khác": "Other data",
   "Tất cả hành động": "All actions",
-  " mục được chọn": " items selected"
+  " mục được chọn": " items selected",
+  "Việc cần làm": "To do",
+  "Phiếu cần chuẩn bị hoặc chờ giao": "Requests to prepare or hand over",
+  "Lớp chưa có giảng viên": "Classes without a lecturer",
+  "Phiếu thiết bị chờ ký": "Equipment slips awaiting signature",
+  "Lớp sắp dạy trong 7 ngày": "Classes you teach in the next 7 days",
+  "Không có lịch trong khoảng này": "No schedule in this period",
+  "Thêm lịch trực": "Add shift"
 }

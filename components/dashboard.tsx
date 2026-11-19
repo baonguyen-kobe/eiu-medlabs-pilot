@@ -493,6 +493,14 @@ export function Dashboard({
     return grouped;
   }, [visibleEvents]);
 
+  const listDays = useMemo(() => {
+    const withEvents = calendarDays.filter((day) => eventsByDay.has(day.date));
+    return [
+      ...withEvents.filter((day) => day.today),
+      ...withEvents.filter((day) => !day.today),
+    ];
+  }, [calendarDays, eventsByDay]);
+
   function navigateToView(nextView: View) {
     const mode = viewModes[nextView];
     setManualView(nextView);
@@ -778,7 +786,12 @@ export function Dashboard({
             />
           ) : view === "Danh sách" ? (
             <div className="structured-list">
-              {calendarDays.map((day) => (
+              {listDays.length ? null : (
+                <p className="panel-empty">
+                  {uiText("Không có lịch trong khoảng này")}
+                </p>
+              )}
+              {listDays.map((day) => (
                 <DayScheduleCell
                   day={day}
                   events={eventsByDay.get(day.date) ?? []}

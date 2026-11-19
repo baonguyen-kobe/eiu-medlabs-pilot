@@ -90,7 +90,7 @@ test("admin sees a slim dashboard, real routes and the four-region calendar", as
   await expect(page.locator(".kpi-grid article").first()).toBeVisible();
   await expect(page.locator(".kpi-card small")).toHaveCount(0);
   await expect(page.locator(".kpi-card > span").first()).toHaveText(
-    "Tổng lớp học trong tháng",
+    "Tổng lớp học",
   );
   await expect(page.locator(".overview-panel-heading h2")).toHaveText(
     "LỊCH HỌC 7 NGÀY TỚI",

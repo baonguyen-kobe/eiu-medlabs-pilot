@@ -13063,3 +13063,54 @@ tr[data-open] > :is(th, td) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* C2: dashboard todo/KPI links, staff-shift per-day list on phones, always-visible add */
+a.kpi-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.overview-todo > a {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.staff-shift-day-list {
+  display: none;
+}
+
+.staff-shift-empty-action {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .staff-shift-period-calendar,
+  .staff-shift-month-calendar {
+    display: none;
+  }
+
+  .staff-shift-day-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .staff-shift-day {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .staff-shift-day.is-today {
+    border-color: var(--eiu-blue);
+  }
+
+  .staff-shift-day h3 {
+    margin: 0;
+    font-size: 15px;
+  }
+}

@@ -1065,6 +1065,31 @@ export function StaffShiftRoster({
               </div>
             </div>
             {/* Calendar Grid */}
+            <div className="staff-shift-day-list">
+              {(view === "month"
+                ? monthWeeks
+                    .flat()
+                    .filter(
+                      (date) => date.slice(0, 7) === anchorDate.slice(0, 7),
+                    )
+                : days
+              ).map((date) => (
+                <section
+                  className={`staff-shift-day ${date === todayStr ? "is-today" : ""}`}
+                  key={date}
+                >
+                  <h3>
+                    {uiText(getDayOfWeekLabel(date))} {date.slice(-2)}
+                  </h3>
+                  {staffShiftPeriods.map(([slot, label]) => (
+                    <div key={slot}>
+                      <strong>{uiText(label)}</strong>
+                      {renderShiftSlot(date, slot)}
+                    </div>
+                  ))}
+                </section>
+              ))}
+            </div>
             {view === "month" ? (
               <div
                 aria-label={uiText(

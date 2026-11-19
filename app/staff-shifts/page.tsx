@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   addDays,
   addMonths,
@@ -134,6 +135,17 @@ export default async function StaffShiftsPage({
         <LocalizedText
           text={"Xem và quản lý lịch trực phòng thực hành Kỹ năng Điều dưỡng."}
         />
+      }
+      actions={
+        roles.includes("admin") ||
+        (!isRootAdministrator && roles.includes("staff")) ? (
+          <Link
+            className="button button-primary"
+            href="/staff-shifts?tab=register"
+          >
+            <LocalizedText text={"Thêm lịch trực"} />
+          </Link>
+        ) : undefined
       }
     >
       <StaffShiftRoster

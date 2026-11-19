@@ -97,14 +97,9 @@ test("mobile calendars scroll inside their card and dialogs remain usable", asyn
 
   await page.goto("/staff-shifts?tab=manage&view=week&date=2026-07-31");
   await expectNoPageOverflow(page);
-  const shiftCalendar = page
-    .getByRole("region", { name: /Lịch trực theo tuần/ })
+  const emptyShift = page
+    .locator(".staff-shift-day-list .empty-shift-action")
     .first();
-  const shiftOverflow = await shiftCalendar.evaluate(
-    (element) => element.scrollWidth > element.clientWidth,
-  );
-  expect(shiftOverflow).toBe(true);
-  const emptyShift = page.locator(".empty-shift-action").first();
   await expect(emptyShift).toBeVisible();
   await expect(emptyShift).toHaveCSS("opacity", "1");
   const shiftDialog = page.getByRole("dialog", { name: "Tạo lịch trực" });
