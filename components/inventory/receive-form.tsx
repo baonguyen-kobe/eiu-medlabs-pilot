@@ -549,13 +549,8 @@ export function ReceiveForm({
 
       {/* Main Intake Form Container */}
       <div className="kho-form bg-white rounded-xl border border-[var(--line)] shadow-xs p-6 space-y-6">
-        <div className="form-section-title">
-          <div className="form-section-title-line">
-            <span className="form-section-number">01</span>
-            <h2 className="standard-section-heading">
-              {uiText("Thông tin phiếu nhận")}
-            </h2>
-          </div>
+        <div className="kho-card-head">
+          <h3>{uiText("Thông tin phiếu nhận")}</h3>
           <p>
             {uiText(
               "Số phiếu và thời điểm hàng thực tế về kho. Sau khi ghi sổ, phiếu không sửa được.",
@@ -625,11 +620,8 @@ export function ReceiveForm({
         {/* Multi-line Intake Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="form-section-title-line">
-              <span className="form-section-number">02</span>
-              <h2 className="standard-section-heading">
-                {uiText("Các dòng hàng ({0})", [lines.length])}
-              </h2>
+            <div className="kho-card-head">
+              <h3>{uiText("Các dòng hàng ({0})", [lines.length])}</h3>
             </div>
             <button
               type="button"
@@ -732,7 +724,7 @@ export function ReceiveForm({
                         htmlFor={`receive-line-purchase-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("SL giao & ĐVT")} *
+                        {uiText("Số lượng giao & đơn vị")} *
                       </label>
                       <div className="flex gap-1.5">
                         <input
@@ -757,11 +749,11 @@ export function ReceiveForm({
                             onSelect={(u) =>
                               updateLine(idx, { purchaseUomCode: u.code })
                             }
-                            label={uiText("ĐVT")}
+                            label={uiText("Đơn vị")}
                             id={`receive-line-purchase-uom-${idx}`}
                             hideLabel
                             required
-                            placeholder={uiText("ĐVT")}
+                            placeholder={uiText("Đơn vị")}
                           />
                         </div>
                       </div>
@@ -791,7 +783,7 @@ export function ReceiveForm({
                           required
                         />
                         <div className="kho-derived">
-                          <span>{uiText("= SL cơ sở")}</span>
+                          <span>{uiText("= Số lượng cơ sở")}</span>
                           <strong>
                             {formatDisplayQuantity(calc?.baseQty)}{" "}
                             {item ? uomLabel(item) : ""}
@@ -809,7 +801,7 @@ export function ReceiveForm({
                         htmlFor={`receive-line-good-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--tone-success-fg)] mb-1"
                       >
-                        {uiText("SL tốt")} *
+                        {uiText("Số lượng tốt")} *
                       </label>
                       <input
                         id={`receive-line-good-qty-${idx}`}
@@ -830,7 +822,7 @@ export function ReceiveForm({
                         htmlFor={`receive-line-damaged-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--tone-warning-fg)] mb-1"
                       >
-                        {uiText("SL hỏng ")}*
+                        {uiText("Số lượng hỏng ")}*
                       </label>
                       <input
                         id={`receive-line-damaged-qty-${idx}`}
@@ -851,7 +843,7 @@ export function ReceiveForm({
                         htmlFor={`receive-line-expiry-precision-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Độ chính xác HSD ")}*
+                        {uiText("Độ chính xác hạn dùng ")}*
                       </label>
                       <select
                         id={`receive-line-expiry-precision-${idx}`}
@@ -865,7 +857,7 @@ export function ReceiveForm({
                       >
                         {!item?.expiry_required ? (
                           <option value="not_required">
-                            {uiText("Không yêu cầu HSD")}
+                            {uiText("Không yêu cầu hạn dùng")}
                           </option>
                         ) : null}
                         <option value="day">
@@ -884,7 +876,7 @@ export function ReceiveForm({
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {line.expiryPrecision === "not_required"
-                          ? uiText("Trạng thái HSD")
+                          ? uiText("Trạng thái hạn dùng")
                           : uiText("Nhập ngày/tháng *")}
                       </label>
                       {line.expiryPrecision === "not_required" ? (
@@ -935,7 +927,7 @@ export function ReceiveForm({
                         <div>{uiText("Vui lòng chọn vị trí kho")}</div>
                       ) : null}
                       {!calc?.hasUom ? (
-                        <div>{uiText("Vui lòng chọn ĐVT nhập")}</div>
+                        <div>{uiText("Vui lòng chọn đơn vị nhập")}</div>
                       ) : null}
                       {!calc?.mult.valid ? <div>{calc?.mult.error}</div> : null}
                       {!calc?.split.valid ? (
@@ -1046,9 +1038,13 @@ export function ReceiveForm({
                     <tr className="bg-[var(--surface-soft)] border-b border-[var(--line)] text-[var(--ink-800)] font-semibold uppercase text-[10px]">
                       <th className="p-2">{uiText("Dòng")}</th>
                       <th className="p-2">{uiText("Vật tư")}</th>
-                      <th className="p-2 text-right">{uiText("SL Giao")}</th>
+                      <th className="p-2 text-right">
+                        {uiText("Số lượng giao")}
+                      </th>
                       <th className="p-2 text-right">{uiText("Hệ số")}</th>
-                      <th className="p-2 text-right">{uiText("SL Quy đổi")}</th>
+                      <th className="p-2 text-right">
+                        {uiText("Số lượng quy đổi")}
+                      </th>
                       <th className="p-2 text-right text-[var(--tone-success-fg)]">
                         {uiText("Tốt")}
                       </th>

@@ -1519,5 +1519,17 @@
   "Không có thiết bị phù hợp.": "No matching equipment.",
   "Đổi trạng thái / hủy trên danh sách": "Change status / cancel on the list",
   "Lĩnh vực": "Area",
-  "Kỹ năng": "Skill"
+  "Kỹ năng": "Skill",
+  "Số lượng giao & đơn vị": "Delivered qty & unit",
+  "Đơn vị": "Unit",
+  "= Số lượng cơ sở": "= base qty",
+  "Số lượng tốt": "Good qty",
+  "Số lượng hỏng ": "Damaged qty ",
+  "Trạng thái hạn dùng": "Expiry status",
+  "Vui lòng chọn đơn vị nhập": "UOM is required",
+  "Số lượng giao": "Issued qty",
+  "Số lượng quy đổi": "Converted quantity",
+  "Số lượng cơ sở": "Base quantity",
+  "Tổng số lượng kiểm đếm (": "Total count quantity (",
+  "Độ chính xác hạn dùng ": "Expiry accuracy "
 }

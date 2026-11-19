@@ -53,16 +53,12 @@ export function OpeningForm({
 } = {}) {
   const { text: uiText } = useLanguage();
 
-  const [cutoverKey, setCutoverKey] = useState("CUTOVER-2026-S1");
-  const [scopeDescription, setScopeDescription] = useState(
-    "Kiểm kê khởi tạo số dư đầu kỳ toàn bộ kho MedLabs",
-  );
+  const [cutoverKey, setCutoverKey] = useState("");
+  const [scopeDescription, setScopeDescription] = useState("");
   const [countCutoff, setCountCutoff] = useState(() => {
     return `${businessTodayString()}T00:00`;
   });
-  const [provenanceNote, setProvenanceNote] = useState(
-    "Biên bản kiểm kê số dư thực tế tại chỗ có xác nhận của Hội đồng kiểm kê",
-  );
+  const [provenanceNote, setProvenanceNote] = useState("");
 
   // Resolved metadata dictionary for items chosen through bounded lookup
   const [resolvedItems, setResolvedItems] = useState<
@@ -118,7 +114,7 @@ export function OpeningForm({
           l.goodQuantity !== "10" ||
           l.damagedQuantity !== "0",
       ) ||
-      cutoverKey !== "CUTOVER-2026-S1"
+      cutoverKey !== ""
     );
   }, [lines, cutoverKey]);
 
@@ -444,13 +440,8 @@ export function OpeningForm({
 
       {/* Main Form Container */}
       <div className="kho-form bg-white rounded-xl border border-[var(--line)] p-6 shadow-xs space-y-6">
-        <div className="form-section-title">
-          <div className="form-section-title-line">
-            <span className="form-section-number">01</span>
-            <h2 className="standard-section-heading">
-              {uiText("Biên bản chốt tồn đầu kỳ")}
-            </h2>
-          </div>
+        <div className="kho-card-head">
+          <h3>{uiText("Biên bản chốt tồn đầu kỳ")}</h3>
           <p>
             {uiText(
               "Chỉ Quản trị viên. Ghi số dư kiểm kê có sẵn khi bắt đầu dùng hệ thống.",
@@ -541,11 +532,8 @@ export function OpeningForm({
         {/* Multi-line Count Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="form-section-title-line">
-              <span className="form-section-number">02</span>
-              <h2 className="standard-section-heading">
-                {uiText("Các dòng kiểm đếm ({0})", [lines.length])}
-              </h2>
+            <div className="kho-card-head">
+              <h3>{uiText("Các dòng kiểm đếm ({0})", [lines.length])}</h3>
             </div>
             <button
               type="button"
@@ -664,7 +652,7 @@ export function OpeningForm({
                         htmlFor={`opening-base-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Tổng SL kiểm đếm (")}
+                        {uiText("Tổng số lượng kiểm đếm (")}
                         {item ? uomLabel(item) : uiText("Cơ sở")}) *
                       </label>
                       <input
@@ -689,7 +677,7 @@ export function OpeningForm({
                         htmlFor={`opening-good-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--tone-success-fg)] mb-1"
                       >
-                        {uiText("SL tốt")} *
+                        {uiText("Số lượng tốt")} *
                       </label>
                       <input
                         id={`opening-good-qty-${idx}`}
@@ -710,7 +698,7 @@ export function OpeningForm({
                         htmlFor={`opening-damaged-qty-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--tone-warning-fg)] mb-1"
                       >
-                        {uiText("SL hỏng ")}*
+                        {uiText("Số lượng hỏng ")}*
                       </label>
                       <input
                         id={`opening-damaged-qty-${idx}`}
@@ -731,7 +719,7 @@ export function OpeningForm({
                         htmlFor={`opening-expiry-precision-${idx}`}
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
-                        {uiText("Độ chính xác HSD ")}*
+                        {uiText("Độ chính xác hạn dùng ")}*
                       </label>
                       <select
                         id={`opening-expiry-precision-${idx}`}
@@ -769,9 +757,9 @@ export function OpeningForm({
                         className="block text-[11px] font-semibold text-[var(--ink-800)] mb-1"
                       >
                         {line.expiryPrecision === "not_required"
-                          ? uiText("Trạng thái HSD")
+                          ? uiText("Trạng thái hạn dùng")
                           : line.expiryPrecision === "unknown"
-                            ? uiText("Trạng thái HSD")
+                            ? uiText("Trạng thái hạn dùng")
                             : uiText("Nhập ngày/tháng *")}
                       </label>
                       {line.expiryPrecision === "not_required" ? (
@@ -929,7 +917,9 @@ export function OpeningForm({
                     <tr className="bg-[var(--surface-soft)] border-b border-[var(--line)] text-[var(--ink-800)] font-semibold uppercase text-[10px]">
                       <th className="p-2">{uiText("Dòng")}</th>
                       <th className="p-2">{uiText("Vật tư")}</th>
-                      <th className="p-2 text-right">{uiText("SL Cơ sở")}</th>
+                      <th className="p-2 text-right">
+                        {uiText("Số lượng cơ sở")}
+                      </th>
                       <th className="p-2 text-right text-[var(--tone-success-fg)]">
                         {uiText("Tốt")}
                       </th>

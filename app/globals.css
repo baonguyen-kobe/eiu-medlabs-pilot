@@ -13174,3 +13174,33 @@ a.kpi-card {
   color: var(--eiu-blue);
   font-weight: 700;
 }
+
+/* C4-tables: one-row catalog tabs; compact scrolling phone lists. */
+nav.catalog-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+nav.catalog-tabs a {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+@media (max-width: 760px) {
+  .kho-list {
+    max-height: 70vh;
+    overflow: auto;
+  }
+
+  .kho-list .data-table.records-on-phone tr {
+    padding: 4px 0;
+  }
+
+  .kho-list .data-table.records-on-phone td {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 6px;
+    padding: 3px 10px;
+    font-size: 13px;
+  }
+}
