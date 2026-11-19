@@ -178,93 +178,98 @@ export function EquipmentPreparationQueue({
       <section
         aria-label={uiText("Hàng đợi chuẩn bị")}
         aria-busy={busy}
-        className="space-y-3"
+        className="kho-card"
       >
-        <p>
-          {queue.total}
-          {uiText(" phiếu · Trang ")}
-          {queue.page}/{Math.max(1, Math.ceil(queue.total / queue.page_size))}
-        </p>
+        <div className="kho-card-head prep-queue-head">
+          <h3>
+            {queue.total}
+            {uiText(" phiếu · Trang ")}
+            {queue.page}/{Math.max(1, Math.ceil(queue.total / queue.page_size))}
+          </h3>
+          <nav
+            aria-label={uiText("Phân trang hàng đợi")}
+            className="flex flex-wrap gap-2"
+          >
+            <button
+              type="button"
+              className="button button-secondary"
+              disabled={busy || queue.page <= 1}
+              onClick={() => void load({ ...filters, page: queue.page - 1 })}
+            >
+              {uiText("Trang trước")}
+            </button>
+            <button
+              type="button"
+              className="button button-secondary"
+              disabled={
+                busy ||
+                queue.page * queue.page_size >= queue.total ||
+                queue.page >= 100000
+              }
+              onClick={() => void load({ ...filters, page: queue.page + 1 })}
+            >
+              {uiText("Trang sau")}
+            </button>
+          </nav>
+        </div>
         {queue.rows.length === 0 ? (
-          <p className="rounded-xl border border-[var(--line)] p-4">
+          <p className="kho-card-pad">
             {uiText("Không có phiếu trong phạm vi và bộ lọc hiện tại.")}
           </p>
         ) : (
-          queue.rows.map((row) => (
-            <article
-              key={row.id}
-              className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 space-y-2"
-            >
-              <div className="flex flex-wrap justify-between gap-2">
-                <h2 className="font-semibold">
+          <ul className="prep-queue">
+            {queue.rows.map((row) => (
+              <li key={row.id} className="prep-queue-row">
+                <div className="cell-stack">
                   <Link
-                    className="underline"
+                    className="font-semibold underline"
                     href={`/equipment/preparation/${row.id}`}
                   >
                     {row.course_code} · {row.course_name}
                   </Link>
-                </h2>
-                <span>
+                  <small>
+                    {uiText("Lớp ")}
+                    {row.class_code ?? "—"}
+                    {uiText(" · Nhận")}{" "}
+                    {dateTime.format(new Date(row.receive_at))}
+                    {uiText(" · Học")} {dateTime.format(new Date(row.class_at))}
+                  </small>
+                  <small>
+                    {row.preparation_state
+                      ? uiText(preparationLabels[row.preparation_state])
+                      : uiText("Chưa bắt đầu")}{" "}
+                    {uiText("· Người chuẩn bị chính:")}{" "}
+                    {row.primary_preparer_name ?? uiText("Chưa ghi nhận")}
+                  </small>
+                  <small>
+                    {row.health.length > 0
+                      ? uiText(
+                          "Cần phân bổ lại: nguồn cam kết thiếu hoặc không đủ điều kiện.",
+                        )
+                      : row.preparation_state === "prepared"
+                        ? uiText(
+                            "Nguồn cam kết đủ điều kiện tại thời điểm tải.",
+                          )
+                        : uiText("Chưa xác nhận sẵn sàng.")}
+                  </small>
+                </div>
+                <span
+                  className="badge"
+                  data-tone={row.overdue ? "danger" : "info"}
+                >
                   {row.status === "new" ? uiText("Mới") : uiText("Đã chuẩn bị")}
                   {row.overdue ? uiText(" · Quá hạn chuẩn bị") : ""}
                 </span>
-              </div>
-              <p>
-                {uiText("Lớp ")}
-                {row.class_code ?? "—"}
-                {uiText(" · Nhận")} {dateTime.format(new Date(row.receive_at))}
-                {uiText(" · Học")} {dateTime.format(new Date(row.class_at))}
-              </p>
-              <p>
-                {row.preparation_state
-                  ? uiText(preparationLabels[row.preparation_state])
-                  : uiText("Chưa bắt đầu")}{" "}
-                {uiText("· Người chuẩn bị chính:")}{" "}
-                {row.primary_preparer_name ?? uiText("Chưa ghi nhận")}
-              </p>
-              <p>
-                {row.health.length > 0
-                  ? uiText(
-                      "Cần phân bổ lại: nguồn cam kết thiếu hoặc không đủ điều kiện.",
-                    )
-                  : row.preparation_state === "prepared"
-                    ? uiText("Nguồn cam kết đủ điều kiện tại thời điểm tải.")
-                    : uiText("Chưa xác nhận sẵn sàng.")}
-              </p>
-              <Link
-                className="button button-secondary"
-                href={`/equipment/preparation/${row.id}`}
-              >
-                {uiText("Mở chi tiết chuẩn bị")}
-              </Link>
-            </article>
-          ))
+                <Link
+                  className="button button-secondary"
+                  href={`/equipment/preparation/${row.id}`}
+                >
+                  {uiText("Mở chi tiết chuẩn bị")}
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
-        <nav
-          aria-label={uiText("Phân trang hàng đợi")}
-          className="flex flex-wrap gap-2"
-        >
-          <button
-            type="button"
-            className="button button-secondary"
-            disabled={busy || queue.page <= 1}
-            onClick={() => void load({ ...filters, page: queue.page - 1 })}
-          >
-            {uiText("Trang trước")}
-          </button>
-          <button
-            type="button"
-            className="button button-secondary"
-            disabled={
-              busy ||
-              queue.page * queue.page_size >= queue.total ||
-              queue.page >= 100000
-            }
-            onClick={() => void load({ ...filters, page: queue.page + 1 })}
-          >
-            {uiText("Trang sau")}
-          </button>
-        </nav>
       </section>
       {queue.admin ? (
         <section className="rounded-xl border border-[var(--line)] p-4 space-y-3">

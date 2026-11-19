@@ -308,7 +308,7 @@ export function EquipmentPreparationTransfers({
         disabled={busy}
         onClick={() => void refresh()}
       >
-        {uiText("Tải phiên bản mới, giữ nội dung")}
+        {uiText("Làm mới, giữ nội dung")}
       </button>
       {message && (
         <p role="status" className="text-sm">

@@ -261,6 +261,6 @@ export function preparationError(message: string): string {
   const code = Object.keys(errors).find((key) => message.includes(key));
   if (code) return errors[code];
   if (message.includes("inventory_reservations_active_asset"))
-    return "Tài sản đã được giữ cho một allocation khác. Hãy chọn tài sản khác.";
+    return "Tài sản đã được giữ cho một nguồn lấy hàng khác. Hãy chọn tài sản khác.";
   return message;
 }

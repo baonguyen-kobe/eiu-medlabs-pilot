@@ -520,7 +520,7 @@ export function EquipmentFulfillmentWorkspace({
               disabled={busy}
               onClick={() => void refresh()}
             >
-              {uiText("Tải phiên bản mới")}
+              {uiText("Làm mới")}
             </button>
           </div>
         </div>
@@ -1167,7 +1167,7 @@ export function EquipmentFulfillmentWorkspace({
                   {effectiveOperation === "initial_return" ? (
                     <p>
                       {uiText(
-                        "Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
+                        "Với vật tư tiêu hao hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
                       )}
                     </p>
                   ) : null}

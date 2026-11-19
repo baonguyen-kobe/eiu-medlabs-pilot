@@ -74,7 +74,7 @@ export function PreparationAllocations({
       setPage(nextPage);
     } catch {
       setError(
-        "Không tải được nguồn. Dữ liệu allocations đang nhập được giữ nguyên.",
+        "Không tải được nguồn. Dữ liệu nguồn đang nhập được giữ nguyên.",
       );
     } finally {
       setBusy(false);
@@ -145,7 +145,7 @@ export function PreparationAllocations({
             disabled={busy}
             onClick={() => void loadSources()}
           >
-            {uiText("Chọn nguồn / Thêm allocation")}
+            {uiText("Chọn nguồn / Thêm nguồn lấy hàng")}
           </button>
           {sources.length ? (
             <div className="space-y-2">
@@ -204,7 +204,7 @@ export function PreparationAllocations({
             </button>
           </div>
           <details>
-            <summary>{uiText("Mapping Inventory đã xác minh")}</summary>
+            <summary>{uiText("Ghép với vật tư kho")}</summary>
             <p>
               {uiText(
                 "Chọn tường minh SKU tương thích và hệ số đơn vị; không suy từ tên thiết bị.",
@@ -399,7 +399,7 @@ function AllocationRow({
         className="button button-secondary"
         onClick={onRemove}
       >
-        {uiText("Bỏ allocation")}
+        {uiText("Bỏ nguồn lấy hàng")}
       </button>
       {source?.tracking_strategy === "serialized" ? (
         <>

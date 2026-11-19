@@ -12924,3 +12924,45 @@ tr[data-open] > :is(th, td) {
     justify-content: flex-start;
   }
 }
+
+/* B1a-preparation: queue rows, and keep sr-only cells inside the table scroller */
+.kho-scroll {
+  position: relative;
+}
+
+.kho-scroll td,
+.kho-scroll th[scope="row"] {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.prep-queue-head {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prep-queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prep-queue-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.prep-queue-row:last-child {
+  border-bottom: 0;
+}
+
+.prep-queue-row .cell-stack {
+  flex: 1 1 280px;
+  min-width: 0;
+}

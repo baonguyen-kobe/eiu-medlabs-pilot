@@ -1477,5 +1477,18 @@
   "Đính chính sự kiện ": "Correction of event ",
   "Danh mục thiết bị đã ngừng hoạt động": "Catalogue item is inactive",
   "Vị trí lưu trữ đã ngừng hoạt động": "Storage location is inactive",
-  "Chưa rõ hoặc chưa xác minh hạn dùng": "Expiry date unknown or unverified"
+  "Chưa rõ hoặc chưa xác minh hạn dùng": "Expiry date unknown or unverified",
+  "Số lượng chuẩn bị": "Prepared quantity",
+  "Làm mới": "Refresh",
+  "Làm mới, giữ nội dung": "Refresh, keep my entries",
+  "Xác nhận đã chuẩn bị?": "Confirm as prepared?",
+  "Hệ thống sẽ giữ đúng số lượng và thiết bị trong kế hoạch, rồi gửi thông báo.": "The system will reserve the exact quantities and equipment in the plan, then send a notification.",
+  "Bắt đầu đảo chuẩn bị?": "Start undoing the preparation?",
+  "Mọi thiết bị đã chuyển kho phải được trả về nơi cũ trước khi hoàn tất.": "All equipment moved between stores must be returned to where it came from before this can finish.",
+  "Không tải được nguồn. Dữ liệu nguồn đang nhập được giữ nguyên.": "Could not load sources. The sources you entered are kept.",
+  "Chọn nguồn / Thêm nguồn lấy hàng": "Select source / Add pick source",
+  "Ghép với vật tư kho": "Match to store item",
+  "Bỏ nguồn lấy hàng": "Remove pick source",
+  "Với vật tư tiêu hao hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.": "For consumables only, or when no items have returned, the initial return may have an empty list; a return signature is still required.",
+  "Tài sản đã được giữ cho một nguồn lấy hàng khác. Hãy chọn tài sản khác.": "This asset is already reserved for another pick source. Choose another asset."
 }
