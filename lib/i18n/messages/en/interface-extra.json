@@ -1515,5 +1515,9 @@
   "Người đăng ký sẽ thấy lý do này. Vui lòng nhập lý do từ chối.": "The registrant will see this reason. Please enter the reason for rejecting.",
   "Lý do từ chối": "Reason for rejection",
   "Không có phiếu nào ở trạng thái “Chưa hoàn thành” theo bộ lọc hiện tại.": "No requests are in the “Not completed” status for the current filter.",
-  "Xem tất cả phiếu": "View all requests"
+  "Xem tất cả phiếu": "View all requests",
+  "Không có thiết bị phù hợp.": "No matching equipment.",
+  "Đổi trạng thái / hủy trên danh sách": "Change status / cancel on the list",
+  "Lĩnh vực": "Area",
+  "Kỹ năng": "Skill"
 }

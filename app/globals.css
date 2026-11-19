@@ -13156,3 +13156,21 @@ a.kpi-card {
     width: 100%;
   }
 }
+
+/* C3: request detail side tabs are links (server page), same look as the buttons. */
+.kho-side-tabs a {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-800);
+  text-decoration: none;
+}
+
+.kho-side-tabs a[aria-current="page"] {
+  border-bottom-color: var(--eiu-blue);
+  color: var(--eiu-blue);
+  font-weight: 700;
+}
