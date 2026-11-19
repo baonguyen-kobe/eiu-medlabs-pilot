@@ -457,7 +457,6 @@ export function ConditionChangeForm({
           </button>
         </div>
       ) : null}
-
       {validationError ? (
         <div
           role="alert"
@@ -475,7 +474,6 @@ export function ConditionChangeForm({
           </button>
         </div>
       ) : null}
-
       {/* Scope banner explaining Good -> Damaged only */}
       <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-xs space-y-1">
         <div className="font-bold flex items-center gap-1.5 text-amber-950">
@@ -501,363 +499,366 @@ export function ConditionChangeForm({
           )}
         </p>
       </div>
-
       {/* Header form card */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span>{uiText("Thông tin Ghi nhận Hạ phẩm cấp")}</span>
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 min-w-0">
-          {/* Location lookup */}
-          <div className="min-w-0">
-            <InventoryLookup<InventoryStorageLocation>
-              resource="locations"
-              filters={{ active: true }}
-              value={locationId}
-              label={uiText("Vị trí kho thực hiện *")}
-              id="condition-location"
-              placeholder={uiText("Chọn kho lưu trữ...")}
-              onSelect={(loc) => handleLocationChange(loc.id)}
-            />
-          </div>
-
-          {/* Occurred at */}
-          <div className="min-w-0">
-            <label
-              htmlFor="condition-occurred-at"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              {uiText("Thời điểm ghi nhận *")}
-            </label>
-            <input
-              id="condition-occurred-at"
-              type="datetime-local"
-              value={occurredAt}
-              onChange={(e) => setOccurredAt(e.target.value)}
-              className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white"
-            />
-          </div>
-
-          {/* Reason */}
-          <div className="min-w-0">
-            <label
-              htmlFor="condition-reason"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              {uiText("Lý do báo hỏng / hạ phẩm cấp *")}
-            </label>
-            <input
-              id="condition-reason"
-              type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder={uiText(
-                "VD: Bể vỡ chai thủy tinh trong lúc bảo quản, rò rỉ bao bì...",
-              )}
-              className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white"
-            />
-          </div>
+      <div className="kho-card">
+        <div className="kho-card-head">
+          <h3>
+            <span>{uiText("Thông tin Ghi nhận Hạ phẩm cấp")}</span>
+          </h3>
         </div>
-      </div>
+        <div className="kho-card-body">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 min-w-0">
+            {/* Location lookup */}
+            <div className="min-w-0">
+              <InventoryLookup<InventoryStorageLocation>
+                resource="locations"
+                filters={{ active: true }}
+                value={locationId}
+                label={uiText("Vị trí kho thực hiện *")}
+                id="condition-location"
+                placeholder={uiText("Chọn kho lưu trữ...")}
+                onSelect={(loc) => handleLocationChange(loc.id)}
+              />
+            </div>
 
+            {/* Occurred at */}
+            <div className="min-w-0">
+              <label
+                htmlFor="condition-occurred-at"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Thời điểm ghi nhận *")}
+              </label>
+              <input
+                id="condition-occurred-at"
+                type="datetime-local"
+                value={occurredAt}
+                onChange={(e) => setOccurredAt(e.target.value)}
+                className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white"
+              />
+            </div>
+
+            {/* Reason */}
+            <div className="min-w-0">
+              <label
+                htmlFor="condition-reason"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                {uiText("Lý do báo hỏng / hạ phẩm cấp *")}
+              </label>
+              <input
+                id="condition-reason"
+                type="text"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={uiText(
+                  "VD: Bể vỡ chai thủy tinh trong lúc bảo quản, rò rỉ bao bì...",
+                )}
+                className="w-full text-xs py-2 px-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white"
+              />
+            </div>
+          </div>
+        </div>{" "}
+      </div>{" "}
       {/* Stock picker for good condition stock with search & pagination */}
       {locationId ? (
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">
-                {uiText("Chọn lô hàng tốt tại kho")} ({totalStock}{" "}
-                {uiText("lô)")}
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+        <div className="kho-card">
+          <div className="kho-card-head">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {" "}
+              <div>
+                {" "}
+                <h3>
+                  {uiText("Chọn lô hàng tốt tại kho")} ({totalStock}{" "}
+                  {uiText("lô)")}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {uiText(
+                    "Chỉ hiển thị các lô vật tư đang ở trạng thái Tốt (Good) tại kho đã chọn",
+                  )}
+                </p>
+              </div>
+              {/* Search form */}
+              <form
+                onSubmit={handleStockSearchSubmit}
+                className="flex items-center gap-2"
+              >
+                <div className="relative">
+                  <Search
+                    size={14}
+                    className="absolute left-2.5 top-2.5 text-slate-400"
+                  />
+                  <input
+                    type="text"
+                    value={stockSearch}
+                    onChange={(e) => setStockSearch(e.target.value)}
+                    placeholder={uiText("Tìm theo SKU, tên vật tư...")}
+                    className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-56"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="button button-secondary text-xs py-1.5 px-3"
+                >
+                  {uiText("Tìm")}
+                </button>{" "}
+              </form>{" "}
+            </div>
+          </div>
+          <div className="kho-card-body space-y-4">
+            {" "}
+            {isLoadingStock ? (
+              <div className="text-center py-8 text-xs text-amber-600 font-medium animate-pulse">
+                {uiText("Đang tải danh sách hàng tốt...")}
+              </div>
+            ) : availableStock.length === 0 ? (
+              <p className="text-xs text-slate-400 py-6 text-center">
                 {uiText(
-                  "Chỉ hiển thị các lô vật tư đang ở trạng thái Tốt (Good) tại kho đã chọn",
+                  "Kho này hiện không có lô vật tư tình trạng Tốt nào phù hợp với bộ lọc.",
+                )}
+              </p>
+            ) : (
+              <>
+                <div className="kho-scroll">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th className="py-2 px-3">
+                          {uiText("Mã SKU ")}
+                          {"&"}
+                          {uiText(" Tên vật tư")}
+                        </th>
+                        <th className="py-2 px-3">{uiText("Tình trạng")}</th>
+                        <th className="py-2 px-3">
+                          {uiText("Trạng thái giữ (Hold)")}
+                        </th>
+                        <th className="py-2 px-3 text-right">
+                          {uiText("Tồn tốt hiện có")}
+                        </th>
+                        <th className="py-2 px-3">{uiText("Hạn dùng")}</th>
+                        <th className="py-2 px-3 text-center">
+                          {uiText("Thao tác")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {availableStock.map((item) => {
+                        const isSelected = lines.some(
+                          (l) => l.originId === item.origin_id,
+                        );
+                        return (
+                          <tr
+                            key={item.origin_id}
+                            className={`hover:bg-slate-50/80 transition-colors ${
+                              isSelected ? "bg-amber-50/50" : ""
+                            }`}
+                          >
+                            <td className="py-2.5 px-3">
+                              <span className="font-mono font-semibold text-slate-900 mr-2">
+                                {item.item_code}
+                              </span>
+                              <span className="text-slate-800">
+                                {item.item_name}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <ConditionBadge condition={item.condition} />
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <HoldStatusBadge
+                                isHeld={item.is_held}
+                                holdReason={item.hold_reason}
+                              />
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">
+                              {formatDisplayQuantity(item.quantity)}{" "}
+                              {uomLabel(item)}
+                            </td>
+                            <td className="py-2.5 px-3 text-slate-600">
+                              {item.expiry_date || "—"}
+                            </td>
+                            <td className="py-2.5 px-3 text-center">
+                              <button
+                                type="button"
+                                disabled={isSelected}
+                                onClick={() => handleAddLine(item)}
+                                className={`button text-xs py-1 px-2.5 ${
+                                  isSelected
+                                    ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                    : "button-secondary"
+                                }`}
+                              >
+                                {isSelected
+                                  ? uiText("Đã chọn")
+                                  : uiText("+ Thêm vào phiếu")}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Bounded pagination controls */}
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-slate-500">
+                    {uiText("Hiển thị trang ")}
+                    {stockPage}
+                    {uiText(" trên tổng số ")}
+                    {totalStock}
+                    {uiText(" lô")}
+                  </span>
+                  <PaginationControls
+                    currentPage={stockPage}
+                    totalItems={totalStock}
+                    pageSize={STOCK_PAGE_SIZE}
+                    onPageChange={handleStockPageChange}
+                  />
+                </div>
+              </>
+            )}{" "}
+          </div>
+        </div>
+      ) : null}{" "}
+      {/* Lines to change condition */}
+      <div className="kho-card">
+        <div className="kho-card-head">
+          <h3>
+            {uiText("Danh sách vật tư báo hỏng")} ({lines.length})
+          </h3>
+          <p className="text-xs text-slate-500">
+            {uiText(
+              "Nhập số lượng hàng tốt chuyển sang hàng hỏng (Bảo toàn tổng tồn kho vật lý)",
+            )}
+          </p>
+        </div>
+        <div className="kho-card-body space-y-4">
+          {lines.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
+              <PackageCheck className="mx-auto text-slate-300 mb-2" size={28} />
+              <p className="text-xs text-slate-500">
+                {uiText(
+                  "Chưa có lô vật tư nào được chọn. Hãy chọn kho và thêm lô từ bảng trên.",
                 )}
               </p>
             </div>
-
-            {/* Search form */}
-            <form
-              onSubmit={handleStockSearchSubmit}
-              className="flex items-center gap-2"
-            >
-              <div className="relative">
-                <Search
-                  size={14}
-                  className="absolute left-2.5 top-2.5 text-slate-400"
-                />
-                <input
-                  type="text"
-                  value={stockSearch}
-                  onChange={(e) => setStockSearch(e.target.value)}
-                  placeholder={uiText("Tìm theo SKU, tên vật tư...")}
-                  className="text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-56"
-                />
-              </div>
-              <button
-                type="submit"
-                className="button button-secondary text-xs py-1.5 px-3"
-              >
-                {uiText("Tìm")}
-              </button>
-            </form>
-          </div>
-
-          {isLoadingStock ? (
-            <div className="text-center py-8 text-xs text-amber-600 font-medium animate-pulse">
-              {uiText("Đang tải danh sách hàng tốt...")}
-            </div>
-          ) : availableStock.length === 0 ? (
-            <p className="text-xs text-slate-400 py-6 text-center">
-              {uiText(
-                "Kho này hiện không có lô vật tư tình trạng Tốt nào phù hợp với bộ lọc.",
-              )}
-            </p>
           ) : (
-            <>
-              <div className="overflow-x-auto border border-slate-100 rounded-xl">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                      <th className="py-2 px-3">
-                        {uiText("Mã SKU ")}
-                        {"&"}
-                        {uiText(" Tên vật tư")}
-                      </th>
-                      <th className="py-2 px-3">{uiText("Tình trạng")}</th>
-                      <th className="py-2 px-3">
-                        {uiText("Trạng thái giữ (Hold)")}
-                      </th>
-                      <th className="py-2 px-3 text-right">
-                        {uiText("Tồn tốt hiện có")}
-                      </th>
-                      <th className="py-2 px-3">{uiText("Hạn dùng")}</th>
-                      <th className="py-2 px-3 text-center">
-                        {uiText("Thao tác")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {availableStock.map((item) => {
-                      const isSelected = lines.some(
-                        (l) => l.originId === item.origin_id,
-                      );
-                      return (
-                        <tr
-                          key={item.origin_id}
-                          className={`hover:bg-slate-50/80 transition-colors ${
-                            isSelected ? "bg-amber-50/50" : ""
-                          }`}
-                        >
-                          <td className="py-2.5 px-3">
-                            <span className="font-mono font-semibold text-slate-900 mr-2">
-                              {item.item_code}
-                            </span>
-                            <span className="text-slate-800">
-                              {item.item_name}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <ConditionBadge condition={item.condition} />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <HoldStatusBadge
-                              isHeld={item.is_held}
-                              holdReason={item.hold_reason}
-                            />
-                          </td>
-                          <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">
-                            {formatDisplayQuantity(item.quantity)}{" "}
-                            {uomLabel(item)}
-                          </td>
-                          <td className="py-2.5 px-3 text-slate-600">
-                            {item.expiry_date || "—"}
-                          </td>
-                          <td className="py-2.5 px-3 text-center">
-                            <button
-                              type="button"
-                              disabled={isSelected}
-                              onClick={() => handleAddLine(item)}
-                              className={`button text-xs py-1 px-2.5 ${
-                                isSelected
-                                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                                  : "button-secondary"
+            <div className="kho-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th className="py-2.5 px-3">
+                      {uiText("Lô ")}
+                      {"&"}
+                      {uiText(" Vật tư")}
+                    </th>
+                    <th className="py-2.5 px-3 text-right">
+                      {uiText("Tồn tốt ban đầu")}
+                    </th>
+                    <th className="py-2.5 px-3 text-right w-44">
+                      {uiText("SL Báo hỏng *")}
+                    </th>
+                    <th className="py-2.5 px-3 text-right">
+                      {uiText("Tồn tốt còn lại (Dự kiến)")}
+                    </th>
+                    <th className="py-2.5 px-3 text-center w-16">
+                      {uiText("Xóa")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lineEvaluations.map(
+                    ({ line, remainingGood, isValid, error }, idx) => (
+                      <tr
+                        key={line.originId}
+                        className="hover:bg-slate-50/80 transition-colors"
+                      >
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-slate-900">
+                            {line.itemCode} - {line.itemName}
+                          </div>
+                          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                            {uiText("Lô: ")}
+                            {line.originId.slice(0, 8)}
+                            {uiText("... | Phiên bản kho: r")}
+                            {line.stockRevision}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-semibold text-emerald-700">
+                          {formatDisplayQuantity(line.currentGoodQuantity)}{" "}
+                          {line.baseUomCode}
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="inline-flex items-center gap-1.5 justify-end">
+                            <input
+                              type="text"
+                              value={line.quantity}
+                              onChange={(e) =>
+                                handleUpdateLineQuantity(idx, e.target.value)
+                              }
+                              className={`w-28 text-right font-mono text-xs py-1.5 px-2 border rounded-lg focus:ring-2 ${
+                                !isValid
+                                  ? "border-rose-400 bg-rose-50/50 focus:ring-rose-500"
+                                  : "border-slate-300 focus:ring-amber-500"
                               }`}
-                            >
-                              {isSelected
-                                ? uiText("Đã chọn")
-                                : uiText("+ Thêm vào phiếu")}
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Bounded pagination controls */}
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-slate-500">
-                  {uiText("Hiển thị trang ")}
-                  {stockPage}
-                  {uiText(" trên tổng số ")}
-                  {totalStock}
-                  {uiText(" lô")}
-                </span>
-                <PaginationControls
-                  currentPage={stockPage}
-                  totalItems={totalStock}
-                  pageSize={STOCK_PAGE_SIZE}
-                  onPageChange={handleStockPageChange}
-                />
-              </div>
-            </>
+                            />
+                            <span className="text-slate-500 font-medium">
+                              {line.baseUomCode}
+                            </span>
+                          </div>
+                          {error ? (
+                            <p className="text-[11px] text-rose-600 mt-1 text-right">
+                              <LocalizedText text={error ?? ""} />
+                            </p>
+                          ) : null}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-semibold text-slate-700">
+                          {isValid ? (
+                            `${formatDisplayQuantity(remainingGood)} ${line.baseUomCode}`
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveLine(idx)}
+                            className="text-slate-400 hover:text-rose-600 p-1 rounded"
+                            title={uiText("Xóa dòng")}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
-      ) : null}
 
-      {/* Lines to change condition */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">
-              {uiText("Danh sách vật tư báo hỏng")} ({lines.length})
-            </h3>
-            <p className="text-xs text-slate-500">
-              {uiText(
-                "Nhập số lượng hàng tốt chuyển sang hàng hỏng (Bảo toàn tổng tồn kho vật lý)",
-              )}
-            </p>
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs text-slate-500">
+              {uiText("Tổng cộng: ")}
+              <strong>{lines.length}</strong>
+              {uiText(" dòng báo hỏng")}
+            </span>
+            <button
+              type="button"
+              disabled={!canSubmit || isPending}
+              onClick={handleOpenReview}
+              className={`button button-primary bg-amber-600 hover:bg-amber-700 text-white py-2 px-5 text-xs font-semibold ${
+                !canSubmit || isPending ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isPending
+                ? uiText("Đang xử lý...")
+                : uiText("Xác nhận Hạ phẩm cấp (Báo hỏng) →")}
+            </button>
           </div>
         </div>
-
-        {lines.length === 0 ? (
-          <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
-            <PackageCheck className="mx-auto text-slate-300 mb-2" size={28} />
-            <p className="text-xs text-slate-500">
-              {uiText(
-                "Chưa có lô vật tư nào được chọn. Hãy chọn kho và thêm lô từ bảng trên.",
-              )}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto border border-slate-100 rounded-xl">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
-                  <th className="py-2.5 px-3">
-                    {uiText("Lô ")}
-                    {"&"}
-                    {uiText(" Vật tư")}
-                  </th>
-                  <th className="py-2.5 px-3 text-right">
-                    {uiText("Tồn tốt ban đầu")}
-                  </th>
-                  <th className="py-2.5 px-3 text-right w-44">
-                    {uiText("SL Báo hỏng *")}
-                  </th>
-                  <th className="py-2.5 px-3 text-right">
-                    {uiText("Tồn tốt còn lại (Dự kiến)")}
-                  </th>
-                  <th className="py-2.5 px-3 text-center w-16">
-                    {uiText("Xóa")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {lineEvaluations.map(
-                  ({ line, remainingGood, isValid, error }, idx) => (
-                    <tr
-                      key={line.originId}
-                      className="hover:bg-slate-50/80 transition-colors"
-                    >
-                      <td className="py-3 px-3">
-                        <div className="font-semibold text-slate-900">
-                          {line.itemCode} - {line.itemName}
-                        </div>
-                        <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                          {uiText("Lô: ")}
-                          {line.originId.slice(0, 8)}
-                          {uiText("... | Phiên bản kho: r")}
-                          {line.stockRevision}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-right font-mono font-semibold text-emerald-700">
-                        {formatDisplayQuantity(line.currentGoodQuantity)}{" "}
-                        {line.baseUomCode}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <div className="inline-flex items-center gap-1.5 justify-end">
-                          <input
-                            type="text"
-                            value={line.quantity}
-                            onChange={(e) =>
-                              handleUpdateLineQuantity(idx, e.target.value)
-                            }
-                            className={`w-28 text-right font-mono text-xs py-1.5 px-2 border rounded-lg focus:ring-2 ${
-                              !isValid
-                                ? "border-rose-400 bg-rose-50/50 focus:ring-rose-500"
-                                : "border-slate-300 focus:ring-amber-500"
-                            }`}
-                          />
-                          <span className="text-slate-500 font-medium">
-                            {line.baseUomCode}
-                          </span>
-                        </div>
-                        {error ? (
-                          <p className="text-[11px] text-rose-600 mt-1 text-right">
-                            <LocalizedText text={error ?? ""} />
-                          </p>
-                        ) : null}
-                      </td>
-                      <td className="py-3 px-3 text-right font-mono font-semibold text-slate-700">
-                        {isValid ? (
-                          `${formatDisplayQuantity(remainingGood)} ${line.baseUomCode}`
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveLine(idx)}
-                          className="text-slate-400 hover:text-rose-600 p-1 rounded"
-                          title={uiText("Xóa dòng")}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            {uiText("Tổng cộng: ")}
-            <strong>{lines.length}</strong>
-            {uiText(" dòng báo hỏng")}
-          </span>
-          <button
-            type="button"
-            disabled={!canSubmit || isPending}
-            onClick={handleOpenReview}
-            className={`button button-primary bg-amber-600 hover:bg-amber-700 text-white py-2 px-5 text-xs font-semibold ${
-              !canSubmit || isPending ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isPending
-              ? uiText("Đang xử lý...")
-              : uiText("Xác nhận Hạ phẩm cấp (Báo hỏng) →")}
-          </button>
-        </div>
-      </div>
-
+      </div>{" "}
       {/* Confirmation Modal */}
       {confirmOpen ? (
         <div
