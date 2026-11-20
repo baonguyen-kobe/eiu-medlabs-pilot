@@ -213,9 +213,6 @@ function rpcActionError(
   if (text.includes("EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY")) {
     return "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.";
   }
-  if (text.includes("EQUIPMENT_RESPONSIBLE_LECTURER_INVALID")) {
-    return "Giảng viên phụ trách phải là người đăng ký hoặc giảng viên thuộc phạm vi Skills lab.";
-  }
   if (text.includes("EQUIPMENT_REQUEST_CANCELLED_TERMINAL")) {
     return "Phiếu đã hủy nên không thể thay đổi.";
   }

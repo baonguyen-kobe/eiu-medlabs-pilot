@@ -242,7 +242,7 @@ begin
           and assignments.room_type_id = '40000000-0000-0000-0000-000000000001'::uuid
       )
     ) then
-    raise exception 'EQUIPMENT_RESPONSIBLE_LECTURER_INVALID' using errcode = '22023';
+    raise exception 'Giảng viên phụ trách không hợp lệ.' using errcode = '22023';
   end if;
   return new;
 end;
