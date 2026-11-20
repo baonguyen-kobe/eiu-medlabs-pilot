@@ -1255,7 +1255,8 @@ export function Dashboard({
                 )
               ) : null}
               {(role === "admin" || selectedEvent.owned) &&
-              selectedEvent.type === "shift" ? (
+              selectedEvent.type === "shift" &&
+              selectedEvent.date >= todayDate ? (
                 <button
                   className="button button-secondary full-width"
                   disabled={pending}

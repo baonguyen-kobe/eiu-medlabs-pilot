@@ -205,10 +205,7 @@ async function saveBasicMedicalRegistration(
   if (error || !savedId)
     return {
       ok: false,
-      message:
-        error?.code === "23P01"
-          ? "Có buổi bị trùng phòng hoặc giảng viên. Phiếu chưa được thay đổi."
-          : error?.message || "Không thể lưu phiếu Y cơ sở.",
+      message: saveErrorMessage(error),
     };
 
   after(processPendingScheduleEmails);
@@ -224,6 +221,63 @@ async function saveBasicMedicalRegistration(
       : `Đã tạo phiếu Y cơ sở với ${draft.sessions.length} buổi học.`,
     registrationId: savedId,
   };
+}
+
+const SAVE_ERROR_MESSAGES: Array<[string, string]> = [
+  [
+    "BASIC_MEDICAL_SESSION_INVALID",
+    "Giảng viên của buổi học không hợp lệ hoặc không thuộc phạm vi Y cơ sở.",
+  ],
+  [
+    "BASIC_MEDICAL_SESSION_CANCELLED",
+    "Buổi học đã bị hủy nên không thể chỉnh sửa. Vui lòng tải lại phiếu.",
+  ],
+  [
+    "REGISTRATION_CANCELLED",
+    "Phiếu Y cơ sở đã bị hủy nên không thể chỉnh sửa.",
+  ],
+  [
+    "BASIC_MEDICAL_RESPONSIBLE_OVERRIDE_FORBIDDEN",
+    "Chỉ Quản trị viên hoặc người quản lý Y cơ sở mới được chọn giảng viên phụ trách khác giảng viên buổi đầu.",
+  ],
+  ["BASIC_MEDICAL_RESPONSIBLE_INVALID", "Giảng viên phụ trách không hợp lệ."],
+  ["BASIC_MEDICAL_SAVE_FORBIDDEN", "Bạn không có quyền lưu phiếu Y cơ sở này."],
+  [
+    "AUTHENTICATION_REQUIRED",
+    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  ],
+  ["BASIC_MEDICAL_ACADEMIC_YEAR_INVALID", "Năm học không hợp lệ."],
+  ["BASIC_MEDICAL_SEMESTER_INVALID", "Học kỳ không hợp lệ."],
+  [
+    "BASIC_MEDICAL_DATE_RANGE_INVALID",
+    "Ngày kết thúc không được trước ngày bắt đầu.",
+  ],
+  ["BASIC_MEDICAL_STUDENT_COUNT_INVALID", "Số sinh viên phải lớn hơn 0."],
+  ["BASIC_MEDICAL_SESSIONS_REQUIRED", "Phiếu cần có từ 1 đến 500 buổi học."],
+  [
+    "BASIC_MEDICAL_SESSION_ID_DUPLICATE",
+    "Có buổi học bị trùng trong phiếu. Vui lòng tải lại trang.",
+  ],
+  [
+    "BASIC_MEDICAL_SESSION_ID_FOREIGN",
+    "Có buổi học không thuộc phiếu này. Vui lòng tải lại trang.",
+  ],
+  [
+    "BASIC_MEDICAL_SOURCE_INVALID",
+    "Môn học hoặc phòng không hợp lệ cho Y cơ sở.",
+  ],
+  ["BASIC_MEDICAL_REGISTRATION_NOT_FOUND", "Không tìm thấy phiếu Y cơ sở."],
+];
+
+function saveErrorMessage(error: { code?: string; message?: string } | null) {
+  if (error?.code === "23P01")
+    return "Có buổi bị trùng phòng hoặc giảng viên. Phiếu chưa được thay đổi.";
+  const match = SAVE_ERROR_MESSAGES.find(([code]) =>
+    error?.message?.includes(code),
+  );
+  if (match) return match[1];
+  if (error?.code === "42501") return "Bạn không có quyền lưu phiếu này.";
+  return "Không lưu được phiếu. Vui lòng kiểm tra lại thông tin rồi thử lại.";
 }
 
 export async function createBasicMedicalRegistration(

@@ -107,6 +107,29 @@ function friendlyDatabaseError(message: string): string {
   if (message.includes("DUPLICATE_PAYLOAD_SLOT")) {
     return "Trùng ca trực của cùng nhân sự trong cùng ngày và buổi trong yêu cầu gửi lên.";
   }
+  if (message.includes("ADMIN_ROLE_REQUIRED")) {
+    return "Chỉ Quản trị viên mới được thực hiện thao tác này.";
+  }
+  if (message.includes("BASIC_MEDICAL_SESSION_CANCEL_FORBIDDEN")) {
+    return "Chỉ Quản trị viên, người tạo phiếu hoặc giảng viên của buổi học mới được hủy buổi này.";
+  }
+  if (
+    message.includes("BASIC_MEDICAL_SESSION_CONFIRMATION_INVALIDATION_REQUIRED")
+  ) {
+    return "Buổi học đã có xác nhận còn hiệu lực. Quản trị viên cần vô hiệu hóa xác nhận trước khi hủy buổi.";
+  }
+  if (message.includes("SHIFT_CANCELLED")) {
+    return "Ca trực đã bị hủy nên không thể chỉnh sửa.";
+  }
+  if (message.includes("ASSIGN_ROOT_NOT_ALLOWED")) {
+    return "Không thể phân công quản trị viên gốc vào ca trực.";
+  }
+  if (message.includes("INVALID_TIME_RANGE")) {
+    return "Giờ bắt đầu phải sớm hơn giờ kết thúc.";
+  }
+  if (message.includes("AUTH_REQUIRED")) {
+    return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+  }
   if (message.includes("PERMISSION_DENIED")) {
     return "Bạn không có quyền thực hiện thao tác này.";
   }
@@ -306,47 +329,6 @@ function revalidateScheduleViews() {
   revalidatePath("/classes/mine");
   revalidatePath("/staff-shifts");
   revalidatePath("/basic-medical/schedules");
-}
-
-async function requireClassManagerAction() {
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims?.sub;
-  if (!userId) return null;
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .in("role", ["admin", "staff", "teaching_assistant"]);
-  return roles?.length ? { supabase, userId } : null;
-}
-
-export async function adminAssignClassLecturer(
-  scheduleId: string,
-  lecturerIds: string[],
-): Promise<ActionResult> {
-  const context = await requireClassManagerAction();
-  if (!context)
-    return { ok: false, message: "Bạn không có quyền phân công giảng viên." };
-  const uniqueLecturerIds = [...new Set(lecturerIds.filter(Boolean))];
-  if (
-    uniqueLecturerIds.length > 2 ||
-    uniqueLecturerIds.length !== lecturerIds.filter(Boolean).length
-  ) {
-    return {
-      ok: false,
-      message: "Mỗi lớp chỉ có tối đa 2 giảng viên khác nhau.",
-    };
-  }
-  const { error } = await context.supabase.rpc("assign_class_lecturers", {
-    target_schedule_id: scheduleId,
-    target_lecturer_ids: uniqueLecturerIds,
-  });
-  if (error) {
-    return { ok: false, message: friendlyDatabaseError(error.message) };
-  }
-  revalidateScheduleViews();
-  return { ok: true, message: "Đã cập nhật giảng viên nhận lớp." };
 }
 
 export async function rescheduleClass(

@@ -92,7 +92,7 @@ test("EquipmentRequestForm displays semester as read-only display field with no 
   );
   assert.match(
     eqFormSource,
-    /selectedClass\?\.semester/,
+    /selectedClass\??\.semester/,
     "Equipment form must dynamically display selectedClass.semester",
   );
   assert.match(

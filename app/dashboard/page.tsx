@@ -1,4 +1,5 @@
 import { importsEnabled } from "@/lib/feature-flags";
+import { readAllRows } from "@/lib/supabase/read-all";
 import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import {
   CalendarDays,
@@ -56,23 +57,27 @@ export default async function DashboardPage() {
   );
 
   const [{ data: schedules, error }, { data: people }] = await Promise.all([
-    supabase
-      .from("class_schedules")
-      .select(
-        `
+    readAllRows((from, to) =>
+      supabase
+        .from("class_schedules")
+        .select(
+          `
         id, schedule_date, start_time, end_time, course_code_snapshot,
         course_name_snapshot, lecturer_id, lecturer_2_id, schedule_status,
         rooms!inner (room_code, building_code, room_type_id),
         equipment_requests (id, status)
       `,
-      )
-      .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-      .is("basic_medical_registration_id", null)
-      .gte("schedule_date", monthStartText)
-      .lte("schedule_date", queryEndText)
-      .neq("schedule_status", "cancelled")
-      .order("schedule_date")
-      .order("start_time"),
+        )
+        .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+        .is("basic_medical_registration_id", null)
+        .gte("schedule_date", monthStartText)
+        .lte("schedule_date", queryEndText)
+        .neq("schedule_status", "cancelled")
+        .order("schedule_date")
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
     supabase.rpc("list_active_people"),
   ]);
   if (error) throw new Error(`Dashboard schedules: ${error.message}`);
@@ -95,7 +100,8 @@ export default async function DashboardPage() {
       schedule_date >= todayText && schedule_date <= upcomingEndText,
   );
   const openClasses = monthClasses.filter(
-    ({ lecturer_id, lecturer_2_id }) => !lecturer_id && !lecturer_2_id,
+    ({ schedule_date, lecturer_id, lecturer_2_id }) =>
+      schedule_date >= todayText && !lecturer_id && !lecturer_2_id,
   );
   const monthClassesWithoutEffectiveEquipmentRequest = monthClasses.filter(
     (schedule) => {
@@ -215,7 +221,14 @@ export default async function DashboardPage() {
           <span>
             <LocalizedText text={"Đã có giảng viên"} />
           </span>
-          <strong>{monthClasses.length - openClasses.length}</strong>
+          <strong>
+            {
+              monthClasses.filter(
+                ({ lecturer_id, lecturer_2_id }) =>
+                  lecturer_id || lecturer_2_id,
+              ).length
+            }
+          </strong>
         </Link>
         <Link className="kpi-card kpi-amber" href="/classes/open">
           <div className="kpi-icon">
