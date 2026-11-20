@@ -128,8 +128,9 @@ $$;
 revoke all on function private.cancel_equipment_for_cancelled_schedule() from public, anon, authenticated;
 
 drop trigger if exists class_schedules_cancel_equipment on public.class_schedules;
+-- BEFORE: the request triggers still see the class as active while its requests are cancelled.
 create trigger class_schedules_cancel_equipment
-after update of schedule_status on public.class_schedules
+before update of schedule_status on public.class_schedules
 for each row
 when (new.schedule_status = 'cancelled' and old.schedule_status is distinct from 'cancelled')
 execute function private.cancel_equipment_for_cancelled_schedule();
