@@ -576,13 +576,16 @@ function renderEmailV1(notification: EmailNotification) {
     : type === "class_schedule_rescheduled" ||
         type === "class_schedule_basic_medical_updated"
       ? `Lịch <strong>${escapeHtml(payload.course_code)}</strong> đã được điều chỉnh bởi <strong>${escapeHtml(payload.actor)}</strong>.${payload.old_schedule_date ? ` Ngày học đổi từ ${escapeHtml(formatVietnameseDate(payload.old_schedule_date))} sang ${escapeHtml(formatVietnameseDate(payload.schedule_date))}.` : ""}`
-      : type === "class_schedule_skills_lab_deleted"
+      : type === "class_schedule_skills_lab_deleted" ||
+          type === "skills_lab_deleted"
         ? `Giảng viên <strong>${escapeHtml(payload.actor)}</strong> đã xóa lớp Skills Lab <strong>${escapeHtml(payload.course_code)}</strong> do mình tạo.`
-        : type === "class_schedule_basic_medical_cancelled"
-          ? `Lịch Y cơ sở <strong>${escapeHtml(payload.course_code)}</strong> đã được hủy bởi <strong>${escapeHtml(payload.actor)}</strong>.`
-          : isImport
-            ? "Danh sách lịch sử dụng phòng Skills Lab mới đã được cập nhật trên hệ thống."
-            : `Một lịch ${payload.room_type_code === "basic_medical" ? "Y cơ sở" : "lớp"} mới vừa được tạo bởi <strong>${escapeHtml(payload.creator)}</strong>.`;
+        : type === "skills_lab_cancelled"
+          ? `Lớp Skills Lab <strong>${escapeHtml(payload.course_code)}</strong> đã được hủy bởi <strong>${escapeHtml(payload.actor)}</strong>. Phiếu thiết bị của lớp (nếu có) cũng đã được hủy.`
+          : type === "class_schedule_basic_medical_cancelled"
+            ? `Lịch Y cơ sở <strong>${escapeHtml(payload.course_code)}</strong> đã được hủy bởi <strong>${escapeHtml(payload.actor)}</strong>.`
+            : isImport
+              ? "Danh sách lịch sử dụng phòng Skills Lab mới đã được cập nhật trên hệ thống."
+              : `Một lịch ${payload.room_type_code === "basic_medical" ? "Y cơ sở" : "lớp"} mới vừa được tạo bởi <strong>${escapeHtml(payload.creator)}</strong>.`;
   const destination = isBasicRegistration
     ? `${appUrl}/basic-medical/registrations`
     : isImport
@@ -717,6 +720,8 @@ async function suppressPendingNotifications(dedupeKeys?: string[]) {
     console.error("Không thể đánh dấu email đã tắt gửi:", error.message);
 }
 
+const EMAIL_SEND_ATTEMPTS = 3;
+
 async function deliverNotification(notification: EmailNotification) {
   const supabase = createAdminClient();
   const appsScriptUrl = process.env.EMAIL_APPS_SCRIPT_URL;
@@ -800,45 +805,64 @@ async function deliverNotification(notification: EmailNotification) {
       : notification.notification_type.startsWith("basic_medical_registration_")
         ? "Đăng ký phòng Y cơ sở"
         : "MedLabs Calendar";
-    const timestamp = Date.now().toString();
-    const nonce = randomUUID();
-    const webhookPayload = {
-      timestamp,
-      nonce,
-      id: notification.id,
-      dedupeKey: notification.dedupe_key,
-      to: deliveryRecipient,
-      subject: deliverySubject,
-      html: deliveryHtml,
-      text: deliveryText,
-      senderName,
-    };
-    const canonicalPayload = canonicalEmailWebhookPayload(webhookPayload);
-    const signature = createHmac("sha256", appsScriptSecret)
-      .update(canonicalPayload)
-      .digest("hex");
+    const sendOnce = async () => {
+      const timestamp = Date.now().toString();
+      const nonce = randomUUID();
+      const webhookPayload = {
+        timestamp,
+        nonce,
+        id: notification.id,
+        dedupeKey: notification.dedupe_key,
+        to: deliveryRecipient,
+        subject: deliverySubject,
+        html: deliveryHtml,
+        text: deliveryText,
+        senderName,
+      };
+      const canonicalPayload = canonicalEmailWebhookPayload(webhookPayload);
+      const signature = createHmac("sha256", appsScriptSecret)
+        .update(canonicalPayload)
+        .digest("hex");
 
-    const response = await fetch(appsScriptUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...webhookPayload, signature }),
-      signal: AbortSignal.timeout(60_000),
-    }).catch((fetchError: unknown) => {
-      deliveryUncertain =
-        fetchError instanceof Error && fetchError.name === "TimeoutError";
-      throw fetchError;
-    });
+      const response = await fetch(appsScriptUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...webhookPayload, signature }),
+        signal: AbortSignal.timeout(60_000),
+      }).catch((fetchError: unknown) => {
+        deliveryUncertain =
+          fetchError instanceof Error && fetchError.name === "TimeoutError";
+        throw fetchError;
+      });
 
-    const result = (await response.json().catch(() => {
-      deliveryUncertain = response.ok;
-      throw new Error(`APPS_SCRIPT_EMAIL_INVALID_RESPONSE_${response.status}`);
-    })) as {
-      ok?: boolean;
-      messageId?: string;
-      error?: string;
+      const result = (await response.json().catch(() => {
+        deliveryUncertain = response.ok;
+        throw new Error(
+          `APPS_SCRIPT_EMAIL_INVALID_RESPONSE_${response.status}`,
+        );
+      })) as {
+        ok?: boolean;
+        messageId?: string;
+        error?: string;
+      };
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error ?? `APPS_SCRIPT_EMAIL_${response.status}`);
+      }
+      return result;
     };
-    if (!response.ok || !result.ok) {
-      throw new Error(result.error ?? `APPS_SCRIPT_EMAIL_${response.status}`);
+
+    // A definite failure (nothing was sent) is resent at once, up to 3 tries in total;
+    // an uncertain one may already be delivered and waits for reconciliation instead.
+    let result: Awaited<ReturnType<typeof sendOnce>>;
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        result = await sendOnce();
+        break;
+      } catch (sendError) {
+        if (deliveryUncertain || attempt >= EMAIL_SEND_ATTEMPTS)
+          throw sendError;
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+      }
     }
     providerSucceeded = true;
     providerMessageId = result.messageId ?? notification.dedupe_key;

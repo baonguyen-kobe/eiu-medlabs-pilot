@@ -25,7 +25,13 @@ export async function readFulfillment(requestId: string, page = 1) {
   });
   if (error)
     return { ok: false as const, error: fulfillmentError(error.message) };
-  return { ok: true as const, data: fulfillmentSchema.parse(data) };
+  const parsed = fulfillmentSchema.safeParse(data);
+  if (!parsed.success)
+    return {
+      ok: false as const,
+      error: "Không tải được dữ liệu mới. Hãy tải lại trang.",
+    };
+  return { ok: true as const, data: parsed.data };
 }
 
 export async function changeFulfillment(

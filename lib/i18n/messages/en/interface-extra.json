@@ -1611,5 +1611,15 @@
   "Không lưu được phiếu. Vui lòng kiểm tra lại thông tin rồi thử lại.": "The registration could not be saved. Check the details and try again.",
   "Đổi giảng viên buổi Y cơ sở": "Change Basic Medical session lecturer",
   "Xóa email thông báo": "Delete email notifications",
-  "Thiết lập quyền gốc": "Set up root authority"
+  "Thiết lập quyền gốc": "Set up root authority",
+  "Buổi học đã có phiếu thiết bị Kho đã chuẩn bị hoặc đã giao. Cần Kho hoàn tác chuẩn bị hoặc nhận trả trước khi hủy buổi.": "The session has an equipment request that Warehouse has prepared or handed over. Warehouse must undo preparation or receive the return before the session can be cancelled.",
+  "Bạn không có quyền hủy buổi học Y cơ sở này.": "You do not have permission to cancel this Basic Medical session.",
+  "Không tìm thấy buổi học Y cơ sở.": "Basic Medical session not found.",
+  "Không tìm thấy phiếu Y cơ sở. Phiếu có thể đã được hủy.": "Basic Medical request not found. It may already be cancelled.",
+  "Không tìm thấy xác nhận cần vô hiệu hóa.": "Confirmation to invalidate not found.",
+  "Buổi học đã hủy, không thể thay đổi giảng viên.": "The session is cancelled; the lecturer cannot be changed.",
+  "Phiếu đã hủy, không thể thay đổi.": "The request is cancelled and cannot be changed.",
+  "Không thể ký xác nhận buổi học.": "Could not sign the session confirmation.",
+  "Không thể lưu.": "Could not save.",
+  "Không tải được dữ liệu mới. Hãy tải lại trang.": "Could not load the new data. Reload the page."
 }

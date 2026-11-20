@@ -17,6 +17,47 @@ function registrationsUrl(kind: "notice" | "error", message: string) {
   return `/basic-medical/registrations?${kind}=${encodeURIComponent(message)}`;
 }
 
+const BASIC_MEDICAL_ACTION_MESSAGES: Record<string, string> = {
+  BASIC_MEDICAL_SESSION_CONFIRMATION_INVALIDATION_REQUIRED:
+    "Buổi học đã được xác nhận. Hãy vô hiệu hóa xác nhận trước khi hủy.",
+  INVALIDATION_REQUIRED:
+    "Buổi học đã được xác nhận. Hãy vô hiệu hóa xác nhận trước khi hủy.",
+  CLASS_CANCEL_EQUIPMENT_IN_USE:
+    "Buổi học đã có phiếu thiết bị Kho đã chuẩn bị hoặc đã giao. Cần Kho hoàn tác chuẩn bị hoặc nhận trả trước khi hủy buổi.",
+  STALE_REVISION:
+    "Dữ liệu đã được người khác thay đổi. Vui lòng tải lại trang rồi thử lại.",
+  BASIC_MEDICAL_SESSION_CANCEL_FORBIDDEN:
+    "Bạn không có quyền hủy buổi học Y cơ sở này.",
+  BASIC_MEDICAL_SESSION_NOT_FOUND: "Không tìm thấy buổi học Y cơ sở.",
+  BASIC_MEDICAL_REGISTRATION_NOT_FOUND:
+    "Không tìm thấy phiếu Y cơ sở. Phiếu có thể đã được hủy.",
+  BASIC_MEDICAL_MANAGER_REQUIRED:
+    "Chỉ Admin hoặc Chuyên viên được hủy phiếu Y cơ sở.",
+  BASIC_MEDICAL_CONFIRMATION_NOT_FOUND:
+    "Không tìm thấy xác nhận cần vô hiệu hóa.",
+  BASIC_MEDICAL_CONFIRMATION_INVALIDATION_REASON_REQUIRED:
+    "Vui lòng nhập Lý do vô hiệu hóa.",
+  ADMIN_REQUIRED: "Chỉ Admin được vô hiệu hóa xác nhận.",
+  UPDATE_FORBIDDEN: "Chỉ người tạo phiếu hoặc Admin được thay đổi giảng viên.",
+  INVALID_LECTURER: "Giảng viên không hợp lệ hoặc không thuộc phạm vi Y cơ sở.",
+  BASIC_MEDICAL_SESSION_CANCELLED:
+    "Buổi học đã hủy, không thể thay đổi giảng viên.",
+  REGISTRATION_CANCELLED: "Phiếu đã hủy, không thể thay đổi.",
+  AUTHENTICATION_REQUIRED: "Phiên đăng nhập đã hết hạn.",
+  AUTH_REQUIRED: "Phiên đăng nhập đã hết hạn.",
+};
+
+function basicMedicalActionError(
+  error: { message?: string; code?: string } | null,
+  fallback: string,
+): string {
+  const source = error?.message ?? "";
+  const code = Object.keys(BASIC_MEDICAL_ACTION_MESSAGES).find((key) =>
+    source.includes(key),
+  );
+  return code ? BASIC_MEDICAL_ACTION_MESSAGES[code] : fallback;
+}
+
 export type BasicMedicalEquipmentRequestActionState = {
   ok: boolean;
   message: string;
@@ -352,6 +393,12 @@ export async function updateBasicMedicalEquipmentRequest(
       };
     }
     const source = error?.message ?? "";
+    if (source.includes("STALE_REVISION")) {
+      return {
+        ok: false,
+        message: basicMedicalActionError(error, "Không thể lưu."),
+      };
+    }
     return {
       ok: false,
       message: source.includes("BASIC_MEDICAL_EQUIPMENT_EDIT_STATUS")
@@ -395,10 +442,12 @@ export async function cancelBasicMedicalSession(formData: FormData) {
     target_reason: reason,
   });
   if (error) {
-    const message = error.message.includes("INVALIDATION_REQUIRED")
-      ? "Buổi học đã được xác nhận. Hãy vô hiệu hóa xác nhận trước khi hủy."
-      : "Không thể hủy buổi học đã chọn.";
-    redirect(registrationsUrl("error", message));
+    redirect(
+      registrationsUrl(
+        "error",
+        basicMedicalActionError(error, "Không thể hủy buổi học đã chọn."),
+      ),
+    );
   }
   after(processPendingScheduleEmails);
   revalidatePath("/basic-medical/registrations");
@@ -440,15 +489,15 @@ export async function updateBasicMedicalSessionTeachingLecturer(
   );
 
   if (error) {
-    const message = error.message.includes("UPDATE_FORBIDDEN")
-      ? "Chỉ người tạo phiếu hoặc Admin được thay đổi giảng viên."
-      : error.message.includes("INVALID_LECTURER")
-        ? "Giảng viên không hợp lệ hoặc không thuộc phạm vi Y cơ sở."
-        : error.message.includes("BASIC_MEDICAL_SESSION_CANCELLED") ||
-            error.message.includes("REGISTRATION_CANCELLED")
-          ? "Buổi học đã hủy, không thể thay đổi giảng viên."
-          : "Không thể cập nhật giảng viên giảng dạy/hướng dẫn.";
-    redirect(registrationsUrl("error", message));
+    redirect(
+      registrationsUrl(
+        "error",
+        basicMedicalActionError(
+          error,
+          "Không thể cập nhật giảng viên giảng dạy/hướng dẫn.",
+        ),
+      ),
+    );
   }
 
   revalidatePath("/basic-medical/registrations");
@@ -473,7 +522,12 @@ export async function invalidateBasicMedicalSessionConfirmation(
     { target_confirmation_id: confirmationId, target_reason: reason },
   );
   if (error) {
-    redirect(registrationsUrl("error", "Không thể vô hiệu hóa xác nhận."));
+    redirect(
+      registrationsUrl(
+        "error",
+        basicMedicalActionError(error, "Không thể vô hiệu hóa xác nhận."),
+      ),
+    );
   }
   revalidatePath("/basic-medical/registrations");
   revalidatePath(
@@ -529,7 +583,10 @@ export async function cancelBasicMedicalRegistration(formData: FormData) {
     redirect(
       registrationsUrl(
         "error",
-        "Không thể hủy phiếu Y cơ sở. Phiếu có thể đã được hủy.",
+        basicMedicalActionError(
+          error,
+          "Không thể hủy phiếu Y cơ sở. Phiếu có thể đã được hủy.",
+        ),
       ),
     );
   }
@@ -631,7 +688,13 @@ export async function confirmBasicMedicalSession({
       expected_unit: check.expectedUnit,
     })),
   });
-  if (error) return { ok: false, message: error.message };
+  if (error) {
+    // The RPC raises its own Vietnamese messages; anything else is internal.
+    const message = /[À-ỹ]/.test(error.message)
+      ? error.message
+      : basicMedicalActionError(error, "Không thể ký xác nhận buổi học.");
+    return { ok: false, message };
+  }
 
   const result = data as unknown as {
     confirmation_id: string;
