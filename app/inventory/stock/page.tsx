@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LocalizedText } from "@/components/i18n/language-provider";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { StockView } from "@/components/inventory/stock-view";
 import { normalizePage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
@@ -33,10 +33,18 @@ interface StockPageProps {
 export default async function StockPage({ searchParams }: StockPageProps) {
   await requireInventoryViewer();
   const query = await searchParams;
+  // A mistyped id in a link would make the uuid-cast RPC fail the whole page.
+  for (const key of [
+    "location_id",
+    "selected_item",
+    "selected_location",
+  ] as const) {
+    if (query[key] && !isUuid(query[key])) delete query[key];
+  }
 
   const page = normalizePage(query.page);
   const pageSize = Math.min(
-    Math.max(1, query.page_size ? Number(query.page_size) : TABLE_PAGE_SIZE),
+    Math.max(1, Number(query.page_size) || TABLE_PAGE_SIZE),
     100,
   );
 

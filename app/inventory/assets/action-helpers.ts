@@ -1,3 +1,5 @@
+import { unstable_rethrow } from "next/navigation";
+
 export interface ActionResult<T = unknown> {
   ok: boolean;
   data?: T;
@@ -9,6 +11,7 @@ export function parseErrorMessage(err: unknown): {
   error: string;
   code?: string;
 } {
+  unstable_rethrow(err); // let a Next redirect from the auth guard through
   const raw = err instanceof Error ? err.message : String(err);
 
   if (raw.includes("STALE_REVISION")) {

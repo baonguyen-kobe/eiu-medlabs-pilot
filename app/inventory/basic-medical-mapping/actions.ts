@@ -10,6 +10,8 @@ const messages: Record<string, string> = {
   BASIC_MEDICAL_ITEM_ALREADY_MAPPED: "Thiết bị này đã được ghép.",
   BASIC_MEDICAL_MAPPING_ADMIN_ONLY: "Chỉ Admin được ghép danh mục.",
   REASON_REQUIRED: "Cần ghi lý do ghép.",
+  BASIC_MEDICAL_ITEM_NOT_FOUND: "Không tìm thấy thiết bị Y cơ sở này.",
+  INACTIVE_REFERENCE: "Mã hàng trong kho đã ngừng hoạt động.",
 };
 
 export async function mapBasicMedicalItem(

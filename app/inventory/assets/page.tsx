@@ -1,6 +1,7 @@
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
 import { assetRead } from "@/lib/inventory/asset-client";
+import { isUuid } from "@/lib/inventory/client";
 import { AssetListView } from "@/components/inventory/assets/asset-list-view";
 import type {
   AssetLifecycleStatus,
@@ -34,7 +35,9 @@ export default async function AssetsPage({
     sp.operational_status && sp.operational_status !== "all"
       ? (sp.operational_status as AssetOperationalStatus)
       : undefined;
-  const source_line_id = sp.source_line_id?.trim() || undefined;
+  const source_line_id = isUuid(sp.source_line_id?.trim())
+    ? sp.source_line_id?.trim()
+    : undefined;
   const result = await assetRead<EquipmentAsset>("assets", {
     q,
     lifecycle_status,

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { inventoryActionError } from "@/lib/inventory/action-error";
 import {
   requireInventoryAdmin,
   requireInventoryViewer,
@@ -100,8 +101,7 @@ export async function createItemAction(input: {
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo vật tư";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo vật tư");
   }
 }
 
@@ -130,8 +130,7 @@ export async function updateItemAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi cập nhật vật tư";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật vật tư");
   }
 }
 
@@ -160,9 +159,7 @@ export async function inactivateItemAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi ngừng hoạt động vật tư";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi ngừng hoạt động vật tư");
   }
 }
 
@@ -191,9 +188,7 @@ export async function reactivateItemAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kích hoạt lại vật tư";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kích hoạt lại vật tư");
   }
 }
 
@@ -224,8 +219,7 @@ export async function createCategoryAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo nhóm vật tư";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo nhóm vật tư");
   }
 }
 
@@ -253,8 +247,7 @@ export async function updateCategoryAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi cập nhật nhóm";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật nhóm");
   }
 }
 
@@ -279,9 +272,7 @@ export async function inactivateCategoryAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi ngừng hoạt động nhóm";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi ngừng hoạt động nhóm");
   }
 }
 
@@ -306,9 +297,7 @@ export async function reactivateCategoryAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kích hoạt lại nhóm";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kích hoạt lại nhóm");
   }
 }
 
@@ -350,8 +339,7 @@ export async function createUomAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo ĐVT";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo ĐVT");
   }
 }
 
@@ -380,8 +368,7 @@ export async function updateUomAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi cập nhật ĐVT";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật ĐVT");
   }
 }
 
@@ -407,9 +394,7 @@ export async function inactivateUomAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi ngừng hoạt động ĐVT";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi ngừng hoạt động ĐVT");
   }
 }
 
@@ -435,9 +420,7 @@ export async function reactivateUomAction(input: {
     revalidatePath("/inventory/catalog");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kích hoạt lại ĐVT";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kích hoạt lại ĐVT");
   }
 }
 
@@ -472,8 +455,7 @@ export async function createSupplierAction(input: {
     revalidatePath("/inventory/suppliers");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo nhà cung cấp";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo nhà cung cấp");
   }
 }
 
@@ -508,9 +490,7 @@ export async function updateSupplierAction(input: {
     revalidatePath("/inventory/suppliers");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi cập nhật nhà cung cấp";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật nhà cung cấp");
   }
 }
 
@@ -536,9 +516,7 @@ export async function inactivateSupplierAction(input: {
     revalidatePath("/inventory/suppliers");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi ngừng hoạt động nhà cung cấp";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi ngừng hoạt động nhà cung cấp");
   }
 }
 
@@ -564,9 +542,7 @@ export async function reactivateSupplierAction(input: {
     revalidatePath("/inventory/suppliers");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kích hoạt lại nhà cung cấp";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kích hoạt lại nhà cung cấp");
   }
 }
 
@@ -603,8 +579,7 @@ export async function createLocationAction(input: {
     revalidatePath("/inventory/locations");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo vị trí kho";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo vị trí kho");
   }
 }
 
@@ -645,9 +620,7 @@ export async function updateLocationAction(input: {
     revalidatePath("/inventory/locations");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi cập nhật vị trí kho";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật vị trí kho");
   }
 }
 
@@ -673,9 +646,7 @@ export async function inactivateLocationAction(input: {
     revalidatePath("/inventory/locations");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi ngừng hoạt động vị trí";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi ngừng hoạt động vị trí");
   }
 }
 
@@ -701,9 +672,7 @@ export async function reactivateLocationAction(input: {
     revalidatePath("/inventory/locations");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kích hoạt lại vị trí";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kích hoạt lại vị trí");
   }
 }
 
@@ -763,8 +732,7 @@ export async function createSourceAction(input: {
     revalidatePath("/inventory/acquisitions");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi tạo hồ sơ nguồn";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo hồ sơ nguồn");
   }
 }
 
@@ -803,9 +771,7 @@ export async function updateSourceAction(input: {
     revalidatePath("/inventory/acquisitions");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi cập nhật hồ sơ nguồn";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật hồ sơ nguồn");
   }
 }
 
@@ -835,8 +801,7 @@ export async function voidSourceAction(input: {
     revalidatePath("/inventory/acquisitions");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi hủy hồ sơ nguồn";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi hủy hồ sơ nguồn");
   }
 }
 
@@ -911,9 +876,7 @@ export async function createSourceLineAction(input: {
     revalidatePath("/inventory/acquisitions");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi tạo dòng hồ sơ nguồn";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi tạo dòng hồ sơ nguồn");
   }
 }
 
@@ -986,9 +949,7 @@ export async function updateSourceLineAction(input: {
     revalidatePath("/inventory/acquisitions");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi cập nhật dòng hồ sơ";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi cập nhật dòng hồ sơ");
   }
 }
 
@@ -1073,14 +1034,13 @@ export async function receiveStockAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory/receive");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi thực hiện nhận kho";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi thực hiện nhận kho");
   }
 }
 
@@ -1160,13 +1120,13 @@ export async function confirmOpeningBalanceAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/opening");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi xác nhận tồn đầu";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi xác nhận tồn đầu");
   }
 }
 
@@ -1233,12 +1193,11 @@ export async function correctReceiptAction(
 
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi điều chỉnh phiếu nhận";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi điều chỉnh phiếu nhận");
   }
 }
 
@@ -1270,11 +1229,11 @@ export async function reverseReceiptAction(
 
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi hủy phiếu nhận";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi hủy phiếu nhận");
   }
 }
 
@@ -1325,12 +1284,11 @@ export async function correctOpeningBalanceAction(
 
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi điều chỉnh tồn đầu";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi điều chỉnh tồn đầu");
   }
 }
 
@@ -1387,12 +1345,11 @@ export async function verifyOpeningExpiryAction(
 
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi xác minh hạn sử dụng";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi xác minh hạn sử dụng");
   }
 }
 
@@ -1458,13 +1415,13 @@ export async function transferStockAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/operations");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi điều chuyển kho";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi điều chuyển kho");
   }
 }
 
@@ -1527,13 +1484,13 @@ export async function changeStockConditionAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/operations");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Lỗi hạ phẩm cấp";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi hạ phẩm cấp");
   }
 }
 
@@ -1646,14 +1603,13 @@ export async function reconcileStocktakeAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/operations");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi kiểm kê & đối soát kho";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi kiểm kê & đối soát kho");
   }
 }
 
@@ -1719,14 +1675,13 @@ export async function verifyStocktakeSurplusAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/operations");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi thẩm định hàng thừa";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi thẩm định hàng thừa");
   }
 }
 
@@ -1765,13 +1720,12 @@ export async function appendStocktakeEvidenceAction(
     );
 
     revalidatePath("/inventory/stock");
+    revalidatePath("/inventory/rooms", "layout");
     revalidatePath("/inventory/operations");
     revalidatePath("/inventory/transactions");
     revalidatePath("/inventory");
     return { ok: true, data: result };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Lỗi bổ sung bằng chứng";
-    return { ok: false, error: message };
+    return inventoryActionError(err, "Lỗi bổ sung bằng chứng");
   }
 }
