@@ -18,7 +18,7 @@ test("updateEquipmentRequest preserves its existing historical responsible lectu
 
   assert.match(
     source,
-    /"id,class_schedule_id,registrant_id,responsible_lecturer_id,status,semester,receive_at,late_approval_status,late_registration_reason"/,
+    /"id,class_schedule_id,registrant_id,responsible_lecturer_id,status,request_domain,semester,receive_at,late_approval_status,late_registration_reason"/,
   );
   assert.match(
     source,

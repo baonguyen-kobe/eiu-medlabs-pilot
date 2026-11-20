@@ -26,6 +26,7 @@ export type EquipmentActionState = {
   ok: boolean;
   message: string;
   data?: EquipmentConfirmationState;
+  softCancelled?: boolean;
 };
 
 export type EquipmentItemActionState = {
@@ -194,6 +195,38 @@ export async function addEquipmentRequestItem({
   };
 }
 
+const genericActionError =
+  "Không thực hiện được thao tác. Vui lòng tải lại trang rồi thử lại.";
+
+const preparedAdjustMessage =
+  "Phiếu đã được Kho chuẩn bị nên không thể điều chỉnh tại đây. Vui lòng liên hệ Kho để điều chỉnh số lượng.";
+
+// RPC errors are either a Vietnamese sentence or a raw code; never show a code.
+function rpcActionError(
+  error: { message?: string; hint?: string } | null,
+  fallback = genericActionError,
+) {
+  const text = error?.hint || error?.message || "";
+  if (text.includes("EQUIPMENT_REQUEST_SCOPE_REQUIRED")) {
+    return "Bạn không có quyền thao tác trên phiếu này.";
+  }
+  if (text.includes("EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY")) {
+    return "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.";
+  }
+  if (text.includes("EQUIPMENT_REQUEST_CANCELLED_TERMINAL")) {
+    return "Phiếu đã hủy nên không thể thay đổi.";
+  }
+  return text && !/^[A-Z0-9_]+$/.test(text.trim()) ? text : fallback;
+}
+
+function revalidateRequestPaths(requestId: string) {
+  revalidatePath("/equipment/requests");
+  revalidatePath("/equipment/mine");
+  revalidatePath("/dashboard");
+  revalidatePath("/class-schedules");
+  revalidatePath(`/equipment/preparation/${requestId}`);
+}
+
 export async function deleteEquipmentRequest(
   requestId: string,
 ): Promise<EquipmentActionState> {
@@ -213,10 +246,11 @@ export async function deleteEquipmentRequest(
     .eq("id", requestId)
     .maybeSingle();
   if (requestError || !request) {
-    return { ok: false, message: "Equipment request was not found." };
+    return { ok: false, message: "Không tìm thấy phiếu thiết bị." };
   }
 
   let actionMessage = "";
+  let softCancelled = false;
   const { data: isHardDeleted, error: hardDeleteErr } =
     request.request_domain === "nursing_skills"
       ? await supabase.rpc("hard_delete_equipment_request", {
@@ -234,10 +268,17 @@ export async function deleteEquipmentRequest(
     if (cancelErr || !isCancelled) {
       return {
         ok: false,
-        message: cancelErr?.hint || "Không thể hủy hoặc xóa phiếu thiết bị.",
+        message:
+          cancelErr?.hint ||
+          (hardDeleteErr?.message && hardDeleteErr.code !== "42501"
+            ? hardDeleteErr.message
+            : "Không thể hủy hoặc xóa phiếu thiết bị."),
       };
     }
-    actionMessage = "Đã hủy phiếu thiết bị.";
+    softCancelled = request.request_domain === "nursing_skills";
+    actionMessage = softCancelled
+      ? "Không có quyền xóa hẳn nên phiếu đã được hủy."
+      : "Đã hủy phiếu thiết bị.";
   }
 
   after(() => processPendingEmailOutbox());
@@ -249,7 +290,7 @@ export async function deleteEquipmentRequest(
   revalidatePath("/class-schedules");
   revalidatePath("/classes/open");
   revalidatePath("/classes/mine");
-  return { ok: true, message: actionMessage };
+  return { ok: true, message: actionMessage, softCancelled };
 }
 
 export async function updateEquipmentRequestStatus(
@@ -281,11 +322,11 @@ export async function updateEquipmentRequestStatus(
   if (error || !data) {
     return {
       ok: false,
-      message:
-        error?.hint || error?.message || "Không thể cập nhật trạng thái phiếu.",
+      message: rpcActionError(error, "Không thể cập nhật trạng thái phiếu."),
     };
   }
 
+  revalidateRequestPaths(requestId);
   const row = toEquipmentConfirmationState(data as Record<string, unknown>);
   const waitingMessage =
     status === "handed_over" && !row.handover_recipient_signed_at
@@ -325,12 +366,15 @@ export async function reviewLateEquipmentRequest(
   if (error || !data) {
     return {
       ok: false,
-      message:
-        error?.message || "Không thể cập nhật kết quả duyệt đăng ký trễ.",
+      message: rpcActionError(
+        error,
+        "Không thể cập nhật kết quả duyệt đăng ký trễ.",
+      ),
     };
   }
 
   after(() => processPendingEmailOutbox());
+  revalidateRequestPaths(requestId);
 
   return {
     ok: true,
@@ -381,10 +425,11 @@ export async function confirmEquipmentRequestHandoff(
   if (error || !data) {
     return {
       ok: false,
-      message: error?.message || "Không thể lưu chữ ký xác nhận.",
+      message: rpcActionError(error, "Không thể lưu chữ ký xác nhận."),
     };
   }
 
+  revalidateRequestPaths(requestId);
   const row = toEquipmentConfirmationState(data as Record<string, unknown>);
   const message =
     phase === "handover"
@@ -495,7 +540,7 @@ export async function updateEquipmentRequest(
     supabase
       .from("equipment_requests")
       .select(
-        "id,class_schedule_id,registrant_id,responsible_lecturer_id,status,semester,receive_at,late_approval_status,late_registration_reason",
+        "id,class_schedule_id,registrant_id,responsible_lecturer_id,status,request_domain,semester,receive_at,late_approval_status,late_registration_reason",
       )
       .eq("id", requestId)
       .maybeSingle(),
@@ -538,7 +583,11 @@ export async function updateEquipmentRequest(
   if (!request || (request.registrant_id !== userId && !canManageAll)) {
     return { ok: false, message: "Bạn không có quyền điều chỉnh phiếu này." };
   }
-  if (!["new", "preparing"].includes(request.status)) {
+  if (request.request_domain === "nursing_skills") {
+    if (request.status !== "new") {
+      return { ok: false, message: preparedAdjustMessage };
+    }
+  } else if (!["new", "preparing"].includes(request.status)) {
     return {
       ok: false,
       message: "Chỉ có thể điều chỉnh phiếu trạng thái Mới hoặc Đã soạn.",
@@ -588,11 +637,14 @@ export async function updateEquipmentRequest(
   if (returnDate < schedule.schedule_date) {
     return { ok: false, message: "Ngày trả phải bằng hoặc sau ngày học." };
   }
-  if (receiveDate < businessTodayString()) {
+  // A note-only edit must still save after the pickup time has passed.
+  const receiveUnchanged =
+    new Date(request.receive_at).getTime() === receiveAt.getTime();
+  if (!receiveUnchanged && receiveDate < businessTodayString()) {
     return { ok: false, message: "Ngày nhận không được trước ngày hiện tại." };
   }
   const leadTime = equipmentLeadTime(receiveAt);
-  if (leadTime.isExpired) {
+  if (!receiveUnchanged && leadTime.isExpired) {
     return {
       ok: false,
       message: "Thời gian nhận thiết bị phải sau thời điểm đăng ký.",
@@ -646,9 +698,13 @@ export async function updateEquipmentRequest(
         "EQUIPMENT_REQUEST_DUPLICATE_COMMERCIAL_NAME_IN_ACTIVITY",
       )
         ? duplicateCommercialNameInActivityMessage
-        : error?.code === "23505"
-          ? "Lớp này đã có một phiếu đăng ký thiết bị khác."
-          : error?.message || "Không thể lưu nội dung điều chỉnh.",
+        : error?.message?.includes("STALE_REVISION")
+          ? "Phiếu đã được thay đổi ở nơi khác. Vui lòng tải lại trang rồi điều chỉnh lại."
+          : error?.message?.includes("S4_USE_QUANTITY_ADJUSTMENT")
+            ? preparedAdjustMessage
+            : error?.code === "23505"
+              ? "Lớp này đã có một phiếu đăng ký thiết bị khác."
+              : error?.message || "Không thể lưu nội dung điều chỉnh.",
     };
   }
 

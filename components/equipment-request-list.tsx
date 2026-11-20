@@ -1094,6 +1094,11 @@ export function EquipmentRequestList({
             ...current,
             [request.id]: "cancelled",
           }));
+        } else if (result.softCancelled) {
+          setCurrentStatuses((current) => ({
+            ...current,
+            [request.id]: "cancelled",
+          }));
         } else {
           setDeletedIds((current) => new Set(current).add(request.id));
           setSelectedId((current) => (current === request.id ? null : current));
@@ -1242,14 +1247,17 @@ export function EquipmentRequestList({
                 aria-busy={isPending && updatingId === request.id}
               >
                 {inventoryManaged ? (
-                  <Link
-                    className="button button-primary"
-                    href={inventoryStepHref(request)}
-                  >
-                    {request.status === "new"
-                      ? uiText("Chuẩn bị thiết bị")
-                      : uiText("Bàn giao, thu hồi và ký xác nhận")}
-                  </Link>
+                  isCancelled ||
+                  !["pending", "rejected"].includes(lateApprovalStatus) ? (
+                    <Link
+                      className="button button-primary"
+                      href={inventoryStepHref(request)}
+                    >
+                      {request.status === "new"
+                        ? uiText("Chuẩn bị thiết bị")
+                        : uiText("Bàn giao, thu hồi và ký xác nhận")}
+                    </Link>
+                  ) : null
                 ) : (
                   equipmentRequestWorkflowStatuses.map((option) => (
                     <button
