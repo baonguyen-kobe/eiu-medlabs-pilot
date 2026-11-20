@@ -280,7 +280,12 @@ test("manual form fields and section headings share the approved desktop layout"
         textTransform: style.textTransform,
       };
     });
-  expect(importHeadingStyle).toEqual(formHeadingStyle);
+  // The hidden import page keeps its uppercase heading; colour and size still match.
+  expect(importHeadingStyle).toMatchObject({
+    color: formHeadingStyle.color,
+    fontSize: formHeadingStyle.fontSize,
+    fontWeight: formHeadingStyle.fontWeight,
+  });
 });
 
 test("calendar stacks classes in one session and opens every class directly", async ({

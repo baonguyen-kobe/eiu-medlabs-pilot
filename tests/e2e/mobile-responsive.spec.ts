@@ -134,13 +134,14 @@ test("mobile filters, data tables, catalogs and import controls use local scroll
 
   await page.goto("/admin/courses");
   await expectNoPageOverflow(page);
-  const tabColumns = await page
-    .locator(".catalog-tabs")
-    .evaluate(
-      (element) =>
-        getComputedStyle(element).gridTemplateColumns.split(" ").length,
+  // Danh mục tabs stay on one row and scroll sideways inside their strip.
+  const tabRows = await page
+    .locator(".catalog-tabs a")
+    .evaluateAll(
+      (links) =>
+        new Set(links.map((link) => (link as HTMLElement).offsetTop)).size,
     );
-  expect(tabColumns).toBe(2);
+  expect(tabRows).toBe(1);
   const catalogTable = page.getByRole("region", { name: /Danh mục môn học/ });
   expect(
     await catalogTable.evaluate(
