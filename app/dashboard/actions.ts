@@ -11,6 +11,12 @@ export type ActionResult = {
 };
 
 function friendlyDatabaseError(message: string): string {
+  if (message.includes("CLASS_CANCEL_EQUIPMENT_IN_USE")) {
+    return "Buổi học đã có phiếu thiết bị Kho đã chuẩn bị hoặc đã giao. Cần Kho hoàn tác chuẩn bị hoặc nhận trả trước khi hủy buổi.";
+  }
+  if (message.includes("CLASS_PAST_DELETE_FORBIDDEN")) {
+    return "Lớp đã diễn ra nên không thể xóa. Liên hệ Quản trị viên nếu cần điều chỉnh.";
+  }
   if (message.includes("CLASS_EQUIPMENT_REQUEST_EXISTS")) {
     return "Lớp đã có Phiếu đăng ký thiết bị. Vui lòng xóa vĩnh viễn Phiếu đăng ký thiết bị trước khi thực hiện thao tác này.";
   }

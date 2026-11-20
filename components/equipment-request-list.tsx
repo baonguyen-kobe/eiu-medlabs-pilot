@@ -1161,7 +1161,7 @@ export function EquipmentRequestList({
     const needsMySignature = inventoryManaged
       ? canSignForRequest &&
         !canManageRequest &&
-        ["handed_over", "returned"].includes(request.status)
+        request.has_unsigned_fulfillment
       : canSignHandover || canSignReturn;
     return {
       needsMySignature,

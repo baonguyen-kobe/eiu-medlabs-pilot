@@ -213,6 +213,9 @@ function rpcActionError(
   if (text.includes("EQUIPMENT_REQUEST_INVENTORY_FLOW_ONLY")) {
     return "Phiếu Skills lab ghi nhận qua Chuẩn bị và Bàn giao / thu hồi.";
   }
+  if (text.includes("EQUIPMENT_RESPONSIBLE_LECTURER_INVALID")) {
+    return "Giảng viên phụ trách phải là người đăng ký hoặc giảng viên thuộc phạm vi Skills lab.";
+  }
   if (text.includes("EQUIPMENT_REQUEST_CANCELLED_TERMINAL")) {
     return "Phiếu đã hủy nên không thể thay đổi.";
   }
@@ -704,7 +707,7 @@ export async function updateEquipmentRequest(
             ? preparedAdjustMessage
             : error?.code === "23505"
               ? "Lớp này đã có một phiếu đăng ký thiết bị khác."
-              : error?.message || "Không thể lưu nội dung điều chỉnh.",
+              : rpcActionError(error, "Không thể lưu nội dung điều chỉnh."),
     };
   }
 
@@ -913,7 +916,7 @@ export async function createEquipmentRequest(
         ? duplicateCommercialNameInActivityMessage
         : error?.code === "23505"
           ? "Lớp này đã có phiếu đăng ký thiết bị."
-          : error?.message || "Không thể tạo phiếu thiết bị.",
+          : rpcActionError(error, "Không thể tạo phiếu thiết bị."),
     };
   after(() => processPendingEmailOutbox());
   revalidatePath("/equipment/requests");

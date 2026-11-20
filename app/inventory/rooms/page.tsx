@@ -15,13 +15,13 @@ export default async function RoomEquipmentListPage({
   await requireInventoryViewer();
   const params = await searchParams;
   const q = params.q?.trim().slice(0, 100) ?? "";
-  const summary = await readRoomSummary(q, normalizePage(params.page));
   const hasEquipment = params.has === "1";
-  const rows = hasEquipment
-    ? summary.rows.filter(
-        (room) => room.fixed + room.temporary + room.damaged > 0,
-      )
-    : summary.rows;
+  const summary = await readRoomSummary(
+    q,
+    normalizePage(params.page),
+    hasEquipment,
+  );
+  const rows = summary.rows;
   const text = await getInterfaceText();
 
   return (
@@ -54,7 +54,7 @@ export default async function RoomEquipmentListPage({
             </Link>
           ) : null}
           <span className="inline-toolbar-count">
-            {text("{0} phòng", [hasEquipment ? rows.length : summary.total])}
+            {text("{0} phòng", [summary.total])}
           </span>
         </div>
       </form>

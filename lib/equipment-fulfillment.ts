@@ -129,6 +129,8 @@ const s5Errors: Record<string, string> = {
   S5_PREPARATION_RECONCILIATION_REQUIRED:
     "Kết quả chuẩn bị chưa khớp với kho. Quay lại màn hình chuẩn bị để xử lý trước khi bàn giao.",
   S5_RETURN_EXCEEDS_ISSUE: "Số lượng trả vượt quá số lượng đã giao còn lại.",
+  S5_RECEIPT_LOCATION_INACTIVE:
+    "Vị trí nhận trả đã ngừng hoạt động. Vui lòng chọn vị trí khác.",
   S5_ROOM_KEEP_ADMIN_ONLY:
     "Chỉ Admin mới được chọn giữ lại thiết bị cho phòng.",
   S5_ROOM_KEEP_WRONG_ROOM:

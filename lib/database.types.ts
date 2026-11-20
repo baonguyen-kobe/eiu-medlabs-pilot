@@ -5240,6 +5240,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_unsigned_fulfillment: {
+        Args: {
+          p_request: Database["public"]["Tables"]["equipment_requests"]["Row"]
+        }
+        Returns: boolean
+      }
       hook_only_precreated_personnel: { Args: { event: Json }; Returns: Json }
       import_equipment_requests: {
         Args: { target_requests: Json }
@@ -5795,7 +5801,12 @@ export type Database = {
       }
       room_equipment_read: { Args: { p_room_id: string }; Returns: Json }
       room_equipment_summary: {
-        Args: { p_page?: number; p_page_size?: number; p_query?: string }
+        Args: {
+          p_has_equipment?: boolean
+          p_page?: number
+          p_page_size?: number
+          p_query?: string
+        }
         Returns: Json
       }
       save_basic_medical_registration: {

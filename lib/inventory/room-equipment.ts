@@ -54,11 +54,16 @@ export type RoomEquipment = {
   temporary: RoomTemporaryRow[];
 };
 
-export async function readRoomSummary(query: string, page: number) {
+export async function readRoomSummary(
+  query: string,
+  page: number,
+  hasEquipment = false,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("room_equipment_summary", {
     p_query: query || undefined,
     p_page: page,
+    p_has_equipment: hasEquipment,
   });
   if (error) throw new Error(`Room equipment summary: ${error.message}`);
   return data as {

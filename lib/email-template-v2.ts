@@ -442,8 +442,13 @@ function scheduleIntro(notification: EmailNotification) {
       : "";
     return `Lịch <strong>${escapeHtml(payload.course_code)}</strong> đã được điều chỉnh bởi <strong>${escapeHtml(payload.actor)}</strong>.${changedDate}`;
   }
-  if (type === "class_schedule_skills_lab_deleted")
+  if (
+    type === "class_schedule_skills_lab_deleted" ||
+    type === "skills_lab_deleted"
+  )
     return `Giảng viên <strong>${escapeHtml(payload.actor)}</strong> đã xóa lớp Skills Lab <strong>${escapeHtml(payload.course_code)}</strong> do mình tạo.`;
+  if (type === "skills_lab_cancelled")
+    return `Lớp Skills Lab <strong>${escapeHtml(payload.course_code)}</strong> đã được hủy bởi <strong>${escapeHtml(payload.actor)}</strong>. Phiếu thiết bị của lớp (nếu có) cũng đã được hủy.`;
   if (type === "class_schedule_basic_medical_cancelled")
     return `Lịch Y cơ sở <strong>${escapeHtml(payload.course_code)}</strong> đã được hủy bởi <strong>${escapeHtml(payload.actor)}</strong>.`;
   return `Một lịch ${payload.room_type_code === "basic_medical" ? "Y cơ sở" : "Skills Lab"} mới vừa được tạo bởi <strong>${escapeHtml(payload.creator)}</strong>.`;

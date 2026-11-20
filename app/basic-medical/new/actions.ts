@@ -225,6 +225,14 @@ async function saveBasicMedicalRegistration(
 
 const SAVE_ERROR_MESSAGES: Array<[string, string]> = [
   [
+    "BASIC_MEDICAL_SESSION_CONFIRMATION_INVALIDATION_REQUIRED",
+    "Có buổi học đã được xác nhận nên không thể bỏ khỏi phiếu. Quản trị viên cần vô hiệu hóa xác nhận trước.",
+  ],
+  [
+    "BASIC_MEDICAL_SESSION_REMOVAL_BLOCKED_BY_ACTIVE_EQUIPMENT_REQUEST",
+    "Có buổi học đang có phiếu thiết bị nên không thể bỏ khỏi phiếu. Hãy hủy phiếu thiết bị trước.",
+  ],
+  [
     "BASIC_MEDICAL_SESSION_INVALID",
     "Giảng viên của buổi học không hợp lệ hoặc không thuộc phạm vi Y cơ sở.",
   ],
