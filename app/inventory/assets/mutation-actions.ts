@@ -105,6 +105,8 @@ export async function setAssetStateAction(input: {
     );
     revalidatePath(`/inventory/assets/${input.id}`);
     revalidatePath("/inventory/assets");
+
+    revalidatePath("/inventory/rooms", "layout");
     return { ok: true, data: result };
   } catch (err: unknown) {
     const { error, code } = parseErrorMessage(err);
@@ -177,6 +179,8 @@ export async function setAssetLifecycleAction(input: {
     );
     revalidatePath(`/inventory/assets/${input.id}`);
     revalidatePath("/inventory/assets");
+
+    revalidatePath("/inventory/rooms", "layout");
     return { ok: true, data: result };
   } catch (err: unknown) {
     const { error, code } = parseErrorMessage(err);
@@ -321,6 +325,8 @@ export async function correctAssetAction(input: {
     const result = await assetCommand("correct_asset", payload, input.retryKey);
     revalidatePath(`/inventory/assets/${input.id}`);
     revalidatePath("/inventory/assets");
+
+    revalidatePath("/inventory/rooms", "layout");
     return { ok: true, data: result };
   } catch (err: unknown) {
     const { error, code } = parseErrorMessage(err);

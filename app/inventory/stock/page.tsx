@@ -1,6 +1,8 @@
+import Link from "next/link";
+import { LocalizedText } from "@/components/i18n/language-provider";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { StockView } from "@/components/inventory/stock-view";
 import { normalizePage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 import type {
@@ -31,10 +33,18 @@ interface StockPageProps {
 export default async function StockPage({ searchParams }: StockPageProps) {
   await requireInventoryViewer();
   const query = await searchParams;
+  // A mistyped id in a link would make the uuid-cast RPC fail the whole page.
+  for (const key of [
+    "location_id",
+    "selected_item",
+    "selected_location",
+  ] as const) {
+    if (query[key] && !isUuid(query[key])) delete query[key];
+  }
 
   const page = normalizePage(query.page);
   const pageSize = Math.min(
-    Math.max(1, query.page_size ? Number(query.page_size) : TABLE_PAGE_SIZE),
+    Math.max(1, Number(query.page_size) || TABLE_PAGE_SIZE),
     100,
   );
 
@@ -121,31 +131,45 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     : null;
 
   return (
-    <StockView
-      balances={balancesRes.rows}
-      totalBalances={balancesRes.total}
-      currentPage={page}
-      pageSize={pageSize}
-      filters={{
-        q: query.q || "",
-        location_id: query.location_id || "",
-        condition: query.condition || "all",
-        expiry_state: expiryState || "all",
-        active: query.active || "all",
-        sort: query.sort || "",
-      }}
-      counts={{
-        all: allCount,
-        eligible: eligibleCount,
-        expired: expiredCount,
-        unknown: unknownCount,
-        damaged: damagedCount,
-      }}
-      selectedLocationLabel={selectedLocationLabel}
-      selectedDimensions={selectedDimensions}
-      cohorts={cohortsRes?.rows ?? []}
-      totalCohorts={cohortsRes?.total ?? 0}
-      cohortPage={normalizePage(query.cohort_page)}
-    />
+    <>
+      <nav className="segmented-control" aria-label="Kho">
+        <Link href="/inventory" className={""} aria-current={undefined}>
+          <LocalizedText text="Tổng quan" />
+        </Link>
+        <Link
+          href="/inventory/stock"
+          className={"selected"}
+          aria-current="page"
+        >
+          <LocalizedText text="Tồn kho" />
+        </Link>
+      </nav>
+      <StockView
+        balances={balancesRes.rows}
+        totalBalances={balancesRes.total}
+        currentPage={page}
+        pageSize={pageSize}
+        filters={{
+          q: query.q || "",
+          location_id: query.location_id || "",
+          condition: query.condition || "all",
+          expiry_state: expiryState || "all",
+          active: query.active || "all",
+          sort: query.sort || "",
+        }}
+        counts={{
+          all: allCount,
+          eligible: eligibleCount,
+          expired: expiredCount,
+          unknown: unknownCount,
+          damaged: damagedCount,
+        }}
+        selectedLocationLabel={selectedLocationLabel}
+        selectedDimensions={selectedDimensions}
+        cohorts={cohortsRes?.rows ?? []}
+        totalCohorts={cohortsRes?.total ?? 0}
+        cohortPage={normalizePage(query.cohort_page)}
+      />
+    </>
   );
 }

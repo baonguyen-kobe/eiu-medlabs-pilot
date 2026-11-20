@@ -160,13 +160,17 @@ test("Sidebar Navigation: Lecturer (Nursing skills) gets correct groups, labels,
   );
 
   const groupLabels = nav.map((g) => g.label);
-  assert.deepEqual(groupLabels, [
-    "Kỹ năng Điều dưỡng",
-    "Tạo phiếu",
-    "Quản lý lớp",
-  ]);
+  assert.deepEqual(groupLabels, ["Lịch", "Lớp & đăng ký"]);
 
-  // Group 2 — Tạo phiếu
+  assert.deepEqual(
+    nav[0].items.map((i) => ({ label: i.label, href: i.href })),
+    [
+      { label: "Tổng quan Skills lab", href: "/dashboard" },
+      { label: "Lịch Skills lab", href: "/class-schedules" },
+    ],
+  );
+
+  // Group 2 — Lớp & đăng ký (Lecturer sees Lớp của tôi)
   assert.deepEqual(
     nav[1].items.map((i) => ({ label: i.label, href: i.href })),
     [
@@ -174,13 +178,6 @@ test("Sidebar Navigation: Lecturer (Nursing skills) gets correct groups, labels,
       { label: "Đăng ký thiết bị", href: "/equipment/register" },
       { label: "Import lịch Skills lab", href: "/schedule-entry/import" },
       { label: "Import dữ liệu", href: "/imports" },
-    ],
-  );
-
-  // Group 3 — Quản lý lớp (Lecturer sees Lớp của tôi)
-  assert.deepEqual(
-    nav[2].items.map((i) => ({ label: i.label, href: i.href })),
-    [
       { label: "Lớp đang mở", href: "/classes/open" },
       { label: "Lớp của tôi", href: "/classes/mine" },
       { label: "Phiếu thiết bị của tôi", href: "/equipment/mine" },
@@ -199,12 +196,15 @@ test("Sidebar Navigation: Viewer (Basic Medical only) sees conditional 'Thiết 
   );
 
   const groupLabels = nav.map((g) => g.label);
-  assert.deepEqual(groupLabels, ["Y cơ sở"]);
+  assert.deepEqual(groupLabels, ["Lịch", "Theo dõi phiếu"]);
 
   assert.deepEqual(
     nav[0].items.map((i) => ({ label: i.label, href: i.href })),
+    [{ label: "Lịch Y cơ sở", href: "/basic-medical/schedules" }],
+  );
+  assert.deepEqual(
+    nav[1].items.map((i) => ({ label: i.label, href: i.href })),
     [
-      { label: "Lịch Y cơ sở", href: "/basic-medical/schedules" },
       { label: "Phiếu Y cơ sở", href: "/basic-medical/registrations" },
       { label: "Thiết bị Y cơ sở", href: "/basic-medical/equipment?tab=rooms" },
     ],
@@ -248,7 +248,7 @@ test("Sidebar Navigation: Basic Medical-only lecturer enters the Basic Medical e
   assert.ok(!items.some((item) => item.label === "Phiếu thiết bị của tôi"));
 });
 
-test("Sidebar Navigation: Staff with Basic Medical scope sees one Danh mục entry under Quản trị", () => {
+test("Sidebar Navigation: Staff with Basic Medical scope sees one Danh mục entry under Thiết lập", () => {
   const nav = buildNavigation(
     ["staff"],
     ["basic_medical"],
@@ -259,12 +259,15 @@ test("Sidebar Navigation: Staff with Basic Medical scope sees one Danh mục ent
   );
 
   const groupLabels = nav.map((g) => g.label);
-  assert.ok(groupLabels.includes("Y cơ sở"));
-  assert.ok(groupLabels.includes("Quản trị"));
+  assert.ok(groupLabels.includes("Lịch"));
+  assert.ok(groupLabels.includes("Thiết lập"));
+  assert.ok(!groupLabels.includes("Quản trị"));
 
-  const quanTriGroup = nav.find((g) => g.label === "Quản trị");
+  const setupGroup = nav.find((g) => g.label === "Thiết lập");
   assert.deepEqual(
-    quanTriGroup.items.map((i) => ({ label: i.label, href: i.href })),
+    setupGroup.items
+      .filter((i) => i.label === "Danh mục")
+      .map((i) => ({ label: i.label, href: i.href })),
     [{ label: "Danh mục", href: "/basic-medical/equipment" }],
   );
 });
@@ -278,9 +281,11 @@ test("Sidebar Navigation: Basic Medical-only Staff receives the unified operatio
     false,
     false,
   );
-  const management = nav.find((group) => group.label === "Quản lý phòng");
+  const tracking = nav.find((group) => group.label === "Theo dõi phiếu");
   assert.deepEqual(
-    management.items.map((item) => ({ label: item.label, href: item.href })),
+    tracking.items
+      .filter((item) => item.href === "/equipment/requests")
+      .map((item) => ({ label: item.label, href: item.href })),
     [{ label: "Phiếu thiết bị", href: "/equipment/requests" }],
   );
   assert.equal(
@@ -303,8 +308,49 @@ test("Sidebar Navigation: No empty groups rendered when user has restricted perm
 
   // Viewer in nursing skills should only see Group 1
   const groupLabels = nav.map((g) => g.label);
-  assert.deepEqual(groupLabels, ["Kỹ năng Điều dưỡng"]);
+  assert.deepEqual(groupLabels, ["Lịch"]);
   for (const group of nav) {
     assert.ok(group.items.length > 0, `Group ${group.label} must have items`);
   }
+});
+
+test("Sidebar Navigation: groups, merged Danh mục and removed items", () => {
+  const admin = buildNavigation(["admin"], [], false, true, true, true);
+  assert.deepEqual(
+    admin.map((g) => g.label),
+    [
+      "Lịch",
+      "Lớp & đăng ký",
+      "Theo dõi phiếu",
+      "Vận hành kho",
+      "Thiết lập",
+      "Quản trị",
+    ],
+  );
+  const allItems = (nav) => nav.flatMap((g) => g.items);
+  assert.ok(!allItems(admin).some((i) => i.label === "Tổng quan kho"));
+  assert.ok(!allItems(admin).some((i) => i.label === "Vật tư & Danh mục"));
+  assert.ok(!allItems(admin).some((i) => i.href === "/inventory"));
+  const stock = allItems(admin).find((i) => i.label === "Tồn kho");
+  assert.deepEqual(stock.activeHrefs, ["/inventory/stock", "/inventory"]);
+
+  const adminCatalog = allItems(admin).find((i) => i.label === "Danh mục");
+  assert.equal(adminCatalog.href, "/admin/equipment");
+  assert.ok(adminCatalog.activeHrefs.includes("/inventory/catalog"));
+
+  const khoStaff = buildNavigation(
+    ["staff"],
+    ["nursing_skills"],
+    false,
+    false,
+    false,
+    false,
+  );
+  const khoCatalog = allItems(khoStaff).find((i) => i.label === "Danh mục");
+  assert.equal(khoCatalog.href, "/inventory/catalog");
+
+  const quanTri = admin.find((g) => g.label === "Quản trị");
+  assert.ok(quanTri.items.some((i) => i.label === "Email thông báo"));
+  const noEmail = buildNavigation(["admin"], [], false, true, true, false);
+  assert.ok(!allItems(noEmail).some((i) => i.label === "Email thông báo"));
 });

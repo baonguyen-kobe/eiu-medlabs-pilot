@@ -179,19 +179,6 @@ export default async function RoomsPage({
           </ul>
         ) : null}
       </details>
-      <CatalogBatchManager
-        kind="rooms"
-        initialItems={(rooms ?? []).map((room) => ({
-          ...room,
-          room_types: room.room_types as unknown as { name: string } | null,
-        }))}
-        roomTypes={roomTypes ?? []}
-      />
-      <PaginationLinks
-        currentPage={currentPage}
-        totalItems={count ?? 0}
-        pathname="/admin/rooms"
-      />
       <details className="admin-create-personnel room-type-manager">
         <summary>
           <LocalizedText text={"Quản lý Loại phòng"} />
@@ -269,6 +256,19 @@ export default async function RoomsPage({
           </table>
         </LocalizedElement>
       </details>
+      <CatalogBatchManager
+        kind="rooms"
+        initialItems={(rooms ?? []).map((room) => ({
+          ...room,
+          room_types: room.room_types as unknown as { name: string } | null,
+        }))}
+        roomTypes={roomTypes ?? []}
+      />
+      <PaginationLinks
+        currentPage={currentPage}
+        totalItems={count ?? 0}
+        pathname="/admin/rooms"
+      />
     </AdminShell>
   );
 }

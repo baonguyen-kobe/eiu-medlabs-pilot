@@ -3,6 +3,7 @@ import type {
   AssetLifecycleStatus,
   AssetOperationalStatus,
 } from "@/lib/inventory/asset-types";
+import { describeIneligibility } from "@/lib/inventory/labels";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
 type Tone = "info" | "warning" | "success" | "danger" | "neutral";
@@ -69,7 +70,7 @@ export function AssetEligibilityBadge({
   const why = eligible
     ? "Đủ điều kiện vật lý nhưng đang được giữ hoặc đã cấp cho phiếu khác"
     : reasons.length > 0
-      ? reasons.join("; ")
+      ? reasons.map(describeIneligibility).join("; ")
       : "Không đủ điều kiện xuất mượn hoặc vận hành";
   return (
     <Badge

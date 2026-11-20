@@ -97,14 +97,9 @@ test("mobile calendars scroll inside their card and dialogs remain usable", asyn
 
   await page.goto("/staff-shifts?tab=manage&view=week&date=2026-07-31");
   await expectNoPageOverflow(page);
-  const shiftCalendar = page
-    .getByRole("region", { name: /Lịch trực theo tuần/ })
+  const emptyShift = page
+    .locator(".staff-shift-day-list .empty-shift-action")
     .first();
-  const shiftOverflow = await shiftCalendar.evaluate(
-    (element) => element.scrollWidth > element.clientWidth,
-  );
-  expect(shiftOverflow).toBe(true);
-  const emptyShift = page.locator(".empty-shift-action").first();
   await expect(emptyShift).toBeVisible();
   await expect(emptyShift).toHaveCSS("opacity", "1");
   const shiftDialog = page.getByRole("dialog", { name: "Tạo lịch trực" });
@@ -128,22 +123,25 @@ test("mobile filters, data tables, catalogs and import controls use local scroll
     "display",
     "grid",
   );
+  // Class tables are labelled records on phones now, so they must not need
+  // sideways scrolling.
   const classTable = page.getByRole("region", { name: /Danh sách lớp/ });
   expect(
     await classTable.evaluate(
       (element) => element.scrollWidth > element.clientWidth,
     ),
-  ).toBe(true);
+  ).toBe(false);
 
   await page.goto("/admin/courses");
   await expectNoPageOverflow(page);
-  const tabColumns = await page
-    .locator(".catalog-tabs")
-    .evaluate(
-      (element) =>
-        getComputedStyle(element).gridTemplateColumns.split(" ").length,
+  // Danh mục tabs stay on one row and scroll sideways inside their strip.
+  const tabRows = await page
+    .locator(".catalog-tabs a")
+    .evaluateAll(
+      (links) =>
+        new Set(links.map((link) => (link as HTMLElement).offsetTop)).size,
     );
-  expect(tabColumns).toBe(2);
+  expect(tabRows).toBe(1);
   const catalogTable = page.getByRole("region", { name: /Danh mục môn học/ });
   expect(
     await catalogTable.evaluate(

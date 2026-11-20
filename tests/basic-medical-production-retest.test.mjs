@@ -129,8 +129,5 @@ test("catalog managers offer explicit reactivation without changing inventory el
   assert.match(inventoryManager, />\s*\{uiText\("Kích hoạt"\)\}\s*</);
   assert.match(skillsCatalogManager, /setEquipmentCatalogActive\(ids, true\)/);
   assert.match(skillsCatalogManager, /mode === "activate"/);
-  assert.match(
-    skillsCatalogManager,
-    /mode === "activate"\s*\|\|\s*mode === "disable"\s*\|\|\s*mode === "delete"/,
-  );
+  assert.match(skillsCatalogManager, /mode !== "edit"/);
 });

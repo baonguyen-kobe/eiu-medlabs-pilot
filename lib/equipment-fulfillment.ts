@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { preparationError, unknownCodeError } from "./equipment-preparation";
 
 const amount = z.union([z.string(), z.number()]).transform(String);
 export const fulfillmentSchema = z.object({
@@ -121,6 +122,20 @@ export const fulfillmentLabels: Record<FulfillmentOperation, string> = {
   correct: "Đính chính sự kiện",
   sign: "Ký xác nhận",
 };
+const s5Errors: Record<string, string> = {
+  S5_HANDOVER_REQUIRED: "Cần thực giao lần đầu trước khi thực hiện bước này.",
+  S5_PREPARED_REQUEST_REQUIRED:
+    "Phiếu chưa được chuẩn bị. Vui lòng chuẩn bị thiết bị trước khi bàn giao.",
+  S5_PREPARATION_RECONCILIATION_REQUIRED:
+    "Kết quả chuẩn bị chưa khớp với kho. Quay lại màn hình chuẩn bị để xử lý trước khi bàn giao.",
+  S5_RETURN_EXCEEDS_ISSUE: "Số lượng trả vượt quá số lượng đã giao còn lại.",
+  S5_RECEIPT_LOCATION_INACTIVE:
+    "Vị trí nhận trả đã ngừng hoạt động. Vui lòng chọn vị trí khác.",
+  S5_ROOM_KEEP_ADMIN_ONLY:
+    "Chỉ Admin mới được chọn giữ lại thiết bị cho phòng.",
+  S5_ROOM_KEEP_WRONG_ROOM:
+    "Chỉ được giữ lại thiết bị tại phòng của buổi học của phiếu này.",
+};
 export function fulfillmentError(message: string) {
   if (message.includes("STALE_REVISION"))
     return "Phiếu đã thay đổi. Tải phiên bản mới, kiểm tra và xác nhận lại; dữ liệu nhập được giữ.";
@@ -133,5 +148,9 @@ export function fulfillmentError(message: string) {
     return "Nguồn thực giao không đủ điều kiện hoặc đã được phiếu khác giữ. Chọn lại nguồn/tài sản.";
   if (message.includes("S5_CUMULATIVE_DECREASE"))
     return "Không được giảm tổng đã thu hồi. Hãy đính chính sự kiện sai.";
-  return `Không ghi nhận thao tác: ${message}`;
+  const code = Object.keys(s5Errors).find((key) => message.includes(key));
+  if (code) return s5Errors[code];
+  if (/(S4_|P1_|RETRY_PAYLOAD_MISMATCH)/.test(message))
+    return preparationError(message);
+  return unknownCodeError(message) ?? `Không ghi nhận thao tác: ${message}`;
 }

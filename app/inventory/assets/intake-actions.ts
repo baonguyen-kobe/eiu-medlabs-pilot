@@ -126,6 +126,8 @@ export async function receiveAssetAction(input: {
 
     const result = await assetCommand("receive_asset", payload, input.retryKey);
     revalidatePath("/inventory/assets");
+
+    revalidatePath("/inventory/rooms", "layout");
     return { ok: true, data: result };
   } catch (err: unknown) {
     const { error, code } = parseErrorMessage(err);
@@ -239,6 +241,8 @@ export async function openAssetAction(input: {
 
     const result = await assetCommand("open_asset", payload, input.retryKey);
     revalidatePath("/inventory/assets");
+
+    revalidatePath("/inventory/rooms", "layout");
     return { ok: true, data: result };
   } catch (err: unknown) {
     const { error, code } = parseErrorMessage(err);

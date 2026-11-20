@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { assetRead } from "@/lib/inventory/asset-client";
 import type { EquipmentAssetEvent } from "@/lib/inventory/asset-types";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { TransactionDetailView } from "@/components/inventory/transaction-detail-view";
 import type {
   InventoryStorageLocation,
@@ -22,8 +22,11 @@ export default async function TransactionDetailPage({
 }) {
   const viewer = await requireInventoryViewer();
   const { transactionId } = await params;
+  if (!isUuid(transactionId)) notFound();
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const selectedOriginId = resolvedSearchParams.origin;
+  const selectedOriginId = isUuid(resolvedSearchParams.origin)
+    ? resolvedSearchParams.origin
+    : undefined;
 
   let detail: TransactionDetailResult | null = null;
   let locations: InventoryStorageLocation[] = [];

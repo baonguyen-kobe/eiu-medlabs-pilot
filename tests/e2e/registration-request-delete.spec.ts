@@ -106,11 +106,11 @@ test("Admin hủy phiếu Y cơ sở và xóa phiếu thiết bị trên giao di
     const copyModeButton = page.getByText("Sao chép phiếu", { exact: true });
     await expect(editModeButton).toHaveCSS(
       "background-color",
-      "rgb(255, 247, 237)",
+      "rgb(255, 255, 255)",
     );
     await expect(copyModeButton).toHaveCSS(
       "background-color",
-      "rgb(245, 243, 255)",
+      "rgb(255, 255, 255)",
     );
     await copyModeButton.click();
     await expect(page.locator('input[name="request"]')).toHaveAttribute(
@@ -143,8 +143,13 @@ test("Admin hủy phiếu Y cơ sở và xóa phiếu thiết bị trên giao di
     const equipmentRow = page.locator(".equipment-request-list-item");
     await expect(equipmentRow).toHaveCount(1);
     await equipmentRow.locator(".equipment-request-summary").click();
-    await expect(equipmentRow.getByText(/^\d{12}$/)).toBeVisible();
-    await equipmentRow
+    const equipmentPanel = page.locator(".equipment-request-panel");
+    await expect(
+      equipmentPanel
+        .locator(".equipment-request-details")
+        .getByText(/^\d{12}$/),
+    ).toBeVisible();
+    await equipmentPanel
       .getByRole("button", { name: "Xóa phiếu", exact: true })
       .click();
     const equipmentDialog = page.getByRole("dialog", {

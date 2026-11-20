@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   addDays,
   addMonths,
@@ -16,6 +17,7 @@ import { StaffShiftRoster } from "@/components/staff-shift-roster";
 import { WorkspaceShell } from "@/components/workspace-shell";
 import { businessToday } from "@/lib/business-time";
 import { getViewer } from "@/lib/viewer";
+import { readAllRows } from "@/lib/supabase/read-all";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
@@ -74,8 +76,12 @@ export default async function StaffShiftsPage({
       ? `Tháng ${format(baseDate, "MM/yyyy")}`
       : `${format(periodStart, "dd/MM")} – ${format(periodEnd, "dd/MM/yyyy")}`;
 
-  const [{ data: shifts }, { data: people }, { data: currentProfile }] =
-    await Promise.all([
+  const [
+    { data: shifts, error: shiftsError },
+    { data: people },
+    { data: currentProfile },
+  ] = await Promise.all([
+    readAllRows((from, to) =>
       supabase
         .from("staff_shifts")
         .select(
@@ -85,14 +91,19 @@ export default async function StaffShiftsPage({
         .lte("shift_date", periodEndText)
         .neq("status", "cancelled")
         .order("shift_date")
-        .order("start_time"),
-      supabase.rpc("list_operational_shift_assignees"),
-      supabase
-        .from("profiles")
-        .select("can_manage_shift_history")
-        .eq("id", userId)
-        .maybeSingle(),
-    ]);
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
+    supabase.rpc("list_operational_shift_assignees"),
+    supabase
+      .from("profiles")
+      .select("can_manage_shift_history")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
+
+  if (shiftsError) throw new Error(`Staff shifts: ${shiftsError.message}`);
 
   const canManageShiftHistory = Boolean(
     isRootAdministrator || currentProfile?.can_manage_shift_history,
@@ -134,6 +145,17 @@ export default async function StaffShiftsPage({
         <LocalizedText
           text={"Xem và quản lý lịch trực phòng thực hành Kỹ năng Điều dưỡng."}
         />
+      }
+      actions={
+        roles.includes("admin") ||
+        (!isRootAdministrator && roles.includes("staff")) ? (
+          <Link
+            className="button button-primary"
+            href="/staff-shifts?tab=register"
+          >
+            <LocalizedText text={"Thêm lịch trực"} />
+          </Link>
+        ) : undefined
       }
     >
       <StaffShiftRoster

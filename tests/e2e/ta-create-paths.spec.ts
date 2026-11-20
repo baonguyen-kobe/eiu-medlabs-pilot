@@ -179,7 +179,12 @@ async function createEquipmentRequest(
   await page
     .locator('select[name="class_schedule_id"]')
     .selectOption(schedule.id);
-  await expect(page.getByLabel("Học kỳ")).toHaveValue("HK1");
+  // Semester is a read-only fact next to the class now, not an input.
+  await expect(
+    page
+      .locator(".class-facts > div")
+      .filter({ has: page.getByText("Học kỳ", { exact: true }) }),
+  ).toContainText("HK1");
   await page
     .locator('select[name="responsible_lecturer_id"]')
     .selectOption(schedule.lecturer_id);

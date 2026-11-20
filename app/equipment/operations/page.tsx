@@ -34,7 +34,7 @@ export default async function EquipmentOperationsPage({
   >;
   const [{ data, error }, ...phaseReads] = await Promise.all([
     read({ phase, search, page }),
-    ...phaseKeys.map((key) => read({ phase: key, search: "", page: 1 })),
+    ...phaseKeys.map((key) => read({ phase: key, search, page: 1 })),
   ]);
   if (error) {
     if (error.code === "42501") notFound();

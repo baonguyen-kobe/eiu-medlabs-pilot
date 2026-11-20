@@ -151,7 +151,9 @@ export function ScheduleForm({
             </h2>
           </div>
           <p>
-            {uiText("Database sẽ chặn trùng phòng và trùng lịch giảng viên.")}
+            {uiText(
+              "Hệ thống sẽ báo nếu trùng phòng hoặc trùng lịch giảng viên.",
+            )}
           </p>
         </div>
         <div className="form-grid three">

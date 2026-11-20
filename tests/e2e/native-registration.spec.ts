@@ -234,7 +234,8 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
     .locator(".equipment-request-list-item")
     .filter({ hasText: "21/08/2026" });
   await completedRequest.locator(".equipment-request-summary").click();
-  const requestDetails = completedRequest.locator(".equipment-request-details");
+  const requestPanel = page.locator(".equipment-request-panel");
+  const requestDetails = requestPanel.locator(".equipment-request-details");
   const requestCode = requestDetails.getByText(/^\d{12}$/);
   await expect(requestCode).toBeVisible();
   const detailGrid = requestDetails.locator(".equipment-request-detail-grid");
@@ -266,7 +267,7 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
   expect(statusBox?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(
     codeBox?.y ?? Number.NEGATIVE_INFINITY,
   );
-  const deleteButton = completedRequest.getByRole("button", {
+  const deleteButton = requestPanel.getByRole("button", {
     name: "Xóa phiếu",
     exact: true,
   });
@@ -282,11 +283,11 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
   await deleteDialog.getByRole("button", { name: "Quay lại" }).click();
   await expect(deleteDialog).toBeHidden();
   const downloadPromise = page.waitForEvent("download");
-  const exportPdfLink = completedRequest.getByRole("link", {
+  const exportPdfLink = requestPanel.getByRole("link", {
     name: "Xuất phiếu PDF",
     exact: true,
   });
-  const statusButton = completedRequest
+  const statusButton = requestPanel
     .locator(".equipment-status-actions > *")
     .first();
   const [statusButtonBox, exportBox] = await Promise.all([
@@ -306,7 +307,7 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
   const pdf = await readFile(downloadedPath!);
   expect(pdf.subarray(0, 5).toString("ascii")).toBe("%PDF-");
   expect(pdf.byteLength).toBeGreaterThan(20_000);
-  await completedRequest
+  await requestPanel
     .getByRole("button", { name: /Xem toàn bộ danh sách/ })
     .click();
   await expect(page.getByRole("dialog")).toBeVisible();
@@ -318,15 +319,13 @@ test.fixme("các trang đăng ký native hiển thị trên local", async ({ pag
   ).toBeVisible();
   await page.getByRole("button", { name: "×" }).click();
   await page.getByLabel("Trạng thái").selectOption("");
-  await completedRequest
-    .getByRole("button", { name: "Mới", exact: true })
-    .click();
+  await requestPanel.getByRole("button", { name: "Mới", exact: true }).click();
+  await expect(requestPanel.locator(".request-status-red").first()).toHaveText(
+    "Mới",
+  );
   await expect(
-    completedRequest.locator(".request-status-red").first(),
-  ).toHaveText("Mới");
-  await expect(
-    completedRequest.getByRole("button", {
-      name: "Hoàn Thành",
+    requestPanel.getByRole("button", {
+      name: "Hoàn thành",
       exact: true,
     }),
   ).toBeDisabled();
@@ -422,7 +421,10 @@ test.fixme("sao chép và điều chỉnh phiếu nạp dữ liệu theo đúng 
     .fill(sourceId);
   const sourceRequest = page.locator(".equipment-request-list-item").first();
   await sourceRequest.locator(".equipment-request-summary").click();
-  const sourceCode = await sourceRequest.getByText(/^\d{12}$/).textContent();
+  const sourceCode = await page
+    .locator(".equipment-request-panel .equipment-request-details")
+    .getByText(/^\d{12}$/)
+    .textContent();
   expect(sourceCode).toBeTruthy();
 
   await page.goto("/equipment/register");
@@ -535,7 +537,10 @@ test.fixme("danh sách và popup thiết bị dùng được trên màn hình nh
     .fill("62000000-0000-0000-0000-000000000005");
   const request = page.locator(".equipment-request-list-item").first();
   await request.locator(".equipment-request-summary").click();
-  await request.getByRole("button", { name: /Xem toàn bộ danh sách/ }).click();
+  await page
+    .locator(".equipment-request-panel")
+    .getByRole("button", { name: /Xem toàn bộ danh sách/ })
+    .click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   const box = await dialog.boundingBox();

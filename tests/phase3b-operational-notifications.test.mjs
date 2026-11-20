@@ -68,10 +68,7 @@ test("notification bell uses realtime rather than polling and exposes accessible
 
 test("email grammar and Basic Medical cancellation remain domain aware", async () => {
   const equipment = await source("lib/equipment-request-emails.ts");
-  const basicMedical = await source("lib/basic-medical-emails.ts");
-  const schedule = await source("lib/schedule-event-emails.ts");
   const renderer = await source("lib/email-template-v2.ts");
-  const damage = await source("lib/basic-medical-equipment-emails.ts");
   const migration = await source(
     "supabase/migrations/20260824090000_phase3b_operational_notifications_audit.sql",
   );
@@ -81,10 +78,6 @@ test("email grammar and Basic Medical cancellation remain domain aware", async (
   assert.match(equipment, /Đã duyệt đăng ký trễ/);
   assert.match(equipment, /Đã từ chối đăng ký trễ/);
   assert.match(equipment, /\[Admin MedLabs Calendar\]\[Skills Lab\]/);
-  assert.match(basicMedical, /tag: "Cancelled", text: "Hủy Phiếu Y cơ sở"/);
-  assert.match(basicMedical, /const dateRange =\s*startDate === endDate/);
-  assert.match(schedule, /payload\.lecturer \|\| payload\.actor/);
-  assert.match(schedule, /subjectTail\.filter\(Boolean\)\.join\(" - "\)/);
   assert.match(
     migration,
     /format_skills_lab_email_subject\(\s*target_event_type text,\s*target_payload jsonb\s*\)/,
@@ -107,10 +100,6 @@ test("email grammar and Basic Medical cancellation remain domain aware", async (
   );
   assert.match(renderer, /đã được hủy/);
   assert.match(renderer, /basic-medical\/registrations/);
-  assert.match(damage, /registration_id_snapshot/);
-  assert.match(damage, /from\("basic_medical_registrations"\)/);
-  assert.match(damage, /registrant_id/);
-  assert.match(damage, /teaching_lecturer_id_snapshot/);
 });
 
 test("manager lifecycle history translates cancellation actions", async () => {

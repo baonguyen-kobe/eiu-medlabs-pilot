@@ -10,7 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   confirmBasicMedicalSession,
   cancelBasicMedicalRegistration,
@@ -841,6 +841,7 @@ export function BasicMedicalRegistrationList({
   const { text: uiText } = useLanguage();
 
   const router = useRouter();
+  const statusFilter = useSearchParams().get("status") ?? "incomplete";
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [confirmationNow, setConfirmationNow] = useState(() => Date.now());
   const [confirmationBySession, setConfirmationBySession] = useState(() => {
@@ -1420,7 +1421,16 @@ export function BasicMedicalRegistrationList({
         </div>
         {!registrations.length ? (
           <p className="panel-empty">
-            {uiText("Không có phiếu phù hợp với bộ lọc hiện tại.")}
+            {statusFilter === "incomplete"
+              ? uiText(
+                  "Không có phiếu nào ở trạng thái “Chưa hoàn thành” theo bộ lọc hiện tại.",
+                )
+              : uiText("Không có phiếu phù hợp với bộ lọc hiện tại.")}{" "}
+            {statusFilter !== "all" ? (
+              <Link className="text-link" href="?status=all">
+                {uiText("Xem tất cả phiếu")}
+              </Link>
+            ) : null}
           </p>
         ) : null}
       </div>

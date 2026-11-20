@@ -12,6 +12,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { readAllRows } from "@/lib/supabase/read-all";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ScheduleEvent } from "@/lib/demo-data";
 import { businessToday, businessTodayString } from "@/lib/business-time";
@@ -78,33 +79,41 @@ export default async function ClassSchedulesPage({
       .from("user_roles")
       .select("role")
       .eq("user_id", claimsData.claims.sub),
-    supabase
-      .from("class_schedules")
-      .select(
-        `
+    readAllRows((from, to) =>
+      supabase
+        .from("class_schedules")
+        .select(
+          `
         id, room_id, schedule_date, start_time, end_time, course_code_snapshot,
         course_name_snapshot, lecturer_id, lecturer_2_id, schedule_status, source, note, student_count,
         rooms!inner (room_code, building_code, room_type_id),
         equipment_requests (id, status)
       `,
-      )
-      .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-      .is("basic_medical_registration_id", null)
-      .gte("schedule_date", periodStartText)
-      .lte("schedule_date", periodEndText)
-      .neq("schedule_status", "cancelled")
-      .order("schedule_date")
-      .order("start_time"),
-    supabase
-      .from("staff_shifts")
-      .select(
-        "id, staff_id, shift_date, start_time, end_time, shift_slot, status, note",
-      )
-      .gte("shift_date", periodStartText)
-      .lte("shift_date", periodEndText)
-      .neq("status", "cancelled")
-      .order("shift_date")
-      .order("start_time"),
+        )
+        .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+        .is("basic_medical_registration_id", null)
+        .gte("schedule_date", periodStartText)
+        .lte("schedule_date", periodEndText)
+        .neq("schedule_status", "cancelled")
+        .order("schedule_date")
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
+    readAllRows((from, to) =>
+      supabase
+        .from("staff_shifts")
+        .select(
+          "id, staff_id, shift_date, start_time, end_time, shift_slot, status, note",
+        )
+        .gte("shift_date", periodStartText)
+        .lte("shift_date", periodEndText)
+        .neq("status", "cancelled")
+        .order("shift_date")
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
     supabase.rpc("list_active_people"),
     supabase.from("room_types").select("id, code, name").eq("is_active", true),
     supabase.rpc("list_scoped_lecturers", {

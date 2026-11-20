@@ -55,11 +55,11 @@ test("bridge emits the complete reviewed confirmation snapshot contract", () => 
   );
 });
 
-test("evidence flag is server-only and defaults fail-closed", () => {
+test("evidence flag is server-only, on by default, and can be switched off", () => {
   assert.match(evidenceFlag, /^import "server-only";/);
   assert.match(
     evidenceFlag,
-    /process\.env\.BASIC_MEDICAL_CONFIRMATION_EVIDENCE_ENABLED === "true"/,
+    /process\.env\.BASIC_MEDICAL_CONFIRMATION_EVIDENCE_ENABLED !== "false"/,
   );
   assert.doesNotMatch(evidenceFlag, /NEXT_PUBLIC_/);
   assert.match(

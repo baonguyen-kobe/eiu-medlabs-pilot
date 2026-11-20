@@ -184,13 +184,24 @@ export function EquipmentCatalogManager({
     visibleRows.every((row) => selectedIds.has(row.id));
 
   function switchMode(nextMode: CatalogMode) {
-    setSelectedIds(new Set());
     if (nextMode === "edit") {
-      setDrafts(Object.fromEntries(rows.map((row) => [row.id, { ...row }])));
+      setDrafts(
+        Object.fromEntries(
+          rows
+            .filter((row) => selectedIds.has(row.id))
+            .map((row) => [row.id, { ...row }]),
+        ),
+      );
     } else {
+      setSelectedIds(new Set());
       setDrafts({});
     }
     setMode(nextMode);
+  }
+
+  function askConfirm(action: "activate" | "disable" | "delete") {
+    setMode(action);
+    setConfirmApply(true);
   }
 
   function changeSort(nextKey: SortKey) {
@@ -294,9 +305,9 @@ export function EquipmentCatalogManager({
 
   return (
     <div className="equipment-catalog-workspace">
-      <section className="data-panel equipment-catalog-import">
-        <div className="equipment-import-actions">
-          {importsEnabled() ? (
+      {importsEnabled() ? (
+        <section className="data-panel equipment-catalog-import">
+          <div className="equipment-import-actions">
             <>
               <Link
                 className="button equipment-template-download"
@@ -313,16 +324,9 @@ export function EquipmentCatalogManager({
                 apply={applyEquipmentCatalogReconciliation}
               />
             </>
-          ) : null}
-          <a
-            className="button equipment-export-all"
-            href="/api/equipment-catalog/export"
-          >
-            <Download size={17} />
-            {uiText(" Export tất cả")}
-          </a>
-        </div>
-      </section>
+          </div>
+        </section>
+      ) : null}
 
       <section className="data-panel equipment-catalog-panel">
         <div className="equipment-catalog-filters">
@@ -420,6 +424,13 @@ export function EquipmentCatalogManager({
           >
             {uiText("Xóa bộ lọc")}
           </button>
+          <a
+            className="button button-secondary"
+            href="/api/equipment-catalog/export"
+          >
+            <Download size={17} />
+            {uiText(" Xuất tất cả")}
+          </a>
           <span className="inline-toolbar-count-slot">
             <span className="equipment-catalog-count">
               {visibleRows.length}/{rows.length}
@@ -429,12 +440,16 @@ export function EquipmentCatalogManager({
         </div>
 
         <div className="equipment-catalog-toolbar">
+          <span>
+            {selectedIds.size}
+            {uiText(" mục được chọn")}
+          </span>
           <div className="equipment-catalog-mode-buttons">
             <button
               type="button"
               className={`button button-primary${mode === "activate" ? " active" : ""}`}
-              disabled={isPending || (mode !== null && mode !== "activate")}
-              onClick={() => switchMode("activate")}
+              disabled={isPending || mode === "edit" || !selectedIds.size}
+              onClick={() => askConfirm("activate")}
             >
               <PackageCheck size={17} />
               {uiText(" Kích hoạt")}
@@ -442,7 +457,7 @@ export function EquipmentCatalogManager({
             <button
               type="button"
               className={`button equipment-catalog-edit${mode === "edit" ? " active" : ""}`}
-              disabled={isPending || (mode !== null && mode !== "edit")}
+              disabled={isPending || (mode !== "edit" && !selectedIds.size)}
               onClick={() =>
                 mode === "edit" ? saveEdits() : switchMode("edit")
               }
@@ -453,8 +468,8 @@ export function EquipmentCatalogManager({
             <button
               type="button"
               className={`button equipment-catalog-disable${mode === "disable" ? " active" : ""}`}
-              disabled={isPending || (mode !== null && mode !== "disable")}
-              onClick={() => switchMode("disable")}
+              disabled={isPending || mode === "edit" || !selectedIds.size}
+              onClick={() => askConfirm("disable")}
             >
               <PackageCheck size={17} />
               {uiText(" Ngừng sử dụng")}
@@ -462,14 +477,14 @@ export function EquipmentCatalogManager({
             <button
               type="button"
               className={`button equipment-catalog-delete${mode === "delete" ? " active" : ""}`}
-              disabled={isPending || (mode !== null && mode !== "delete")}
-              onClick={() => switchMode("delete")}
+              disabled={isPending || mode === "edit" || !selectedIds.size}
+              onClick={() => askConfirm("delete")}
             >
               <Trash2 size={17} />
               {uiText(" Xóa")}
             </button>
           </div>
-          {mode ? (
+          {mode === "edit" ? (
             <button
               type="button"
               className="button button-secondary equipment-catalog-cancel"
@@ -481,30 +496,6 @@ export function EquipmentCatalogManager({
             </button>
           ) : null}
         </div>
-
-        {mode === "activate" || mode === "disable" || mode === "delete" ? (
-          <div className={`equipment-bulk-confirm equipment-bulk-${mode}`}>
-            <span>
-              {uiText("Đã chọn ")}
-              {selectedIds.size}
-              {uiText(" thiết bị")}
-            </span>
-            <button
-              type="button"
-              className="button"
-              disabled={!selectedIds.size || isPending}
-              onClick={() => setConfirmApply(true)}
-            >
-              {isPending
-                ? uiText("Đang xử lý…")
-                : mode === "activate"
-                  ? uiText("Kích hoạt")
-                  : mode === "disable"
-                    ? uiText("Xác nhận ngừng sử dụng")
-                    : uiText("Xác nhận xóa")}
-            </button>
-          </div>
-        ) : null}
 
         <ConfirmDialog
           open={confirmApply}
@@ -521,7 +512,10 @@ export function EquipmentCatalogManager({
           )}
           tone={mode === "activate" ? "primary" : "danger"}
           pending={isPending}
-          onCancel={() => setConfirmApply(false)}
+          onCancel={() => {
+            setConfirmApply(false);
+            setMode(null);
+          }}
           onConfirm={() => {
             setConfirmApply(false);
             applySelection();
@@ -540,9 +534,7 @@ export function EquipmentCatalogManager({
         <div className="responsive-table equipment-catalog-table-wrap">
           <table className="data-table equipment-catalog-table">
             <colgroup>
-              {mode === "activate" ||
-              mode === "disable" ||
-              mode === "delete" ? (
+              {mode !== "edit" ? (
                 <col className="equipment-catalog-col-select" />
               ) : null}
               <col className="equipment-catalog-col-name" />
@@ -556,9 +548,7 @@ export function EquipmentCatalogManager({
             </colgroup>
             <thead>
               <tr>
-                {mode === "activate" ||
-                mode === "disable" ||
-                mode === "delete" ? (
+                {mode !== "edit" ? (
                   <th className="equipment-select-column">
                     <input
                       aria-label={uiText("Chọn tất cả thiết bị đang hiển thị")}
@@ -619,9 +609,7 @@ export function EquipmentCatalogManager({
                         : undefined
                     }
                   >
-                    {mode === "activate" ||
-                    mode === "disable" ||
-                    mode === "delete" ? (
+                    {mode !== "edit" ? (
                       <td className="equipment-select-column">
                         <input
                           aria-label={uiText("Chọn {0}", [item.item_name])}
@@ -650,7 +638,7 @@ export function EquipmentCatalogManager({
                               ? uiText("Đang sử dụng")
                               : uiText("Ngừng sử dụng")}
                           </span>
-                        ) : mode === "edit" ? (
+                        ) : mode === "edit" && drafts[item.id] ? (
                           <input
                             aria-label={uiText("{0} của {1}", [
                               label,

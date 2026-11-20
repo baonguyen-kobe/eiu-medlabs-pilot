@@ -256,11 +256,40 @@ const errors: Record<string, string> = {
   S4_MAPPING_REQUIRED:
     "Cần mapping Inventory hợp lệ và đơn vị tương đương đã xác minh.",
   AUTH_DENIED: "Bạn không có quyền thực hiện thao tác trên phiếu này.",
+  S4_INVALID_REQUEST_STATE:
+    "Phiếu không còn ở trạng thái cho phép chuẩn bị. Tải lại trang để xem trạng thái mới.",
+  S4_NEW_REQUIRED:
+    "Chỉ có thể bắt đầu chuẩn bị khi phiếu ở trạng thái Mới. Tải lại trang để xem trạng thái hiện tại.",
+  S4_REASON_REQUIRED: "Vui lòng nhập lý do.",
+  S4_TRANSFER_STATE_INVALID:
+    "Không thể chuyển kho ở bước hiện tại của phiếu. Tải lại trang rồi thử lại.",
+  S4_TAB_TOKEN_REQUIRED:
+    "Phiên làm việc không hợp lệ. Tải lại trang rồi thử lại.",
+  S4_LATE_APPROVAL_REQUIRED:
+    "Phiếu đăng ký muộn đang chờ duyệt hoặc đã bị từ chối nên chưa thể chuẩn bị.",
+  P1_PAUSED:
+    "Hệ thống đang tạm dừng ghi nhận kho. Vui lòng thử lại sau khi quản trị viên mở lại.",
+  P1_FROZEN_SCOPE:
+    "Vị trí kho này đã được khóa cho đợt chạy thử nên không thể thay đổi.",
+  P1_WORKFLOW_DENIED:
+    "Phiếu này chưa thuộc phạm vi chạy thử nên không thể thao tác chuẩn bị/bàn giao.",
+  RETRY_PAYLOAD_MISMATCH:
+    "Thao tác này đã được gửi trước đó với nội dung khác. Tải lại trang rồi thao tác lại.",
 };
+
+// Message for any workflow code (S4/S5/P1) without a specific text; null if none found.
+export function unknownCodeError(message: string): string | null {
+  const code = message.match(
+    /(?:S[45]|P1)_[A-Z0-9_]+|RETRY_PAYLOAD_MISMATCH/,
+  )?.[0];
+  return code
+    ? `Không thực hiện được thao tác (mã: ${code}). Vui lòng tải lại trang rồi thử lại.`
+    : null;
+}
 export function preparationError(message: string): string {
   const code = Object.keys(errors).find((key) => message.includes(key));
   if (code) return errors[code];
   if (message.includes("inventory_reservations_active_asset"))
-    return "Tài sản đã được giữ cho một allocation khác. Hãy chọn tài sản khác.";
-  return message;
+    return "Tài sản đã được giữ cho một nguồn lấy hàng khác. Hãy chọn tài sản khác.";
+  return unknownCodeError(message) ?? message;
 }

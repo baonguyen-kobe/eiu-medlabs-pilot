@@ -73,9 +73,6 @@ export default async function MyEquipmentRequestsPage({
         requests={requests}
         paging={paging}
         emptyMessage="Bạn chưa có phiếu thiết bị liên quan."
-        canManageStatus={roles.some((role) =>
-          ["admin", "staff"].includes(role),
-        )}
         canAddItems={canAddItems}
         catalog={catalog ?? []}
         viewerId={userId}

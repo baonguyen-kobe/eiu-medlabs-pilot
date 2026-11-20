@@ -200,9 +200,11 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
     const detailsButton = requestRow.getByRole("button", {
       name: "Mở chi tiết phiếu",
     });
-    const fullListButton = requestRow.getByRole("button", {
-      name: /Xem toàn bộ danh sách/,
-    });
+    const fullListButton = page
+      .locator(".equipment-request-panel")
+      .getByRole("button", {
+        name: /Xem toàn bộ danh sách/,
+      });
     await clickUntilState(detailsButton, () =>
       expect(fullListButton).toBeVisible({ timeout: 1_000 }),
     );
@@ -245,11 +247,13 @@ test("mã phiếu 12 số tải được và Admin thấy dòng bổ sung thiế
 
     // t2h: a Skills lab request has no manual status buttons; it opens the
     // inventory handover instead.
+    // The request detail (and its handover link) now lives in the side panel.
+    const requestPanel = page.locator(".equipment-request-panel");
     await expect(
-      requestRow.getByRole("button", { name: "Đã giao", exact: true }),
+      requestPanel.getByRole("button", { name: "Đã giao", exact: true }),
     ).toHaveCount(0);
     await expect(
-      requestRow.getByRole("link", {
+      requestPanel.getByRole("link", {
         name: "Bàn giao, thu hồi và ký xác nhận",
         exact: true,
       }),

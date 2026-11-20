@@ -3,7 +3,7 @@ import { getViewer } from "@/lib/viewer";
 import { canManageBasicMedicalWorkspace } from "@/lib/workspace-access";
 import React from "react";
 import { requireInventoryViewer } from "@/lib/inventory/auth";
-import { inventoryRead } from "@/lib/inventory/client";
+import { inventoryRead, isUuid } from "@/lib/inventory/client";
 import { CatalogView } from "@/components/inventory/catalog-view";
 import type { InventoryCatalogItem } from "@/lib/inventory/types";
 
@@ -25,7 +25,9 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const params = await searchParams;
 
   const q = (params.q ?? "").trim();
-  const categoryId = params.category_id?.trim() || undefined;
+  const categoryId = isUuid(params.category_id?.trim())
+    ? params.category_id?.trim()
+    : undefined;
   const rawActive = params.active ?? "all";
   const active =
     rawActive === "active" || rawActive === "true"

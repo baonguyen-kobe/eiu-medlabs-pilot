@@ -10,12 +10,18 @@ const PAGE_SIZE = 50;
 export default async function RoomEquipmentListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; has?: string }>;
 }) {
   await requireInventoryViewer();
   const params = await searchParams;
   const q = params.q?.trim().slice(0, 100) ?? "";
-  const summary = await readRoomSummary(q, normalizePage(params.page));
+  const hasEquipment = params.has === "1";
+  const summary = await readRoomSummary(
+    q,
+    normalizePage(params.page),
+    hasEquipment,
+  );
+  const rows = summary.rows;
   const text = await getInterfaceText();
 
   return (
@@ -29,11 +35,20 @@ export default async function RoomEquipmentListPage({
             placeholder={text("Mã phòng, tòa nhà hoặc tên phòng")}
           />
         </label>
+        <label className="confirm-check">
+          <input
+            type="checkbox"
+            name="has"
+            value="1"
+            defaultChecked={hasEquipment}
+          />
+          {text("Chỉ phòng có thiết bị")}
+        </label>
         <div className="list-filters-actions">
           <button type="submit" className="button button-primary">
             {text("Lọc")}
           </button>
-          {q ? (
+          {q || hasEquipment ? (
             <Link href="/inventory/rooms" className="button button-secondary">
               {text("Xóa bộ lọc")}
             </Link>
@@ -44,9 +59,9 @@ export default async function RoomEquipmentListPage({
         </div>
       </form>
 
-      {summary.rows.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="panel-empty">
-          {q
+          {q || hasEquipment
             ? text("Không có phòng nào khớp bộ lọc.")
             : text("Chưa có phòng đang hoạt động.")}
         </p>
@@ -64,7 +79,7 @@ export default async function RoomEquipmentListPage({
                 </tr>
               </thead>
               <tbody>
-                {summary.rows.map((room) => (
+                {rows.map((room) => (
                   <tr key={room.room_id}>
                     <td data-label={text("Phòng")}>
                       <span className="cell-stack">
@@ -106,7 +121,7 @@ export default async function RoomEquipmentListPage({
         currentPage={summary.page}
         totalItems={summary.total}
         pathname="/inventory/rooms"
-        query={{ q: q || undefined }}
+        query={{ q: q || undefined, has: hasEquipment ? "1" : undefined }}
         pageSize={PAGE_SIZE}
       />
     </>

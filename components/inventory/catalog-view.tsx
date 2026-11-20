@@ -246,7 +246,7 @@ export function CatalogView({
           </button>
           <button
             type="button"
-            className="button button-secondary text-xs"
+            className="button button-secondary kho-manage-button text-xs"
             onClick={() => setCategoryModalOpen(true)}
           >
             <Settings size={15} />
@@ -254,7 +254,7 @@ export function CatalogView({
           </button>
           <button
             type="button"
-            className="button button-secondary text-xs"
+            className="button button-secondary kho-manage-button text-xs"
             onClick={() => setUomModalOpen(true)}
           >
             <Settings size={15} />
@@ -358,13 +358,21 @@ export function CatalogView({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">{uiText("Mã SKU")}</th>
+                <th className="py-3 px-4 whitespace-nowrap">
+                  {uiText("Mã vật tư")}
+                </th>
                 <th className="py-3 px-4">{uiText("Tên vật tư")}</th>
                 <th className="py-3 px-4">{uiText("Nhóm")}</th>
                 <th className="py-3 px-4">{uiText("ĐVT cơ sở")}</th>
-                <th className="py-3 px-4">{uiText("Phân loại")}</th>
-                <th className="py-3 px-4">{uiText("Cơ chế trả")}</th>
-                <th className="py-3 px-4">{uiText("Bắt buộc HSD")}</th>
+                <th className="py-3 px-4 whitespace-nowrap">
+                  {uiText("Phân loại")}
+                </th>
+                <th className="py-3 px-4 whitespace-nowrap">
+                  {uiText("Cơ chế trả")}
+                </th>
+                <th className="py-3 px-4 whitespace-nowrap">
+                  {uiText("Bắt buộc HSD")}
+                </th>
                 <th className="py-3 px-4">{uiText("Trạng thái")}</th>
                 <th className="py-3 px-4 text-center">{uiText("Bản")}</th>
                 <th className="py-3 px-4 text-right">{uiText("Thao tác")}</th>
@@ -440,7 +448,7 @@ export function CatalogView({
                                 })
                               }
                             >
-                              {uiText("Ngừng HĐ")}
+                              {uiText("Ngừng hoạt động")}
                             </button>
                           ) : (
                             <button
@@ -681,7 +689,7 @@ function CreateItemDialog({
                 htmlFor="create-item-code"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                {uiText("Mã SKU ")}
+                {uiText("Mã vật tư ")}
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -964,7 +972,7 @@ function EditItemDialog({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="rounded-lg bg-slate-50 p-3 space-y-1 text-xs border border-slate-100">
             <div className="flex justify-between">
-              <span className="text-slate-500">{uiText("Mã SKU:")}</span>
+              <span className="text-slate-500">{uiText("Mã vật tư:")}</span>
               <span className="font-mono font-bold text-slate-900">
                 {item.code}
               </span>
@@ -1003,7 +1011,7 @@ function EditItemDialog({
           </div>
           <div className="p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg text-[11px] text-blue-800 leading-relaxed">
             {uiText(
-              "Ghi chú: Theo bất biến D01, Mã SKU, ĐVT cơ sở, Phân loại hóa chất và Cơ chế hoàn trả bị khóa bất biến sau khi phát sinh giao dịch nhận kho đầu tiên để đảm bảo toàn vẹn dữ liệu sổ cái.",
+              "Ghi chú: Theo bất biến D01, Mã vật tư, ĐVT cơ sở, Phân loại hóa chất và Cơ chế hoàn trả bị khóa bất biến sau khi phát sinh giao dịch nhận kho đầu tiên để đảm bảo toàn vẹn dữ liệu sổ cái.",
             )}
           </div>
 

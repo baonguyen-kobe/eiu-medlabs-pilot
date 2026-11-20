@@ -10,6 +10,7 @@ import {
   AssetEligibilityBadge,
 } from "./asset-status-badge";
 import type { EquipmentAsset } from "@/lib/inventory/asset-types";
+import { describeIneligibility } from "@/lib/inventory/labels";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { LocalizedText } from "@/components/i18n/language-provider";
 
@@ -174,13 +175,11 @@ export function AssetQrLookup() {
             {!result.eligible && (
               <div className="p-3 bg-white rounded border border-rose-200 text-rose-800 space-y-1">
                 <div className="font-bold flex items-center gap-1.5 text-xs text-rose-700">
-                  {uiText(
-                    "Lý do không đủ điều kiện sử dụng / Ineligibility Reasons:",
-                  )}
+                  {uiText("Lý do không đủ điều kiện sử dụng:")}
                 </div>
                 <ul className="list-disc list-inside space-y-0.5 text-[11px] pl-1">
                   {result.ineligibility_reasons.map((r, i) => (
-                    <li key={i}>{r}</li>
+                    <li key={i}>{uiText(describeIneligibility(r))}</li>
                   ))}
                 </ul>
               </div>

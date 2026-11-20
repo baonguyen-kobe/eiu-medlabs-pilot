@@ -122,7 +122,9 @@ export function EquipmentFulfillmentWorkspace({
     effectiveOperation === "consequence" || effectiveOperation === "reconcile";
   // Only an Admin may keep borrowed equipment in the session's room (t4r2).
   const receiveLocations = workspace.locations
-    .filter((location) => !location.room || workspace.admin)
+    .filter(
+      (location) => location.active && (!location.room || workspace.admin),
+    )
     .map((location) =>
       location.room
         ? {
@@ -146,7 +148,7 @@ export function EquipmentFulfillmentWorkspace({
           (location) => location.id === issue.location_id && location.active,
         ),
     )?.location_id ||
-    workspace.locations[0]?.id ||
+    receiveLocations[0]?.id ||
     "";
   const returnIssues = selectableIssues.filter(
     (issue) => compareExact(issue.issued, issue.returned) > 0,
@@ -412,6 +414,12 @@ export function EquipmentFulfillmentWorkspace({
   }
 
   const locked = busy || uncertain;
+  const notPrepared = ![
+    "preparing",
+    "handed_over",
+    "returned",
+    "completed",
+  ].includes(workspace.status);
   const statusLabel =
     equipmentRequestStatuses.find(({ value }) => value === workspace.status)
       ?.label ?? workspace.status;
@@ -520,7 +528,7 @@ export function EquipmentFulfillmentWorkspace({
               disabled={busy}
               onClick={() => void refresh()}
             >
-              {uiText("Tải phiên bản mới")}
+              {uiText("Làm mới")}
             </button>
           </div>
         </div>
@@ -547,823 +555,857 @@ export function EquipmentFulfillmentWorkspace({
       <p role="status" className="kho-record-message">
         <LocalizedText text={message ?? ""} />
       </p>
-      <div className="kho-record-grid">
-        <div className="kho-record-main">
-          {signEvent ? (
-            <section className="kho-card" id="kho-sign">
-              <h2>
-                {uiText("Ký đúng sự kiện #")}
-                {signEvent.revision}
-              </h2>
-              <p>
-                {signEvent.reason}
-                {uiText(
-                  ". Chữ ký xác nhận nội dung snapshot bên trên, không ghi kho thêm.",
-                )}
-              </p>
-              <FulfillmentEventEvidence event={signEvent} />
-              <canvas
-                key={signingId}
-                ref={canvasRef}
-                width={600}
-                height={180}
-                aria-label={uiText(
-                  "Vùng vẽ chữ ký; có thể tải ảnh PNG thay thế bên dưới",
-                )}
-                style={{
-                  border: "1px solid var(--ink-600)",
-                  width: "100%",
-                  maxWidth: 600,
-                  touchAction: "none",
-                }}
-                onPointerDown={(event) => {
-                  if (locked) return;
-                  drawing.current = true;
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  const ctx = event.currentTarget.getContext("2d");
-                  ctx?.beginPath();
-                  ctx?.moveTo(
-                    ((event.clientX - rect.left) * 600) / rect.width,
-                    ((event.clientY - rect.top) * 180) / rect.height,
-                  );
-                }}
-                onPointerMove={(event) => {
-                  if (!drawing.current || locked) return;
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  const ctx = event.currentTarget.getContext("2d");
-                  if (ctx) {
-                    ctx.lineWidth = 2;
-                    ctx.lineCap = "round";
-                    ctx.lineTo(
+      {notPrepared ? (
+        <p className="kho-record-message">
+          {uiText(
+            "Phiếu chưa được chuẩn bị. Vui lòng chuẩn bị thiết bị trước khi bàn giao.",
+          )}{" "}
+          <Link href={`/equipment/preparation/${workspace.request_id}`}>
+            {uiText("Mở màn hình chuẩn bị")}
+          </Link>
+        </p>
+      ) : null}
+      {notPrepared ? null : (
+        <div className="kho-record-grid">
+          <div className="kho-record-main">
+            {signEvent ? (
+              <section className="kho-card" id="kho-sign">
+                <h2>
+                  {uiText("Ký đúng sự kiện #")}
+                  {signEvent.revision}
+                </h2>
+                <p>
+                  {signEvent.reason}
+                  {uiText(
+                    ". Chữ ký xác nhận nội dung snapshot bên trên, không ghi kho thêm.",
+                  )}
+                </p>
+                <FulfillmentEventEvidence event={signEvent} />
+                <canvas
+                  key={signingId}
+                  ref={canvasRef}
+                  width={600}
+                  height={180}
+                  aria-label={uiText(
+                    "Vùng vẽ chữ ký; có thể tải ảnh PNG thay thế bên dưới",
+                  )}
+                  style={{
+                    border: "1px solid var(--ink-600)",
+                    width: "100%",
+                    maxWidth: 600,
+                    touchAction: "none",
+                  }}
+                  onPointerDown={(event) => {
+                    if (locked) return;
+                    drawing.current = true;
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const ctx = event.currentTarget.getContext("2d");
+                    ctx?.beginPath();
+                    ctx?.moveTo(
                       ((event.clientX - rect.left) * 600) / rect.width,
                       ((event.clientY - rect.top) * 180) / rect.height,
                     );
-                    ctx.stroke();
-                    hasInk.current = true;
-                  }
-                }}
-                onPointerUp={(event) => {
-                  if (drawing.current && hasInk.current)
-                    setSignature(event.currentTarget.toDataURL("image/png"));
-                  drawing.current = false;
-                }}
-                onPointerCancel={() => {
-                  drawing.current = false;
-                }}
-              />
-              <label>
-                {uiText("Hoặc tải ảnh chữ ký PNG")}
-                <input
-                  type="file"
-                  accept="image/png"
-                  disabled={busy}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (!file) return;
-                    if (file.type !== "image/png" || file.size > 290000) {
-                      setMessage("Chọn PNG tối đa 290 KB.");
-                      return;
+                  }}
+                  onPointerMove={(event) => {
+                    if (!drawing.current || locked) return;
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const ctx = event.currentTarget.getContext("2d");
+                    if (ctx) {
+                      ctx.lineWidth = 2;
+                      ctx.lineCap = "round";
+                      ctx.lineTo(
+                        ((event.clientX - rect.left) * 600) / rect.width,
+                        ((event.clientY - rect.top) * 180) / rect.height,
+                      );
+                      ctx.stroke();
+                      hasInk.current = true;
                     }
-                    const reader = new FileReader();
-                    reader.onload = () => setSignature(String(reader.result));
-                    reader.readAsDataURL(file);
+                  }}
+                  onPointerUp={(event) => {
+                    if (drawing.current && hasInk.current)
+                      setSignature(event.currentTarget.toDataURL("image/png"));
+                    drawing.current = false;
+                  }}
+                  onPointerCancel={() => {
+                    drawing.current = false;
                   }}
                 />
-              </label>
-              <button
-                className="button button-secondary"
-                disabled={locked}
-                onClick={() => {
-                  canvasRef.current
-                    ?.getContext("2d")
-                    ?.clearRect(0, 0, 600, 180);
-                  hasInk.current = false;
-                  setSignature("");
-                }}
-              >
-                {uiText("Ký lại")}
-              </button>{" "}
-              <button
-                className="button"
-                disabled={locked || !signature}
-                onClick={() =>
-                  void submit("sign", {
-                    event_id: signEvent.id,
-                    snapshot_hash: signEvent.snapshot_hash,
-                    signature,
-                  })
-                }
-              >
-                {uiText("Xác nhận chữ ký sự kiện #")}
-                {signEvent.revision}
-              </button>{" "}
-              <button
-                className="button button-secondary"
-                disabled={locked}
-                onClick={() => setSigningId("")}
-              >
-                {uiText("Đóng ký")}
-              </button>
-            </section>
-          ) : null}
-          <section className="kho-card" aria-labelledby="kho-lines">
-            <div className="kho-card-head">
-              <h3 id="kho-lines">
-                {uiText("Thiết bị của phiếu")}{" "}
-                <small>{uiText("· {0} dòng", [lineRows.length])}</small>
-              </h3>
-              {workspace.status === "preparing" ? (
-                <p>
-                  {uiText(
-                    "Khi thực giao lần đầu, toàn bộ phần giữ của kế hoạch sẽ được nhả. Phần chưa giao không còn được dành riêng; giao bổ sung phải kiểm tra lại nguồn.",
-                  )}
-                </p>
-              ) : null}
-              <div className="kho-filter-bar">
-                <label className="kho-search">
-                  <span className="sr-only">{uiText("Tìm thiết bị")}</span>
+                <label>
+                  {uiText("Hoặc tải ảnh chữ ký PNG")}
                   <input
-                    type="search"
-                    value={lineQuery}
-                    placeholder={uiText("Tìm tên hoặc mã thiết bị")}
-                    onChange={(event) => setLineQuery(event.target.value)}
+                    type="file"
+                    accept="image/png"
+                    disabled={busy}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      if (file.type !== "image/png" || file.size > 290000) {
+                        setMessage("Chọn PNG tối đa 290 KB.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = () => setSignature(String(reader.result));
+                      reader.readAsDataURL(file);
+                    }}
                   />
                 </label>
-                <div className="kho-chips" aria-label={uiText("Lọc dòng")}>
-                  {(
-                    [
-                      ["all", "Tất cả {0}", lineRows.length],
-                      ["due", "Còn phải trả {0}", dueLines.length],
-                      ["done", "Đã đủ {0}", lineRows.length - dueLines.length],
-                    ] as const
-                  ).map(([value, label, count]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={lineFilter === value}
-                      onClick={() => setLineFilter(value)}
-                    >
-                      {uiText(label, [count])}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="kho-scroll">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">{uiText("Thiết bị")}</th>
-                    <th scope="col" className="num">
-                      {uiText("Đăng ký")}
-                    </th>
-                    <th scope="col" className="num">
-                      {uiText("Kế hoạch")}
-                    </th>
-                    <th scope="col" className="num">
-                      {uiText("Đã giao")}
-                    </th>
-                    <th scope="col" className="num">
-                      {uiText("Đã trả")}
-                    </th>
-                    <th scope="col" className="num">
-                      {uiText("Còn phải trả")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleLines.map((row) => (
-                    <tr key={row.line.id}>
-                      <th scope="row">
-                        <span className="cell-stack">
-                          <strong>{row.line.name}</strong>
-                          <small>
-                            {[
-                              row.code,
-                              row.line.baseline_source === "added"
-                                ? uiText("Phát sinh sau giao")
-                                : "",
-                              row.returnable ? "" : uiText("Không phải trả"),
-                            ]
-                              .filter(Boolean)
-                              .join(" · ") || row.line.unit}
-                          </small>
-                        </span>
-                      </th>
-                      <td className="num">
-                        {row.line.registered_quantity} {row.line.unit}
-                      </td>
-                      <td className="num">{row.line.planned_quantity}</td>
-                      <td className="num">{row.issued}</td>
-                      <td className="num">{row.returned}</td>
-                      <td className="num">
-                        {compareExact(row.due, "0") > 0 ? (
-                          <strong className="kho-due">{row.due}</strong>
-                        ) : (
-                          <span className="badge" data-tone="success">
-                            {uiText("Đã đủ")}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {visibleLines.length ? null : (
-                    <tr>
-                      <td colSpan={6} className="panel-empty">
-                        {uiText("Không có dòng nào khớp bộ lọc.")}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-          {workspace.manager && workspace.status === "handed_over" ? (
-            <details className="kho-card kho-card-pad">
-              <summary>
-                {uiText("Thêm loại dụng cụ mới phát sinh sau giao")}
-              </summary>
-              <FulfillmentAddedLine
-                key={workspace.lines.length}
-                workspace={workspace}
-                disabled={locked}
-                onSubmit={(body) => submit("add_supplemental_line", body)}
-              />
-            </details>
-          ) : null}
-          {uncertain ? (
-            <button
-              className="button"
-              disabled={busy}
-              onClick={() => void retryPending()}
-            >
-              {uiText("Đối soát thao tác chưa rõ kết quả")}
-            </button>
-          ) : null}
-          {workspace.manager ? (
-            <section className="kho-card" aria-labelledby="kho-record">
-              <fieldset disabled={locked}>
-                <div className="kho-card-head">
-                  <h3 id="kho-record">{uiText("Ghi nhận lần này")}</h3>
-                  <div
-                    className="segmented-control kho-op-tabs"
-                    role="group"
-                    aria-label={uiText("Thao tác")}
-                  >
-                    {operationOptions.map(([key, label]) => (
+                <button
+                  className="button button-secondary"
+                  disabled={locked}
+                  onClick={() => {
+                    canvasRef.current
+                      ?.getContext("2d")
+                      ?.clearRect(0, 0, 600, 180);
+                    hasInk.current = false;
+                    setSignature("");
+                  }}
+                >
+                  {uiText("Ký lại")}
+                </button>{" "}
+                <button
+                  className="button"
+                  disabled={locked || !signature}
+                  onClick={() =>
+                    void submit("sign", {
+                      event_id: signEvent.id,
+                      snapshot_hash: signEvent.snapshot_hash,
+                      signature,
+                    })
+                  }
+                >
+                  {uiText("Xác nhận chữ ký sự kiện #")}
+                  {signEvent.revision}
+                </button>{" "}
+                <button
+                  className="button button-secondary"
+                  disabled={locked}
+                  onClick={() => setSigningId("")}
+                >
+                  {uiText("Đóng ký")}
+                </button>
+              </section>
+            ) : null}
+            <section className="kho-card" aria-labelledby="kho-lines">
+              <div className="kho-card-head">
+                <h3 id="kho-lines">
+                  {uiText("Thiết bị của phiếu")}{" "}
+                  <small>{uiText("· {0} dòng", [lineRows.length])}</small>
+                </h3>
+                {workspace.status === "preparing" ? (
+                  <p>
+                    {uiText(
+                      "Khi thực giao lần đầu, toàn bộ phần giữ của kế hoạch sẽ được nhả. Phần chưa giao không còn được dành riêng; giao bổ sung phải kiểm tra lại nguồn.",
+                    )}
+                  </p>
+                ) : null}
+                <div className="kho-filter-bar">
+                  <label className="kho-search">
+                    <span className="sr-only">{uiText("Tìm thiết bị")}</span>
+                    <input
+                      type="search"
+                      value={lineQuery}
+                      placeholder={uiText("Tìm tên hoặc mã thiết bị")}
+                      onChange={(event) => setLineQuery(event.target.value)}
+                    />
+                  </label>
+                  <div className="kho-chips" aria-label={uiText("Lọc dòng")}>
+                    {(
+                      [
+                        ["all", "Tất cả {0}", lineRows.length],
+                        ["due", "Còn phải trả {0}", dueLines.length],
+                        [
+                          "done",
+                          "Đã đủ {0}",
+                          lineRows.length - dueLines.length,
+                        ],
+                      ] as const
+                    ).map(([value, label, count]) => (
                       <button
-                        key={key}
+                        key={value}
                         type="button"
-                        aria-pressed={operation === key}
-                        className={operation === key ? "selected" : ""}
-                        onClick={() => {
-                          setOperation(key);
-                          setRows([]);
-                          setReturnEntries({});
-                          setConfirmed(false);
-                        }}
+                        aria-pressed={lineFilter === value}
+                        onClick={() => setLineFilter(value)}
                       >
-                        {uiText(label)}
+                        {uiText(label, [count])}
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="kho-card-body">
-                  {operation === "correct" ? (
-                    <label>
-                      {uiText(
-                        "Sự kiện cần đính chính (trang lịch sử hiện tại)",
-                      )}
-                      <select
-                        value={correction}
-                        onChange={(event) => {
-                          setCorrection(event.target.value);
-                          setRows([]);
-                        }}
-                      >
-                        <option value="">{uiText("Chọn sự kiện")}</option>
-                        {workspace.events
-                          .filter((event) => !event.superseded)
-                          .map((event) => (
-                            <option key={event.id} value={event.id}>
-                              #{event.revision} {event.operation} —{" "}
-                              {event.reason}
-                            </option>
-                          ))}
-                      </select>
-                    </label>
-                  ) : null}
-                  <p>
-                    {operation === "correct"
-                      ? uiText(
-                          "Nhập toàn bộ nội dung thay thế đúng. Bản cũ và chữ ký cũ luôn được giữ; bản thay thế cần ký riêng nếu thuộc lần giao/trả phải ký.",
-                        )
-                      : effectiveOperation === "recover"
-                        ? uiText(
-                            "Nhập số thực nhận của LẦN NÀY theo từng tình trạng. Hệ thống cộng vào lịch sử; trả muộn tự đối trừ phần đã xử lý không thu hồi.",
-                          )
-                        : uiText(
-                            "Chỉ xác nhận hàng đã thực giao/thực nhận. Không dùng thay cho kế hoạch.",
+              </div>
+              <div className="kho-scroll">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{uiText("Thiết bị")}</th>
+                      <th scope="col" className="num">
+                        {uiText("Đăng ký")}
+                      </th>
+                      <th scope="col" className="num">
+                        {uiText("Kế hoạch")}
+                      </th>
+                      <th scope="col" className="num">
+                        {uiText("Đã giao")}
+                      </th>
+                      <th scope="col" className="num">
+                        {uiText("Đã trả")}
+                      </th>
+                      <th scope="col" className="num">
+                        {uiText("Còn phải trả")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleLines.map((row) => (
+                      <tr key={row.line.id}>
+                        <th scope="row">
+                          <span className="cell-stack">
+                            <strong>{row.line.name}</strong>
+                            <small>
+                              {[
+                                row.code,
+                                row.line.baseline_source === "added"
+                                  ? uiText("Phát sinh sau giao")
+                                  : "",
+                                row.returnable ? "" : uiText("Không phải trả"),
+                              ]
+                                .filter(Boolean)
+                                .join(" · ") || row.line.unit}
+                            </small>
+                          </span>
+                        </th>
+                        <td className="num">
+                          {row.line.registered_quantity} {row.line.unit}
+                        </td>
+                        <td className="num">{row.line.planned_quantity}</td>
+                        <td className="num">{row.issued}</td>
+                        <td className="num">{row.returned}</td>
+                        <td className="num">
+                          {compareExact(row.due, "0") > 0 ? (
+                            <strong className="kho-due">{row.due}</strong>
+                          ) : (
+                            <span className="badge" data-tone="success">
+                              {uiText("Đã đủ")}
+                            </span>
                           )}
-                  </p>
-                  {issuing ? (
-                    <>
-                      <label>
-                        {uiText("Dòng yêu cầu")}
-                        <select
-                          value={lineId}
-                          onChange={(event) => {
-                            setLineId(event.target.value);
-                            setSources([]);
-                            setSourceIndex(-1);
-                          }}
-                        >
-                          {workspace.lines.map((line) => (
-                            <option key={line.id} value={line.id}>
-                              {line.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <button
-                        className="button button-secondary"
-                        onClick={() => void loadSources()}
-                      >
-                        {uiText("Tải nguồn giao")}
-                      </button>
-                      <label>
-                        {uiText("Nguồn và mapping")}
-                        <select
-                          value={sourceIndex}
-                          onChange={(event) => {
-                            setSourceIndex(Number(event.target.value));
-                            setAssets([]);
-                            setAssetIds([]);
-                          }}
-                        >
-                          <option value={-1}>{uiText("Chọn nguồn")}</option>
-                          {sources.map((source, index) => (
-                            <option
-                              key={`${source.mapping_id}:${source.location_id}`}
-                              value={index}
-                            >
-                              {source.item_name} — {source.location_name}
-                              {uiText(" — khả dụng")}{" "}
-                              {formatDisplayQuantity(source.available_quantity)}{" "}
-                              {source.base_uom_code}
-                              {uiText("; quy đổi ")}
-                              {formatDisplayQuantity(source.conversion_factor)}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <button
-                        className="button button-secondary"
-                        disabled={sourcePage <= 1}
-                        onClick={() => void loadSources(sourcePage - 1)}
-                      >
-                        {uiText("Nguồn trước")}
-                      </button>{" "}
-                      <button
-                        className="button button-secondary"
-                        disabled={sources.length < 100}
-                        onClick={() => void loadSources(sourcePage + 1)}
-                      >
-                        {uiText("Nguồn tiếp")}
-                      </button>
-                      {selectedSource?.tracking_strategy === "serialized" ? (
-                        <>
-                          <button
-                            className="button button-secondary"
-                            onClick={() => void loadAssets()}
-                          >
-                            {uiText("Chọn tài sản chính xác")}
-                          </button>
-                          {assets.map((asset) => (
-                            <label key={asset.id}>
-                              <input
-                                type="checkbox"
-                                checked={assetIds.includes(asset.id)}
-                                disabled={!asset.eligible}
-                                onChange={(event) =>
-                                  setAssetIds((current) =>
-                                    event.target.checked
-                                      ? [...current, asset.id]
-                                      : current.filter((id) => id !== asset.id),
-                                  )
-                                }
-                              />
-                              {asset.asset_code}{" "}
-                              {asset.unreserved
-                                ? ""
-                                : uiText(
-                                    "(đang có reservation; máy chủ kiểm tra chủ phiếu)",
-                                  )}
-                            </label>
-                          ))}
-                          <button
-                            className="button button-secondary"
-                            disabled={assetPage <= 1}
-                            onClick={() => void loadAssets(assetPage - 1)}
-                          >
-                            {uiText("Tài sản trước")}
-                          </button>{" "}
-                          <button
-                            className="button button-secondary"
-                            disabled={assetPage * 100 >= assetTotal}
-                            onClick={() => void loadAssets(assetPage + 1)}
-                          >
-                            {uiText("Tài sản tiếp")}
-                          </button>
-                          <p>
-                            {uiText("Đã chọn ")}
-                            {assetIds.length}
-                            {uiText(" tài sản.")}
-                          </p>
-                        </>
-                      ) : null}
-                    </>
-                  ) : returning ? (
-                    <>
-                      {returnIssues.length ? (
+                        </td>
+                      </tr>
+                    ))}
+                    {visibleLines.length ? null : (
+                      <tr>
+                        <td colSpan={6} className="panel-empty">
+                          {uiText("Không có dòng nào khớp bộ lọc.")}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            {workspace.manager && workspace.status === "handed_over" ? (
+              <details className="kho-card kho-card-pad">
+                <summary>
+                  {uiText("Thêm loại dụng cụ mới phát sinh sau giao")}
+                </summary>
+                <FulfillmentAddedLine
+                  key={workspace.lines.length}
+                  workspace={workspace}
+                  disabled={locked}
+                  onSubmit={(body) => submit("add_supplemental_line", body)}
+                />
+              </details>
+            ) : null}
+            {uncertain ? (
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() => void retryPending()}
+              >
+                {uiText("Đối soát thao tác chưa rõ kết quả")}
+              </button>
+            ) : null}
+            {workspace.manager ? (
+              <section className="kho-card" aria-labelledby="kho-record">
+                <fieldset disabled={locked}>
+                  <div className="kho-card-head">
+                    <h3 id="kho-record">{uiText("Ghi nhận lần này")}</h3>
+                    <div
+                      className="segmented-control kho-op-tabs"
+                      role="group"
+                      aria-label={uiText("Thao tác")}
+                    >
+                      {operationOptions.map(([key, label]) => (
                         <button
+                          key={key}
                           type="button"
-                          className="button button-secondary kho-fill-all"
-                          onClick={() =>
-                            setReturnEntries((current) =>
-                              Object.fromEntries(
-                                returnIssues.map((issue) => [
-                                  issue.id,
-                                  current[issue.id]?.good ||
-                                  current[issue.id]?.damaged
-                                    ? current[issue.id]
-                                    : {
-                                        good: subtractExact(
-                                          issue.issued,
-                                          issue.returned,
-                                        ),
-                                        damaged: "",
-                                      },
-                                ]),
-                              ),
-                            )
-                          }
+                          aria-pressed={operation === key}
+                          className={operation === key ? "selected" : ""}
+                          onClick={() => {
+                            setOperation(key);
+                            setRows([]);
+                            setReturnEntries({});
+                            setConfirmed(false);
+                          }}
                         >
-                          {uiText("Nhận đủ tất cả")}
+                          {uiText(label)}
                         </button>
-                      ) : null}
-                      <FulfillmentReturnTable
-                        issues={returnIssues}
-                        locations={receiveLocations}
-                        locationId={pickedLocationId}
-                        entries={returnEntries}
-                        onLocationChange={setLocationId}
-                        onEntryChange={(id, entry) =>
-                          setReturnEntries((current) => ({
-                            ...current,
-                            [id]: entry,
-                          }))
-                        }
-                      />
-                    </>
-                  ) : (
-                    <>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="kho-card-body">
+                    {operation === "correct" ? (
                       <label>
-                        {uiText("Phần thực giao")}
+                        {uiText(
+                          "Sự kiện cần đính chính (trang lịch sử hiện tại)",
+                        )}
                         <select
-                          value={selectedIssue?.id ?? ""}
-                          onChange={(event) => setSliceId(event.target.value)}
+                          value={correction}
+                          onChange={(event) => {
+                            setCorrection(event.target.value);
+                            setRows([]);
+                          }}
                         >
-                          <option value="">
-                            {uiText("Chọn phần thực giao")}
-                          </option>
-                          {selectableIssues.map((issue) => (
-                            <option key={issue.id} value={issue.id}>
-                              {issue.item_name} {issue.asset_code ?? issue.id}
-                              {uiText(" — còn")} {issue.due}
-                              {uiText(", đã xử lý ")}
-                              {issue.resolved}
-                              {uiText(", chờ đối soát ")}
-                              {issue.held}
-                            </option>
-                          ))}
+                          <option value="">{uiText("Chọn sự kiện")}</option>
+                          {workspace.events
+                            .filter((event) => !event.superseded)
+                            .map((event) => (
+                              <option key={event.id} value={event.id}>
+                                #{event.revision} {event.operation} —{" "}
+                                {event.reason}
+                              </option>
+                            ))}
                         </select>
                       </label>
-                      {receiving ? (
-                        <>
-                          <label>
-                            {uiText("Nơi thực nhận")}
-                            <select
-                              value={pickedLocationId}
-                              onChange={(event) =>
-                                setLocationId(event.target.value)
-                              }
-                            >
-                              <option value="">
-                                {uiText("Kho đã xuất của từng dòng")}
-                              </option>
-                              {receiveLocations.map((location) => (
-                                <option key={location.id} value={location.id}>
-                                  {location.name}
-                                  {location.active
-                                    ? ""
-                                    : uiText(" (ngừng hoạt động)")}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <label>
-                            {uiText("Tình trạng")}
-                            <select
-                              value={condition}
-                              onChange={(event) =>
-                                setCondition(event.target.value)
-                              }
-                            >
-                              <option value="good">{uiText("Tốt")}</option>
-                              <option value="damaged">
-                                {uiText("Hư hỏng")}
-                              </option>
-                            </select>
-                          </label>
-                        </>
-                      ) : (
+                    ) : null}
+                    <p>
+                      {operation === "correct"
+                        ? uiText(
+                            "Nhập toàn bộ nội dung thay thế đúng. Bản cũ và chữ ký cũ luôn được giữ; bản thay thế cần ký riêng nếu thuộc lần giao/trả phải ký.",
+                          )
+                        : effectiveOperation === "recover"
+                          ? uiText(
+                              "Nhập số thực nhận của LẦN NÀY theo từng tình trạng. Hệ thống cộng vào lịch sử; trả muộn tự đối trừ phần đã xử lý không thu hồi.",
+                            )
+                          : uiText(
+                              "Chỉ xác nhận hàng đã thực giao/thực nhận. Không dùng thay cho kế hoạch.",
+                            )}
+                    </p>
+                    {issuing ? (
+                      <>
                         <label>
-                          {uiText("Phân loại")}
+                          {uiText("Dòng yêu cầu")}
                           <select
-                            value={classification}
-                            onChange={(event) =>
-                              setClassification(event.target.value)
-                            }
+                            value={lineId}
+                            onChange={(event) => {
+                              setLineId(event.target.value);
+                              setSources([]);
+                              setSourceIndex(-1);
+                            }}
                           >
-                            <option value="">{uiText("Chọn phân loại")}</option>
-                            {(effectiveOperation === "consequence"
-                              ? ["settled", "retired", "disposed"]
-                              : effectiveOperation === "reconcile"
-                                ? ["restore_eligible", "retain_ineligible"]
-                                : ["missing", "unrecoverable", "waived"]
-                            ).map((value) => (
-                              <option key={value} value={value}>
-                                {value}
+                            {workspace.lines.map((line) => (
+                              <option key={line.id} value={line.id}>
+                                {line.name}
                               </option>
                             ))}
                           </select>
                         </label>
-                      )}
-                    </>
-                  )}
-                  {returning ? null : (
-                    <label>
-                      {uiText("Số lượng thực tế (đơn vị kho)")}
-                      <input
-                        inputMode="decimal"
-                        value={quantity}
-                        onChange={(event) => setQuantity(event.target.value)}
-                      />
-                    </label>
-                  )}
-                  {returning ? null : !administrative ? (
-                    <>
-                      <button
-                        className="button button-secondary"
-                        onClick={addRow}
-                      >
-                        {uiText("Thêm dòng sự kiện")}
-                      </button>
-                      {rows.map((row, index) => (
-                        <p key={index}>
-                          {issuing
-                            ? uiText("{0}: thực giao {1}", [
-                                workspace.lines.find(
-                                  (line) => line.id === row.line_id,
-                                )?.name ?? uiText("Dụng cụ"),
-                                row.quantity,
-                              ])
-                            : `${workspace.issues.find((issue) => issue.id === row.issue_slice_id)?.item_name ?? uiText("Dụng cụ")}: ${receiving ? uiText("nhận lần này") : uiText("xử lý")} ${row.quantity} · ${row.condition === "good" ? uiText("tốt") : row.condition === "damaged" ? uiText("hỏng") : (row.classification ?? "")}`}{" "}
+                        <button
+                          className="button button-secondary"
+                          onClick={() => void loadSources()}
+                        >
+                          {uiText("Tải nguồn giao")}
+                        </button>
+                        <label>
+                          {uiText("Nguồn và mapping")}
+                          <select
+                            value={sourceIndex}
+                            onChange={(event) => {
+                              setSourceIndex(Number(event.target.value));
+                              setAssets([]);
+                              setAssetIds([]);
+                            }}
+                          >
+                            <option value={-1}>{uiText("Chọn nguồn")}</option>
+                            {sources.map((source, index) => (
+                              <option
+                                key={`${source.mapping_id}:${source.location_id}`}
+                                value={index}
+                              >
+                                {source.item_name} — {source.location_name}
+                                {uiText(" — khả dụng")}{" "}
+                                {formatDisplayQuantity(
+                                  source.available_quantity,
+                                )}{" "}
+                                {source.base_uom_code}
+                                {uiText("; quy đổi ")}
+                                {formatDisplayQuantity(
+                                  source.conversion_factor,
+                                )}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <button
+                          className="button button-secondary"
+                          disabled={sourcePage <= 1}
+                          onClick={() => void loadSources(sourcePage - 1)}
+                        >
+                          {uiText("Nguồn trước")}
+                        </button>{" "}
+                        <button
+                          className="button button-secondary"
+                          disabled={sources.length < 100}
+                          onClick={() => void loadSources(sourcePage + 1)}
+                        >
+                          {uiText("Nguồn tiếp")}
+                        </button>
+                        {selectedSource?.tracking_strategy === "serialized" ? (
+                          <>
+                            <button
+                              className="button button-secondary"
+                              onClick={() => void loadAssets()}
+                            >
+                              {uiText("Chọn tài sản chính xác")}
+                            </button>
+                            {assets.map((asset) => (
+                              <label key={asset.id}>
+                                <input
+                                  type="checkbox"
+                                  checked={assetIds.includes(asset.id)}
+                                  disabled={!asset.eligible}
+                                  onChange={(event) =>
+                                    setAssetIds((current) =>
+                                      event.target.checked
+                                        ? [...current, asset.id]
+                                        : current.filter(
+                                            (id) => id !== asset.id,
+                                          ),
+                                    )
+                                  }
+                                />
+                                {asset.asset_code}{" "}
+                                {asset.unreserved
+                                  ? ""
+                                  : uiText(
+                                      "(đang có reservation; máy chủ kiểm tra chủ phiếu)",
+                                    )}
+                              </label>
+                            ))}
+                            <button
+                              className="button button-secondary"
+                              disabled={assetPage <= 1}
+                              onClick={() => void loadAssets(assetPage - 1)}
+                            >
+                              {uiText("Tài sản trước")}
+                            </button>{" "}
+                            <button
+                              className="button button-secondary"
+                              disabled={assetPage * 100 >= assetTotal}
+                              onClick={() => void loadAssets(assetPage + 1)}
+                            >
+                              {uiText("Tài sản tiếp")}
+                            </button>
+                            <p>
+                              {uiText("Đã chọn ")}
+                              {assetIds.length}
+                              {uiText(" tài sản.")}
+                            </p>
+                          </>
+                        ) : null}
+                      </>
+                    ) : returning ? (
+                      <>
+                        {returnIssues.length ? (
                           <button
-                            className="button button-secondary"
+                            type="button"
+                            className="button button-secondary kho-fill-all"
                             onClick={() =>
-                              setRows((current) =>
-                                current.filter((_, i) => i !== index),
+                              setReturnEntries((current) =>
+                                Object.fromEntries(
+                                  returnIssues.map((issue) => [
+                                    issue.id,
+                                    current[issue.id]?.good ||
+                                    current[issue.id]?.damaged
+                                      ? current[issue.id]
+                                      : {
+                                          good: subtractExact(
+                                            issue.issued,
+                                            issue.returned,
+                                          ),
+                                          damaged: "",
+                                        },
+                                  ]),
+                                ),
                               )
                             }
                           >
-                            {uiText("Bỏ dòng ")}
-                            {index + 1}
+                            {uiText("Nhận đủ tất cả")}
                           </button>
-                        </p>
-                      ))}
-                    </>
-                  ) : (
-                    <label>
-                      {uiText("Bằng chứng đối soát")}
-                      <textarea
-                        value={evidence}
-                        onChange={(event) => setEvidence(event.target.value)}
-                      />
-                    </label>
-                  )}
-                  {effectiveOperation === "initial_return" ? (
-                    <p>
-                      {uiText(
-                        "Với consumable-only hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
-                      )}
-                    </p>
-                  ) : null}
-                  {returning ? (
-                    <FulfillmentReturnPreview
-                      workspace={workspace}
-                      rows={returnRows}
-                    />
-                  ) : null}
-                </div>
-                <div className="kho-record-footer">
-                  <label>
-                    {uiText("Lý do")}
-                    <textarea
-                      value={reason}
-                      onChange={(event) => setReason(event.target.value)}
-                    />
-                  </label>
-                  {receiving && operation !== "correct" ? (
-                    <label>
-                      {uiText(
-                        "Người mang trả (người đăng ký hoặc trợ giảng; không thay quyền ký)",
-                      )}
-                      <input
-                        maxLength={200}
-                        value={carrierName}
-                        onChange={(event) => setCarrierName(event.target.value)}
-                      />
-                    </label>
-                  ) : null}
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={confirmed}
-                      onChange={(event) => setConfirmed(event.target.checked)}
-                    />
-                    {uiText(
-                      "Tôi xác nhận đây là sự kiện thực tế / quyết định có căn cứ, không phải dự kiến.",
-                    )}
-                  </label>
-                  <button
-                    className="button"
-                    disabled={!confirmed || !reason.trim() || returnIncomplete}
-                    onClick={post}
-                  >
-                    {uiText("Ghi nhận ")}
-                    {uiText(fulfillmentLabels[operation])}
-                  </button>
-                </div>
-              </fieldset>
-            </section>
-          ) : null}
-        </div>
-        <aside className="kho-record-aside" id="kho-history">
-          <div
-            className="kho-side-tabs"
-            role="group"
-            aria-label={uiText("Bảng bên")}
-          >
-            <button
-              type="button"
-              aria-pressed={sideTab === "summary"}
-              onClick={() => setSideTab("summary")}
-            >
-              {uiText("Tóm tắt")}
-            </button>
-            <button
-              type="button"
-              aria-pressed={sideTab === "history"}
-              onClick={() => setSideTab("history")}
-            >
-              {uiText("Lịch sử ({0})", [workspace.event_count])}
-            </button>
-          </div>
-          {sideTab === "summary" ? (
-            <dl className="kho-summary">
-              <dt>{uiText("Người đăng ký")}</dt>
-              <dd>{summary?.registrant || "—"}</dd>
-              <dt>{uiText("GV phụ trách")}</dt>
-              <dd>{summary?.responsible || "—"}</dd>
-              <dt>{uiText("Buổi học")}</dt>
-              <dd>
-                {summary
-                  ? [summary.course, summary.session]
-                      .filter(Boolean)
-                      .join(" · ") || "—"
-                  : "—"}
-              </dd>
-              <dt>{uiText("Phòng")}</dt>
-              <dd>{summary?.room || "—"}</dd>
-              <dt>{uiText("Nhận / trả")}</dt>
-              <dd>{summary?.handover || "—"}</dd>
-              <dt>{uiText("Phiên bản")}</dt>
-              <dd>{workspace.revision}</dd>
-            </dl>
-          ) : (
-            <ol className="kho-timeline">
-              {workspace.events.map((event) => (
-                <li
-                  key={event.id}
-                  data-superseded={event.superseded || undefined}
-                >
-                  <strong>
-                    #{event.revision}{" "}
-                    {uiText(
-                      fulfillmentLabels[
-                        event.operation as FulfillmentOperation
-                      ] ?? event.operation,
-                    )}
-                  </strong>
-                  <small>
-                    {[
-                      dateTime.format(new Date(event.occurred_at)),
-                      people[event.actor_id],
-                      event.reason,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </small>
-                  {event.superseded ? (
-                    <span className="badge" data-tone="neutral">
-                      {uiText("Đã có bản đính chính")}
-                    </span>
-                  ) : event.signature_required ? (
-                    event.signature ? (
-                      <span className="badge" data-tone="success">
-                        {uiText("Đã ký {0}", [
-                          dateTime.format(new Date(event.signature.signed_at)),
-                        ])}
-                      </span>
+                        ) : null}
+                        <FulfillmentReturnTable
+                          issues={returnIssues}
+                          locations={receiveLocations}
+                          locationId={pickedLocationId}
+                          entries={returnEntries}
+                          onLocationChange={setLocationId}
+                          onEntryChange={(id, entry) =>
+                            setReturnEntries((current) => ({
+                              ...current,
+                              [id]: entry,
+                            }))
+                          }
+                        />
+                      </>
                     ) : (
-                      <span className="badge" data-tone="warning">
-                        {uiText("Đang chờ chữ ký")}
-                      </span>
-                    )
-                  ) : (
-                    <span className="badge" data-tone="neutral">
-                      {uiText("Không cần ký lại")}
-                    </span>
-                  )}
-                  {workspace.signer &&
-                  event.signature_required &&
-                  !event.signature &&
-                  !event.superseded ? (
+                      <>
+                        <label>
+                          {uiText("Phần thực giao")}
+                          <select
+                            value={selectedIssue?.id ?? ""}
+                            onChange={(event) => setSliceId(event.target.value)}
+                          >
+                            <option value="">
+                              {uiText("Chọn phần thực giao")}
+                            </option>
+                            {selectableIssues.map((issue) => (
+                              <option key={issue.id} value={issue.id}>
+                                {issue.item_name} {issue.asset_code ?? issue.id}
+                                {uiText(" — còn")} {issue.due}
+                                {uiText(", đã xử lý ")}
+                                {issue.resolved}
+                                {uiText(", chờ đối soát ")}
+                                {issue.held}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        {receiving ? (
+                          <>
+                            <label>
+                              {uiText("Nơi thực nhận")}
+                              <select
+                                value={pickedLocationId}
+                                onChange={(event) =>
+                                  setLocationId(event.target.value)
+                                }
+                              >
+                                <option value="">
+                                  {uiText("Kho đã xuất của từng dòng")}
+                                </option>
+                                {receiveLocations.map((location) => (
+                                  <option key={location.id} value={location.id}>
+                                    {location.name}
+                                    {location.active
+                                      ? ""
+                                      : uiText(" (ngừng hoạt động)")}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label>
+                              {uiText("Tình trạng")}
+                              <select
+                                value={condition}
+                                onChange={(event) =>
+                                  setCondition(event.target.value)
+                                }
+                              >
+                                <option value="good">{uiText("Tốt")}</option>
+                                <option value="damaged">
+                                  {uiText("Hư hỏng")}
+                                </option>
+                              </select>
+                            </label>
+                          </>
+                        ) : (
+                          <label>
+                            {uiText("Phân loại")}
+                            <select
+                              value={classification}
+                              onChange={(event) =>
+                                setClassification(event.target.value)
+                              }
+                            >
+                              <option value="">
+                                {uiText("Chọn phân loại")}
+                              </option>
+                              {(effectiveOperation === "consequence"
+                                ? ["settled", "retired", "disposed"]
+                                : effectiveOperation === "reconcile"
+                                  ? ["restore_eligible", "retain_ineligible"]
+                                  : ["missing", "unrecoverable", "waived"]
+                              ).map((value) => (
+                                <option key={value} value={value}>
+                                  {value}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
+                      </>
+                    )}
+                    {returning ? null : (
+                      <label>
+                        {uiText("Số lượng thực tế (đơn vị kho)")}
+                        <input
+                          inputMode="decimal"
+                          value={quantity}
+                          onChange={(event) => setQuantity(event.target.value)}
+                        />
+                      </label>
+                    )}
+                    {returning ? null : !administrative ? (
+                      <>
+                        <button
+                          className="button button-secondary"
+                          onClick={addRow}
+                        >
+                          {uiText("Thêm dòng sự kiện")}
+                        </button>
+                        {rows.map((row, index) => (
+                          <p key={index}>
+                            {issuing
+                              ? uiText("{0}: thực giao {1}", [
+                                  workspace.lines.find(
+                                    (line) => line.id === row.line_id,
+                                  )?.name ?? uiText("Dụng cụ"),
+                                  row.quantity,
+                                ])
+                              : `${workspace.issues.find((issue) => issue.id === row.issue_slice_id)?.item_name ?? uiText("Dụng cụ")}: ${receiving ? uiText("nhận lần này") : uiText("xử lý")} ${row.quantity} · ${row.condition === "good" ? uiText("tốt") : row.condition === "damaged" ? uiText("hỏng") : (row.classification ?? "")}`}{" "}
+                            <button
+                              className="button button-secondary"
+                              onClick={() =>
+                                setRows((current) =>
+                                  current.filter((_, i) => i !== index),
+                                )
+                              }
+                            >
+                              {uiText("Bỏ dòng ")}
+                              {index + 1}
+                            </button>
+                          </p>
+                        ))}
+                      </>
+                    ) : (
+                      <label>
+                        {uiText("Bằng chứng đối soát")}
+                        <textarea
+                          value={evidence}
+                          onChange={(event) => setEvidence(event.target.value)}
+                        />
+                      </label>
+                    )}
+                    {effectiveOperation === "initial_return" ? (
+                      <p>
+                        {uiText(
+                          "Với vật tư tiêu hao hoặc chưa nhận lại hàng: xác nhận lần trả đầu với danh sách rỗng vẫn hợp lệ; chữ ký trả vẫn bắt buộc.",
+                        )}
+                      </p>
+                    ) : null}
+                    {returning ? (
+                      <FulfillmentReturnPreview
+                        workspace={workspace}
+                        rows={returnRows}
+                      />
+                    ) : null}
+                  </div>
+                  <div className="kho-record-footer">
+                    <label>
+                      {uiText("Lý do")}
+                      <textarea
+                        value={reason}
+                        onChange={(event) => setReason(event.target.value)}
+                      />
+                    </label>
+                    {receiving && operation !== "correct" ? (
+                      <label>
+                        {uiText(
+                          "Người mang trả (người đăng ký hoặc trợ giảng; không thay quyền ký)",
+                        )}
+                        <input
+                          maxLength={200}
+                          value={carrierName}
+                          onChange={(event) =>
+                            setCarrierName(event.target.value)
+                          }
+                        />
+                      </label>
+                    ) : null}
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={confirmed}
+                        onChange={(event) => setConfirmed(event.target.checked)}
+                      />
+                      {uiText(
+                        "Tôi xác nhận đây là sự kiện thực tế / quyết định có căn cứ, không phải dự kiến.",
+                      )}
+                    </label>
                     <button
                       className="button"
-                      disabled={locked}
-                      onClick={() => {
-                        setSigningId(event.id);
-                        setSignature("");
-                        hasInk.current = false;
-                        // The pad opens at the top of the main column, away from this panel.
-                        requestAnimationFrame(() =>
-                          document.getElementById("kho-sign")?.scrollIntoView({
-                            block: "start",
-                            behavior: "smooth",
-                          }),
-                        );
-                      }}
+                      disabled={
+                        !confirmed || !reason.trim() || returnIncomplete
+                      }
+                      onClick={post}
                     >
-                      {uiText("Ký sự kiện #")}
-                      {event.revision}
+                      {uiText("Ghi nhận ")}
+                      {uiText(fulfillmentLabels[operation])}
                     </button>
-                  ) : null}
-                  <details>
-                    <summary>{uiText("Chi tiết")}</summary>
-                    <FulfillmentEventEvidence event={event} />
+                  </div>
+                </fieldset>
+              </section>
+            ) : null}
+          </div>
+          <aside className="kho-record-aside" id="kho-history">
+            <div
+              className="kho-side-tabs"
+              role="group"
+              aria-label={uiText("Bảng bên")}
+            >
+              <button
+                type="button"
+                aria-pressed={sideTab === "summary"}
+                onClick={() => setSideTab("summary")}
+              >
+                {uiText("Tóm tắt")}
+              </button>
+              <button
+                type="button"
+                aria-pressed={sideTab === "history"}
+                onClick={() => setSideTab("history")}
+              >
+                {uiText("Lịch sử ({0})", [workspace.event_count])}
+              </button>
+            </div>
+            {sideTab === "summary" ? (
+              <dl className="kho-summary">
+                <dt>{uiText("Người đăng ký")}</dt>
+                <dd>{summary?.registrant || "—"}</dd>
+                <dt>{uiText("GV phụ trách")}</dt>
+                <dd>{summary?.responsible || "—"}</dd>
+                <dt>{uiText("Buổi học")}</dt>
+                <dd>
+                  {summary
+                    ? [summary.course, summary.session]
+                        .filter(Boolean)
+                        .join(" · ") || "—"
+                    : "—"}
+                </dd>
+                <dt>{uiText("Phòng")}</dt>
+                <dd>{summary?.room || "—"}</dd>
+                <dt>{uiText("Nhận / trả")}</dt>
+                <dd>{summary?.handover || "—"}</dd>
+                <dt>{uiText("Phiên bản")}</dt>
+                <dd>{workspace.revision}</dd>
+              </dl>
+            ) : (
+              <ol className="kho-timeline">
+                {workspace.events.map((event) => (
+                  <li
+                    key={event.id}
+                    data-superseded={event.superseded || undefined}
+                  >
+                    <strong>
+                      #{event.revision}{" "}
+                      {uiText(
+                        fulfillmentLabels[
+                          event.operation as FulfillmentOperation
+                        ] ?? event.operation,
+                      )}
+                    </strong>
+                    <small>
+                      {[
+                        dateTime.format(new Date(event.occurred_at)),
+                        people[event.actor_id],
+                        event.reason,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </small>
+                    {event.superseded ? (
+                      <span className="badge" data-tone="neutral">
+                        {uiText("Đã có bản đính chính")}
+                      </span>
+                    ) : event.signature_required ? (
+                      event.signature ? (
+                        <span className="badge" data-tone="success">
+                          {uiText("Đã ký {0}", [
+                            dateTime.format(
+                              new Date(event.signature.signed_at),
+                            ),
+                          ])}
+                        </span>
+                      ) : (
+                        <span className="badge" data-tone="warning">
+                          {uiText("Đang chờ chữ ký")}
+                        </span>
+                      )
+                    ) : (
+                      <span className="badge" data-tone="neutral">
+                        {uiText("Không cần ký lại")}
+                      </span>
+                    )}
+                    {workspace.signer &&
+                    event.signature_required &&
+                    !event.signature &&
+                    !event.superseded ? (
+                      <button
+                        className="button"
+                        disabled={locked}
+                        onClick={() => {
+                          setSigningId(event.id);
+                          setSignature("");
+                          hasInk.current = false;
+                          // The pad opens at the top of the main column, away from this panel.
+                          requestAnimationFrame(() =>
+                            document
+                              .getElementById("kho-sign")
+                              ?.scrollIntoView({
+                                block: "start",
+                                behavior: "smooth",
+                              }),
+                          );
+                        }}
+                      >
+                        {uiText("Ký sự kiện #")}
+                        {event.revision}
+                      </button>
+                    ) : null}
                     <details>
-                      <summary>{uiText("Chi tiết kỹ thuật snapshot")}</summary>
-                      <pre style={{ whiteSpace: "pre-wrap" }}>
-                        {JSON.stringify(event.snapshot, null, 2)}
-                      </pre>
+                      <summary>{uiText("Chi tiết")}</summary>
+                      <FulfillmentEventEvidence event={event} />
+                      <details>
+                        <summary>
+                          {uiText("Chi tiết kỹ thuật snapshot")}
+                        </summary>
+                        <pre style={{ whiteSpace: "pre-wrap" }}>
+                          {JSON.stringify(event.snapshot, null, 2)}
+                        </pre>
+                      </details>
                     </details>
-                  </details>
+                  </li>
+                ))}
+                <li className="kho-timeline-pages">
+                  <button
+                    className="button button-secondary"
+                    disabled={busy || page <= 1}
+                    onClick={() => void refresh(page - 1)}
+                  >
+                    {uiText("Lịch sử trước")}
+                  </button>
+                  <button
+                    className="button button-secondary"
+                    disabled={busy || page * 50 >= workspace.event_count}
+                    onClick={() => void refresh(page + 1)}
+                  >
+                    {uiText("Lịch sử tiếp")}
+                  </button>
                 </li>
-              ))}
-              <li className="kho-timeline-pages">
-                <button
-                  className="button button-secondary"
-                  disabled={busy || page <= 1}
-                  onClick={() => void refresh(page - 1)}
-                >
-                  {uiText("Lịch sử trước")}
-                </button>
-                <button
-                  className="button button-secondary"
-                  disabled={busy || page * 50 >= workspace.event_count}
-                  onClick={() => void refresh(page + 1)}
-                >
-                  {uiText("Lịch sử tiếp")}
-                </button>
-              </li>
-            </ol>
-          )}
-        </aside>
-      </div>
+              </ol>
+            )}
+          </aside>
+        </div>
+      )}
     </div>
   );
 }

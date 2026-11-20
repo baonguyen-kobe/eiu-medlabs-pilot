@@ -6,6 +6,7 @@ import {
   changePreparation,
   readPreparation,
 } from "@/app/equipment/preparation/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PreparationAllocations } from "@/components/equipment-preparation-allocations";
 import { PreparationAddedLine } from "@/components/equipment-preparation-added-line";
 import { EquipmentPreparationTransfers } from "@/components/equipment-preparation-transfers";
@@ -77,6 +78,9 @@ export function EquipmentPreparationWorkspace({
   const [prepFilter, setPrepFilter] = useState<"all" | "todo" | "short">("all");
   const [prepQuery, setPrepQuery] = useState("");
   const [openLine, setOpenLine] = useState("");
+  const [confirming, setConfirming] = useState<"confirm" | "reverse" | null>(
+    null,
+  );
   const [sideTab, setSideTab] = useState<"summary" | "history">("summary");
   const attempt = workspace.preparation;
   const prepared = attempt?.state === "prepared";
@@ -513,7 +517,7 @@ export function EquipmentPreparationWorkspace({
               disabled={busy}
               onClick={() => void refresh()}
             >
-              {uiText("Tải phiên bản mới")}
+              {uiText("Làm mới")}
             </button>
           </div>
         </div>
@@ -523,7 +527,7 @@ export function EquipmentPreparationWorkspace({
             ["preparing", "Đã soạn"],
             ["handed_over", "Đã giao"],
             ["returned", "Đã trả"],
-            ["completed", "Hoàn Thành"],
+            ["completed", "Hoàn thành"],
           ].map(([value, label], index) => (
             <li
               key={value}
@@ -703,8 +707,7 @@ export function EquipmentPreparationWorkspace({
                                 <td>
                                   <label className="kho-cell-field">
                                     <span className="sr-only">
-                                      {uiText("SL chuẩn bị trong plan")}:{" "}
-                                      {title}
+                                      {uiText("Số lượng chuẩn bị")}: {title}
                                     </span>
                                     <input
                                       inputMode="numeric"
@@ -887,21 +890,27 @@ export function EquipmentPreparationWorkspace({
                       type="button"
                       className="button"
                       disabled={busy}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "Xác nhận PREPARED: giữ cứng đúng số lượng/tài sản trong plan và gửi thông báo tổng hợp?",
-                          )
-                        )
-                          void command("confirm", {
-                            lock_token: lockToken,
-                            draft_revision: attempt?.revision ?? 1,
-                            plan,
-                          });
-                      }}
+                      onClick={() => setConfirming("confirm")}
                     >
                       {uiText("Xác nhận đã chuẩn bị")}
                     </button>
+                    <ConfirmDialog
+                      open={confirming === "confirm"}
+                      tone="primary"
+                      title="Xác nhận đã chuẩn bị?"
+                      description="Hệ thống sẽ giữ đúng số lượng và thiết bị trong kế hoạch, rồi gửi thông báo."
+                      confirmLabel="Xác nhận đã chuẩn bị"
+                      pending={busy}
+                      onCancel={() => setConfirming(null)}
+                      onConfirm={() => {
+                        setConfirming(null);
+                        void command("confirm", {
+                          lock_token: lockToken,
+                          draft_revision: attempt?.revision ?? 1,
+                          plan,
+                        });
+                      }}
+                    />
                   </div>
                 </div>
               ) : null}
@@ -1145,24 +1154,31 @@ export function EquipmentPreparationWorkspace({
                     </button>
                   ) : null}
                   {attempt?.state !== "reversing" ? (
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      disabled={busy || !reason.trim()}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "Bắt đầu đảo chuẩn bị? Mọi chuyển kho liên quan phải chuyển trả thực tế về nguồn gốc trước khi hoàn tất.",
-                          )
-                        )
+                    <>
+                      <button
+                        type="button"
+                        className="button button-secondary"
+                        disabled={busy || !reason.trim()}
+                        onClick={() => setConfirming("reverse")}
+                      >
+                        {uiText("Bắt đầu đảo chuẩn bị")}
+                      </button>
+                      <ConfirmDialog
+                        open={confirming === "reverse"}
+                        title="Bắt đầu đảo chuẩn bị?"
+                        description="Mọi thiết bị đã chuyển kho phải được trả về nơi cũ trước khi hoàn tất."
+                        confirmLabel="Bắt đầu đảo chuẩn bị"
+                        pending={busy}
+                        onCancel={() => setConfirming(null)}
+                        onConfirm={() => {
+                          setConfirming(null);
                           void command("begin_reversal", {
                             reason,
                             lock_token: lockToken,
                           });
-                      }}
-                    >
-                      {uiText("Bắt đầu đảo chuẩn bị")}
-                    </button>
+                        }}
+                      />
+                    </>
                   ) : (
                     <>
                       <p>

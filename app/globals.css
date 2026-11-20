@@ -124,45 +124,51 @@
 }
 
 .class-registration-table-open {
-  width: 1485px;
-  min-width: 1485px;
+  width: 1171px;
+  min-width: 1171px;
 }
 
 .class-registration-table-mine {
-  width: 1225px;
-  min-width: 1225px;
+  width: 981px;
+  min-width: 981px;
 }
 
 .class-registration-table .class-registration-col-date {
-  width: 178px;
-}
-
-.class-registration-table .class-registration-col-time {
-  width: 285px;
-}
-
-.class-registration-table .class-registration-col-course-code {
-  width: 118px;
-}
-
-.class-registration-table .class-registration-col-course-name {
-  width: 230px;
-}
-
-.class-registration-table .class-registration-col-room {
   width: 140px;
 }
 
+.class-registration-table .class-registration-col-time {
+  width: 245px;
+}
+
+.class-registration-table .class-registration-col-course-code {
+  width: 96px;
+}
+
+.class-registration-table .class-registration-col-course-name {
+  width: 160px;
+}
+
+.class-registration-table .class-registration-col-room {
+  width: 116px;
+}
+
 .class-registration-table .class-registration-col-student-count {
-  width: 126px;
+  width: 84px;
 }
 
 .class-registration-table .class-registration-col-lecturers {
-  width: 260px;
+  width: 190px;
 }
 
 .class-registration-table .class-registration-col-actions {
-  width: 148px;
+  width: 140px;
+}
+
+/* The time column is 245px wide; the editor's own 245px minimum overflowed
+   the 16px cell padding. */
+.class-registration-table .inline-time-editor {
+  min-width: 0;
 }
 
 @media (max-width: 900px) {
@@ -5417,7 +5423,7 @@ select {
 }
 
 .class-registration-table .table-action {
-  width: 210px;
+  width: 140px;
 }
 
 .class-registration-table .row-action-button {
@@ -12725,4 +12731,561 @@ tr[data-open] > :is(th, td) {
   .data-table.records-on-phone .personnel-name {
     min-width: 0;
   }
+}
+/* Sidebar: collapsible groups and work count */
+.nav-group-toggle {
+  width: calc(100% - 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-group-toggle > span:first-child {
+  flex: 1;
+}
+
+.nav-group-chevron {
+  flex: none;
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+
+.nav-group-toggle[aria-expanded="false"] .nav-group-chevron {
+  transform: rotate(0deg);
+}
+
+.nav-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  /* White on gold fails WCAG contrast at 11px. */
+  background: var(--amber-100);
+  color: var(--eiu-blue);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Equipment request list: side panel instead of inline expansion */
+.equipment-request-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.equipment-request-split.has-panel {
+  grid-template-columns: minmax(0, 1fr) min(520px, 42%);
+}
+
+.equipment-request-list-panel:has(.equipment-request-split.has-panel) {
+  overflow: visible;
+}
+
+.equipment-request-list-item.is-selected > tr > td {
+  background: var(--teal-100);
+}
+
+.equipment-request-panel {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.equipment-request-panel-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.equipment-request-panel-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.equipment-request-panel-title h2 {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+}
+
+.equipment-request-panel-title h2 small {
+  color: var(--ink-600);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.equipment-request-list-item-panel {
+  padding: 14px 16px;
+}
+
+@media (max-width: 1100px) {
+  .equipment-request-split.has-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .equipment-request-panel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 80;
+    width: min(560px, 100%);
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: -12px 0 32px rgb(20 64 105 / 18%);
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Request panel: the detail grid was built for a full-width row; in the
+   panel it is one label/value column. With the panel open on a wide screen
+   the list keeps Môn học, Ngày, Thời gian and Trạng thái so it fits. */
+.equipment-request-panel .equipment-request-detail-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.equipment-request-panel .equipment-request-code-detail,
+.equipment-request-panel .equipment-note-detail-row,
+.equipment-request-panel .equipment-list-detail-row {
+  grid-column: 1;
+}
+
+.equipment-request-panel .detail-list > div {
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 1101px) {
+  .equipment-request-split.has-panel .equipment-request-table {
+    min-width: 0;
+  }
+
+  .equipment-request-split.has-panel .equipment-request-table colgroup {
+    display: none;
+  }
+
+  .equipment-request-split.has-panel
+    .equipment-request-table
+    :is(th, td):is(:nth-child(1), :nth-child(5), :nth-child(6), :nth-child(8)) {
+    display: none;
+  }
+}
+
+@media (min-width: 1101px) {
+  .equipment-request-split.has-panel .equipment-request-table .request-status {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* B2-classes: schedule form headings in normal case; class tables keep the
+   action column reachable and read as labelled records on phones. */
+.schedule-form .standard-section-heading {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@media (min-width: 921px) {
+  .class-registration-table td.table-action,
+  .class-registration-table thead th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: -8px 0 8px -8px rgb(0 0 0 / 18%);
+  }
+}
+
+@media (max-width: 920px) {
+  .data-table.records-on-phone td.table-action {
+    display: block;
+  }
+  .data-table.records-on-phone .inline-time-editor {
+    min-width: 0;
+  }
+  .class-registration-table .row-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* B1a-preparation: queue rows, and keep sr-only cells inside the table scroller */
+.kho-scroll {
+  position: relative;
+}
+
+.kho-scroll td,
+.kho-scroll th[scope="row"] {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.prep-queue-head {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prep-queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prep-queue-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.prep-queue-row:last-child {
+  border-bottom: 0;
+}
+
+.prep-queue-row .cell-stack {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+/* B3: personnel action column stays reachable; email table rebalanced; audit/equipment toolbars. */
+@media (min-width: 761px) {
+  .personnel-table th:last-child,
+  .personnel-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: -1px 0 0 var(--line);
+  }
+
+  .personnel-table thead th:last-child {
+    z-index: 3;
+    background: var(--surface-soft);
+  }
+}
+
+.personnel-replace-confirm {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.personnel-replace-confirm input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+}
+
+.email-notification-col-time {
+  width: 11%;
+}
+
+.email-notification-col-recipient {
+  width: 20%;
+}
+
+.email-notification-col-content {
+  width: 30%;
+}
+
+.email-notification-col-status {
+  width: 11%;
+}
+
+.email-notification-col-attempts {
+  width: 6%;
+}
+
+.email-notification-col-error {
+  width: 17%;
+}
+
+.email-notification-col-action {
+  width: 5%;
+}
+
+.email-notification-recipient {
+  overflow-wrap: anywhere;
+}
+
+.email-notification-subject {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 920px) {
+  .email-notification-table {
+    table-layout: auto;
+  }
+}
+
+.equipment-catalog-import .equipment-export-all {
+  width: auto;
+}
+
+.audit-filters {
+  grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(150px, 1fr));
+}
+
+.equipment-scopes-filters {
+  grid-template-columns: minmax(min(100%, 320px), 1fr) auto;
+}
+
+.equipment-scopes-filters .list-filters-actions {
+  grid-column: auto;
+}
+
+@media (max-width: 760px) {
+  .equipment-scopes-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* C2: dashboard todo/KPI links, staff-shift per-day list on phones, always-visible add */
+a.kpi-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.overview-todo > a {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.staff-shift-day-list {
+  display: none;
+}
+
+.staff-shift-empty-action {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .staff-shift-period-calendar,
+  .staff-shift-month-calendar {
+    display: none;
+  }
+
+  .staff-shift-day-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .staff-shift-day {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .staff-shift-day.is-today {
+    border-color: var(--eiu-blue);
+  }
+
+  .staff-shift-day h3 {
+    margin: 0;
+    font-size: 15px;
+  }
+}
+
+/* C1-requests: request chips; Y cơ sở filter row wide enough at 1440 px */
+.equipment-request-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.equipment-request-chip {
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--ink-700);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-weight: 650;
+}
+
+.equipment-request-chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--eiu-blue);
+  border-color: var(--eiu-blue);
+}
+
+.equipment-request-chips small {
+  color: var(--ink-500);
+}
+
+@media (min-width: 1081px) {
+  .basic-medical-registration-filters {
+    grid-template-columns:
+      minmax(200px, 1fr) repeat(2, minmax(210px, 1fr))
+      auto auto auto;
+  }
+
+  .basic-medical-registration-filters .data-search {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+/* C3: request detail side tabs are links (server page), same look as the buttons. */
+.kho-side-tabs a {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-800);
+  text-decoration: none;
+}
+
+.kho-side-tabs a[aria-current="page"] {
+  border-bottom-color: var(--eiu-blue);
+  color: var(--eiu-blue);
+  font-weight: 700;
+}
+
+/* C4-tables: one-row catalog tabs; compact scrolling phone lists. */
+nav.catalog-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+nav.catalog-tabs a {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+@media (max-width: 760px) {
+  .kho-list {
+    max-height: 70vh;
+    overflow: auto;
+  }
+
+  .kho-list .data-table.records-on-phone tr {
+    padding: 4px 0;
+  }
+
+  .kho-list .data-table.records-on-phone td {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 6px;
+    padding: 3px 10px;
+    font-size: 13px;
+  }
+}
+
+/* C6: register form - class facts, sticky submit bar, compact tools row */
+.class-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px 18px;
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--surface-soft);
+  border-radius: 10px;
+}
+
+.class-facts dt {
+  color: var(--ink-500);
+  font-size: 11px;
+}
+
+.class-facts dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.schedule-form footer.form-submit-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  border-top: 1px solid var(--line);
+}
+
+.form-submit-hint {
+  margin: 0;
+  padding: 8px 28px 16px;
+  color: var(--ink-500);
+  font-size: 12px;
+  text-align: right;
+}
+
+.session-count-field input {
+  width: 110px;
+}
+
+.equipment-registration-tools {
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.equipment-registration-tools-heading strong {
+  font-size: 13px;
+}
+
+.equipment-registration-mode > summary.equipment-mode-edit,
+.equipment-registration-mode > summary.equipment-mode-copy {
+  min-height: 34px;
+  color: var(--ink-700, var(--eiu-blue));
+  background: #fff;
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.equipment-registration-mode > summary.equipment-mode-edit:hover,
+.equipment-registration-mode[open] > summary.equipment-mode-edit,
+.equipment-registration-mode > summary.equipment-mode-copy:hover,
+.equipment-registration-mode[open] > summary.equipment-mode-copy {
+  color: var(--eiu-blue);
+  background: #e5edf5;
+  border-color: var(--eiu-blue);
+}
+
+/* C7: Kho small fixes */
+.kho-manage-button {
+  color: var(--ink-600);
+  border-style: dashed;
 }

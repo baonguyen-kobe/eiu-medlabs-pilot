@@ -1,4 +1,5 @@
 import { importsEnabled } from "@/lib/feature-flags";
+import { readAllRows } from "@/lib/supabase/read-all";
 import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import {
   CalendarDays,
@@ -27,6 +28,7 @@ import { LocalizedElement } from "@/components/i18n/localized-element";
 export default async function DashboardPage() {
   const {
     supabase,
+    userId,
     fullName,
     roles,
     roomTypes,
@@ -55,23 +57,27 @@ export default async function DashboardPage() {
   );
 
   const [{ data: schedules, error }, { data: people }] = await Promise.all([
-    supabase
-      .from("class_schedules")
-      .select(
-        `
+    readAllRows((from, to) =>
+      supabase
+        .from("class_schedules")
+        .select(
+          `
         id, schedule_date, start_time, end_time, course_code_snapshot,
         course_name_snapshot, lecturer_id, lecturer_2_id, schedule_status,
         rooms!inner (room_code, building_code, room_type_id),
         equipment_requests (id, status)
       `,
-      )
-      .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
-      .is("basic_medical_registration_id", null)
-      .gte("schedule_date", monthStartText)
-      .lte("schedule_date", queryEndText)
-      .neq("schedule_status", "cancelled")
-      .order("schedule_date")
-      .order("start_time"),
+        )
+        .eq("rooms.room_type_id", NURSING_SKILLS_ROOM_TYPE_ID)
+        .is("basic_medical_registration_id", null)
+        .gte("schedule_date", monthStartText)
+        .lte("schedule_date", queryEndText)
+        .neq("schedule_status", "cancelled")
+        .order("schedule_date")
+        .order("start_time")
+        .order("id")
+        .range(from, to),
+    ),
     supabase.rpc("list_active_people"),
   ]);
   if (error) throw new Error(`Dashboard schedules: ${error.message}`);
@@ -94,7 +100,8 @@ export default async function DashboardPage() {
       schedule_date >= todayText && schedule_date <= upcomingEndText,
   );
   const openClasses = monthClasses.filter(
-    ({ lecturer_id, lecturer_2_id }) => !lecturer_id && !lecturer_2_id,
+    ({ schedule_date, lecturer_id, lecturer_2_id }) =>
+      schedule_date >= todayText && !lecturer_id && !lecturer_2_id,
   );
   const monthClassesWithoutEffectiveEquipmentRequest = monthClasses.filter(
     (schedule) => {
@@ -121,6 +128,38 @@ export default async function DashboardPage() {
           ? "teaching_assistant"
           : "viewer";
   const lecturerView = displayRole === "lecturer";
+  const staffView = displayRole === "admin" || displayRole === "staff";
+  const myUpcomingClasses = upcomingClasses.filter(
+    ({ lecturer_id, lecturer_2_id }) =>
+      lecturer_id === userId || lecturer_2_id === userId,
+  );
+  const todoItems = staffView
+    ? [
+        {
+          href: "/equipment/operations",
+          label: "Phiếu cần chuẩn bị hoặc chờ giao",
+          count: null as number | null,
+        },
+        {
+          href: "/classes/open",
+          label: "Lớp chưa có giảng viên",
+          count: openClasses.length,
+        },
+      ]
+    : lecturerView || displayRole === "teaching_assistant"
+      ? [
+          {
+            href: "/equipment/mine",
+            label: "Phiếu thiết bị chờ ký",
+            count: null as number | null,
+          },
+          {
+            href: "/classes/mine",
+            label: "Lớp sắp dạy trong 7 ngày",
+            count: myUpcomingClasses.length,
+          },
+        ]
+      : [];
 
   return (
     <WorkspaceShell
@@ -163,34 +202,44 @@ export default async function DashboardPage() {
         className="kpi-grid"
         aria-label="Chỉ số tổng quan"
       >
-        <article className="kpi-card kpi-teal">
+        <Link className="kpi-card kpi-teal" href="/class-schedules?view=month">
           <div className="kpi-icon">
             <CalendarDays />
           </div>
           <span>
-            <LocalizedText text={"Tổng lớp học trong tháng"} />
+            <LocalizedText text={"Tổng lớp học"} />
           </span>
           <strong>{monthClasses.length}</strong>
-        </article>
-        <article className="kpi-card kpi-indigo">
+        </Link>
+        <Link
+          className="kpi-card kpi-indigo"
+          href="/class-schedules?view=month"
+        >
           <div className="kpi-icon">
             <GraduationCap />
           </div>
           <span>
-            <LocalizedText text={"Số lớp đã có Giảng viên"} />
+            <LocalizedText text={"Đã có giảng viên"} />
           </span>
-          <strong>{monthClasses.length - openClasses.length}</strong>
-        </article>
-        <article className="kpi-card kpi-amber">
+          <strong>
+            {
+              monthClasses.filter(
+                ({ lecturer_id, lecturer_2_id }) =>
+                  lecturer_id || lecturer_2_id,
+              ).length
+            }
+          </strong>
+        </Link>
+        <Link className="kpi-card kpi-amber" href="/classes/open">
           <div className="kpi-icon">
             <GraduationCap />
           </div>
           <span>
-            <LocalizedText text={"Số lớp chưa có Giảng viên"} />
+            <LocalizedText text={"Chưa có giảng viên"} />
           </span>
           <strong>{openClasses.length}</strong>
-        </article>
-        <article className="kpi-card kpi-violet">
+        </Link>
+        <Link className="kpi-card kpi-violet" href="/equipment/operations">
           <div className="kpi-icon">
             <PackageCheck />
           </div>
@@ -198,8 +247,28 @@ export default async function DashboardPage() {
             <LocalizedText text={"Số lớp chưa đăng ký thiết bị"} />
           </span>
           <strong>{monthClassesWithoutEffectiveEquipmentRequest.length}</strong>
-        </article>
+        </Link>
       </LocalizedElement>
+
+      {todoItems.length ? (
+        <section className="overview-panel">
+          <div className="overview-panel-heading">
+            <h2>
+              <LocalizedText text={"Việc cần làm"} />
+            </h2>
+          </div>
+          <div className="overview-list overview-todo">
+            {todoItems.map(({ href, label, count }) => (
+              <Link key={href} href={href}>
+                <strong>{count ?? ""}</strong>
+                <span>
+                  <LocalizedText text={label} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="overview-grid">
         <article className="overview-panel overview-schedule-panel">

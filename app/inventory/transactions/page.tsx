@@ -23,7 +23,7 @@ export default async function TransactionsPage({
 
   const page = normalizePage(query.page);
   const pageSize = Math.min(
-    Math.max(1, query.page_size ? Number(query.page_size) : TABLE_PAGE_SIZE),
+    Math.max(1, Number(query.page_size) || TABLE_PAGE_SIZE),
     100,
   );
 

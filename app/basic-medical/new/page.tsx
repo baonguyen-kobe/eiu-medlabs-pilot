@@ -110,6 +110,9 @@ function RegistrationModePicker({
         <strong>
           <LocalizedText text={"Thao tác với phiếu đã đăng ký"} />
         </strong>
+        <small className="equipment-registration-tools-hint">
+          <LocalizedText text={"Sửa hoặc sao chép một phiếu đã gửi"} />
+        </small>
         {mode ? (
           <Link className="button button-secondary" href="/basic-medical/new">
             <LocalizedText text={"Đăng ký mới"} />
