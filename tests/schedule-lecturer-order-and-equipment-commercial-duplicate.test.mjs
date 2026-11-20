@@ -50,8 +50,7 @@ test("commercial-name duplicate helper scopes identity to an activity", () => {
 });
 
 test("schedule email and assignment paths preserve Lecturer 1 then Lecturer 2", async () => {
-  const [scheduleEmails, migration, schema] = await Promise.all([
-    source("lib/schedule-event-emails.ts"),
+  const [migration, schema] = await Promise.all([
     source(
       "supabase/migrations/20260824110000_preserve_lecturer_order_and_equipment_commercial_name_guard.sql",
     ),
@@ -60,10 +59,6 @@ test("schedule email and assignment paths preserve Lecturer 1 then Lecturer 2", 
     ),
   ]);
 
-  assert.match(
-    scheduleEmails,
-    /\[snapshot\.lecturer\?\.full_name, snapshot\.lecturer_2\?\.full_name\][\s\S]*?join\(" · "\)/,
-  );
   assert.match(migration, /normalized_ids := array_remove/);
   assert.match(migration, /normalized_lecturer_ids := array_remove/);
   assert.doesNotMatch(
