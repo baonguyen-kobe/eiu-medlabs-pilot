@@ -12883,7 +12883,9 @@ tr[data-open] > :is(th, td) {
     display: none;
   }
 
-  .equipment-request-split.has-panel .equipment-request-table :is(th, td):is(:nth-child(1), :nth-child(5), :nth-child(6), :nth-child(8)) {
+  .equipment-request-split.has-panel
+    .equipment-request-table
+    :is(th, td):is(:nth-child(1), :nth-child(5), :nth-child(6), :nth-child(8)) {
     display: none;
   }
 }
