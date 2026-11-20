@@ -205,7 +205,8 @@ export function NotificationBell() {
                     await markNotificationBeforeNavigation({
                       markRead: () => markRead(notification.id),
                       close: () => setOpen(false),
-                      navigate: notification.href
+                      // Only in-app paths: a stored absolute URL must not take the user off the site.
+                      navigate: /^\/(?!\/)/.test(notification.href ?? "")
                         ? () => router.push(notification.href!)
                         : undefined,
                     });

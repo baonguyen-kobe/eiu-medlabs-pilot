@@ -7,7 +7,6 @@ import {
   getEmailTestRecipient,
   retryEmailNotification,
 } from "@/lib/email-notifications";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 function resultUrl(kind: "notice" | "error", message: string) {
@@ -143,21 +142,31 @@ export async function deleteSelectedEmailNotifications(formData: FormData) {
     redirect(resultUrl("error", "Chỉ Quản trị viên được xóa email thông báo."));
   }
 
-  const admin = createAdminClient();
-  const { data: deletedRows, error } = await admin
-    .from("email_notifications")
-    .delete()
-    .in("id", notificationIds)
-    .select("id");
+  // The RPC keeps sent/processing rows, requires hard-delete authority and writes the audit log.
+  const { data: deletedCount, error } = await supabase.rpc(
+    "admin_delete_email_notifications",
+    { target_ids: notificationIds },
+  );
   if (error) {
-    redirect(resultUrl("error", "Không thể xóa các email đã chọn."));
+    redirect(
+      resultUrl(
+        "error",
+        error.code === "42501"
+          ? "Chỉ Root Admin hoặc người quản lý nhân sự được xóa email thông báo."
+          : "Không thể xóa các email đã chọn.",
+      ),
+    );
   }
 
+  const deleted = Number(deletedCount ?? 0);
+  const kept = notificationIds.length - deleted;
   revalidatePath("/email-notifications");
   redirect(
     resultUrl(
       "notice",
-      `Đã xóa ${(deletedRows ?? []).length} email thông báo.`,
+      kept > 0
+        ? `Đã xóa ${deleted} email thông báo. ${kept} email đã gửi hoặc đang gửi được giữ lại.`
+        : `Đã xóa ${deleted} email thông báo.`,
     ),
   );
 }

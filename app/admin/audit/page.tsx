@@ -77,6 +77,10 @@ const actionLabels: Record<string, string> = {
   "inventory.uom_created": "Thêm đơn vị tính",
   "inventory.uom_updated": "Sửa đơn vị tính",
   "inventory.uom_active_changed": "Bật/tắt đơn vị tính",
+  "basic_medical_session.update_teaching_lecturer":
+    "Đổi giảng viên buổi Y cơ sở",
+  "email_notifications.bulk_deleted": "Xóa email thông báo",
+  "personnel.security_bootstrapped": "Thiết lập quyền gốc",
 };
 
 const entityLabels: Record<string, string> = {

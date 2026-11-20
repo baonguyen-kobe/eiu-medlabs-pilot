@@ -722,6 +722,8 @@ async function deliverNotification(notification: EmailNotification) {
   const appsScriptUrl = process.env.EMAIL_APPS_SCRIPT_URL;
   const appsScriptSecret = process.env.EMAIL_APPS_SCRIPT_SECRET;
   let providerSucceeded = false;
+  // Timeout or an unreadable 2xx reply: Apps Script may have sent it, so never auto-resend.
+  let deliveryUncertain = false;
   let providerMessageId: string | null = null;
 
   try {
@@ -821,9 +823,16 @@ async function deliverNotification(notification: EmailNotification) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...webhookPayload, signature }),
       signal: AbortSignal.timeout(60_000),
+    }).catch((fetchError: unknown) => {
+      deliveryUncertain =
+        fetchError instanceof Error && fetchError.name === "TimeoutError";
+      throw fetchError;
     });
 
-    const result = (await response.json()) as {
+    const result = (await response.json().catch(() => {
+      deliveryUncertain = response.ok;
+      throw new Error(`APPS_SCRIPT_EMAIL_INVALID_RESPONSE_${response.status}`);
+    })) as {
       ok?: boolean;
       messageId?: string;
       error?: string;
@@ -871,11 +880,19 @@ async function deliverNotification(notification: EmailNotification) {
               last_error:
                 "Provider đã gửi; cần đối soát DB, không được gửi lại tự động.",
             }
-          : {
-              status: emailFailureStatus(false),
-              processing_started_at: null,
-              last_error: message,
-            },
+          : deliveryUncertain
+            ? {
+                status: emailFailureStatus(true),
+                processing_started_at: null,
+                acknowledgement_error: message,
+                last_error:
+                  "Không rõ Apps Script đã gửi hay chưa; cần đối soát, không được gửi lại tự động.",
+              }
+            : {
+                status: emailFailureStatus(false),
+                processing_started_at: null,
+                last_error: message,
+              },
       )
       .eq("id", notification.id);
     if (failureUpdateError) {

@@ -154,16 +154,6 @@ export async function createCourse(formData: FormData) {
   catalogRedirect("/admin/courses", "notice", "Đã thêm môn học.");
 }
 
-export async function toggleCourse(formData: FormData) {
-  const { supabase } = await adminContext();
-  const { error } = await supabase.rpc("set_catalog_courses_active", {
-    target_ids: [String(formData.get("id") ?? "")],
-    target_is_active: String(formData.get("active")) === "true",
-  });
-  if (error) throw new Error("CATALOG_UPDATE_FAILED");
-  revalidatePath("/admin/courses");
-}
-
 export async function setRoomsActive(
   targetIds: string[],
   targetIsActive: boolean,
@@ -843,16 +833,6 @@ export async function toggleRoomType(formData: FormData) {
   catalogRedirect("/admin/rooms", "notice", "Đã cập nhật Loại phòng.");
 }
 
-export async function toggleRoom(formData: FormData) {
-  const { supabase } = await adminContext();
-  const { error } = await supabase.rpc("set_catalog_rooms_active", {
-    target_ids: [String(formData.get("id") ?? "")],
-    target_is_active: String(formData.get("active")) === "true",
-  });
-  if (error) throw new Error("CATALOG_UPDATE_FAILED");
-  revalidatePath("/admin/rooms");
-}
-
 export async function deleteRoom(formData: FormData) {
   const { supabase } = await adminContext();
   const { error } = await supabase.rpc("delete_catalog_room", {
@@ -860,24 +840,6 @@ export async function deleteRoom(formData: FormData) {
   });
   if (error) throw new Error("CATALOG_DELETE_BLOCKED");
   revalidatePath("/admin/rooms");
-}
-
-export async function toggleProfile(formData: FormData) {
-  void formData;
-  await personnelContext();
-  personnelRedirect(
-    "error",
-    "Thao tác cũ đã bị vô hiệu hóa. Vui lòng sử dụng drawer Nhân sự.",
-  );
-}
-
-export async function updateUserRole(formData: FormData) {
-  void formData;
-  await personnelContext();
-  personnelRedirect(
-    "error",
-    "Thao tác cũ đã bị vô hiệu hóa. Vui lòng sử dụng drawer Nhân sự.",
-  );
 }
 
 function personnelRedirect(kind: "notice" | "error", message: string): never {
@@ -1509,18 +1471,6 @@ export async function importPersonnel(formData: FormData) {
       error instanceof Error ? error.message : "Không thể đọc file import.",
     );
   }
-}
-
-export async function updatePersonnelScope(formData: FormData) {
-  void formData;
-  await personnelContext();
-  personnelRedirect("error", "Vui lòng cập nhật bằng drawer Nhân sự.");
-}
-
-export async function updatePersonnel(formData: FormData) {
-  void formData;
-  await personnelContext();
-  personnelRedirect("error", "Vui lòng cập nhật bằng drawer Nhân sự.");
 }
 
 export type SavePersonnelResult = {
