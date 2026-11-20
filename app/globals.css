@@ -12760,8 +12760,9 @@ tr[data-open] > :is(th, td) {
   min-width: 20px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: var(--eiu-gold);
-  color: white;
+  /* White on gold fails WCAG contrast at 11px. */
+  background: var(--amber-100);
+  color: var(--eiu-blue);
   font-size: 11px;
   font-weight: 700;
   line-height: 16px;
