@@ -534,9 +534,13 @@ test("template và import danh mục môn học, phòng, thiết bị, nhân s�
         "utf8",
       ),
     });
-    page.once("dialog", (dialog) => dialog.accept());
     await page
       .getByRole("button", { name: "Import tất cả", exact: true })
+      .click();
+    const replaceDialog = page.getByRole("dialog");
+    await replaceDialog.getByRole("textbox").fill("THAY TOÀN BỘ");
+    await replaceDialog
+      .getByRole("button", { name: "Thay toàn bộ", exact: true })
       .click();
     await expect(page).toHaveURL(/\/admin\/personnel\?notice=/);
     await expect(

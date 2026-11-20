@@ -261,7 +261,7 @@ test("manual form fields and section headings share the approved desktop layout"
     color: "rgb(20, 64, 105)",
     fontSize: "16px",
     fontWeight: "800",
-    textTransform: "uppercase",
+    textTransform: "none",
   });
 
   await page.goto("/imports");

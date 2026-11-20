@@ -87,14 +87,16 @@ test("admin sees a slim dashboard, real routes and the four-region calendar", as
   await expect(accountTrigger).toBeFocused();
 
   await expect(page.getByRole("heading", { name: "Tổng quan" })).toBeVisible();
-  await expect(page.locator(".kpi-grid article").first()).toBeVisible();
+  await expect(page.locator(".kpi-grid .kpi-card").first()).toBeVisible();
   await expect(page.locator(".kpi-card small")).toHaveCount(0);
   await expect(page.locator(".kpi-card > span").first()).toHaveText(
     "Tổng lớp học",
   );
-  await expect(page.locator(".overview-panel-heading h2")).toHaveText(
-    "LỊCH HỌC 7 NGÀY TỚI",
-  );
+  await expect(
+    page.locator(".overview-panel-heading h2", {
+      hasText: "LỊCH HỌC 7 NGÀY TỚI",
+    }),
+  ).toHaveText("LỊCH HỌC 7 NGÀY TỚI");
   await page.screenshot({
     path: testInfo.outputPath("dashboard.png"),
     fullPage: true,

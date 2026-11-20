@@ -165,6 +165,12 @@
   width: 140px;
 }
 
+/* The time column is 245px wide; the editor's own 245px minimum overflowed
+   the 16px cell padding. */
+.class-registration-table .inline-time-editor {
+  min-width: 0;
+}
+
 @media (max-width: 900px) {
   .kpi-grid.kpi-grid-three {
     grid-template-columns: 1fr;

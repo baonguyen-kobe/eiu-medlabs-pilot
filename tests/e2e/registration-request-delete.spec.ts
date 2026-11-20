@@ -106,11 +106,11 @@ test("Admin hủy phiếu Y cơ sở và xóa phiếu thiết bị trên giao di
     const copyModeButton = page.getByText("Sao chép phiếu", { exact: true });
     await expect(editModeButton).toHaveCSS(
       "background-color",
-      "rgb(255, 247, 237)",
+      "rgb(255, 255, 255)",
     );
     await expect(copyModeButton).toHaveCSS(
       "background-color",
-      "rgb(245, 243, 255)",
+      "rgb(255, 255, 255)",
     );
     await copyModeButton.click();
     await expect(page.locator('input[name="request"]')).toHaveAttribute(

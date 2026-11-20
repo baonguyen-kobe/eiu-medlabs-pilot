@@ -123,12 +123,14 @@ test("mobile filters, data tables, catalogs and import controls use local scroll
     "display",
     "grid",
   );
+  // Class tables are labelled records on phones now, so they must not need
+  // sideways scrolling.
   const classTable = page.getByRole("region", { name: /Danh sách lớp/ });
   expect(
     await classTable.evaluate(
       (element) => element.scrollWidth > element.clientWidth,
     ),
-  ).toBe(true);
+  ).toBe(false);
 
   await page.goto("/admin/courses");
   await expectNoPageOverflow(page);

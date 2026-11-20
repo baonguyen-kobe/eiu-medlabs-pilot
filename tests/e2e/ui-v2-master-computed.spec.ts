@@ -95,7 +95,10 @@ async function assertTableRightEdge(
       return { right: value.right, width: value.width };
     };
     const style = getComputedStyle(viewport);
+    // Kho lists scroll vertically inside their card; that scrollbar is not table.
+    const scrollbar = viewport.offsetWidth - viewport.clientWidth;
     return {
+      scrollbar,
       shell: rect(shell),
       viewport: rect(viewport),
       table: rect(table),
@@ -131,7 +134,9 @@ async function assertTableRightEdge(
     Math.abs(geometry.shell.right - geometry.viewport.right),
   ).toBeLessThanOrEqual(2);
   expect(
-    Math.abs(geometry.viewport.right - geometry.table.right),
+    Math.abs(
+      geometry.viewport.right - geometry.scrollbar - geometry.table.right,
+    ),
   ).toBeLessThanOrEqual(2);
   expect(
     Math.abs(geometry.table.right - geometry.lastHeader.right),
@@ -1034,7 +1039,7 @@ test("table shells, counters, and catalog action slots retain Master geometry", 
     await assertTableRightEdge(page, {
       shell: ".catalog-data-panel",
       viewport: ".catalog-data-panel .responsive-table",
-      table: ".catalog-data-table",
+      table: ".kho-list .catalog-data-table",
     });
 
     await page.setViewportSize({ width: 390, height: 844 });

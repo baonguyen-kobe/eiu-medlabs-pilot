@@ -119,9 +119,11 @@ test("Chuyên viên ngoài scope không thấy và không mở được thiết 
   page,
 }) => {
   await loginAsStaff(page);
-  await expect(
-    page.getByRole("link", { name: "Danh mục", exact: true }),
-  ).toHaveCount(0);
+  // The single "Danh mục" entry now exists for Kho staff, but must point at the
+  // inventory catalog, never at the Basic Medical one.
+  await expect(page.locator('a[href^="/basic-medical/equipment"]')).toHaveCount(
+    0,
+  );
   await page.goto("/basic-medical/equipment");
   await expect(page).toHaveURL(/\/dashboard$/);
 });
